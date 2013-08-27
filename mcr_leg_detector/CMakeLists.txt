@@ -47,5 +47,5 @@ add_dependencies(leg_detection_node ${PROJECT_NAME}_gencfg)
 
 
 install(DIRECTORY ros/launch/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
