@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>	
+	<node pkg="mcr_leg_detector" type="leg_detector_node" name="mcr_leg_detector" args="$(find mcr_leg_detector)/ros/config/trained_leg_detector.yaml" output="screen"/>
+</launch>
