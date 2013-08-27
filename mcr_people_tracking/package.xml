@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+  <name>mcr_people_tracking</name>
+  <version>0.0.0</version>
+  <description>people tracking in laser scans</description>
+
+  <maintainer email="frederik.hegger@h-brs.de">Frederik Hegger</maintainer>
+
+  <license>GPLv3</license>
+
+  <author email="frederik.hegger@h-brs.de">Frederik Hegger</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>mcr_algorithms</build_depend>
+  <build_depend>mcr_perception_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>pcl</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>opencv2</build_depend>
+
+</package>

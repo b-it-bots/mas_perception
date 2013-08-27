@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+
+	<node pkg="mcr_people_tracking" type="waist_tracking_node" name="mcr_waist_tracking" output="screen">
+		<param name="occlusion_handling_enabled" type="bool" value="true" />
+	</node>
+</launch>
