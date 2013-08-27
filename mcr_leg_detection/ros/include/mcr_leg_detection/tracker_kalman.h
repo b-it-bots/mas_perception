@@ -43,8 +43,8 @@
 #include <bfl/model/linearanalyticmeasurementmodel_gaussianuncertainty.h>
 #include <bfl/pdf/linearanalyticconditionalgaussian.h>
 
-#include "mcr_leg_detector/tracker.h"
-#include "mcr_leg_detector/state_pos_vel.h"
+#include "mcr_leg_detection/tracker.h"
+#include "mcr_leg_detection/state_pos_vel.h"
 
 // TF
 #include <tf/tf.h>
@@ -86,7 +86,7 @@ public:
 
   /// get filter posterior
   virtual void getEstimate(BFL::StatePosVel& est) const;
-  virtual void getEstimate(mcr_leg_detector::PositionMeasurement& est) const;
+  virtual void getEstimate(mcr_leg_detection::PositionMeasurement& est) const;
 
 
 private:

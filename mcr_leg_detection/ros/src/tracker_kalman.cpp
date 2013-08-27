@@ -34,7 +34,7 @@
 
 /* Author: Wim Meeussen */
 
-#include "mcr_leg_detector/tracker_kalman.h"
+#include "mcr_leg_detection/tracker_kalman.h"
 
 using namespace MatrixWrapper;
 using namespace BFL;
@@ -183,7 +183,7 @@ bool TrackerKalman::updateCorrection(const tf::Vector3&  meas, const MatrixWrapp
   };
 
 
-  void TrackerKalman::getEstimate(mcr_leg_detector::PositionMeasurement& est) const
+  void TrackerKalman::getEstimate(mcr_leg_detection::PositionMeasurement& est) const
   {
     ColumnVector tmp = filter_->PostGet()->ExpectedValueGet();
 

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>mcr_leg_detector</name>
+  <name>mcr_leg_detection</name>
   <version>0.0.1</version>
-  <description>leg detector based on laser scan data</description>
+  <description>leg detection based on laser scan data</description>
 
   <maintainer email="frederik.hegger@h-brs.de">Frederik Hegger</maintainer>
 

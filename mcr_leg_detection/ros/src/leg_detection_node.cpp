@@ -51,13 +51,13 @@
 
 #include <mcr_algorithms/geometry/conversions.h>
 
-#include "mcr_leg_detector/PositionMeasurement.h"
-#include "mcr_leg_detector/LegDetectorConfig.h"
-#include "mcr_leg_detector/laser_processor.h"
-#include "mcr_leg_detector/calc_leg_features.h"
-#include "mcr_leg_detector/tracker_kalman.h"
-#include "mcr_leg_detector/state_pos_vel.h"
-#include "mcr_leg_detector/rgb.h"
+#include "mcr_leg_detection/PositionMeasurement.h"
+#include "mcr_leg_detection/LegDetectionConfig.h"
+#include "mcr_leg_detection/laser_processor.h"
+#include "mcr_leg_detection/calc_leg_features.h"
+#include "mcr_leg_detection/tracker_kalman.h"
+#include "mcr_leg_detection/state_pos_vel.h"
+#include "mcr_leg_detection/rgb.h"
 
 
 using namespace std;
@@ -215,7 +215,7 @@ int g_argc;
 char** g_argv;
 
 // actual leg detector node
-class LegDetector
+class LegDetection
 {
  public:
 	NodeHandle nh_;
@@ -238,10 +238,10 @@ class LegDetector
 	message_filters::Subscriber<sensor_msgs::LaserScan> laser_sub_;
 	tf::MessageFilter<sensor_msgs::LaserScan> laser_notifier_;
 
-	dynamic_reconfigure::Server<mcr_leg_detector::LegDetectorConfig> dynamic_reconfig_server_;
-	mcr_leg_detector::LegDetectorConfig dyn_recfg_config_;
+	dynamic_reconfigure::Server<mcr_leg_detection::LegDetectionConfig> dynamic_reconfig_server_;
+	mcr_leg_detection::LegDetectionConfig dyn_recfg_config_;
 
-	LegDetector(ros::NodeHandle nh)
+	LegDetection(ros::NodeHandle nh)
 			: nh_(nh),
 			  mask_count_(0),
 			  connected_thresh_(0.06),
@@ -265,10 +265,10 @@ class LegDetector
 		pub_legs_ = nh_.advertise < mcr_perception_msgs::PersonList > ("leg_positions", 1);
 		pub_visualization_marker_ = nh.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 1);
 
-		laser_notifier_.registerCallback(boost::bind(&LegDetector::laserCallback, this, _1));
+		laser_notifier_.registerCallback(boost::bind(&LegDetection::laserCallback, this, _1));
 		laser_notifier_.setTolerance(ros::Duration(0.01));
 
-		dynamic_reconfig_server_.setCallback(boost::bind(&LegDetector::dynamic_reconfig_callback, this, _1, _2));
+		dynamic_reconfig_server_.setCallback(boost::bind(&LegDetection::dynamic_reconfig_callback, this, _1, _2));
 
 		feature_id_ = 0;
 	}
@@ -310,7 +310,7 @@ class LegDetector
 		pub_visualization_marker_.publish(marker_array);
 	}
 
-	void dynamic_reconfig_callback(mcr_leg_detector::LegDetectorConfig &config, uint32_t level)
+	void dynamic_reconfig_callback(mcr_leg_detection::LegDetectionConfig &config, uint32_t level)
 	{
 	    dyn_recfg_config_ = config;
 	}
@@ -519,11 +519,11 @@ class LegDetector
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "mcr_leg_detector");
+	ros::init(argc, argv, "mcr_leg_detection");
 	g_argc = argc;
 	g_argv = argv;
 	ros::NodeHandle nh("~");
-	LegDetector ld(nh);
+	LegDetection ld(nh);
 
 	ros::ServiceServer srv_start_detection = nh.advertiseService("start", start);
 	ros::ServiceServer srv_stop_detection = nh.advertiseService("stop", stop);

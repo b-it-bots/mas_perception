@@ -32,7 +32,7 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
-#include "mcr_leg_detector/laser_processor.h"
+#include "mcr_leg_detection/laser_processor.h"
 
 #include <stdexcept>
 

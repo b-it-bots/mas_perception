@@ -37,8 +37,8 @@
 #ifndef __TRACKER__
 #define __TRACKER__
 
-#include "mcr_leg_detector/state_pos_vel.h"
-#include "mcr_leg_detector/PositionMeasurement.h"
+#include "mcr_leg_detection/state_pos_vel.h"
+#include "mcr_leg_detection/PositionMeasurement.h"
 
 #include <bfl/wrappers/matrix/matrix_wrapper.h>
 #include <string>
@@ -81,7 +81,7 @@ public:
 
   /// get filter posterior
   virtual void getEstimate(BFL::StatePosVel& est) const = 0;
-  virtual void getEstimate(mcr_leg_detector::PositionMeasurement& est) const = 0;
+  virtual void getEstimate(mcr_leg_detection::PositionMeasurement& est) const = 0;
 
 private:
   std::string name_;
