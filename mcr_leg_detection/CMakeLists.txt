@@ -4,7 +4,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs mess
 find_package(OpenCV)
 
 generate_dynamic_reconfigure_options(
-  ros/config/leg_detection.cfg
+  ros/config/LegDetection.cfg
 )
 
 add_message_files(
