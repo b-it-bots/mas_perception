@@ -19,7 +19,7 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime
+  CATKIN_DEPENDS message_runtime dynamic_reconfigure
 )
 
 include_directories(
