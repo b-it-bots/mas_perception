@@ -30,7 +30,7 @@ include_directories(
 )
 
 add_executable(leg_detection_node 
-  ros/nodes/leg_detector_node.cpp
+  ros/src/leg_detector_node.cpp
   ros/src/laser_processor.cpp
   ros/src/calc_leg_features.cpp
   ros/src/tracker_kalman.cpp
