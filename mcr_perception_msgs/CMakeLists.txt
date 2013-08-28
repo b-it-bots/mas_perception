@@ -11,6 +11,10 @@ add_message_files(
   Face.msg
   FaceList.msg
 )
+
+add_service_files(
+  FILES
+  SetFaceName.srv
 )
 
 generate_messages(
