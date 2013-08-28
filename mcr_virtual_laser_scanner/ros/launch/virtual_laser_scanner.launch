@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="mcr_virtual_laser_scanner" type="virtual_laser_scanner_node" name="mcr_virtual_laser_scanner" output="screen">
+        <remap from="/camera/depth/points" to="/cam3d/depth_registered/points" />
+    </node>
+</launch>
