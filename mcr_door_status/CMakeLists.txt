@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(mcr_door_status)
+
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs std_msgs rosconsole)
+
+
+catkin_package(
+  CATKIN_DEPENDS roscpp sensor_msgs std_msgs rosconsole
+)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
+
+add_executable(door_status_node ros/src/door_status_node.cpp)
+
+target_link_libraries(door_status_node
+   ${catkin_LIBRARIES}
+)
+
+install(TARGETS door_status_node
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
