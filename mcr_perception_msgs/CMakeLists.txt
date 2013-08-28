@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_perception_msgs)
-find_package(catkin REQUIRED roscpp rospy std_msgs geometry_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs message_generation sensor_msgs)
 
 add_message_files(
   FILES
@@ -8,11 +8,15 @@ add_message_files(
   PersonList.msg
   LaserScanSegment.msg
   LaserScanSegmentList.msg
+  Face.msg
+  FaceList.msg
+)
 )
 
 generate_messages(
   DEPENDENCIES
   geometry_msgs
+  sensor_msgs
   std_msgs  
 )
 
