@@ -19,7 +19,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime dynamic_reconfigure
+  CATKIN_DEPENDS message_runtime dynamic_reconfigure mcr_algorithms std_msgs geometry_msgs
 )
 
 include_directories(
@@ -35,6 +35,7 @@ add_executable(leg_detection_node
   ros/src/calc_leg_features.cpp
   ros/src/tracker_kalman.cpp
 )
+add_dependencies(leg_detection_node ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(leg_detection_node 
   ${catkin_LIBRARIES}
@@ -42,9 +43,6 @@ target_link_libraries(leg_detection_node
   /opt/ros/groovy/lib/liborocos-bfl.so
   
 )
-
-add_dependencies(leg_detection_node ${PROJECT_NAME}_gencfg) 
-
 
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch

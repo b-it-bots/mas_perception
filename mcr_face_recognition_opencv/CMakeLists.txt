@@ -4,7 +4,9 @@ project(mcr_face_recognition_opencv)
 find_package(catkin REQUIRED roscpp libface mcr_perception_msgs mcr_common_msgs cv_bridge)
 find_package(OpenCV REQUIRED)
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS libface mcr_perception_msgs mcr_common_msgs
+)
 
 include_directories(
   ros/include
@@ -15,10 +17,7 @@ add_executable(face_recognition_node
   ros/src/face_recognition_node.cpp
   ros/src/face_recognition.cpp
 )
-add_dependencies(face_recognition_node
-    mcr_perception_msgs_gencpp
-    mcr_common_msgs_gencpp
-)
+add_dependencies(face_recognition_node ${catkin_EXPORTED_TARGETS} libface)
 
 target_link_libraries(face_recognition_node
   ${catkin_LIBRARIES}
