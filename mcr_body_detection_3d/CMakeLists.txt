@@ -59,4 +59,5 @@ install(FILES ros/config/body_detection_model.mdl
 add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
 target_link_libraries(integration_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(tests integration_test)
+add_dependencies(integration_test body_detection_3d_node)
 add_rostest(ros/test/integration.test)
