@@ -3,7 +3,6 @@ project(mcr_door_status)
 
 find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs std_msgs rosconsole)
 
-
 catkin_package(
   CATKIN_DEPENDS roscpp sensor_msgs std_msgs rosconsole
 )
@@ -19,7 +18,5 @@ target_link_libraries(door_status_node
 )
 
 install(TARGETS door_status_node
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
