@@ -35,7 +35,7 @@ add_executable(leg_detection_node
   ros/src/calc_leg_features.cpp
   ros/src/tracker_kalman.cpp
 )
-add_dependencies(leg_detection_node ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
+add_dependencies(leg_detection_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_gencpp ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(leg_detection_node 
   ${catkin_LIBRARIES}
