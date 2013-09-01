@@ -4,10 +4,15 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs mess
 
 add_message_files(
   FILES
+  BoundingBox.msg
+  BoundingBoxList.msg
   Person.msg
   PersonList.msg
   LaserScanSegment.msg
   LaserScanSegmentList.msg
+  Object.msg
+  ObjectList.msg
+  Plane.msg
   Face.msg
   FaceList.msg
 )
@@ -16,6 +21,7 @@ add_service_files(
   FILES
   SetFaceName.srv
   GetPersonList.srv
+  GetObjectList.srv
 )
 
 generate_messages(
