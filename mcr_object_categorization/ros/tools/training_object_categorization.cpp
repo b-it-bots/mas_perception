@@ -52,7 +52,7 @@
 #define LEARN_NEW_CAT 0
 int newClassLabel = NUM_CLASSES;
 
-std::string nodeName("hbrs_object_categorization_geometric");
+std::string nodeName("mcr_object_categorization_geometric");
 ros::Publisher markerObjectCategorizationGeometricPublisher;
 ros::Publisher testPublisher;
 ros::Publisher pointCloudCategorizationGeometricPublisher;
