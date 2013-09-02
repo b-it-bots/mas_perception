@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_face_recognition_opencv)
 
-find_package(catkin REQUIRED roscpp libface mcr_perception_msgs mcr_common_msgs cv_bridge)
+find_package(catkin REQUIRED COMPONENTS roscpp libface mcr_perception_msgs mcr_common_msgs cv_bridge)
 find_package(OpenCV REQUIRED)
 
 catkin_package(
