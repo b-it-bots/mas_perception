@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package>
+  <name>mcr_text_extraction</name>
+  <version>0.0.1</version>
+  <description>Active text extration with a zoomable RGB camera</description>
+
+  <maintainer email="frederik.hegger@h-brs.de">Frederik Hegger</maintainer>
+
+  <license>GPLv3</license>
+
+  <author email="jose.alvarez@smail.inf.h-brs.de">Jose Antonio Alvarez Ruiz</author> 
+  
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>libsvm</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>opencv2</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+ 
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>libsvm</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>std_srvs</run_depend>
+  
+</package>
