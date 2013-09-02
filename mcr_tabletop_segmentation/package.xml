@@ -16,7 +16,7 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>image_transport</build_depend>
   <build_depend>mcr_perception_msgs</build_depend>
-  <!-- build_depend>object_manipulation_msgs</build_depend> -->
+  <!-- build_depend>object_manipulation_msgs</build_depend> --> <!-- not yet catkinized -->
   <build_depend>opencv2</build_depend>
   <build_depend>pcl</build_depend>
   <build_depend>pcl_ros</build_depend>
@@ -28,7 +28,7 @@
   <run_depend>geometry_msgs</run_depend>
   <run_depend>mcr_perception_msgs</run_depend>
   <run_depend>object_manipulator</run_depend>
-  <!-- <run_depend>object_manipulation_msgs</run_depend> -->
+  <!-- <run_depend>object_manipulation_msgs</run_depend> --> <!-- not yet catkinized -->
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_srvs</run_depend>
   
