@@ -131,7 +131,7 @@ FaceRecognition::FaceRecognition()
 	L1Image = NULL;
 	L1ImageData = NULL;
 	LastImageSize = 0;
-	storagePath = "C:\\RoboCupAtHome\\brsu_perception\\brsu_face_recognition\\face_database\\";
+	storagePath = "C:\\RoboCupAtHome\\mcr_perception\\mcr_face_recognition_l1_identity\\common\\face_database\\";
 	learnNewFace = false;
 	storeFaceToFile = false;
 	doFaceRecognition = false;
@@ -755,7 +755,7 @@ int main(int argc, char **argv)
 		//set ros ip
 		//	ros::network::setHost("cob3-1-pc3");
 
-		ros::init(argc, argv, "brsu_face_recognition");
+		ros::init(argc, argv, "mcr_face_recognition");
 
 		FaceRecognition faceRec;
 		ROS_INFO("Face Recognition started");

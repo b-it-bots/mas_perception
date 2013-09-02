@@ -80,8 +80,6 @@ int finalBestObjectsCentroidMsg;
 
 std::map<std::string, double> known_objects;
 
-std::string database_path = "/home/b-it-bots/RoboCupAtHome/brsu_perception/brsu_object_finder/database/";
-
 #define KINECT_MAX_TILT (30)
 #define KINECT_MIN_TILT (-30)
 

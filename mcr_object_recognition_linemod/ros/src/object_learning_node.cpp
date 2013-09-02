@@ -228,7 +228,7 @@ int main(int argc, char **argv)
 	string input_depth = "/cam3d/depth_registered/image_rect_raw";
 	int matching_threshold = 88.0f;
 	/* init ROS node with a name and a node handle*/
-	ros::init(argc, argv, "brsu_object_learning");
+	ros::init(argc, argv, "mcr_object_learning");
 	ros::NodeHandle nh("~");
 
 	if (nh.getParam("filename", filename) == false)
