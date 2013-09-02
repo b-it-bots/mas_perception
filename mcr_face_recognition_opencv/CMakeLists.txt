@@ -1,11 +1,21 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_face_recognition_opencv)
 
-find_package(catkin REQUIRED COMPONENTS roscpp libface mcr_perception_msgs mcr_common_msgs cv_bridge)
+find_package(catkin REQUIRED
+  COMPONENTS
+    cv_bridge
+    libface
+    mcr_perception_msgs
+    mcr_common_msgs
+    roscpp
+)
 find_package(OpenCV REQUIRED)
 
 catkin_package(
-  CATKIN_DEPENDS libface mcr_perception_msgs mcr_common_msgs
+  CATKIN_DEPENDS
+    libface
+    mcr_perception_msgs
+    mcr_common_msgs
 )
 
 include_directories(
@@ -17,7 +27,9 @@ add_executable(face_recognition_node
   ros/src/face_recognition_node.cpp
   ros/src/face_recognition.cpp
 )
-add_dependencies(face_recognition_node ${catkin_EXPORTED_TARGETS} libface)
+add_dependencies(face_recognition_node
+  ${catkin_EXPORTED_TARGETS}
+)
 
 target_link_libraries(face_recognition_node
   ${catkin_LIBRARIES}
