@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="mcr_object_categorization" type="object_categorization_node" name="mcr_object_categorization" respawn="false" output="screen">
+		<param name="home_path" value="$(find mcr_object_categorization)" />
+		<remap from="/mcr_object_categorization/object_candidates" to="/brsu_object_recognition/detected_objects" />
+		<remap from="/mcr_object_categorization/visualization_marker_array" to="/visualization_marker_array" />								
+  </node>
+</launch>
