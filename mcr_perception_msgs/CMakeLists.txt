@@ -13,15 +13,20 @@ add_message_files(
   Object.msg
   ObjectList.msg
   Plane.msg
+  PlanarPolygon.msg
   Face.msg
   FaceList.msg
 )
 
 add_service_files(
   FILES
-  SetFaceName.srv
+  AccumulateTabletopCloud.srv
+  ClusterTabletopCloud.srv
+  FindWorkspace.srv
   GetPersonList.srv
   GetObjectList.srv
+  MakeBoundingBoxes.srv
+  SetFaceName.srv
 )
 
 generate_messages(
