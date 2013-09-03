@@ -6,7 +6,6 @@ find_package(catkin REQUIRED
     cv_bridge
     libface
     mcr_perception_msgs
-    mcr_common_msgs
     roscpp
 )
 find_package(OpenCV REQUIRED)
@@ -15,7 +14,6 @@ catkin_package(
   CATKIN_DEPENDS
     libface
     mcr_perception_msgs
-    mcr_common_msgs
 )
 
 include_directories(

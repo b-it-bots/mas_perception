@@ -13,7 +13,7 @@
 #include <std_srvs/Empty.h>
 #include <mcr_perception_msgs/FaceList.h>
 #include <mcr_perception_msgs/SetFaceName.h>
-#include <mcr_common_msgs/ReturnString.h>
+#include <mcr_perception_msgs/GetFaceName.h>
 #include <cv_bridge/cv_bridge.h>
 
 // Package includes
@@ -30,7 +30,7 @@ class FaceRecognition
 	bool learnFace(mcr_perception_msgs::SetFaceName::Request& name, mcr_perception_msgs::SetFaceName::Response& success);
 	bool storeFace(mcr_perception_msgs::SetFaceName::Request& name, mcr_perception_msgs::SetFaceName::Response& success);
 	bool loadFace(mcr_perception_msgs::SetFaceName::Request& name, mcr_perception_msgs::SetFaceName::Response& success);
-	bool getLastFaceName(mcr_common_msgs::ReturnString::Request& request, mcr_common_msgs::ReturnString::Response& name);
+	bool getLastFaceName(mcr_perception_msgs::GetFaceName::Request& request, mcr_perception_msgs::GetFaceName::Response& name);
 	IplImage *convertRosImageToIplImage(const sensor_msgs::Image::ConstPtr &msg);
 	void localizeFaces(const sensor_msgs::Image::ConstPtr& camImageROS);
 	void addIdRecordsToGallery(const std::string &personName, std::vector<libface::Face> &detectedFaces);

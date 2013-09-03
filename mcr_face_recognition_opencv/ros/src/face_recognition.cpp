@@ -76,7 +76,7 @@ bool FaceRecognition::stopFaceRecognition(std_srvs::Empty::Request& request, std
 	return true;
 }
 
-bool FaceRecognition::getLastFaceName(mcr_common_msgs::ReturnString::Request& request, mcr_common_msgs::ReturnString::Response& name)
+bool FaceRecognition::getLastFaceName(mcr_perception_msgs::GetFaceName::Request& request, mcr_perception_msgs::GetFaceName::Response& name)
 {
 	name.value = this->_lastRecognizedFaceName;
 	ROS_INFO("get Last Face Name");

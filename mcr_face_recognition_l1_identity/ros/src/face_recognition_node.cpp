@@ -7,8 +7,7 @@
 #include <mcr_perception_msgs/Face.h>
 #include <mcr_perception_msgs/FaceList.h>
 #include <mcr_perception_msgs/SetFaceName.h>
-#include <mcr_common_msgs/ReturnBool.h>
-#include <mcr_common_msgs/ReturnString.h>
+#include <mcr_perception_msgs/GetFaceName.h>
 
 #include <IdentityTOOLS_SDK/visgException.h>
 #include <IdentityTOOLS_SDK/Id.h>
@@ -80,7 +79,7 @@ class FaceRecognition
 	bool learnFace(mcr_perception_msgs::SetFaceName::Request& name, mcr_perception_msgs::SetFaceName::Response& success);
 	bool storeFace(mcr_perception_msgs::SetFaceName::Request& name, mcr_perception_msgs::SetFaceName::Response& success);
 	bool loadFace(mcr_perception_msgs::SetFaceName::Request& name, mcr_perception_msgs::SetFaceName::Response& success);
-	bool getLastFaceName(mcr_common_msgs::ReturnString::Request& request, mcr_common_msgs::ReturnString::Response& name);
+	bool getLastFaceName(mcr_perception_msgs::GetFaceName::Request& request, mcr_perception_msgs::GetFaceName::Response& name);
 	void localizeFaces(const sensor_msgs::Image::ConstPtr& camImageROS);
 	visg::idt::Image* convertROSImageToL1Image(const sensor_msgs::Image& ROSImage);
 	void convertL1ImageToROSImage(sensor_msgs::Image& ROSImage, const visg::idt::Image& L1Image);
@@ -213,7 +212,7 @@ bool FaceRecognition::stopFaceRecognition(std_srvs::Empty::Request& request, std
 	return true;
 }
 
-bool FaceRecognition::getLastFaceName(mcr_common_msgs::ReturnString::Request& request, mcr_common_msgs::ReturnString::Response& name)
+bool FaceRecognition::getLastFaceName(mcr_perception_msgs::GetFaceName::Request& request, mcr_perception_msgs::GetFaceName::Response& name)
 {
 	name.value = this->lastRecognizedFaceName;
 	ROS_INFO("get Last Face Name");

@@ -3,7 +3,6 @@ project(mcr_face_recognition_l1_identity)
 
 find_package(catkin REQUIRED
   COMPONENTS
-    mcr_common_msgs
     mcr_perception_msgs
     roscpp
     sensor_msgs
@@ -14,7 +13,6 @@ find_package(catkin REQUIRED
 
 catkin_package(
   CATKIN_DEPENDS 
-    mcr_common_msgs
     mcr_perception_msgs
     sensor_msgs
     std_msgs
