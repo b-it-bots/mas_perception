@@ -5,7 +5,6 @@ find_package(catkin REQUIRED
   COMPONENTS
     cv_bridge
     image_transport
-    mcr_common_msgs
     mcr_perception_msgs
     roscpp
     sensor_msgs
@@ -15,7 +14,6 @@ find_package(OpenCV REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS 
-    mcr_common_msgs 
     mcr_perception_msgs 
     sensor_msgs 
     std_msgs

@@ -1,19 +1,20 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <sensor_msgs/Image.h>
-#include <mcr_perception_msgs/FaceList.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-
 #include <image_transport/image_transport.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+
 #include <math.h>
+
+#include <mcr_perception_msgs/GetFacialExpression.h>
+#include <mcr_perception_msgs/FaceList.h>
+
 #include "fer_live_2d_gabor_filters.cpp"
-#include <mcr_common_msgs/ReturnString.h>
 
 namespace enc = sensor_msgs::image_encodings;
 
@@ -50,7 +51,7 @@ class FacialExpressionNode
 		//cvNamedWindow("Image window");
 	}
 
-	bool recognizeExpression(mcr_common_msgs::ReturnString::Request& request, mcr_common_msgs::ReturnString::Response& response)
+	bool recognizeExpression(mcr_perception_msgs::GetFacialExpression::Request& request, mcr_perception_msgs::GetFacialExpression::Response& response)
 	{
 		response.value = expressionLabel.data;
 		return true;

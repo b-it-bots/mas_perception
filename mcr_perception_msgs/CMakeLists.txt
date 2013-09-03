@@ -34,6 +34,7 @@ add_service_files(
   FindWorkspace.srv
   GetPersonList.srv
   GetObjectList.srv
+  GetFacialExpression.srv
   GetNearestObject.srv
   MakeBoundingBoxes.srv
   SetFaceName.srv
