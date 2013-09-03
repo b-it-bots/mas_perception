@@ -17,6 +17,12 @@ target_link_libraries(door_status_node
    ${catkin_LIBRARIES}
 )
 
+add_executable(door_status_node_mockup ros/src/door_status_node_mockup.cpp)
+
+target_link_libraries(door_status_node_mockup
+   ${catkin_LIBRARIES}
+)
+
 install(TARGETS door_status_node
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
