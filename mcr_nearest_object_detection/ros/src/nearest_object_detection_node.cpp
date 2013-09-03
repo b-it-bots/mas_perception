@@ -22,7 +22,7 @@
 #include <mcr_algorithms/geometry/conversions.h>
 #include <mcr_algorithms/wrapper/pcl_wrapper.hpp>
 
-#include <mcr_common_msgs/GetPose.h>
+#include <mcr_perception_msgs/GetNearestObject.h>
 #include <mcr_perception_msgs/LaserScanSegmentList.h>
 
 
@@ -182,7 +182,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_msg)
 
 }
 
-bool getNearestObject(mcr_common_msgs::GetPose::Request &req, mcr_common_msgs::GetPose::Response &res)
+bool getNearestObject(mcr_perception_msgs::GetNearestObject::Request &req, mcr_perception_msgs::GetNearestObject::Response &res)
 {
 	// if not subscribe to laser scan topic, do it
 	if (!subscribed_to_topic)

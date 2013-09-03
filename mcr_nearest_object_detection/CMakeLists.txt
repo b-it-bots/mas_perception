@@ -6,7 +6,6 @@ find_package(catkin REQUIRED
     geometry_msgs
     #laser_filters    # not yet catkinized
     mcr_algorithms
-    mcr_common_msgs
     roscpp
     sensor_msgs
     std_srvs
@@ -23,7 +22,6 @@ catkin_package(
   CATKIN_DEPENDS 
     geometry_msgs
     mcr_algorithms
-    mcr_common_msgs
     sensor_msgs
     std_srvs
     visualization_msgs
