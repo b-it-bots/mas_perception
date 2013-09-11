@@ -30,6 +30,7 @@ add_message_files(
 add_service_files(
   FILES
   AccumulateTabletopCloud.srv
+  BaseScanLinearRegression.srv
   ClusterTabletopCloud.srv
   FindWorkspace.srv
   GetPersonList.srv
