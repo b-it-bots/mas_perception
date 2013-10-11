@@ -13,40 +13,40 @@ find_package(catkin REQUIRED
 
 add_message_files(
   FILES
-  BoundingBox.msg
-  BoundingBoxList.msg
-  Face.msg
-  FaceList.msg
-  LaserScanSegment.msg
-  LaserScanSegmentList.msg
-  Object.msg
-  ObjectList.msg
-  Person.msg
-  PersonList.msg
-  Plane.msg
-  PlanarPolygon.msg
+    BoundingBox.msg
+    BoundingBoxList.msg
+    Face.msg
+    FaceList.msg
+    LaserScanSegment.msg
+    LaserScanSegmentList.msg
+    Object.msg
+    ObjectList.msg
+    Person.msg
+    PersonList.msg
+    Plane.msg
+    PlanarPolygon.msg
 )
 
 add_service_files(
   FILES
-  AccumulateTabletopCloud.srv
-  BaseScanLinearRegression.srv
-  ClusterTabletopCloud.srv
-  FindWorkspace.srv
-  GetPersonList.srv
-  GetObjectList.srv
-  GetFaceName.srv
-  GetFacialExpression.srv
-  GetNearestObject.srv
-  MakeBoundingBoxes.srv
-  SetFaceName.srv
+    AccumulateTabletopCloud.srv
+    BaseScanLinearRegression.srv
+    ClusterTabletopCloud.srv
+    FindWorkspace.srv
+    GetPersonList.srv
+    GetObjectList.srv
+    GetFaceName.srv
+    GetFacialExpression.srv
+    GetNearestObject.srv
+    MakeBoundingBoxes.srv
+    SetFaceName.srv
 )
 
 generate_messages(
   DEPENDENCIES
-  geometry_msgs
-  sensor_msgs
-  std_msgs  
+    geometry_msgs
+    sensor_msgs
+    std_msgs  
 )
 
 catkin_package(
