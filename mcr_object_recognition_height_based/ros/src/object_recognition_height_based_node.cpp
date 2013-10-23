@@ -11,6 +11,8 @@
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
 
 #include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <std_srvs/Empty.h>
@@ -278,7 +280,8 @@ void objectCandidateExtractionCallback(const sensor_msgs::PointCloud2::ConstPtr&
 							//std::cout << "closest: " << closest_name << " height: " << closest_height << std::endl;
 
 							mcr_perception_msgs::Object out;  // Our output msg
-							out.pose.header = clusteredObjects[iterObject].header;
+
+							pcl_conversions::fromPCL(clusteredObjects[iterObject].header, out.pose.header);
 
 							out.name = closest_name;
 

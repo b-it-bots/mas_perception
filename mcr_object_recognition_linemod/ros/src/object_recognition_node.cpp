@@ -48,6 +48,7 @@
 #include <pcl/common/common_headers.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <dynamic_reconfigure/server.h>
 
 #include <mcr_object_recognition_linemod/ObjectRecognitionLinemodConfig.h>
@@ -293,8 +294,8 @@ bool getObjects(mcr_perception_msgs::GetObjectList::Request &req, mcr_perception
 
 				if (object_2d_list.size() > 0)
 				{
-					const_output_cloud.header.frame_id = const_input_cloud->header.frame_id;
-					const_output_cloud.header.stamp = const_input_cloud->header.stamp;
+					pcl_conversions::toPCL(const_input_cloud->header, const_output_cloud.header);
+
 					sensor_msgs::PointCloud2 out_msg;
 					pcl::toROSMsg(const_output_cloud, out_msg);
 					pub_scan.publish(out_msg);

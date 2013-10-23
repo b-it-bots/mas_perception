@@ -31,6 +31,8 @@
 #include <pcl/filters/project_inliers.h>
 #include <pcl/registration/transforms.h>
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include <visualization_msgs/Marker.h>
 #include <tf/transform_broadcaster.h>
 

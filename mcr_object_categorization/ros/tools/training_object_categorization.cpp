@@ -35,6 +35,8 @@
 #include <pcl/common/common_headers.h>
 #include <pcl/range_image/range_image.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include <tf/transform_listener.h>
 #include <visualization_msgs/MarkerArray.h>
 
@@ -549,7 +551,7 @@ void pointCloudVectorTrackingCallback(const mcr_perception_msgs::ObjectListPtr& 
 			observedObjectID.push_back(trackObjects(pointCloud));
 
 			pcl::toROSMsg(trackedObjects.centroidsPCD, pointCloudMsg); //this is currently the surface
-			pointCloudMsg.header = pointCloud.header;
+			pcl_conversions::fromPCL(pointCloud.header, pointCloudMsg.header);
 			pointCloudMsg.header.frame_id = "/world"; //totalColoredPointCloud.header.frame_id;
 			pointCloudMsg.header.stamp = ros::Time::now();
 			testPublisher.publish(pointCloudMsg);

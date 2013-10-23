@@ -23,6 +23,7 @@
 #include <mcr_perception_msgs/Person.h>
 #include <fstream>
 #include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <ros/ros.h>
 #include <tf/transform_datatypes.h>
 
@@ -437,7 +438,9 @@ void BodyDetection3D::classify3DSegment(const std::vector<Segment3D, Eigen::alig
 		// establish person message and add it to the person list
 		mcr_perception_msgs::Person person;
 
-		classified_persons.header = person.header = person.pose.header = clustered_3d_segments[i].pcl_cloud.header;
+		pcl_conversions::fromPCL(clustered_3d_segments[i].pcl_cloud.header, classified_persons.header);
+		classified_persons.header = person.header = person.pose.header;
+
 		person.pose.pose.position.x = centroid[0];
 		person.pose.pose.position.y = centroid[1];
 		person.pose.pose.position.z = centroid[2];

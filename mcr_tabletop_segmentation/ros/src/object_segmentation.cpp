@@ -1,5 +1,7 @@
 #include "object_segmentation.h"
+
 #include <mcr_perception_msgs/ObjectList.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 ObjectSegmentation::ObjectSegmentation()
 {
@@ -201,7 +203,9 @@ geometry_msgs::PoseStamped ObjectSegmentation::ExtractCentroid(pcl::PointCloud<p
 	pcl::PointXYZ centroid = _tool_box.pointCloudCentroid(object);
 
 	geometry_msgs::PoseStamped pose;
-	pose.header = object.header;
+
+	pcl_conversions::fromPCL(object.header, pose.header);
+
 	pose.pose.position.x = centroid.x;
 	pose.pose.position.y = centroid.y;
 	pose.pose.position.z = centroid.z;
@@ -215,11 +219,9 @@ geometry_msgs::PoseStamped ObjectSegmentation::ExtractCentroid(pcl::PointCloud<p
 
 IplImage *ObjectSegmentation::ClusterToImage(sensor_msgs::PointCloud2::ConstPtr &cluster)
 {
-	pcl::PointCloud < pcl::PointXYZRGB > pcl_cloud;
-	pcl::fromROSMsg(*cluster, pcl_cloud);
-
+  sensor_msgs::PointCloud2 tmp_cluster = *cluster;
 	sensor_msgs::ImagePtr received_image(new sensor_msgs::Image());
-	pcl::toROSMsg(pcl_cloud, *received_image);
+	pcl::toROSMsg(tmp_cluster, *received_image);
 
 	_cv_img = cv_bridge::toCvCopy(received_image, "rgb8");
 	_ipl_img = _cv_img->image;
