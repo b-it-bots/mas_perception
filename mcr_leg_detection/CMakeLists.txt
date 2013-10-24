@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_leg_detection)
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs message_generation dynamic_reconfigure mcr_algorithms message_filters tf)
-find_package(OpenCV)
+find_package(OpenCV REQUIRED)
+
+# bfl (Bayesian Filtering Library) is a third party package that uses pkg-config
+find_package(PkgConfig)
+pkg_check_modules(BFL REQUIRED orocos-bfl)
 
 generate_dynamic_reconfigure_options(
   ros/config/LegDetection.cfg
@@ -27,7 +31,13 @@ include_directories(
   cfg/cpp/
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${BFL_INCLUDE_DIRS}
 )
+
+link_directories(
+  ${BFL_LIBRARY_DIRS}
+)
+
 
 add_executable(leg_detection_node 
   ros/src/leg_detection_node.cpp
@@ -39,11 +49,11 @@ add_dependencies(leg_detection_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_gencp
 
 target_link_libraries(leg_detection_node 
   ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}   
-  /opt/ros/groovy/lib/liborocos-bfl.so
-  
+  ${OpenCV_LIBRARIES}
+  ${BFL_LIBRARIES}
 )
 
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
+find_package(OpenCV)
