@@ -3,7 +3,7 @@
 #include <ros/topic.h>
 #include <sensor_msgs/PointCloud2.h>
 
-#include <pcl/ros/conversions.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <mcr_perception_msgs/MakeBoundingBoxes.h>
 #include <mcr_perception_msgs/BoundingBox.h>
