@@ -3,6 +3,11 @@
 
 #include <sensor_msgs/PointCloud2.h>
 
+#include <pcl_conversions/pcl_conversions.h>
+
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
+
 namespace mcr
 {
 
@@ -42,8 +47,11 @@ void ClusteredPointCloudVisualizer::publish(const std::vector<typename pcl::Poin
   composite.header.frame_id = frame_id;
   composite.width = composite.points.size();
   composite.height = 1;
+
+  pcl::PCLPointCloud2 pc2;
   sensor_msgs::PointCloud2 cloud_msg;
-  pcl::toROSMsg(composite, cloud_msg);
+  pcl::toPCLPointCloud2(composite, pc2);
+  pcl_conversions::fromPCL(pc2, cloud_msg);
   cloud_publisher_.publish(cloud_msg);
 }
 

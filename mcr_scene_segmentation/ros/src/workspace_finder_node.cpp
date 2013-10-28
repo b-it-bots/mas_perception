@@ -1,8 +1,11 @@
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <ros/topic.h>
-#include <sensor_msgs/PointCloud2.h>
 
+#include <pcl_conversions/pcl_conversions.h>
+
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
 #include <pcl/filters/passthrough.h>
 
 #include <mcr_perception_msgs/FindWorkspace.h>
@@ -69,7 +72,9 @@ private:
     // Prepare point cloud: convert from ROS message and run pasthrough filter.
     PointCloud::Ptr cloud(new PointCloud);
     PointCloud::Ptr cloud_filtered(new PointCloud);
-    pcl::fromROSMsg(*ros_cloud, *cloud);
+    pcl::PCLPointCloud2 pc2;
+    pcl_conversions::toPCL(*ros_cloud, pc2);
+    pcl::fromPCLPointCloud2(pc2, *cloud);
     pass_through_->setInputCloud(cloud);
     pass_through_->filter(*cloud_filtered);
 

@@ -1,7 +1,10 @@
 #include <ros/ros.h>
 #include <ros/console.h>
-#include <sensor_msgs/PointCloud2.h>
 
+#include <pcl_conversions/pcl_conversions.h>
+
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
 
 #include <mcr_perception_msgs/AccumulateTabletopCloud.h>
@@ -70,9 +73,12 @@ private:
     // Pack the response
     PointCloud cloud;
     cloud.header.frame_id = frame_id_;
-    cloud.header.stamp = ros::Time::now();
     ca_->getAccumulatedCloud(cloud);
-    pcl::toROSMsg(cloud, response.cloud);
+
+    pcl::PCLPointCloud2 pc2;
+    pcl::toPCLPointCloud2(cloud, pc2);
+    pcl_conversions::fromPCL(pc2, response.cloud);
+    response.cloud.header.stamp = ros::Time::now();
 
     // Forward to the "accumulated_cloud" topic (if there are subscribers)
     if (accumulated_cloud_publisher_.getNumSubscribers())
@@ -84,7 +90,9 @@ private:
   void cloudCallback(const sensor_msgs::PointCloud2::ConstPtr &ros_cloud)
   {
     PointCloud::Ptr cloud(new PointCloud);
-    pcl::fromROSMsg(*ros_cloud, *cloud);
+    pcl::PCLPointCloud2 pc2;
+    pcl_conversions::toPCL(*ros_cloud, pc2);
+    pcl::fromPCLPointCloud2(pc2, *cloud);
     frame_id_ = ros_cloud->header.frame_id;
 
     pcl::PointIndices::Ptr tabletop_indices(new pcl::PointIndices);

@@ -4,6 +4,12 @@
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <sensor_msgs/PointCloud2.h>
+
+#include <pcl_conversions/pcl_conversions.h>
+
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
 
 #include "test_base.hpp"
 
@@ -24,7 +30,11 @@ protected:
   {
     header_ = ros_cloud->header;
     cloud_.reset(new PointCloud);
-    pcl::fromROSMsg(*ros_cloud, *cloud_);
+
+    pcl::PCLPointCloud2 pc2;
+    pcl_conversions::toPCL(*ros_cloud, pc2);
+    pcl::fromPCLPointCloud2(pc2, *cloud_);
+
     applyPassThroughFilter(cloud_);
     process();
   }
