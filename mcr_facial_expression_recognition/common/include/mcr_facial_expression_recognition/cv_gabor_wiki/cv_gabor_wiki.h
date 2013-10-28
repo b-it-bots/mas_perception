@@ -26,7 +26,6 @@
 #include <cv.h>
 #include <highgui.h>
 
-#define PI 3.14159265
 #define CV_GABOR_REAL 1
 #define CV_GABOR_IMAG 2
 #define CV_GABOR_MAG  3
