@@ -487,7 +487,7 @@ bool stop(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "mcr_waist_tracking");
+	ros::init(argc, argv, "waist_tracking");
 	ros::NodeHandle nh("~");
 	g_nh_ptr = &nh;
 
