@@ -5,10 +5,10 @@ MultiBoostLive::MultiBoostLive(const string &modelFilename, vector1Di &allLabels
 	int argc = 4;
 	char* argv[4];
 
-	argv[0] = "MultiBoost_example.exe";
-	argv[1] = "-test";
-	argv[2] = "sat.tst";
-	argv[3] = (char*) modelFilename.c_str();
+	strcpy(argv[0], "MultiBoost_example.exe");
+	strcpy(argv[1], "-test");
+	strcpy(argv[2], "sat.tst");
+	strcpy(argv[3], modelFilename.c_str());
 
 	// no need to synchronize with C style stream
 	std::ios_base::sync_with_stdio(false);
