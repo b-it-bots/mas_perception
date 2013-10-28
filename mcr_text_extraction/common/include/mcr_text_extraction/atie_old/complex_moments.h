@@ -58,18 +58,18 @@ namespace ComplexMoments
 		virtual int setWidth(int w) =0;
 		virtual bool setIsBinary(bool b) =0;
 		virtual bool getIsBinary() =0;
-		virtual inline double pixelAt(int y, int x) =0;
-		virtual inline void pixelAt(int y, int x, double value)= 0;
+		virtual double pixelAt(int y, int x) =0;
+		virtual void pixelAt(int y, int x, double value)= 0;
 		virtual int getCenterX()= 0;
 		virtual int getCenterY()= 0;
 		virtual int setCenterX(int x)= 0;
 		virtual int setCenterY(int y)= 0;
 		/* Iterators related methods */
 		ImageIterator* getIterator();
-		virtual inline bool isValidPixel(PixelData& p) =0;
-		virtual inline void offsetCoordinates(PixelData& p)= 0;
-		virtual inline void scaleR(PixelData& p)= 0;
-		virtual inline void shiftTheta(PixelData& p)= 0;
+		virtual bool isValidPixel(PixelData& p) =0;
+		virtual void offsetCoordinates(PixelData& p)= 0;
+		virtual void scaleR(PixelData& p)= 0;
+		virtual void shiftTheta(PixelData& p)= 0;
 		virtual void initializeCenter()= 0;
 
 	};
