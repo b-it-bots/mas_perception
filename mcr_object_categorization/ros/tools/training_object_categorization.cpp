@@ -589,7 +589,7 @@ void pointCloudVectorGasCallback(const mcr_perception_msgs::ObjectListPtr& point
 		{
 			pcl::fromROSMsg(pointCloudVectorMsg->objects[i].pointcloud, pointCloud);
 
-			ROS_INFO("[%s]/pointCloudVectorCallback...OBJECT NUMBER  %d/%d with %d points",nodeName.c_str(),(int)i,(int)pointCloudVectorMsg->objects.size(),pointCloud.points.size() );
+			ROS_INFO("[%s]/pointCloudVectorCallback...OBJECT NUMBER  %u/%d with %lu: points",nodeName.c_str(),(int)i,(int)pointCloudVectorMsg->objects.size(),pointCloud.points.size() );
 
 			std::pair<int, double> res = objectCategorizationGeometric->query(pointCloud);
 
