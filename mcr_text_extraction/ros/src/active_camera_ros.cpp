@@ -17,7 +17,7 @@
 namespace atie
 {
 
-	ActiveCameraROS::ActiveCameraROS(char* imageTopic_, char* confPath_, ActiveCameraValues* cv_)
+	ActiveCameraROS::ActiveCameraROS(const char* imageTopic_, char* confPath_, ActiveCameraValues* cv_)
 			: nh()
 	{
 		cameraValues = cv_;

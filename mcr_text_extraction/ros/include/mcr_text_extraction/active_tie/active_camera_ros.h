@@ -34,7 +34,7 @@ namespace atie
 		int transcientC;
 
  	public:
-		ActiveCameraROS(char* imageTopic_, char* confTopic_, ActiveCameraValues* cv_ = NULL);
+		ActiveCameraROS(const char* imageTopic_, char* confTopic_, ActiveCameraValues* cv_ = NULL);
 		void imageCallback(const sensor_msgs::ImageConstPtr& msg_ptr);
 		int setParameters(int n_, char** names_, int* values_);
 		cv::Mat& getFrame();
