@@ -199,7 +199,7 @@ std::vector<StructPlanarSurface*> CPlaneExtraction::extractMultiplePlanes(
 	for (unsigned int iterCluster = 0; iterCluster < clustered_planes.size(); iterCluster++)
 	{
 		clustered_planes.at(iterCluster) = this->extractHorizontalSurface(clustered_planes.at(iterCluster), true);
-		ROS_DEBUG("[extractMultiplePlanes] clustered planes %d : %d points", iterCluster, clustered_planes.at(iterCluster).size());
+		ROS_DEBUG("[extractMultiplePlanes] clustered planes %d : %lu points", iterCluster, clustered_planes.at(iterCluster).size());
 	}
 	//-------------------------------------------------------
 	//Check planar relations
@@ -240,11 +240,11 @@ std::vector<StructPlanarSurface*> CPlaneExtraction::createPlanarHierarchy(
 		convexHullExtractor.reconstruct(planarSurface->convexHull);
 		//reconstruct does not fill width and height of the pointcloud
 
-		ROS_INFO("[createPlanarHierarchy] Surface %d: ConvexHull Size: %d", planarSurface->id, planarSurface->convexHull.points.size());
+		ROS_INFO("[createPlanarHierarchy] Surface %d: ConvexHull Size: %lu", planarSurface->id, planarSurface->convexHull.points.size());
 		planarSurface->area = toolBox.areaConvexHull2d(planarSurface->convexHull);
 		if (planarSurface->area < MIN_PLANAR_AREA_SIZE)  //minimum 0.01f area size
 		{
-			ROS_DEBUG("[createPlanarHierarchy] Surface %d skipped -> area=%f < %f (points %d)", iterCluster, planarSurface->area, MIN_PLANAR_AREA_SIZE,
+			ROS_DEBUG("[createPlanarHierarchy] Surface %d skipped -> area=%f < %f (points %lu)", iterCluster, planarSurface->area, MIN_PLANAR_AREA_SIZE,
 			          planarSurface->pointCloud.points.size());
 			continue;
 		}

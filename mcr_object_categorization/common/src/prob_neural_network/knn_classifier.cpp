@@ -128,7 +128,7 @@ std::pair<int, double> CKNNClassifier::evaluate(std::map<int, std::map<int, std:
 	std::map<int, std::vector<double> >::iterator iterPattern;
 
 	this->logger->log->debug(" CKNNClassifier::evaluate....(TrainModelSize=%d)\n", trainModel.size());
-	printf(" CKNNClassifier::evaluate....(TrainModelSize=%d)\n", trainModel.size());
+	printf(" CKNNClassifier::evaluate....(TrainModelSize=%lu)\n", trainModel.size());
 
 	//neuron, responseValue;
 	//std::map<int, double> response;
