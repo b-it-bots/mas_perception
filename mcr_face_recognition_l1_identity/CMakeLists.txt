@@ -19,22 +19,29 @@ catkin_package(
     std_srvs
 )
 
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-#  ${L1IDENTITY_INCLUDE_DIRS}
-)
+##### this code compile only under windows ###############
+if(WIN32)
 
-#add_executable(face_recognition_node 
-#  ros/src/face_recognition_node.cpp
-#)
-#add_dependencies(face_recognition_node 
-#  ${catkin_EXPORTED_TARGETS}
-#)
-#target_link_libraries(face_recognition_node
-#  ${catkin_LIBRARIES}
-#  ${L1IDENTITY_LIBRARIES}
-#)
+  include_directories(
+    ${catkin_INCLUDE_DIRS}
+  #  ${L1IDENTITY_INCLUDE_DIRS}
+  )
 
-#install(TARGETS face_recognition_node face_recognition_node
-#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+  add_executable(face_recognition_node 
+    ros/src/face_recognition_node.cpp
+  )
+  add_dependencies(face_recognition_node 
+    ${catkin_EXPORTED_TARGETS}
+  )
+  target_link_libraries(face_recognition_node
+    ${catkin_LIBRARIES}
+  #  ${L1IDENTITY_LIBRARIES}
+  )
+
+  install(TARGETS face_recognition_node
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
+
+ENDIF(WIN32)
