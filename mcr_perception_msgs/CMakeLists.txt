@@ -38,6 +38,7 @@ add_service_files(
     GetFaceName.srv
     GetFacialExpression.srv
     GetNearestObject.srv
+    IsPersonInFront.srv
     MakeBoundingBoxes.srv
     SetFaceName.srv
 )
