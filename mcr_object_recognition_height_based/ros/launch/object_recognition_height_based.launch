@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-	<node pkg="mcr_object_recognition_height_based" type="object_recognition_height_based_node" name="mcr_object_recognition_height_based" output="screen" respawn="true"> 
+	<node pkg="mcr_object_recognition_height_based" type="object_recognition_height_based_node" name="object_recognition_height_based" ns="mcr_perception" output="screen" respawn="true"> 
 		<param name="num_known_objects" value="3" />
 			<param name="obj_1_name" value="pringles" />
 			<param name="obj_1_height" value="0.249" />

@@ -158,7 +158,7 @@ bool getObjects(mcr_perception_msgs::GetObjectList::Request &req, mcr_perception
 		const_input_depth = ros::topic::waitForMessage < sensor_msgs::Image > (input_depth, ros::Duration(image_topic_wait));
 
 		cv_bridge::CvImagePtr cv_color_ptr, cv_depth_ptr;
-		ROS_INFO("Retry number: %d ...", retry_ctr);
+		ROS_INFO("Retry number: %lu ...", retry_ctr);
 		if (const_input_color && const_input_depth && const_input_cloud)
 		{
 			try
@@ -179,7 +179,7 @@ bool getObjects(mcr_perception_msgs::GetObjectList::Request &req, mcr_perception
 				std::vector<ObjectRegion> object_2d_list;
 				object_2d_list = linemod_recognition->recognizeObjects(color, depth, class_ids);
 
-				ROS_INFO("Recognized %d objects", object_2d_list.size());
+				ROS_INFO("Recognized %lu objects", object_2d_list.size());
 				for (size_t i = 0; i < object_2d_list.size(); i++)
 				{
 					mcr_perception_msgs::Object object;

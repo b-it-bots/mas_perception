@@ -12,9 +12,9 @@ namespace atie {
   /* Static members initialization! */
   double FibonacciSearch::goldenRatio= 1.6180339887498948482;        
 
-  CameraParamSC::CameraParamSC(ActiveCamera* camera_, char* param_) {
+  CameraParamSC::CameraParamSC(ActiveCamera* camera_, const char* param_) {
     camera= camera_;
-    param= param_;
+    strcpy(param, param_);
     averageNFrames= 0;
     averageCriterionValueP= true;
   }
@@ -27,7 +27,7 @@ namespace atie {
     return camera->cameraValues->getMax(param);
   }
 
-  TenengradSC::TenengradSC(ActiveCamera* camera_, char* param_) : 
+  TenengradSC::TenengradSC(ActiveCamera* camera_, const char* param_) : 
     CameraParamSC(camera_, param_) , gradients(true) { }
   
   double TenengradSC::getValue(int x_) {	
@@ -52,7 +52,7 @@ namespace atie {
     return amplitude.getSharpness();
   }
 
-  VarianceSC::VarianceSC(ActiveCamera* camera_, char* param_) : 
+  VarianceSC::VarianceSC(ActiveCamera* camera_, const char* param_) : 
     CameraParamSC(camera_, param_) {}
 
   double VarianceSC::getValue(int x_) {	

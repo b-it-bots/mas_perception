@@ -42,7 +42,7 @@ namespace atie
 		TemporalAverage temporalAverage;
 
  	public:
-		CameraParamSC(ActiveCamera* camera_, char* param_);
+		CameraParamSC(ActiveCamera* camera_, const char* param_);
 		int getMin();
 		int getMax();
 	};
@@ -55,7 +55,7 @@ namespace atie
 		TenengradSM tenengrad;
 		Gradients gradients;
  	public:
-		TenengradSC(ActiveCamera* camera_, char* param_);
+		TenengradSC(ActiveCamera* camera_, const char* param_);
 		double getValue(int x_);
 	};
 
@@ -67,7 +67,7 @@ namespace atie
 		VarianceSM variance;
 		cv::Mat gray;
  	public:
-		VarianceSC(ActiveCamera* camera_, char* param_);
+		VarianceSC(ActiveCamera* camera_, const char* param_);
 		double getValue(int x_);
 	};
 

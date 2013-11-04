@@ -900,7 +900,7 @@ int main(int argc, char **argv)
 {
 	tag = 100;				// boost::lexical_cast<unsigned int>(argv[1]);
 
-	ros::init(argc, argv, "mcr_object_categorization");
+	ros::init(argc, argv, "object_categorization");
 	ROS_INFO("... started");
 
 	ros::NodeHandle nodeHandle("~");

@@ -235,7 +235,7 @@ void objectCandidateExtractionCallback(const sensor_msgs::PointCloud2::ConstPtr&
 			return;
 		}
 
-		ROS_DEBUG("Point cloud size: %i", augmentPointCloudCopy.points.size());
+		ROS_DEBUG("Point cloud size: %lu", augmentPointCloudCopy.points.size());
 
 		objectCandidateExtractor->extractObjectCandidates(augmentPointCloudCopy, planar_point_cloud, hierarchyPlanes);
 
@@ -428,7 +428,7 @@ bool stop(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "mcr_object_recognition_height_based");
+	ros::init(argc, argv, "object_recognition_height_based");
 
 	ros::NodeHandle n("~");
 	g_nh_ptr = &n;

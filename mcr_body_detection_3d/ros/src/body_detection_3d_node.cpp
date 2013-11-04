@@ -177,7 +177,7 @@ int main(int argc, char** argv)
 {
     std::string random_forest_model_filename = "";
 
-	ros::init(argc, argv, "mcr_body_detection_3d");
+    ros::init(argc, argv, "body_detection_3d");
 
     ros::NodeHandle nh("~");
 	nh_ptr = &nh;

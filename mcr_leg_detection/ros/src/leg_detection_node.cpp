@@ -519,7 +519,7 @@ class LegDetection
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "mcr_leg_detection");
+	ros::init(argc, argv, "leg_detection");
 	g_argc = argc;
 	g_argv = argv;
 	ros::NodeHandle nh("~");

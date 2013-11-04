@@ -472,7 +472,8 @@ int CCClassifier::produceImage(CCPool* pool_, IplImage* result){
     CvRect br= cvBoundingRect(ccc);
     cvSetImageROI(result, br);
     featureExtractor->setCurrentCC(ccc);
-    featureExtractor->renderCC(NULL, result, &cvScalar(255), false, false);
+    CvScalar scalar = cvScalar(255);
+    featureExtractor->renderCC(NULL, result, &scalar, false, false);
     cvResetImageROI(result);
   }
 }
