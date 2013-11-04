@@ -49,15 +49,15 @@ add_definitions(-fpermissive)
 
 
 ### LIBRARIES ####################################################
-#add_library(scene_segmentation
-#  common/src/plane_extraction.cpp
-#  common/src/cloud_accumulation.cpp
-# common/src/polyclipping.cpp
-#)
-#target_link_libraries(scene_segmentation
-#  ${PCL_LIBRARIES}
-#  ${catkin_LIBRARIES}
-#)
+add_library(scene_segmentation
+  common/src/plane_extraction.cpp
+  common/src/cloud_accumulation.cpp
+ common/src/polyclipping.cpp
+)
+target_link_libraries(scene_segmentation
+  ${PCL_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
 
 add_library(bounding_box
   common/src/bounding_box.cpp
@@ -67,30 +67,30 @@ target_link_libraries(bounding_box
 )
 
 ### EXECUTABLES ###############################################
-#add_executable(workspace_finder
-#  ros/src/workspace_finder_node.cpp
-#)
-#add_dependencies(workspace_finder 
-#  ${catkin_EXPORT_TARGETS} ${PROJECT_NAME}_gencfg
-#)
-#target_link_libraries(workspace_finder
-#  ${catkin_LIBRARIES}
-#  scene_segmentation
-#)
+add_executable(workspace_finder
+  ros/src/workspace_finder_node.cpp
+)
+add_dependencies(workspace_finder 
+  ${catkin_EXPORT_TARGETS} ${PROJECT_NAME}_gencfg
+)
+target_link_libraries(workspace_finder
+  ${catkin_LIBRARIES}
+  scene_segmentation
+)
 
-#add_executable(tabletop_cloud_accumulator
-#  ros/src/tabletop_cloud_accumulator_node.cpp
-#)
-#target_link_libraries(tabletop_cloud_accumulator
-#  scene_segmentation
-#)
+add_executable(tabletop_cloud_accumulator
+  ros/src/tabletop_cloud_accumulator_node.cpp
+)
+target_link_libraries(tabletop_cloud_accumulator
+  scene_segmentation
+)
 
-#add_executable(tabletop_cloud_clusterer
-#  ros/src/tabletop_cloud_clusterer_node.cpp
-#)
-#target_link_libraries(tabletop_cloud_clusterer
-#  scene_segmentation
-#)
+add_executable(tabletop_cloud_clusterer
+  ros/src/tabletop_cloud_clusterer_node.cpp
+)
+target_link_libraries(tabletop_cloud_clusterer
+  scene_segmentation
+)
 
 add_executable(bounding_box_maker
   ros/src/bounding_box_maker_node.cpp
@@ -100,25 +100,25 @@ target_link_libraries(bounding_box_maker
   bounding_box 
 )
 
-#add_executable(offline_plane_extraction_test
-#  ros/src/offline_plane_extraction_test.cpp
-#)
-#add_dependencies(offline_plane_extraction_test 
-#  ${catkin_EXPORT_TARGETS} ${PROJECT_NAME}_gencfg
-#)
-#target_link_libraries(offline_plane_extraction_test
-#  ${catkin_LIBRARIES}
-#  ${VTK_LIBRARIES}
-#  scene_segmentation
-#)
+add_executable(offline_plane_extraction_test
+  ros/src/offline_plane_extraction_test.cpp
+)
+add_dependencies(offline_plane_extraction_test 
+  ${catkin_EXPORT_TARGETS} ${PROJECT_NAME}_gencfg
+)
+target_link_libraries(offline_plane_extraction_test
+  ${catkin_LIBRARIES}
+  ${VTK_LIBRARIES}
+  scene_segmentation
+)
 
-#add_executable(online_plane_extraction_test
-#  ros/src/online_plane_extraction_test.cpp
-#)
-#target_link_libraries(online_plane_extraction_test
-#  ${catkin_LIBRARIES}
-#  scene_segmentation
-#)
+add_executable(online_plane_extraction_test
+  ros/src/online_plane_extraction_test.cpp
+)
+target_link_libraries(online_plane_extraction_test
+  ${catkin_LIBRARIES}
+  scene_segmentation
+)
 
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
