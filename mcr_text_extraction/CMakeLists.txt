@@ -54,6 +54,9 @@ add_library(atie_old
   common/src/atie_old/parameters.cpp
   common/src/atie_old/util.cpp
 )
+add_dependencies(atie_old
+  ${catkin_EXPORTED_TARGETS}
+)
 target_link_libraries(atie_old
   ${catkin_LIBRARIES}
 )
@@ -69,6 +72,9 @@ add_library(active_tie
   common/src/active_tie/ocr_interface.cpp
   common/src/active_tie/acquisition_parameters_optimization.cpp
   common/src/active_tie/image_preprocessing.cpp
+)
+add_dependencies(active_tie
+  ${catkin_EXPORTED_TARGETS}
 )
 
 add_executable(atie_old_node
