@@ -52,7 +52,10 @@ add_definitions(-fpermissive)
 add_library(scene_segmentation
   common/src/plane_extraction.cpp
   common/src/cloud_accumulation.cpp
- common/src/polyclipping.cpp
+  common/src/polyclipping.cpp
+)
+add_dependencies(scene_segmentation 
+  ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(scene_segmentation
   ${PCL_LIBRARIES}
@@ -61,6 +64,9 @@ target_link_libraries(scene_segmentation
 
 add_library(bounding_box
   common/src/bounding_box.cpp
+)
+add_dependencies(bounding_box 
+  ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(bounding_box
   ${OpenCV_LIBRARIES}
@@ -71,7 +77,7 @@ add_executable(workspace_finder
   ros/src/workspace_finder_node.cpp
 )
 add_dependencies(workspace_finder 
-  ${catkin_EXPORT_TARGETS} ${PROJECT_NAME}_gencfg
+  ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg
 )
 target_link_libraries(workspace_finder
   ${catkin_LIBRARIES}
