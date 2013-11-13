@@ -19,3 +19,11 @@ install(PROGRAMS
   ros/scripts/tf_filter
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(DIRECTORY ros/config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config
+)
+install(DIRECTORY ros/launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
+)
+
