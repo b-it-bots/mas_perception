@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- This launch file starts all the nodes that are needed to perform object recognition.
+       The "network" argument should contain the name of the previously trained network. Corresponding
+       files (*.xml and *.yaml) should be present in the "common/config/" folder of the package. -->
+
+  <arg name="network" default="go2013"/>
+
+  <include file="$(find mcr_object_detection)/ros/launch/scene_segmentation.launch"/>
+
+  <node pkg="mcr_object_recognition" type="cloud_color_analyzer" name="cloud_color_analyzer" ns="mcr_perception" output="screen"/>
+  <node pkg="mcr_object_recognition" type="object_recognizer" name="object_recognizer" ns="mcr_perception" output="screen" args="$(arg network)"/>
+
+</launch>
