@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
   <name>mcr_ar_marker_detection</name>
-  <version>0.0.0</version>
-  <description>The mcr_ar_marker_detection package</description>
+  <version>0.1.0</version>
+  <description>detection of augemented reality marker</description>
 
   <maintainer email="sergey.alexandrov@smail.inf.h-brs.de">Sergey Alexandrov</maintainer>
 
