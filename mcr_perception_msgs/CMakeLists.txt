@@ -41,6 +41,7 @@ add_service_files(
     IsPersonInFront.srv
     MakeBoundingBoxes.srv
     PublishGoal.srv
+    RecognizeObject.srv
     SetFaceName.srv
 )
 
