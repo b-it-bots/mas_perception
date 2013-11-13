@@ -40,6 +40,7 @@ add_service_files(
     GetNearestObject.srv
     IsPersonInFront.srv
     MakeBoundingBoxes.srv
+    PublishGoal.srv
     SetFaceName.srv
 )
 
