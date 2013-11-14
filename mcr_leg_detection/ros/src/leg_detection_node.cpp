@@ -246,7 +246,7 @@ class LegDetection
 			  mask_count_(0),
 			  connected_thresh_(0.06),
 			  feat_count_(0),
-			  laser_sub_(nh_, "/scan_front", 10),
+			  laser_sub_(nh_, "scan", 10),
 			  laser_notifier_(laser_sub_, tfl_, fixed_frame, 10)
 	{
 		if (g_argc > 1)

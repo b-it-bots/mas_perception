@@ -911,7 +911,7 @@ int main(int argc, char **argv)
 	ros::ServiceServer srv_get_objects = nodeHandle.advertiseService("get_categorized_objects", get_categorized_objects);
 
 	pub_object_list = nodeHandle.advertise < mcr_perception_msgs::ObjectList > ("categorized_objects", 10);
-	markerObjectCategorizationGeometricPublisher = nodeHandle.advertise < visualization_msgs::MarkerArray > ("visualization_marker_array", 10);
+	markerObjectCategorizationGeometricPublisher = nodeHandle.advertise < visualization_msgs::MarkerArray > ("/visualization_marker_array", 10);
 
 	//load launch file parameter
 	if (nodeHandle.getParam("home_path", homePath) == false) ROS_INFO(" ... could not read parameter /homePath from launch file");

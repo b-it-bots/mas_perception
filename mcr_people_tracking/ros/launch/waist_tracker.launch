@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 
-	<node pkg="mcr_people_tracking" type="waist_tracking_node" name="waist_tracking" ns="mcr_perception" output="screen">
-		<param name="occlusion_handling_enabled" type="bool" value="true" />
-	</node>
+  <node pkg="mcr_people_tracking" type="waist_tracking_node" name="waist_tracking" ns="mcr_perception" output="screen">
+    <param name="occlusion_handling_enabled" type="bool" value="true" />
+
+    <remap from="~pointcloud_xyzrgb" to="/head_cam3d/depth_registered/points" />
+    <remap from="~scan" to="/scan_front" />
+  </node>
+
 </launch>

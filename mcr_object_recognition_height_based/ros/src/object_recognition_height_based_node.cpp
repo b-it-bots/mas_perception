@@ -73,7 +73,7 @@ bool setup_tf = true;
 ros::ServiceClient *dynamicReconfigureClientKinectTilt;
 
 std::string toFrame = std::string("/base_link");   //ToDO: change back "base_link
-std::string kinectTopicToSubscribe = std::string("/cam3d/rgb/points");  //ToDO: change back "cam3d
+std::string kinectTopicToSubscribe = std::string("pointcloud_xyzrgb");  //ToDO: change back "cam3d
 //std::string kinectTopicToSubscribe = std::string("/kinect/rgb/points2");
 
 std::vector<sensor_msgs::PointCloud2> finalClusteredObjectsMsg;
@@ -438,8 +438,8 @@ int main(int argc, char **argv)
 	listenerKinectRGBToKinect = new tf::TransformListener();
 	objectCandidateExtractor = new CObjectCandidateExtraction(n, SPHERICAL_DISTANCE);
 
-	pmd_pub1 = n.advertise < sensor_msgs::PointCloud2 > ("visualize_detected_objects", 1);
-	pmd_pub2 = n.advertise < sensor_msgs::PointCloud2 > ("visualize_detected_planes", 1);
+	pmd_pub1 = n.advertise < sensor_msgs::PointCloud2 > ("objects_cloud", 1);
+	pmd_pub2 = n.advertise < sensor_msgs::PointCloud2 > ("planes_cloud", 1);
 	pmd_pub4 = n.advertise < mcr_perception_msgs::ObjectList > ("detected_objects", 1);
 	pmd_pub5 = n.advertise < mcr_perception_msgs::ObjectList > ("recognized_objects", 1);
 

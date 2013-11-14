@@ -468,7 +468,7 @@ bool start(std_srvs::Empty::Request& request, std_srvs::Empty::Response& respons
 	tracker_init_state = FIND_PERSON_IN_RANGE;
 
 	subWaistScan = g_nh_ptr->subscribe < sensor_msgs::LaserScan > ("scan", 1, laserScanCallback);
-	subPointCloud = g_nh_ptr->subscribe < sensor_msgs::PointCloud2 > ("/cam3d/depth_registered/points", 1, pointCloudCallback);		// Todo: set back to cam3d
+	subPointCloud = g_nh_ptr->subscribe < sensor_msgs::PointCloud2 > ("pointcloud_xyzrgb", 1, pointCloudCallback);		// Todo: set back to cam3d
 
 	ROS_INFO("tracking ENABLED");
 

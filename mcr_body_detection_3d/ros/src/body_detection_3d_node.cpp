@@ -159,7 +159,7 @@ void dynamic_reconfig_callback(mcr_body_detection_3d::BodyDetection3DConfig &con
 
 bool start(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 {
-	sub_pointcloud2 = nh_ptr->subscribe<sensor_msgs::PointCloud2> ("/camera/depth/points", 1, pointcloud2Callback);
+	sub_pointcloud2 = nh_ptr->subscribe<sensor_msgs::PointCloud2> ("pointcloud_xyzrgb", 1, pointcloud2Callback);
 
 	ROS_INFO("3D body detector ENABLED");
 	return true;
