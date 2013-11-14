@@ -62,7 +62,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& msg_in)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "mcr_door_status");
+    ros::init(argc, argv, "door_status");
     ros::NodeHandle nh("~");
 
     ros::Subscriber subFrontScan = nh.subscribe<sensor_msgs::LaserScan>("scan", 1, laserScanCallback);
