@@ -36,7 +36,7 @@ void changeDoorStatus(const std_msgs::BoolConstPtr status)
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "mcr_doot_status_mockup");
+	ros::init(argc, argv, "door_status_mockup");
     ros::NodeHandle nh("~");
 
 
