@@ -6,7 +6,5 @@
 		<param name="distance_threshold" value="1.2" />  <!-- in meter -->
 
 		<remap from="scan" to="/scan_front"/>
-		<remap from="door_status" to="door_status"/>
-
 	</node>
 </launch>
