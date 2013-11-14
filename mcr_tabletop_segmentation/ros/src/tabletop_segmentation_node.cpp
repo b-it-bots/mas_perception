@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "mcr_tabletop_segmentation");
+	ros::init(argc, argv, "tabletop_segmentation");
 
 	ObjectSegmentation* segmentation = new ObjectSegmentation();
 

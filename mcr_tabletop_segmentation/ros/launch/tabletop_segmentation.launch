@@ -6,11 +6,11 @@
 	</node>
 
 	<!-- object segmentation -->
-	<node pkg="mcr_tabletop_segmentation" type="tabletop_segmentation_node" name="mcr_tabletop_segmentation" output="screen">
+	<node pkg="mcr_tabletop_segmentation" type="tabletop_segmentation_node" name="tabletop_segmentation" ns="mcr_perception" output="screen">
 
 		<remap from="find_cluster_bounding_box" to="/find_cluster_bounding_box" />
 		
-        <param name="camera_topic" type="string" value="/tower_cam3d/depth_registered/points" />
+    <param name="camera_topic" type="string" value="/tower_cam3d/depth_registered/points" />
 		<param name="camera_frame" type="string" value="/tower_cam3d_rgb_optical_frame" />
 		
 		<param name="extract_obj_in_rgb_img" type="bool" value="false" />
