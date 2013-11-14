@@ -7,5 +7,6 @@
 
 		<remap from="scan" to="/scan_front"/>
 	</node>
+    <remap from="~scan" to="/scan_front"/>
 
 </launch>
