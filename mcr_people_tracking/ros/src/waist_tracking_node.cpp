@@ -22,6 +22,8 @@
 #include <pcl_ros/transforms.h>
 #include <pcl/io/pcd_io.h>
 #include <opencv/cv.h>
+#include <dynamic_reconfigure/server.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <opencv/cvaux.h>
 #include <opencv/highgui.h>
@@ -35,6 +37,8 @@
 #include <mcr_algorithms/projections/pointcloud_projections.hpp>
 #include <mcr_algorithms/geometry/geometric_properties.hpp>
 #include <mcr_algorithms/statistics/minmax.hpp>
+
+#include "mcr_people_tracking/WaistTrackingConfig.h"
 
 #define FIXED_FRAME					"/base_link"
 #define FIND_PERSON_IN_RANGE		0
@@ -54,23 +58,79 @@ double teached_person_height = 0;
 
 unsigned int tracker_init_state = FIND_PERSON_IN_RANGE;
 
-ros::Publisher pubPeoplePositions;
+ros::Publisher pub_people_positions;
+ros::Publisher pub_visualization_marker;
+
 bool is_tracker_initialized = false;
 bool is_person_occluded = false;
-bool is_occlusion_handling_enabled = true;
 
 bool is_tracking_enabled = false;				// ToDo: change to false;
 bool is_pointcloud_processing_enabled = false;
-
-double distance_range_for_searching = 1.2;
-double angular_range_for_searching = 0.5;
 
 ros::Subscriber subWaistScan;
 ros::Subscriber subPointCloud;
 ros::NodeHandle* g_nh_ptr;
 
-//ToDo: delete
-//ros::Publisher pubTemp;
+mcr_people_tracking::WaistTrackingConfig dyn_recfg_parameters;
+
+
+void publishVisualizationMarker(const mcr_perception_msgs::PersonList &person_list)
+{
+	visualization_msgs::MarkerArray marker_array;
+
+	// convert person msgs into markers for rviz visualization
+	for(unsigned int i=0, j=0; i < person_list.persons.size(); ++i)
+	{
+		visualization_msgs::Marker marker_text;
+		visualization_msgs::Marker marker_shape;
+
+		marker_shape.header.frame_id = marker_text.header.frame_id = person_list.persons[i].pose.header.frame_id;
+		marker_shape.header.stamp = marker_text.header.stamp = ros::Time::now();
+		marker_shape.ns = marker_text.ns = "tracked person";
+		marker_shape.action = marker_text.action = visualization_msgs::Marker::ADD;
+
+		marker_shape.id = ++j;
+		marker_text.id = ++j;
+
+		marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+		marker_shape.type = visualization_msgs::Marker::CUBE;
+
+		marker_shape.pose.position = marker_text.pose.position = person_list.persons[i].pose.pose.position;
+		marker_shape.pose.orientation = marker_text.pose.orientation = person_list.persons[i].pose.pose.orientation;
+
+		if(person_list.persons[i].is_occluded)
+  		marker_text.text = "OCCLUDED";
+    else
+      marker_text.text = "";
+
+
+		marker_shape.scale.x = 0.4;
+		marker_shape.scale.y = 0.4;
+		marker_shape.scale.z = 1.8;
+		marker_shape.color.r = 1.0;
+		marker_shape.color.g = 0.0;
+		marker_shape.color.b = 0.0;
+		marker_shape.color.a = 0.5;;
+
+		marker_text.scale.x = 0.2;
+		marker_text.scale.y = 0.2;
+		marker_text.scale.z = 0.2;
+		marker_text.color.r = 1.0;
+		marker_text.color.g = 1.0;
+		marker_text.color.b = 1.0;
+		marker_text.color.a = 1.0;
+
+		marker_shape.lifetime = marker_text.lifetime = ros::Duration(1);
+
+		marker_array.markers.push_back(marker_shape);
+		marker_array.markers.push_back(marker_text);
+	}
+
+	if(marker_array.markers.size() > 0)
+		pub_visualization_marker.publish(marker_array);
+}
+
+
 
 bool is_in_vector(vector<unsigned int> vector_input, unsigned int value)
 {
@@ -122,9 +182,10 @@ void pointCloudCallback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 	}
 }
 
-void log_state()
+void dynamic_reconfig_callback(mcr_people_tracking::WaistTrackingConfig &config, uint32_t level)
 {
-	ROS_INFO("is_tracking_enabled %d is_tracker_initialized %d tracker_init_state %d", is_tracking_enabled, is_tracker_initialized, tracker_init_state);
+    dyn_recfg_parameters = config;
+  	dyn_recfg_parameters.angular_range_for_searching /= 2;
 }
 
 void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
@@ -132,7 +193,6 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
 	if (!is_tracking_enabled)
 		return;
 
-	log_state();
 	mcr_perception_msgs::LaserScanSegmentList segmentList;
 	segmentList = segmentor->getSegments(inputScan);
 
@@ -147,7 +207,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
 				double dAngle = atan(segmentList.segments[i].center.y / segmentList.segments[i].center.x);
 				double dDistance = sqrt(pow(segmentList.segments[i].center.x, 2.0) + pow(segmentList.segments[i].center.y, 2.0));
 
-				if (dDistance < distance_range_for_searching && dAngle > -angular_range_for_searching && dAngle < angular_range_for_searching
+				if (dDistance < dyn_recfg_parameters.distance_range_for_searching && dAngle > -dyn_recfg_parameters.angular_range_for_searching && dAngle < dyn_recfg_parameters.angular_range_for_searching
 				        && is_pointcloud_received)
 				{
 					mcr_perception_msgs::LaserScanSegmentList temp;
@@ -155,6 +215,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
 
 					tracker->initialize(temp);
 
+          /*
 					// cut down the pointcloud to the ROI
 					PCLWrapper<pcl::PointXYZRGB>::passThroughFilter(pcl_cloud_input, pcl_cloud_input, "x", (segmentList.segments[i].center.x - 0.2),
 					                                                (segmentList.segments[i].center.x + 0.2));
@@ -194,12 +255,6 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
 
 					*pcl_cloud_input = pcl_random_point_set;
 
-					// Todo: delete
-					/*
-					 sensor_msgs::PointCloud2 temp2;
-					 pcl::toROSMsg(*pcl_cloud_input, temp2);
-					 pubTemp.publish(temp2);*/
-
 					//copy only ROI points to an opencv image
 					IplImage* ipl_roi_person_bgr = cvCreateImage(cvSize(pcl_cloud_input->points.size(), 1), IPL_DEPTH_8U, 3);
 					for (unsigned int j = 0; j < pcl_cloud_input->points.size(); ++j)
@@ -236,6 +291,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
 					cv::calcHist(&mat_roi_person_hsv, 1, channels, cv::Mat(), initial_person_histogram, 1, histogram_size, ranges);
 
 					cvReleaseImage(&ipl_roi_person_bgr);
+          */
 
 					is_tracker_initialized = true;
 					is_pointcloud_processing_enabled = false;
@@ -424,7 +480,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
 			is_person_occluded = false;
 		}
 
-		if (!is_person_occluded || !is_occlusion_handling_enabled)
+		if (!is_person_occluded || !dyn_recfg_parameters.occlusion_handling_enabled)
 		{
 			//ToDo: comment in
 			//cout << "update tracker" << endl;
@@ -450,7 +506,10 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
 
 		trackedPersonList.persons.push_back(trackedPerson);
 
-		pubPeoplePositions.publish(trackedPersonList);
+		pub_people_positions.publish(trackedPersonList);
+
+		if(dyn_recfg_parameters.publish_visualization_markers)
+      publishVisualizationMarker(trackedPersonList);
 
 		delete mostLikelyPoint;
 
@@ -505,22 +564,17 @@ int main(int argc, char **argv)
 	ros::Subscriber subWaistScan;
 	ros::Subscriber subPointCloud;
 
-	pubPeoplePositions = nh.advertise < mcr_perception_msgs::PersonList > ("people_positions", 1);
+	pub_people_positions = nh.advertise < mcr_perception_msgs::PersonList > ("people_positions", 1);
+	pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr tmp_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl_cloud_input = tmp_ptr;
 
-	//ToDo: delete
-	//pubTemp = nh.advertise<sensor_msgs::PointCloud2>("temp", 1);
+  // dynamic reconfigure server
+  dynamic_reconfigure::Server<mcr_people_tracking::WaistTrackingConfig> dynamic_reconfig_server;
+  dynamic_reconfig_server.setCallback(boost::bind(&dynamic_reconfig_callback, _1, _2));
 
-	// read params from launch file
-	if (nh.getParam("occlusion_handling_enabled", is_occlusion_handling_enabled) == false)
-		ROS_WARN("Parameter occlusion_handling_enabled not specified in launch file, used default value: %d", is_occlusion_handling_enabled);
-
-	//convert from degree to rad
-	angular_range_for_searching /= 2;
-
-	if (is_occlusion_handling_enabled)
+	if (dyn_recfg_parameters.occlusion_handling_enabled)
 		ROS_INFO("occlusion handling ENABLED");
 	else
 		ROS_INFO("occlusion handling DISABLED");

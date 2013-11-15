@@ -6,6 +6,7 @@
 
     <remap from="~pointcloud_xyzrgb" to="/head_cam3d/depth_registered/points" />
     <remap from="~scan" to="/scan_front" />
+    <remap from="~visualization_marker_array" to="/visualization_marker_array" />
   </node>
 
 </launch>
