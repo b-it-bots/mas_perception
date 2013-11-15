@@ -1,7 +1,20 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_body_detection_3d)
 
-find_package(catkin REQUIRED roscpp sensor_msgs std_srvs tf visualization_msgs mcr_perception_msgs pcl_ros mcr_algorithms dynamic_reconfigure rostest)
+find_package(catkin REQUIRED
+  COMPONENTS
+    dynamic_reconfigure
+    mcr_algorithms
+    mcr_perception_msgs 
+    pcl_ros
+    roscpp
+    rostest
+    sensor_msgs
+    std_srvs
+    tf
+    visualization_msgs
+)
+
 find_package(PCL 1.6 REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -10,7 +23,12 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS dynamic_reconfigure mcr_algorithms mcr_perception_msgs visualization_msgs sensor_msgs
+  CATKIN_DEPENDS
+    dynamic_reconfigure
+    mcr_algorithms
+    mcr_perception_msgs
+    sensor_msgs
+    visualization_msgs
 )
 
 include_directories(
