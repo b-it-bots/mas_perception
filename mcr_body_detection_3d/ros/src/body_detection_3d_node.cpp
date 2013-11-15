@@ -197,7 +197,7 @@ int main(int argc, char** argv)
 	// Subscriber and Publisher
 	pub_person_msg = nh.advertise<mcr_perception_msgs::PersonList>("people_positions", 1);
 	pub_segmented_cloud = nh.advertise<sensor_msgs::PointCloud2>("debug/segmented_cloud", 1);
-	pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 1);
+	pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
 
 	//Service Server
 	ros::ServiceServer srv_start = nh.advertiseService("start", start);
