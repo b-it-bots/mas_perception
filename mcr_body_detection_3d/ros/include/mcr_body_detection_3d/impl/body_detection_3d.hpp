@@ -439,7 +439,7 @@ void BodyDetection3D::classify3DSegment(const std::vector<Segment3D, Eigen::alig
 		mcr_perception_msgs::Person person;
 
 		pcl_conversions::fromPCL(clustered_3d_segments[i].pcl_cloud.header, classified_persons.header);
-		classified_persons.header = person.header = person.pose.header;
+		person.header = person.pose.header = classified_persons.header;
 
 		person.pose.pose.position.x = centroid[0];
 		person.pose.pose.position.y = centroid[1];
