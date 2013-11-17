@@ -35,6 +35,7 @@ add_definitions(-Wno-deprecated)
 add_definitions(-fpermissive)
 
 include_directories(
+  ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
 
