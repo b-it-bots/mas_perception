@@ -43,6 +43,8 @@ namespace LaserScanLinearRegression
 
 		std::vector<ScanItem> filterByAngle(std::vector<ScanItem> items, double minAngle, double maxAngle);
 
+		std::vector<ScanItem> filterMidAngle(std::vector<ScanItem> items, double angleFromCenter);
+
 	};
 
 	class RegressionAnalysis

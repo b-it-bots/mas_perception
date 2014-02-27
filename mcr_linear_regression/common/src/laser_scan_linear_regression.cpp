@@ -37,11 +37,27 @@ namespace LaserScanLinearRegression
 		return filteredData;
 	}
 
+	std::vector<ScanItem> ScanItemFilter::filterMidAngle(std::vector<ScanItem> items, double angleFromCenter)
+	{
+		std::vector<ScanItem> filteredData;
+
+		for (unsigned int i = 0; i < items.size(); i++)
+		{
+			if (fabs(items[i].angle) >= angleFromCenter)
+			{
+				filteredData.push_back(items[i]);
+			}
+		}
+
+		return filteredData;
+	}
+
 	bool RegressionAnalysis::calculateCoefficient(std::vector<ScanItem> items, double& center, double& a, double &b)
 	{
 
 		double Sxx = 0.0;
 		double Sxy = 0.0;
+		double Syy = 0.0;
 		double xm = 0.0;
 		double ym = 0.0;
 
@@ -72,12 +88,15 @@ namespace LaserScanLinearRegression
 
 			Sxx += (it.x() - xm) * (it.x() - xm);
 			Sxy += (it.x() - xm) * (it.y() - ym);
+			Syy += (it.y() - ym) * (it.y() - ym);
 
 		}
 		//std::cout << "Sxx: " << Sxx << std::endl;
 		//std::cout << "Sxy: " << Sxy << std::endl;
+		//std::cout << "Syy: " << Syy << std::endl;
 
-		b = Sxx / Sxy;
+		//b = Sxx / Sxy;
+		b = Sxy / Syy;
 		a = xm - b * ym;
 		center = ym;
 

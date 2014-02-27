@@ -19,7 +19,7 @@ class LaserScanLinearRegressionUtil
 	LaserScanLinearRegressionUtil();
 	virtual ~LaserScanLinearRegressionUtil();
 
-	std::vector<LaserScanLinearRegression::ScanItem> convert(sensor_msgs::LaserScanConstPtr scan);
+	std::vector<LaserScanLinearRegression::ScanItem> convert(sensor_msgs::LaserScanConstPtr scan, double angle_offset);
 
 };
 

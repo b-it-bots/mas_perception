@@ -45,36 +45,53 @@ class LaserScanLinearRegressionService
 			req.filter_maxDistance = 0.8;
 		}
 
+		//FIXME: check if the angle object is youBot/hokoyu dependend
+		double angle_offset = -0.025;
+
 		ROS_DEBUG("Wait for base_scan message");
 
-		sensor_msgs::LaserScanConstPtr scan = ros::topic::waitForMessage < sensor_msgs::LaserScan > (basescan_topic, nh, time_to_wait);
+		double sum_center = 0.0;
+		double sum_a = 0.0;
+		double sum_b = 0.0;
 
-		if (scan == 0)
-		{
-			ROS_ERROR("No scan received within timeframe on topic %s", basescan_topic.c_str());
-			return false;
+		int iterations = 3;
+
+		for (int i=0; i<iterations; i++) {
+			sensor_msgs::LaserScanConstPtr scan = ros::topic::waitForMessage < sensor_msgs::LaserScan > (basescan_topic, nh, time_to_wait);
+
+			if (scan == 0)
+			{
+				ROS_ERROR("No scan received within timeframe on topic %s", basescan_topic.c_str());
+				return false;
+			}
+
+			std::vector<LaserScanLinearRegression::ScanItem> data = util.convert(scan, angle_offset);
+
+			std::vector<LaserScanLinearRegression::ScanItem> filtered_data = scanfilter.filterByDistance(data, req.filter_minDistance, req.filter_maxDistance);
+			filtered_data = scanfilter.filterByAngle(filtered_data, req.filter_minAngle, req.filter_maxAngle);
+			filtered_data = scanfilter.filterMidAngle(filtered_data, 0.2);
+
+			double center, a, b;
+
+			ROS_DEBUG("Calculating Coeffs");
+
+			regAnalysis.calculateCoefficient(filtered_data, center, a, b);
+
+			sum_center += center;
+			sum_a += a;
+			sum_b += b;
+
 		}
 
-		//ROS_DEBUG("Converting");
+		sum_center /=iterations;
+		sum_a /=iterations;
+		sum_b /=iterations;
 
-		std::vector<LaserScanLinearRegression::ScanItem> data = util.convert(scan);
+		ROS_DEBUG("a: %f, b: %f, c: %f", sum_a, sum_b, sum_center);
 
-		//ROS_DEBUG("Filtering");
-
-		std::vector<LaserScanLinearRegression::ScanItem> filtered_data = scanfilter.filterByDistance(data, req.filter_minDistance, req.filter_maxDistance);
-		filtered_data = scanfilter.filterByAngle(filtered_data, req.filter_minAngle, req.filter_maxAngle);
-
-		double center, a, b;
-
-		ROS_DEBUG("Calculating Coeffs");
-
-		regAnalysis.calculateCoefficient(filtered_data, center, a, b);
-
-		ROS_DEBUG("a: %f, b: %f, c: %f", a, b, center);
-
-		res.center = center;
-		res.a = a;
-		res.b = b;
+		res.center = sum_center;
+		res.a = sum_a;
+		res.b = sum_b;
 
 		return true;
 	}
@@ -86,11 +103,18 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "linear_regression");
 	ros::NodeHandle n;
 
-	std::string topic = "/scan_front";
+	std::string topic;
+	if(!n.getParam("scan_topic",topic))
+			topic = "/scan_front";
+
+	ROS_DEBUG("Listen to scan_topic: %s", topic.c_str());
+
 
 	LaserScanLinearRegressionService lslrs(n, topic);
 
-	ros::ServiceServer service = n.advertiseService("scan_front_linearregression", &LaserScanLinearRegressionService::baseScanLinearRegression, &lslrs);
+	std::string service_name = topic + std::string("_linearregression");
+
+	ros::ServiceServer service = n.advertiseService(service_name.c_str(), &LaserScanLinearRegressionService::baseScanLinearRegression, &lslrs);
 
 	ROS_DEBUG("LaserScanLinearRegressionService is ready");
 
