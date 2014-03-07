@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+import rospy
+
+from mcr_perception_msgs.msg import Object
+from mcr_perception_msgs.srv import RecognizeObject
+from mcr_perception_msgs.srv import GetObjectList, GetObjectListResponse
+
+from geometry_msgs.msg import PoseStamped
+
+def detect_objects_cb(request):
+        
+    get_objects = GetObjectList()
+    
+    object = Object()
+    object.name = "dummy"
+    object.category = "dummy_categorie"
+    object.pose = PoseStamped()
+    
+    get_object_response = GetObjectListResponse()
+    get_object_response.objects = [object]
+    
+    return get_object_response
+    
+if __name__ == '__main__':
+    rospy.init_node("detect_objects_node_mockup")
+
+    s = rospy.Service('detect_objects', GetObjectList, detect_objects_cb)
+    rospy.loginfo('detect_objects service MOCKUP started')
+    rospy.spin()
