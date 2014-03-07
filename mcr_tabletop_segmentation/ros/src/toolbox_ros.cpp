@@ -874,6 +874,32 @@ pcl::PointXYZ CToolBoxROS::pointCloudCentroid(pcl::PointCloud<pcl::PointXYZ> &po
 	return centroid;
 }
 
+pcl::PointXYZRGB CToolBoxROS::pointCloudCentroid(pcl::PointCloud<pcl::PointXYZRGB> &point_cloud)
+{
+	unsigned int sizePointCloud = point_cloud.points.size();
+
+	pcl::PointXYZRGB centroid;
+	centroid.x = 0;
+	centroid.y = 0;
+	centroid.z = 0;
+
+	for (unsigned int iter_point = 0; iter_point < sizePointCloud; iter_point++)
+	{
+		if (!isnan(point_cloud.points[iter_point].x))
+		{
+			centroid.x += (point_cloud.points[iter_point].x);
+			centroid.y += (point_cloud.points[iter_point].y);
+			centroid.z += (point_cloud.points[iter_point].z);
+		}
+	}
+
+	centroid.x /= sizePointCloud;
+	centroid.y /= sizePointCloud;
+	centroid.z /= sizePointCloud;
+
+	return centroid;
+}
+
 pcl::PointXYZRGB CToolBoxROS::pointCloudCentroid2(pcl::PointCloud<pcl::PointXYZ> &point_cloud)
 {
 

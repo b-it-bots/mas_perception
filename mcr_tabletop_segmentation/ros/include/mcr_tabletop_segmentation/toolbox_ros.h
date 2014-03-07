@@ -118,6 +118,7 @@ class CToolBoxROS
 
 	pcl::PointXYZ pointCloudCentroid(pcl::PointCloud<pcl::PointXYZ> &point_cloud);
 	pcl::PointXYZ pointCloudCentroid(pcl::PointCloud<pcl::PointXYZRGBNormal> &point_cloud);
+	pcl::PointXYZRGB pointCloudCentroid(pcl::PointCloud<pcl::PointXYZRGB> &point_cloud);
 	pcl::PointXYZRGB pointCloudCentroid2(pcl::PointCloud<pcl::PointXYZ> &point_cloud);
 	pcl::PointXYZ pointCloudBoundingBoxCentroid(pcl::PointCloud<pcl::PointXYZ> &pointCloud, pcl::PointCloud<pcl::PointXYZ> &boundingBox);
 
