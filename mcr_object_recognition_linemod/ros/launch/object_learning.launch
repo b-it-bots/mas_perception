@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-  <node pkg="mcr_object_recognition_linemod" type="object_learning_node" name="mcr_object_recognition_linemod" output="screen" />
-</launch>
