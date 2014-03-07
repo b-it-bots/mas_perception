@@ -6,11 +6,8 @@ the user should type any character(s) and then hit \"enter\". To stop data
 gathering and process it the user should type \"stop\".
 """
 
-PACKAGE = 'mcr_scene_segmentation'
 NODE = 'calibrate_workspace_finder'
 
-import roslib
-roslib.load_manifest(PACKAGE)
 import rospy
 import textwrap
 import numpy as np

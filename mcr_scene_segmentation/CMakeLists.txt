@@ -95,6 +95,7 @@ add_executable(tabletop_cloud_clusterer
   ros/src/tabletop_cloud_clusterer_node.cpp
 )
 target_link_libraries(tabletop_cloud_clusterer
+  ${catkin_LIBRARIES}
   scene_segmentation
 )
 
