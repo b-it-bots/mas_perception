@@ -2,23 +2,29 @@
 
 import rospy
 
-from mcr_perception_msgs.msg import Object
+from mcr_perception_msgs.msg import Object, ObjectList
 from mcr_perception_msgs.srv import RecognizeObject
 from mcr_perception_msgs.srv import GetObjectList, GetObjectListResponse
 
 from geometry_msgs.msg import PoseStamped
 
+object_list = []
+
+def set_object_cb(new_obj_list):
+    object_list = new_obj_list
+    rospy.loginfo("Setting new object list to " + str(object_list))
+
 def detect_objects_cb(request):
         
     get_objects = GetObjectList()
     
-    object = Object()
-    object.name = "dummy"
-    object.category = "dummy_categorie"
-    object.pose = PoseStamped()
-    
     get_object_response = GetObjectListResponse()
-    get_object_response.objects = [object]
+    get_object_response.objects = object_list
+    
+    if (len(object_list) > 0):
+        obj = object_list.pop()
+        rospy.loginfo("Removing object " + obj.name + " from mockup list")
+    
     
     return get_object_response
     
@@ -27,4 +33,6 @@ if __name__ == '__main__':
 
     s = rospy.Service('detect_objects', GetObjectList, detect_objects_cb)
     rospy.loginfo('detect_objects service MOCKUP started')
+    
+    rospy.Subscriber("~add_object_to_mockup", ObjectList, set_object_cb)
     rospy.spin()
