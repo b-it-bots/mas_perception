@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>mcr_object_recognition_linemod</name>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <description>This node provides a service to learn objects using template matching based on LINE_MOD by Stefan Hinterstoisser (TUM). The input is an RGB and a depth image. The user can configure the matching threshold, which is defined as a percentage. A strong threshold would be 98%, 90% would be much weaker. Values below 88% can be seen as meaningless. Usage hints: The object_learning node uses visual interaction with the user so a screen will be needed</description>
  
   <maintainer email="alexander.hagg@smail.inf.h-brs.de">Alexander Hagg</maintainer>
@@ -12,27 +12,27 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>cv_bridge</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>image_transport</build_depend>
   <build_depend>mcr_perception_msgs</build_depend>
-  <build_depend>opencv2</build_depend>
   <build_depend>pcl</build_depend>
   <build_depend>pcl_ros</build_depend>
-  <!-- build_depend>pr2_controllers_msgs</build_depend -->
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>std_srvs</build_depend>
   <build_depend>tf</build_depend>
-  <build_depend>trajectory_msgs</build_depend>
   <build_depend>mcr_tabletop_segmentation</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>rostest</build_depend>
   
   <run_depend>dynamic_reconfigure</run_depend>
   <run_depend>mcr_perception_msgs</run_depend>
-  <run_depend>mcr_tabletop_segmentation</run_depend> 
-  <!-- run_depend>pr2_controllers_msgs</run_depend -->
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_srvs</run_depend>
-  <run_depend>trajectory_msgs</run_depend>
+  <run_depend>mcr_tabletop_segmentation</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>rostest</run_depend>
   
 </package>

@@ -1,892 +1,442 @@
-/**
- * object_recognition_linemod.cpp
+/** @file object_learning_node.cpp
+ *  @brief Wrapper for LINEMOD object recognition
+ *  @author    Alexander Hagg
+ *  @memberof  b-it-bots RoboCup@Home team
+ *  @version   0.1.0
+ *  @date      7 March 2014
+ *  @pre       First initialize the system.
+ *  @copyright GNU Public License.
  *
- * Created on: 7 March 2013
- *     Author: Alexander Hagg
+ *  This node provides a service to learn objects using template matching based on
+ *  LINE_MOD by Stefan Hinterstoisser (TUM).
  *
+ *  Published topics:
+ *  - visualization_marker_object: visualization of ROI and object label markers
+ *  - object_candidates: object candidate point clouds
+ *  - event_in: event handling
+ *  - event_out: event handling
  *
- * This node provides a service to learn objects using template matching based on
- * LINE_MOD by Stefan Hinterstoisser (TUM).
+ *  Events handled:
+ *  - "e_init": starts node
+ *  - "e_test": test current templates on scene
+ *  - "e_learn": learn new template for a known object
+ *  - "e_stop": halts node until resume with e_init
  *
- * The input is an RGB and a depth image. The user can configure the
- * matching threshold, which is defined as a percentage. A strong threshold would be 98%,
- * 90% would be much weaker. Values below 85% are meaningless.
- *
- * The node uses visual interaction with the user so a screen will be needed
- *
- * A part of the code was taken from the OpenCV (v2.4.4) example
- *
+ *  Events output:
+ *  - <event_name>_done: for e_init, e_learn and e_stop
+ *  - "e_test_ok"/"e_test_fail"
  */
 
 #include <string>
-#include <iterator>
-#include <set>
-#include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include <ros/ros.h>
 #include <ros/console.h>
+#include <ros/package.h>
+#include <dynamic_reconfigure/server.h>
 #include <tf/transform_listener.h>
-#include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/image_encodings.h>
-#include <sensor_msgs/Image.h>
+#include <std_msgs/String.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc_c.h> // cvFindContours
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <visualization_msgs/Marker.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <pcl_ros/point_cloud.h>
+#include "pcl_ros/transforms.h"
+#include "pcl_ros/impl/transforms.hpp"
+#include <pcl/filters/statistical_outlier_removal.h>
 
-#include <pcl/common/common_headers.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
+#include <mcr_tabletop_segmentation/toolbox_ros.h>
+#include <mcr_object_recognition_linemod/ObjectRecognitionLinemodConfig.h>
+#include <mcr_object_recognition_linemod/linemod.h>
 
-using namespace std;
-using sensor_msgs::PointCloud;
-namespace enc = sensor_msgs::image_encodings;
+ros::Publisher pub_scan_objects;
+ros::Publisher pub_marker_object;
+ros::Publisher pub_event_handling;
+ros::Subscriber sub_event_handling;
+ros::Subscriber sub_pointcloud;
+boost::shared_ptr<tf::TransformListener> tf_listener;
+boost::shared_ptr<Linemod> linemod;
+CToolBoxROS tool_box;
+mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig dyn_recfg_parameters;
+std::vector<ObjectRegion> object_candidates;
+std::vector<ObjectRegion> objects;
+sensor_msgs::PointCloud2::ConstPtr pointcloud_saved_msg;
+pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-ros::Subscriber sub;
+enum states
+{ 
+    STOP,
+    INIT,
+    WAIT,
+    READY,
+    LEARN,
+    TEST
+} current_state;
 
-tf::TransformListener *listenerKinectRGBToKinect;
-sensor_msgs::Image::ConstPtr const_input_color, const_input_depth;
-sensor_msgs::PointCloud2::ConstPtr const_input_cloud;
-bool img_color_received, img_depth_received;
-double focal_length;
-int roi_x;
-int roi_y;
-cv::Size roi_size;
-int learning_lower_bound, learning_upper_bound;
-
-// Function prototypes
-void subtractPlane(const cv::Mat& depth, cv::Mat& mask, std::vector<CvPoint>& chain, double f);
-
-std::vector<CvPoint> maskFromTemplate(const std::vector<cv::linemod::Template>& templates, int num_modalities, cv::Point offset, cv::Size size, cv::Mat& mask,
-                                      cv::Mat& dst);
-
-void templateConvexHull(const std::vector<cv::linemod::Template>& templates, int num_modalities, cv::Point offset, cv::Size size, cv::Mat& dst);
-
-void drawResponse(const std::vector<cv::linemod::Template>& templates, int num_modalities, cv::Mat& dst, cv::Point offset, int T);
-
-cv::Mat displayQuantized(const cv::Mat& quantized);
-
-// Copy of cv_mouse from cv_utilities
-class Mouse
+/** @brief Node reconfiguration
+ * 
+ *  @param config configuration container
+ *  @param level
+ *
+ */
+void reconfigureCallback(mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig &config, uint32_t level)
 {
- public:
-	static void start(const std::string& a_img_name)
-	{
-		cvSetMouseCallback(a_img_name.c_str(), Mouse::cv_on_mouse, 0);
-	}
-
-	static int event(void)
-	{
-		int l_event = m_event;
-		m_event = -1;
-		return l_event;
-	}
-
-	static int x(void)
-	{
-		return m_x;
-	}
-
-	static int y(void)
-	{
-		return m_y;
-	}
-
- private:
-	static void cv_on_mouse(int a_event, int a_x, int a_y, int, void *)
-	{
-		m_event = a_event;
-		m_x = a_x;
-		m_y = a_y;
-	}
-
-	static int m_event;
-	static int m_x;
-	static int m_y;
-};
-
-int Mouse::m_event;
-int Mouse::m_x;
-int Mouse::m_y;
-
-static void help()
-{
-	printf("Usage: Place your object on a planar, featureless surface. With the mouse,\n"
-	       "frame it in the 'color' window and right click to learn a first template.\n"
-	       "Then press 'l' to enter online learning mode, and move the camera around.\n"
-	       "When the match score falls between %d - %d \% the demo will add a new template.\n\n"
-	       "Keys:\n"
-	       "\t h   -- This help page\n"
-	       "\t l   -- Toggle online learning\n"
-	       "\t m   -- Toggle printing match result\n"
-	       "\t t   -- Toggle printing timings\n"
-	       "\t w   -- Write learned templates to disk\n"
-	       "\t [ ] -- Adjust matching threshold: '[' down,  ']' up\n"
-	       "\t 1 2 -- Adjust horizontal size of ROI window: '1' decrease size, '2' increase size\n"
-	       "\t 3 4 -- Adjust vertical size of ROI window: '3' decrease size, '4' increase size\n"
-	       "\t q   -- Quit\n\n",
-	       learning_lower_bound, learning_upper_bound);
+    dyn_recfg_parameters = config;
+    linemod.reset(new Linemod(dyn_recfg_parameters.database_folder_name, dyn_recfg_parameters.database_file_name, 
+                              dyn_recfg_parameters.detection_threshold, dyn_recfg_parameters.num_modalities));
+    linemod->setMask(dyn_recfg_parameters.roi_min_x, dyn_recfg_parameters.roi_max_x, dyn_recfg_parameters.roi_min_y, 
+                     dyn_recfg_parameters.roi_max_y, dyn_recfg_parameters.roi_min_z, dyn_recfg_parameters.roi_max_z);
 }
 
-// Adapted from cv_timer in cv_utilities
-bool fexists(const char *filename)
+/** @brief callback for rgbd camera
+ * 
+ *  @param pointcloud_msg holding incoming pointcloud
+ *
+ */
+void pointcloudCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg)
 {
-	ifstream ifile(filename);
-	return ifile;
+    if (!pointcloud_msg)
+    {
+        return;
+    }
+
+    if (current_state == WAIT)
+    {
+        pointcloud_saved_msg = pointcloud_msg;
+        current_state = READY;
+    }
 }
 
-class Timer
+/** @brief event output handling
+ * 
+ *  @param event_msg string holding the event description
+ *
+ */
+void eventOut(const std::string &event_msg)
 {
- public:
-	Timer()
-			: start_(0),
-			  time_(0)
-	{
-	}
-
-	void start()
-	{
-		start_ = cv::getTickCount();
-	}
-
-	void stop()
-	{
-		CV_Assert(start_ != 0);
-		int64 end = cv::getTickCount();
-		time_ += end - start_;
-		start_ = 0;
-	}
-
-	double time()
-	{
-		double ret = time_ / cv::getTickFrequency();
-		time_ = 0;
-		return ret;
-	}
-
- private:
-	int64 start_, time_;
-};
-
-// Functions to store detector and templates in single XML/YAML file
-static cv::Ptr<cv::linemod::Detector> readLinemod(const std::string& filename)
-{
-	cv::Ptr < cv::linemod::Detector > detector = new cv::linemod::Detector;
-	cv::FileStorage fs(filename, cv::FileStorage::READ);
-	detector->read(fs.root());
-
-	cv::FileNode fn = fs["classes"];
-	for (cv::FileNodeIterator i = fn.begin(), iend = fn.end(); i != iend; ++i)
-	{
-		detector->readClass(*i);
-	}
-
-	return detector;
+    std_msgs::String event_out;
+    event_out.data = event_msg;
+    pub_event_handling.publish(event_out);
 }
 
-static void writeLinemod(const cv::Ptr<cv::linemod::Detector>& detector, const std::string& filename)
+/** @brief event input handling
+ * 
+ *  @param event_msg string message holding the event description
+ *
+ */
+bool eventCallback(const std_msgs::String::ConstPtr &event_msg)
 {
-	cv::FileStorage fs(filename, cv::FileStorage::WRITE);
-	detector->write(fs);
-
-	std::vector<std::string> ids = detector->classIds();
-	fs << "classes" << "[";
-	for (int i = 0; i < (int) ids.size(); ++i)
-	{
-		fs << "{";
-		detector->writeClass(ids[i], fs);
-		fs << "}";  // current class
-	}
-	fs << "]";  // classes
+    switch(current_state) 
+    {
+        case STOP:
+        {
+            if (event_msg->data == "e_init")
+            {
+                current_state = INIT;
+            } 
+            else if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+            }
+            break;
+        }
+        case INIT:
+        {
+            if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+                eventOut("e_stop_done");
+            }
+            break;
+        }
+        case READY:
+        {
+            if (event_msg->data == "e_test")
+            {
+                current_state = TEST;
+            }
+            else if (event_msg->data == "e_learn")
+            {
+                current_state = LEARN;
+            } 
+            else if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+                eventOut("e_stop_done");
+            }
+            break;
+        }
+        case LEARN: case TEST:
+        {
+            if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+                eventOut("e_stop_done");
+            }
+            break;
+        }
+        default:
+        {}
+    }
+    return true;
 }
 
-void cb_img_color(const sensor_msgs::Image::ConstPtr& msg)
+/** @brief conversion of 2D object region to pointcloud
+ * 
+ *  @param object 2D object description as defined in linemod.h
+ *  @param cloud input cloud needed
+ *  @param hue_multiplier 
+ *
+ */
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr convert2DTemplateTo3DPointCloud(ObjectRegion object, const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud, int hue_multiplier)
 {
-	const_input_color = msg;
-	img_color_received = true;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr object_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    object_cloud->header = cloud->header;
+    int offset_x = object.x;
+    int offset_y = object.y;
+    for (size_t feature_id = 0; feature_id < object.template_found->features.size(); feature_id++)
+    {
+        int point_x = offset_x + object.template_found->features.at(feature_id).x;
+        int point_y = offset_y + object.template_found->features.at(feature_id).y;
+        pcl::PointXYZRGBA a_point = cloud->at(point_x, point_y);
+        pcl::PointXYZRGB point;
+        point.x = a_point.x;
+        point.y = a_point.y;
+        point.z = a_point.z;
+        point.r = 0;
+        point.g = (255 - 20 * hue_multiplier) % 255;
+        point.b = 0;
+        if (!isnan(point.x) && !isnan(point.y) && !isnan(point.z))
+        {
+            object_cloud->push_back(point);
+        }
+    }
+    return object_cloud;
 }
 
-void cb_img_depth(const sensor_msgs::Image::ConstPtr& msg)
+void visualize(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud)
 {
-	const_input_depth = msg;
-	img_depth_received = true;
+    visualization_msgs::Marker marker_object;
+    uint32_t shape = visualization_msgs::Marker::CUBE;
+    marker_object.type = shape;
+    marker_object.header.frame_id = dyn_recfg_parameters.base_link;
+    marker_object.header.stamp = ros::Time::now();
+    marker_object.ns = "basic_shapes";
+    marker_object.id = 0;
+    marker_object.action = visualization_msgs::Marker::ADD;
+    marker_object.pose.position.x = dyn_recfg_parameters.roi_min_x + 0.5 * (dyn_recfg_parameters.roi_max_x - dyn_recfg_parameters.roi_min_x);
+    marker_object.pose.position.y = dyn_recfg_parameters.roi_min_y + 0.5 * (dyn_recfg_parameters.roi_max_y - dyn_recfg_parameters.roi_min_y);
+    marker_object.pose.position.z = dyn_recfg_parameters.roi_min_z + 0.5 * (dyn_recfg_parameters.roi_max_z - dyn_recfg_parameters.roi_min_z);
+    marker_object.pose.orientation.x = 0.0;
+    marker_object.pose.orientation.y = 0.0;
+    marker_object.pose.orientation.z = 0.0;
+    marker_object.pose.orientation.w = 1.0;
+    marker_object.scale.x = dyn_recfg_parameters.roi_max_x - dyn_recfg_parameters.roi_min_x;
+    marker_object.scale.y = dyn_recfg_parameters.roi_max_y - dyn_recfg_parameters.roi_min_y;
+    marker_object.scale.z = dyn_recfg_parameters.roi_max_z - dyn_recfg_parameters.roi_min_z;
+    marker_object.color.r = 1.0f;
+    marker_object.color.g = 1.0f;
+    marker_object.color.b = 1.0f;
+    marker_object.color.a = 0.5f;
+    marker_object.lifetime = ros::Duration();
+    pub_marker_object.publish(marker_object);
+
+    pcl::PointCloud<pcl::PointXYZRGB> output_cloud;
+    output_cloud.header = cloud->header;
+    for (size_t i = 0; i < objects.size(); i++)
+    {
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr object_cloud = convert2DTemplateTo3DPointCloud(objects.at(i), cloud, i);
+        output_cloud += *object_cloud;
+
+        visualization_msgs::Marker marker_object_label;
+        marker_object_label.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        marker_object_label.header.frame_id = dyn_recfg_parameters.base_link;
+        marker_object_label.header.stamp = ros::Time::now();
+        marker_object_label.ns = "basic_labels";
+        marker_object_label.id = i + 1;
+        marker_object_label.text = objects.at(i).name;
+        marker_object_label.action = visualization_msgs::Marker::ADD;
+        pcl::PointXYZRGBA point = cloud->at(objects.at(i).x,objects.at(i).y);
+        marker_object_label.pose.position.x = objects.at(i).world_x;
+        marker_object_label.pose.position.y = objects.at(i).world_y;
+        marker_object_label.pose.position.z = objects.at(i).world_z;
+        marker_object_label.scale.z = 0.05f;
+        marker_object_label.color.r = 1.0f;
+        marker_object_label.color.g = 1.0f * ((100.0 - i) / 100.0);
+        marker_object_label.color.b = 1.0f;
+        marker_object_label.color.a = 1.0f;
+        marker_object_label.lifetime = ros::Duration(3.0);
+        pub_marker_object.publish(marker_object_label);
+    }
+    sensor_msgs::PointCloud2 out_msg;
+    pcl::toROSMsg(output_cloud, out_msg);
+    pub_scan_objects.publish(out_msg);
+}
+
+void convertPointCloud()
+{
+    pcl::fromROSMsg(*pointcloud_saved_msg, *cloud);
+    tf::StampedTransform center_transform;
+    try
+    {
+        tf_listener->waitForTransform(dyn_recfg_parameters.base_link, pointcloud_saved_msg->header.frame_id, pointcloud_saved_msg->header.stamp, ros::Duration(5.0));
+        tf_listener->lookupTransform(dyn_recfg_parameters.base_link, pointcloud_saved_msg->header.frame_id, pointcloud_saved_msg->header.stamp, center_transform);
+        pcl_ros::transformPointCloud(*cloud, *cloud, center_transform);
+        cloud->header.frame_id = dyn_recfg_parameters.base_link;
+    } 
+    catch (tf::TransformException &ex)
+    {
+        ROS_WARN("TF lookup failed: %s",ex.what());
+    }
+}
+
+void computeDetections()
+{
+    object_candidates = linemod->computeDetections(cloud);
+    ROS_INFO_STREAM("object_candidates.size() " << object_candidates.size());
+    for (size_t i = 0; i < object_candidates.size(); i++) 
+    {
+        ROS_INFO_STREAM("object_candidates.at(i).name " << object_candidates.at(i).name);
+        ROS_INFO_STREAM("object_candidates.at(i).similarity " << object_candidates.at(i).similarity);
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr object_cloud = convert2DTemplateTo3DPointCloud(object_candidates.at(i), cloud, i);
+        if (object_cloud->size() == 0)
+        {
+            break;
+        }
+        pcl::PointCloud<pcl::PointXYZRGB> object_cloud_filtered;
+        pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> statoutlier_filter;
+        statoutlier_filter.setInputCloud(object_cloud);
+        statoutlier_filter.setMeanK(25);
+        statoutlier_filter.setStddevMulThresh(0.001);
+        statoutlier_filter.filter(object_cloud_filtered);
+        pcl::PointXYZRGB centroid = tool_box.pointCloudCentroid(*object_cloud);
+
+        if (dyn_recfg_parameters.roi_min_x > centroid.x || centroid.x > dyn_recfg_parameters.roi_max_x || 
+            dyn_recfg_parameters.roi_min_y > centroid.y || centroid.y > dyn_recfg_parameters.roi_max_y || 
+            dyn_recfg_parameters.roi_min_z > centroid.z || centroid.z > dyn_recfg_parameters.roi_max_z)
+        {
+            continue;
+        } 
+
+        object_candidates.at(i).world_x = centroid.x;
+        object_candidates.at(i).world_y = centroid.y;
+        object_candidates.at(i).world_z = centroid.z;
+
+        if (object_candidates.at(i).similarity > dyn_recfg_parameters.detection_threshold)
+        {
+            objects.push_back(object_candidates.at(i));
+        }
+    }
 }
 
 int main(int argc, char **argv)
 {
-	roi_x = 60;
-	roi_y = 120;
-	img_color_received = false;
-	img_depth_received = false;
-	string filename = "../ros/data/object_database.yaml";
-	string input_color = "/cam3d/rgb/image_rect_color";
-	string input_depth = "/cam3d/depth_registered/image_rect_raw";
-	int matching_threshold = 88.0f;
-	/* init ROS node with a name and a node handle*/
-	ros::init(argc, argv, "mcr_object_learning");
-	ros::NodeHandle nh("~");
-
-	if (nh.getParam("filename", filename) == false)
-		ROS_WARN("Parameter \"filename\" not available on parameter server, use default value: %s ", filename.c_str());
-
-	if (nh.getParam("input_color", input_color) == false)
-		ROS_WARN("Parameter \"input_color\" not available on parameter server, use default value: %s ", input_color.c_str());
-	if (nh.getParam("input_depth", input_depth) == false)
-		ROS_WARN("Parameter \"input_depth\" not available on parameter server, use default value: %s ", input_depth.c_str());
-
-	if (nh.getParam("matching_threshold", matching_threshold) == false)
-		ROS_WARN("Parameter \"matching_threshold\" not available on parameter server, use default value: %d ", matching_threshold);
-
-	ros::Subscriber sub1 = nh.subscribe(input_color, 1, cb_img_color);
-	ros::Subscriber sub2 = nh.subscribe(input_depth, 1, cb_img_depth);
-
-	focal_length = 580.0;
-
-	/* create a loop rate to let your node run only with maximum frequency, here 2Hz */
-	ros::Rate loop_rate(20);
-
-	//============================================================================
-	//LINEMOD LEARNING
-	//============================================================================
-
-	// Various settings and flags
-	bool show_match_result = false;
-	bool show_timings = false;
-	bool learn_online = false;
-	int num_classes = 0;
-
-	/// @todo Keys for changing these?
-	roi_size = cv::Size(roi_x, roi_y);
-	int learning_lower_bound = 88;
-	int learning_upper_bound = 98;
-
-	// Timers
-	Timer extract_timer;
-	Timer match_timer;
-
-	// Initialize HighGUI
-	help();
-	cv::namedWindow("color");
-	cv::namedWindow("normals");
-	Mouse::start("color");
-
-	// Initialize LINEMOD data structures
-	cv::Ptr < cv::linemod::Detector > detector;
-
-	// AAA
-
-	if (fexists(filename.c_str()))
-	{
-		detector = readLinemod(filename);
-	}
-	else
-	{
-		detector = cv::linemod::getDefaultLINEMOD();
-	}
-
-	std::vector<std::string> ids = detector->classIds();
-	num_classes = detector->numClasses();
-	printf("Loaded %s with %d classes and %d templates\n", argv[1], num_classes, detector->numTemplates());
-	if (!ids.empty())
-	{
-		printf("Class ids:\n");
-		std::copy(ids.begin(), ids.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
-	}
-	int num_modalities = (int) detector->getModalities().size();
-
-	// Main loop
-	cv::Mat color, depth;
-	while (ros::ok())
-	{
-		/* bridge image messages to opencv */
-		cv_bridge::CvImagePtr cv_color_ptr, cv_depth_ptr;
-
-		if (img_color_received && img_depth_received)
-		{
-			try
-			{
-				cv_color_ptr = cv_bridge::toCvCopy(const_input_color, enc::BGR8);
-				cv_depth_ptr = cv_bridge::toCvCopy(const_input_depth, enc::MONO16);
-				flip(cv_color_ptr->image, cv_color_ptr->image, -1);
-				flip(cv_depth_ptr->image, cv_depth_ptr->image, -1);
-				color = cv_color_ptr.get()->image;
-				depth = cv_depth_ptr.get()->image;
-			}
-			catch (cv_bridge::Exception &ex)
-			{
-				ROS_ERROR("cv_bridge exception: %s", ex.what());
-			}
-			catch (tf::TransformException &ex)
-			{
-				ROS_WARN("No tf available: %s", ex.what());
-			}
-			catch (ros::Exception &ex)
-			{
-				ROS_WARN("General exception caught: %s", ex.what());
-			}
-			catch (...)
-			{
-				printf("fatal error");
-			}
-
-			std::vector<cv::Mat> sources;
-			sources.push_back(color);
-			sources.push_back(depth);
-			cv::Mat display = color.clone();
-			if (!learn_online)
-			{
-				cv::Point mouse(Mouse::x(), Mouse::y());
-				int event = Mouse::event();
-
-				// Compute ROI centered on current mouse location
-				cv::Point roi_offset(roi_size.width / 2, roi_size.height / 2);
-				cv::Point pt1 = mouse - roi_offset;  // top left
-				cv::Point pt2 = mouse + roi_offset;  // bottom right
-
-				if (event == CV_EVENT_RBUTTONDOWN)
-				{
-					// Compute object mask by subtracting the plane within the ROI
-					std::vector<CvPoint> chain(4);
-					chain[0] = pt1;
-					chain[1] = cv::Point(pt2.x, pt1.y);
-					chain[2] = pt2;
-					chain[3] = cv::Point(pt1.x, pt2.y);
-					cv::Mat mask;
-					subtractPlane(depth, mask, chain, focal_length);
-
-					cv::imshow("mask", mask);
-
-					// Extract template
-					std::string class_id = cv::format("class%d", num_classes);
-					cv::Rect bb;
-					extract_timer.start();
-					int template_id = detector->addTemplate(sources, class_id, mask, &bb);
-					extract_timer.stop();
-					if (template_id != -1)
-					{
-						printf("*** Added template (id %d) for new object class %d***\n", template_id, num_classes);
-						//printf("Extracted at (%d, %d) size %dx%d\n", bb.x, bb.y, bb.width, bb.height);
-					}
-
-					++num_classes;
-				}
-
-				// Draw ROI for display
-				cv::rectangle(display, pt1, pt2, CV_RGB(0, 0, 0), 3);
-				cv::rectangle(display, pt1, pt2, CV_RGB(255, 255, 0), 1);
-			}
-
-			// Perform matching
-			std::vector<cv::linemod::Match> matches;
-			std::vector<std::string> class_ids;
-			std::vector<cv::Mat> quantized_images;
-			match_timer.start();
-			detector->match(sources, (float) matching_threshold, matches, class_ids, quantized_images);
-			match_timer.stop();
-
-			int classes_visited = 0;
-			std::set<std::string> visited;
-			for (int i = 0; (i < (int) matches.size()) && (classes_visited < num_classes); ++i)
-			{
-				cv::linemod::Match m = matches[i];
-
-				if (visited.insert(m.class_id).second)
-				{
-					++classes_visited;
-
-					if (show_match_result)
-					{
-						printf("Similarity: %5.1f%%; x: %3d; y: %3d; class: %s; template: %3d\n", m.similarity, m.x, m.y, m.class_id.c_str(), m.template_id);
-					}
-
-					// Draw matching template
-					const std::vector<cv::linemod::Template>& templates = detector->getTemplates(m.class_id, m.template_id);
-					drawResponse(templates, num_modalities, display, cv::Point(m.x, m.y), detector->getT(0));
-
-					if (learn_online == true)
-					{
-						/// @todo Online learning possibly broken by new gradient feature extraction,
-						/// which assumes an accurate object outline.
-
-						// Compute masks based on convex hull of matched template
-						cv::Mat color_mask, depth_mask;
-						std::vector<CvPoint> chain = maskFromTemplate(templates, num_modalities, cv::Point(m.x, m.y), color.size(), color_mask, display);
-						subtractPlane(depth, depth_mask, chain, focal_length);
-
-						cv::imshow("mask", depth_mask);
-
-						// If pretty sure (but not TOO sure), add new template
-						if (learning_lower_bound < m.similarity && m.similarity < learning_upper_bound)
-						{
-							extract_timer.start();
-							int template_id = detector->addTemplate(sources, m.class_id, depth_mask);
-							extract_timer.stop();
-							if (template_id != -1)
-							{
-								printf("*** Added template (id %d) for existing object class %s***\n", template_id, m.class_id.c_str());
-							}
-						}
-					}
-				}
-			}
-
-			if (show_match_result && matches.empty())
-				printf("No matches found...\n");
-			if (show_timings)
-			{
-				printf("Training: %.2fs\n", extract_timer.time());
-				printf("Matching: %.2fs\n", match_timer.time());
-			}
-			if (show_match_result || show_timings)
-				printf("------------------------------------------------------------\n");
-			cv::imshow("color", display);
-			if (quantized_images.size() > 0)
-			{
-				cv::imshow("normals", quantized_images[1]);
-			}
-			cv::FileStorage fs;
-			char key = (char) cvWaitKey(10);
-			if (key == 'q')
-				break;
-
-			switch (key)
-			{
-				case 'h':
-					help();
-					break;
-				case 'm':
-					// toggle printing match result
-					show_match_result = !show_match_result;
-					printf("Show match result %s\n", show_match_result ? "ON" : "OFF");
-					break;
-				case 't':
-					// toggle printing timings
-					show_timings = !show_timings;
-					printf("Show timings %s\n", show_timings ? "ON" : "OFF");
-					break;
-				case 'l':
-					// toggle online learning
-					learn_online = !learn_online;
-					printf("Online learning %s\n", learn_online ? "ON" : "OFF");
-					break;
-				case '[':
-					// decrement threshold
-					matching_threshold = std::max(matching_threshold - 1, -100);
-					printf("New threshold: %d\n", matching_threshold);
-					break;
-				case ']':
-					// increment threshold
-					matching_threshold = std::min(matching_threshold + 1, +100);
-					printf("New threshold: %d\n", matching_threshold);
-					break;
-				case 'w':
-					// write model to disk
-					writeLinemod(detector, filename);
-					printf("Wrote detector and templates to %s\n", filename.c_str());
-					break;
-				case '1':
-					roi_x++;
-					roi_size = cv::Size(roi_x, roi_y);
-					break;
-				case '2':
-					roi_x--;
-					roi_size = cv::Size(roi_x, roi_y);
-					break;
-				case '3':
-					roi_y++;
-					roi_size = cv::Size(roi_x, roi_y);
-					break;
-				case '4':
-					roi_y--;
-					roi_size = cv::Size(roi_x, roi_y);
-					break;
-				default:
-					break;
-			}
-		}
-//    	else
-//      {
-//    	ROS_INFO("Waiting for stereo camera topic:");
-//    	if (!img_color_received)
-//    		ROS_INFO("color");
-//    	if (!img_depth_received)
-//    	    ROS_INFO("depth");
-//      }
-		ros::spinOnce();
-		loop_rate.sleep();
-
-	}
-
-	//============================================================================
-
-	return 0;
-}
-
-static void reprojectPoints(const std::vector<cv::Point3d>& proj, std::vector<cv::Point3d>& real, double f)
-{
-	real.resize(proj.size());
-	double f_inv = 1.0 / f;
-
-	for (int i = 0; i < (int) proj.size(); ++i)
-	{
-		double Z = proj[i].z;
-		real[i].x = (proj[i].x - 320.) * (f_inv * Z);
-		real[i].y = (proj[i].y - 240.) * (f_inv * Z);
-		real[i].z = Z;
-	}
-}
-
-static void filterPlane(IplImage * ap_depth, std::vector<IplImage *> & a_masks, std::vector<CvPoint> & a_chain, double f)
-{
-	const int l_num_cost_pts = 200;
-
-	float l_thres = 1;
-
-	IplImage * lp_mask = cvCreateImage(cvGetSize(ap_depth), IPL_DEPTH_8U, 1);
-	cvSet(lp_mask, cvRealScalar(0));
-
-	std::vector<CvPoint> l_chain_vector;
-
-	float l_chain_length = 0;
-	float * lp_seg_length = new float[a_chain.size()];
-
-	for (int l_i = 0; l_i < (int) a_chain.size(); ++l_i)
-	{
-		float x_diff = (float) (a_chain[(l_i + 1) % a_chain.size()].x - a_chain[l_i].x);
-		float y_diff = (float) (a_chain[(l_i + 1) % a_chain.size()].y - a_chain[l_i].y);
-		lp_seg_length[l_i] = sqrt(x_diff * x_diff + y_diff * y_diff);
-		l_chain_length += lp_seg_length[l_i];
-	}
-	for (int l_i = 0; l_i < (int) a_chain.size(); ++l_i)
-	{
-		if (lp_seg_length[l_i] > 0)
-		{
-			int l_cur_num = cvRound(l_num_cost_pts * lp_seg_length[l_i] / l_chain_length);
-			float l_cur_len = lp_seg_length[l_i] / l_cur_num;
-
-			for (int l_j = 0; l_j < l_cur_num; ++l_j)
-			{
-				float l_ratio = (l_cur_len * l_j / lp_seg_length[l_i]);
-
-				CvPoint l_pts;
-
-				l_pts.x = cvRound(l_ratio * (a_chain[(l_i + 1) % a_chain.size()].x - a_chain[l_i].x) + a_chain[l_i].x);
-				l_pts.y = cvRound(l_ratio * (a_chain[(l_i + 1) % a_chain.size()].y - a_chain[l_i].y) + a_chain[l_i].y);
-
-				l_chain_vector.push_back(l_pts);
-			}
-		}
-	}
-	std::vector<cv::Point3d> lp_src_3Dpts(l_chain_vector.size());
-
-	for (int l_i = 0; l_i < (int) l_chain_vector.size(); ++l_i)
-	{
-		lp_src_3Dpts[l_i].x = l_chain_vector[l_i].x;
-		lp_src_3Dpts[l_i].y = l_chain_vector[l_i].y;
-	lp_src_3Dpts[l_i].z = CV_IMAGE_ELEM(ap_depth, unsigned short, cvRound(lp_src_3Dpts[l_i].y), cvRound(lp_src_3Dpts[l_i].x));
-	//CV_IMAGE_ELEM(lp_mask,unsigned char,(int)lp_src_3Dpts[l_i].Y,(int)lp_src_3Dpts[l_i].X)=255;
-}
-//cv_show_image(lp_mask,"hallo2");
-
-reprojectPoints(lp_src_3Dpts, lp_src_3Dpts, f);
-
-CvMat * lp_pts = cvCreateMat((int) l_chain_vector.size(), 4, CV_32F);
-CvMat * lp_v = cvCreateMat(4, 4, CV_32F);
-CvMat * lp_w = cvCreateMat(4, 1, CV_32F);
-
-for (int l_i = 0; l_i < (int) l_chain_vector.size(); ++l_i)
-{
-CV_MAT_ELEM(*lp_pts, float, l_i, 0) = (float)lp_src_3Dpts[l_i].x;
-CV_MAT_ELEM(*lp_pts, float, l_i, 1) = (float)lp_src_3Dpts[l_i].y;
-CV_MAT_ELEM(*lp_pts, float, l_i, 2) = (float)lp_src_3Dpts[l_i].z;
-CV_MAT_ELEM(*lp_pts, float, l_i, 3) = 1.0f;
-}
-cvSVD(lp_pts, lp_w, 0, lp_v);
-
-float l_n[4] =
-{CV_MAT_ELEM(*lp_v, float, 0, 3),
-CV_MAT_ELEM(*lp_v, float, 1, 3),
-CV_MAT_ELEM(*lp_v, float, 2, 3),
-CV_MAT_ELEM(*lp_v, float, 3, 3)}
-;
-
-float l_norm = sqrt(l_n[0] * l_n[0] + l_n[1] * l_n[1] + l_n[2] * l_n[2]);
-
-l_n[0] /= l_norm;
-l_n[1] /= l_norm;
-l_n[2] /= l_norm;
-l_n[3] /= l_norm;
-
-float l_max_dist = 0;
-
-for (int l_i = 0; l_i < (int)l_chain_vector.size(); ++l_i)
-{
-float l_dist = l_n[0] * CV_MAT_ELEM(*lp_pts, float, l_i, 0) +
-l_n[1] * CV_MAT_ELEM(*lp_pts, float, l_i, 1) +
-l_n[2] * CV_MAT_ELEM(*lp_pts, float, l_i, 2) +
-l_n[3] * CV_MAT_ELEM(*lp_pts, float, l_i, 3);
-
-if (fabs(l_dist) > l_max_dist)
-l_max_dist = l_dist;
-}
-				//std::cerr << "plane: " << l_n[0] << ";" << l_n[1] << ";" << l_n[2] << ";" << l_n[3] << " maxdist: " << l_max_dist << " end" << std::endl;
-int l_minx = ap_depth->width;
-int l_miny = ap_depth->height;
-int l_maxx = 0;
-int l_maxy = 0;
-
-for (int l_i = 0; l_i < (int)a_chain.size(); ++l_i)
-{
-l_minx = std::min(l_minx, a_chain[l_i].x);
-l_miny = std::min(l_miny, a_chain[l_i].y);
-l_maxx = std::max(l_maxx, a_chain[l_i].x);
-l_maxy = std::max(l_maxy, a_chain[l_i].y);
-}
-int l_w = l_maxx - l_minx + 1;
-int l_h = l_maxy - l_miny + 1;
-int l_nn = (int) a_chain.size();
-
-CvPoint * lp_chain = new CvPoint[l_nn];
-
-for (int l_i = 0; l_i < l_nn; ++l_i)
-lp_chain[l_i] = a_chain[l_i];
-
-cvFillPoly(lp_mask, &lp_chain, &l_nn, 1, cvScalar(255, 255, 255));
-
-delete[] lp_chain;
-
-				//cv_show_image(lp_mask,"hallo1");
-
-std::vector<cv::Point3d> lp_dst_3Dpts(l_h * l_w);
-
-int l_ind = 0;
-
-for (int l_r = 0; l_r < l_h; ++l_r)
-{
-for (int l_c = 0; l_c < l_w; ++l_c)
-{
-lp_dst_3Dpts[l_ind].x = l_c + l_minx;
-lp_dst_3Dpts[l_ind].y = l_r + l_miny;
-lp_dst_3Dpts[l_ind].z = CV_IMAGE_ELEM(ap_depth, unsigned short, l_r + l_miny, l_c + l_minx);
-++l_ind;
-}
-}
-reprojectPoints(lp_dst_3Dpts, lp_dst_3Dpts, f);
-
-l_ind = 0;
-
-for (int l_r = 0; l_r < l_h; ++l_r)
-{
-for (int l_c = 0; l_c < l_w; ++l_c)
-{
-float l_dist = (float)(l_n[0] * lp_dst_3Dpts[l_ind].x + l_n[1] * lp_dst_3Dpts[l_ind].y + lp_dst_3Dpts[l_ind].z * l_n[2] + l_n[3]);
-
-++l_ind;
-
-if (CV_IMAGE_ELEM(lp_mask, unsigned char, l_r + l_miny, l_c + l_minx) != 0)
-{
-	if (fabs(l_dist) < std::max(l_thres, (l_max_dist * 2.0f)))
-	{
-		for (int l_p = 0; l_p < (int)a_masks.size(); ++l_p)
-		{
-			int l_col = cvRound((l_c + l_minx) / (l_p + 1.0));
-			int l_row = cvRound((l_r + l_miny) / (l_p + 1.0));
-
-			CV_IMAGE_ELEM(a_masks[l_p], unsigned char, l_row, l_col) = 0;
-		}
-	}
-	else
-	{
-		for (int l_p = 0; l_p < (int)a_masks.size(); ++l_p)
-		{
-			int l_col = cvRound((l_c + l_minx) / (l_p + 1.0));
-			int l_row = cvRound((l_r + l_miny) / (l_p + 1.0));
-
-			CV_IMAGE_ELEM(a_masks[l_p], unsigned char, l_row, l_col) = 255;
-		}
-	}
-}
-}
-}
-cvReleaseImage (&lp_mask);
-cvReleaseMat (&lp_pts);
-cvReleaseMat (&lp_w);
-cvReleaseMat (&lp_v);
-}
-
-void subtractPlane(const cv::Mat& depth, cv::Mat& mask, std::vector<CvPoint>& chain, double f)
-{
-mask = cv::Mat::zeros(depth.size(), CV_8U);
-std::vector<IplImage*> tmp;
-IplImage mask_ipl = mask;
-tmp.push_back(&mask_ipl);
-IplImage depth_ipl = depth;
-filterPlane(&depth_ipl, tmp, chain, f);
-}
-
-std::vector<CvPoint> maskFromTemplate(const std::vector<cv::linemod::Template>& templates, int num_modalities, cv::Point offset, cv::Size size, cv::Mat& mask,
-                                      cv::Mat& dst)
-{
-templateConvexHull(templates, num_modalities, offset, size, mask);
-
-const int OFFSET = 15;
-cv::dilate(mask, mask, cv::Mat(), cv::Point(-1, -1), OFFSET);
-
-CvMemStorage * lp_storage = cvCreateMemStorage(0);
-CvTreeNodeIterator l_iterator;
-CvSeqReader l_reader;
-CvSeq * lp_contour = 0;
-
-cv::Mat mask_copy = mask.clone();
-IplImage mask_copy_ipl = mask_copy;
-cvFindContours(&mask_copy_ipl, lp_storage, &lp_contour, sizeof(CvContour), CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
-
-std::vector<CvPoint> l_pts1;  // to use as input to cv_primesensor::filter_plane
-
-cvInitTreeNodeIterator(&l_iterator, lp_contour, 1);
-while ((lp_contour = (CvSeq *) cvNextTreeNode(&l_iterator)) != 0)
-{
-CvPoint l_pt0;
-cvStartReadSeq(lp_contour, &l_reader, 0);
-CV_READ_SEQ_ELEM(l_pt0, l_reader);
-l_pts1.push_back(l_pt0);
-
-for (int i = 0; i < lp_contour->total; ++i)
-{
-CvPoint l_pt1;
-CV_READ_SEQ_ELEM(l_pt1, l_reader);
-/// @todo Really need dst at all? Can just as well do this outside
-cv::line(dst, l_pt0, l_pt1, CV_RGB(0, 255, 0), 2);
-
-l_pt0 = l_pt1;
-l_pts1.push_back(l_pt0);
-}
-}
-cvReleaseMemStorage(&lp_storage);
-
-return l_pts1;
-}
-
-// Adapted from cv_show_angles
-cv::Mat displayQuantized(const cv::Mat& quantized)
-{
-cv::Mat color(quantized.size(), CV_8UC3);
-for (int r = 0; r < quantized.rows; ++r)
-{
-const uchar* quant_r = quantized.ptr(r);
-cv::Vec3b* color_r = color.ptr < cv::Vec3b > (r);
-
-for (int c = 0; c < quantized.cols; ++c)
-{
-cv::Vec3b& bgr = color_r[c];
-switch (quant_r[c])
-{
-	case 0:
-		bgr[0] = 0;
-		bgr[1] = 0;
-		bgr[2] = 0;
-		break;
-	case 1:
-		bgr[0] = 55;
-		bgr[1] = 55;
-		bgr[2] = 55;
-		break;
-	case 2:
-		bgr[0] = 80;
-		bgr[1] = 80;
-		bgr[2] = 80;
-		break;
-	case 4:
-		bgr[0] = 105;
-		bgr[1] = 105;
-		bgr[2] = 105;
-		break;
-	case 8:
-		bgr[0] = 130;
-		bgr[1] = 130;
-		bgr[2] = 130;
-		break;
-	case 16:
-		bgr[0] = 155;
-		bgr[1] = 155;
-		bgr[2] = 155;
-		break;
-	case 32:
-		bgr[0] = 180;
-		bgr[1] = 180;
-		bgr[2] = 180;
-		break;
-	case 64:
-		bgr[0] = 205;
-		bgr[1] = 205;
-		bgr[2] = 205;
-		break;
-	case 128:
-		bgr[0] = 230;
-		bgr[1] = 230;
-		bgr[2] = 230;
-		break;
-	case 255:
-		bgr[0] = 0;
-		bgr[1] = 0;
-		bgr[2] = 255;
-		break;
-	default:
-		bgr[0] = 0;
-		bgr[1] = 255;
-		bgr[2] = 0;
-		break;
-}
-}
-}
-
-return color;
-}
-
-// Adapted from cv_line_template::convex_hull
-void templateConvexHull(const std::vector<cv::linemod::Template>& templates, int num_modalities, cv::Point offset, cv::Size size, cv::Mat& dst)
-{
-std::vector<cv::Point> points;
-for (int m = 0; m < num_modalities; ++m)
-{
-for (int i = 0; i < (int) templates[m].features.size(); ++i)
-{
-cv::linemod::Feature f = templates[m].features[i];
-points.push_back(cv::Point(f.x, f.y) + offset);
-}
-}
-
-std::vector<cv::Point> hull;
-cv::convexHull(points, hull);
-
-dst = cv::Mat::zeros(size, CV_8U);
-const int hull_count = (int) hull.size();
-const cv::Point* hull_pts = &hull[0];
-cv::fillPoly(dst, &hull_pts, &hull_count, 1, cv::Scalar(255));
-}
-
-void drawResponse(const std::vector<cv::linemod::Template>& templates, int num_modalities, cv::Mat& dst, cv::Point offset, int T)
-{
-static const cv::Scalar COLORS[5] =
-{ CV_RGB(0, 0, 255), CV_RGB(0, 255, 0), CV_RGB(255, 255, 0), CV_RGB(255, 140, 0), CV_RGB(255, 0, 0) };
-
-for (int m = 0; m < num_modalities; ++m)
-{
-  // NOTE: Original demo recalculated max response for each feature in the TxT
-  // box around it and chose the display color based on that response. Here
-  // the display color just depends on the modality.
-cv::Scalar color = COLORS[m];
-
-for (int i = 0; i < (int) templates[m].features.size(); ++i)
-{
-cv::linemod::Feature f = templates[m].features[i];
-cv::Point pt(f.x + offset.x, f.y + offset.y);
-cv::circle(dst, pt, T / 2, color);
-}
-}
+    ros::init(argc, argv, "mcr_object_learning");
+    ros::NodeHandle nh("~");
+    ros::Rate loop_rate(10);
+    tf_listener = boost::make_shared<tf::TransformListener>();
+    pub_marker_object = nh.advertise<visualization_msgs::Marker>("visualization_marker_object", 1);
+    pub_scan_objects = nh.advertise<sensor_msgs::PointCloud2>("object_candidates", 1);
+    pub_event_handling = nh.advertise<std_msgs::String>("event_out", 1);
+    sub_event_handling = nh.subscribe<std_msgs::String>("event_in", 1, eventCallback);
+    dynamic_reconfigure::Server<mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig> server;
+    dynamic_reconfigure::Server<mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig>::CallbackType f;
+    f = boost::bind(&reconfigureCallback, _1, _2);
+    server.setCallback(f);
+    linemod.reset(new Linemod(dyn_recfg_parameters.database_folder_name, dyn_recfg_parameters.database_file_name, 
+                        dyn_recfg_parameters.detection_threshold, dyn_recfg_parameters.num_modalities));
+    linemod->setMask(dyn_recfg_parameters.roi_min_x, dyn_recfg_parameters.roi_max_x, dyn_recfg_parameters.roi_min_y, 
+                                dyn_recfg_parameters.roi_max_y, dyn_recfg_parameters.roi_min_z, dyn_recfg_parameters.roi_max_z);
+    current_state = STOP;
+
+    while (ros::ok())
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
+
+        switch(current_state) 
+        {
+            case STOP:
+            {
+                sub_pointcloud.shutdown();
+                break;
+            }
+            case INIT:
+            {
+                sub_pointcloud = nh.subscribe<sensor_msgs::PointCloud2>(dyn_recfg_parameters.input_cloud_topic, 1, pointcloudCallback);
+                current_state = WAIT;
+                eventOut("e_init_done");
+                break;    
+            }
+            case WAIT:
+            {
+                break;
+            }
+            case LEARN:
+            {
+                convertPointCloud();
+                computeDetections();
+
+                if (dyn_recfg_parameters.mode_visualization)
+                {
+                    visualize(cloud);
+                }
+
+                if (objects.size() == 0)
+                {
+                    std::vector<std::string> names = linemod->getObjectNames();                  
+                    if (std::find(names.begin(), names.end(), dyn_recfg_parameters.learnable_object_name) != names.end())
+                    {
+                        linemod->addTemplate(cloud, dyn_recfg_parameters.learnable_object_name, false);
+                    }
+                    else
+                    {
+                        linemod->addTemplate(cloud, dyn_recfg_parameters.learnable_object_name, true);
+                    }
+                }
+
+                eventOut("e_learn_done");
+                objects.clear();
+                object_candidates.clear();
+                current_state = READY;
+                break;
+            }
+            case TEST:
+            {
+                convertPointCloud();
+                computeDetections();
+
+                if (dyn_recfg_parameters.mode_visualization)
+                {
+                    visualize(cloud);
+                }
+
+                std::vector<ObjectRegion> same_objects;
+                for (size_t obj = 0; obj < objects.size(); obj++)
+                {
+                    if (objects.at(obj).name == dyn_recfg_parameters.learnable_object_name)
+                    {
+                        same_objects.push_back(objects.at(obj));
+                    }
+                }
+                if (same_objects.size() == 0)
+                {
+                    eventOut("e_test_fail");
+                }
+                else
+                {
+                    eventOut("e_test_success");
+                }
+
+                objects.clear();
+                object_candidates.clear();
+                current_state = READY;
+                break;
+            }
+            default:
+            {}
+        }
+    }
+    return 0;
 }

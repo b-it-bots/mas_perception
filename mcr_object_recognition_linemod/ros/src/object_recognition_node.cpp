@@ -1,440 +1,423 @@
-/**
- * object_recognition_linemod.cpp
+/** @file object_recognition_node.cpp
+ *  @brief Wrapper for LINEMOD object recognition
+ *  @author    Alexander Hagg
+ *  @memberof  b-it-bots RoboCup@Home team
+ *  @version   0.1.0
+ *  @date      7 March 2014
+ *  @pre       First initialize the system.
+ *  @copyright GNU Public License.
+ * 
+ *  This node provides a service to recognize objects that have been learned
+ *  by the object_learning_linemod.cpp node, using template matching based on
+ *  LINE_MOD by Stefan Hinterstoisser (TUM).
  *
- * Created on: 7 March 2013
- *     Author: Alexander Hagg
+ *  The user can configure the matching threshold, which is defined as a percentage. 
+ *  A strong threshold would be 98%, 90% would be much weaker. Values below 85% are meaningless. 
  *
+ *  Published topics:
+ *  - visualization_marker_object: visualization of ROI and object label markers
+ *  - objects_visualization: object pointclouds for visualization
+ *  - objects: identified objects (pointclouds, position of centroids, name)
+ *  - event_in: event handling
+ *  - event_out: event handling
  *
- * This node provides a service to recognize objects that have been learned
- * by the object_learning_linemod.cpp node, using template matching based on
- * LINE_MOD by Stefan Hinterstoisser (TUM).
- *
- * The input is an RGB, depth image and a point cloud. The user can configure the
- * matching threshold, which is defined as a percentage. A strong threshold would be 98%,
- * 90% would be much weaker. Values below 85% are meaningless. "needed_voting_rounds" has no use yet.
- *
- * Provides services:
- *   1) "get_recognized_objects"
- *
- * Publishes:
- *   1) "recognized_objects"
- *      For debugging purposes. Shows point cloud of objects
- *
- * A part of the code was taken from the OpenCV (v2.4.4) example
+ *  Events handled:
+ *  - "e_init": initialize system, subscribe to pointcloud topic
+ *  - "e_recognize": recognize objects
+ *  - "e_stop": stop system and return to pre-initialization
  *
  */
 
 #include <string>
+#include <iostream>
 #include <fstream>
-#include "yaml-cpp/yaml.h"
-#include <cmath>
+#include <vector>
 
 #include <ros/ros.h>
 #include <ros/console.h>
-#include <tf/transform_listener.h>
-#include <tf/transform_broadcaster.h>
-#include <geometry_msgs/PointStamped.h>
-#include <tf/tf.h>
-#include <std_srvs/Empty.h>
-#include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/image_encodings.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/PointCloud2.h>
-//#include <pr2_controllers_msgs/JointTrajectoryControllerState.h>
-#include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <pcl/common/common_headers.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
+#include <ros/package.h>
 #include <dynamic_reconfigure/server.h>
+#include <pcl_ros/point_cloud.h>
+#include <pcl_ros/transforms.h>
+#include <pcl_ros/impl/transforms.hpp>
+#include <tf/transform_listener.h>
+#include <image_transport/image_transport.h>
+#include <std_msgs/String.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <visualization_msgs/Marker.h>
 
-#include <mcr_object_recognition_linemod/ObjectRecognitionLinemodConfig.h>
-
-//#include <mcr_perception_msgs/UpdateObjectList.h>
-#include <mcr_perception_msgs/GetObjectList.h>
 #include <mcr_perception_msgs/ObjectList.h>
 #include <mcr_perception_msgs/Object.h>
 #include <mcr_tabletop_segmentation/toolbox_ros.h>
+#include <mcr_object_recognition_linemod/ObjectRecognitionLinemodConfig.h>
+#include <mcr_object_recognition_linemod/linemod.h>
 
-#include "linemod_recognition.h"
-
-#define UPDATE_NO_ERROR 0
-#define UPDATE_ERROR_NO_OBJECTS_PROVIDED 1
-#define UPDATE_ERROR_OBJECT_ALREADY_IN_DB 2
-#define UPDATE_ERROR_OBJECT_NOT_IN_DB 3
-
-#ifndef M_PI
-#define M_PI    3.14159f
-#endif
-
-using namespace std;
-using sensor_msgs::PointCloud;
-namespace enc = sensor_msgs::image_encodings;
-
-ros::Publisher pub_scan;
-ros::Publisher pub_objects_in_db;
-ros::Publisher pub_objects_active;
-ros::Subscriber sub;
-tf::TransformListener *tf_listener;
-LinemodRecognition* linemod_recognition;
-mcr_perception_msgs::ObjectList recognized_objects, objects_searched, objects_in_db;
-int image_topic_wait, cloud_topic_wait, controller_topic_wait;
-string filename, input_color, input_cloud, input_depth, input_head_controller_status;
-int max_retries, needed_voting_rounds;
-double matching_threshold;
-CToolBoxROS toolBox;
-string frame_id, filename_categories;
-std::vector<std::string> class_ids, class_ids_in_database;
-bool head_forward;
+ros::Publisher pub_scan_objects;
+ros::Publisher pub_marker_object;
+ros::Publisher pub_objects;
+ros::Publisher pub_event_handling;
+ros::Subscriber sub_event_handling;
+ros::Subscriber sub_pointcloud;
+boost::shared_ptr<tf::TransformListener> tf_listener;
 std::vector<mcr_perception_msgs::Object> hypothesis;
-double minimum_object_distance;
+std::vector<ObjectRegion> object_candidates_unfiltered, object_candidates, objects;
+boost::shared_ptr<Linemod> linemod;
+CToolBoxROS tool_box;
+bool publish_object_pointclouds;
+mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig dyn_recfg_parameters;
+sensor_msgs::PointCloud2::ConstPtr pointcloud_saved_msg;
+pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-void callback(mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig &config, uint32_t level)
+enum states
+{ 
+    STOP,
+    INIT,
+    WAIT,
+    READY,
+    RECOGNIZE
+} current_state;
+
+/** @brief Node reconfiguration
+ * 
+ *  @param config configuration container
+ *  @param level
+ *
+ */
+void reconfigureCallback(mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig &config, uint32_t level)
 {
-	filename = config.filename;
-	filename_categories = config.filename_categories;
-	max_retries = config.max_retries;
-	needed_voting_rounds = config.needed_voting_rounds;
-	image_topic_wait = config.image_topic_wait;
-	cloud_topic_wait = config.cloud_topic_wait;
-	controller_topic_wait = config.controller_topic_wait;
-	input_color = config.input_color;
-	input_depth = config.input_depth;
-	input_cloud = config.input_cloud;
-	input_head_controller_status = config.input_head_controller_status;
-	minimum_object_distance = config.minimum_object_distance;
-	matching_threshold = config.matching_threshold;
-	if (linemod_recognition)
-	{
-		linemod_recognition->setMatchingThreshold(matching_threshold);
-	}
-	ROS_INFO_STREAM("matching_threshold " << matching_threshold);
+    dyn_recfg_parameters = config;
+    linemod.reset(new Linemod(dyn_recfg_parameters.database_folder_name, dyn_recfg_parameters.database_file_name, 
+                              dyn_recfg_parameters.detection_threshold, dyn_recfg_parameters.num_modalities));
 }
 
-bool getObjects(mcr_perception_msgs::GetObjectList::Request &req, mcr_perception_msgs::GetObjectList::Response &res)
+/** @brief callback for rgbd camera
+ * 
+ *  @param pointcloud_msg holding incoming pointcloud
+ *
+ */
+void pointcloudCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg)
 {
-	ROS_INFO("service call triggered");
-	ros::NodeHandle nh("~");
+    if (!pointcloud_msg)
+    {
+        return;
+    }
 
-	if (class_ids.empty())
-	{
-		if (!linemod_recognition->getObjectList().empty())
-		{
-			ROS_INFO_STREAM("currently searching for an empty set of objects although database is non empty");
-			return false;
-		}
-		else
-		{
-			ROS_INFO_STREAM("currently searching for an empty set of objects because database is empty");
-			return false;
-		}
-	}
-
-	/*
-	pr2_controllers_msgs::JointTrajectoryControllerState::ConstPtr jointState;
-	jointState = ros::topic::waitForMessage < pr2_controllers_msgs::JointTrajectoryControllerState
-	        > (input_head_controller_status, ros::Duration(controller_topic_wait));
-
-	if (jointState && jointState->actual.positions.at(0) < -0.5 * M_PI)
-	{
-		head_forward = false;
-	}
-	else
-	{
-		head_forward = true;
-	}*/
-
-	for (size_t retry_ctr = 0; retry_ctr < max_retries; retry_ctr++)
-	{
-		sensor_msgs::Image::ConstPtr const_input_color, const_input_depth;
-		sensor_msgs::PointCloud2::ConstPtr const_input_cloud;
-		pcl::PointCloud < pcl::PointXYZ > const_output_cloud;
-
-		const_input_cloud = ros::topic::waitForMessage < sensor_msgs::PointCloud2 > (input_cloud, ros::Duration(cloud_topic_wait));
-		const_input_color = ros::topic::waitForMessage < sensor_msgs::Image > (input_color, ros::Duration(image_topic_wait));
-		const_input_depth = ros::topic::waitForMessage < sensor_msgs::Image > (input_depth, ros::Duration(image_topic_wait));
-
-		cv_bridge::CvImagePtr cv_color_ptr, cv_depth_ptr;
-		ROS_INFO("Retry number: %lu ...", retry_ctr);
-		if (const_input_color && const_input_depth && const_input_cloud)
-		{
-			try
-			{
-
-				cv::Mat color, depth;
-				cv_color_ptr = cv_bridge::toCvCopy(const_input_color, enc::BGR8);
-				cv_depth_ptr = cv_bridge::toCvCopy(const_input_depth, enc::MONO16);
-
-				if (!head_forward)
-				{
-					flip(cv_color_ptr->image, cv_color_ptr->image, -1);
-					flip(cv_depth_ptr->image, cv_depth_ptr->image, -1);
-				}
-
-				color = cv_color_ptr.get()->image;
-				depth = cv_depth_ptr.get()->image;
-				std::vector<ObjectRegion> object_2d_list;
-				object_2d_list = linemod_recognition->recognizeObjects(color, depth, class_ids);
-
-				ROS_INFO("Recognized %lu objects", object_2d_list.size());
-				for (size_t i = 0; i < object_2d_list.size(); i++)
-				{
-					mcr_perception_msgs::Object object;
-					object.name = object_2d_list.at(i)._class_id;
-					object.probability = object_2d_list.at(i)._similarity;
-
-					pcl::PointCloud < pcl::PointXYZRGB > cloud;
-					pcl::PointCloud < pcl::PointXYZ > subcloud;
-					pcl::fromROSMsg(*const_input_cloud, cloud);
-					for (size_t modality_id = 0; modality_id < object_2d_list.at(i)._num_modalities; modality_id++)
-					{
-						int offset_x = object_2d_list.at(i)._x;
-						int offset_y = object_2d_list.at(i)._y;
-
-						for (size_t feature_id = 0; feature_id < object_2d_list.at(i)._templates.at(modality_id).features.size(); feature_id++)
-						{
-							pcl::PointXYZRGB point;
-							if (!head_forward)
-							{
-								point = cloud.at(
-								        cv_color_ptr->image.cols - (offset_x + object_2d_list.at(i)._templates.at(modality_id).features.at(feature_id).x),
-								        cv_color_ptr->image.rows - (offset_y + object_2d_list.at(i)._templates.at(modality_id).features.at(feature_id).y));
-							}
-							else
-							{
-								point = cloud.at((offset_x + object_2d_list.at(i)._templates.at(modality_id).features.at(feature_id).x),
-								                 (offset_y + object_2d_list.at(i)._templates.at(modality_id).features.at(feature_id).y));
-							}
-
-							pcl::PointXYZ reduced_point;
-							reduced_point.x = point.x;
-							reduced_point.y = point.y;
-							reduced_point.z = point.z;
-
-							if (modality_id == 1 && !isnan(point.x) && !isnan(point.y) && !isnan(point.z))
-							{
-								subcloud.push_back(reduced_point);
-							}
-
-						}
-					}
-
-					pcl::toROSMsg(cloud, object.pointcloud);
-					object.pointcloud.header.frame_id = const_input_cloud->header.frame_id;
-					object.pose.header.frame_id = const_input_cloud->header.frame_id;
-
-					geometry_msgs::PointStamped centroid, centroid_world;
-					centroid.header.frame_id = object.pointcloud.header.frame_id;
-					centroid.header.stamp = object.pointcloud.header.stamp;
-					pcl::PointXYZ point = toolBox.pointCloudCentroid(subcloud);
-					centroid.point.x = point.x;
-					centroid.point.y = point.y;
-					centroid.point.z = point.z;
-
-					tf_listener->transformPoint("base_link", centroid, centroid_world);
-
-					object.pose.pose.position.x = centroid_world.point.x;
-					object.pose.pose.position.y = centroid_world.point.y;
-					object.pose.pose.position.z = centroid_world.point.z;
-
-					hypothesis.push_back(object);
-
-					for (size_t i = 0; i < subcloud.size(); i++)
-					{
-						if (isnan(subcloud.points[i].x) || isnan(subcloud.points[i].y) || isnan(subcloud.points[i].z))
-						{
-							continue;
-						}
-						const_output_cloud.push_back(subcloud.points[i]);
-					}
-
-					static tf::TransformBroadcaster br;
-					tf::Transform transform;
-					transform.setOrigin(tf::Vector3(object.pose.pose.position.x, object.pose.pose.position.y, object.pose.pose.position.z));
-					transform.setRotation(tf::Quaternion(0, 0, 0));
-					br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "object"));
-					const_input_color.reset();
-					const_input_depth.reset();
-				}
-
-				/* Select only the best object matches per position
-				 * Problem: 	linemod object recognition returns a set of objects but since it uses pattern matching,
-				 * 				false positives (multiple objects on same location) can be returned
-				 * Solution:	solve this by only taking the most probable objects around a centroid position
-				 * 				(plus a certain tolerance minimum_object_distance)
-				 */
-				for (size_t hypothesized_object = 0; hypothesized_object < hypothesis.size(); hypothesized_object++)
-				{
-					bool valid_object_hypothesis = true;
-					for (size_t detected_object = 0; detected_object < res.objects.size(); detected_object++)
-					{
-
-						geometry_msgs::Point hypothesis_position = hypothesis.at(hypothesized_object).pose.pose.position;
-						geometry_msgs::Point object_position = res.objects.at(detected_object).pose.pose.position;
-
-						double position_difference = sqrt(
-						        pow(hypothesis_position.x - object_position.x, 2) + pow(hypothesis_position.y - object_position.y, 2)
-						                + pow(hypothesis_position.z - object_position.z, 2));
-
-						if (position_difference < minimum_object_distance
-						        && hypothesis.at(hypothesized_object).probability < res.objects.at(detected_object).probability)
-						{
-							valid_object_hypothesis = false;
-							break;
-						}
-					}
-					if (valid_object_hypothesis)
-					{
-						res.objects.push_back(hypothesis.at(hypothesized_object));
-					}
-				}
-
-				if (object_2d_list.size() > 0)
-				{
-					pcl_conversions::toPCL(const_input_cloud->header, const_output_cloud.header);
-
-					sensor_msgs::PointCloud2 out_msg;
-					pcl::toROSMsg(const_output_cloud, out_msg);
-					pub_scan.publish(out_msg);
-					const_output_cloud.clear();
-					hypothesis.clear();
-					break;
-				}
-				hypothesis.clear();
-
-			}
-			catch (cv_bridge::Exception &ex)
-			{
-				ROS_ERROR("cv_bridge exception: %s", ex.what());
-			}
-			catch (tf::TransformException &ex)
-			{
-				ROS_WARN("No tf available: %s", ex.what());
-			}
-			catch (ros::Exception &ex)
-			{
-				ROS_WARN("General exception caught: %s", ex.what());
-			}
-			catch (...)
-			{
-				printf("fatal error");
-			}
-
-		}
-		else
-		{
-			ROS_INFO("Waiting for stereo camera topics: ");
-			if (!const_input_color)
-				ROS_INFO("const_input_color");
-			if (!const_input_depth)
-				ROS_INFO("const_input_depth");
-			if (!const_input_cloud)
-				ROS_INFO("const_input_cloud");
-		}
-	}
-
-	return true;
+    pointcloud_saved_msg = pointcloud_msg;
+    if (current_state == WAIT)
+    {
+        current_state = READY;
+    }
 }
 
-/*
-bool updateObjectSet(mcr_perception_msgs::UpdateObjectList::Request &req, mcr_perception_msgs::UpdateObjectList::Response &res)
+/** @brief event output handling
+ * 
+ *  @param event_msg string holding the event description
+ *
+ */
+void eventOut(const std::string &event_msg)
 {
-	std::set<std::string> objectSet(class_ids.begin(), class_ids.end());
-	if (req.objects.size() == 0)
-	{
-		res.error = UPDATE_ERROR_NO_OBJECTS_PROVIDED;
-		return false;
-	}
-
-	for (size_t requestedObject = 0; requestedObject < req.objects.size(); requestedObject++)
-	{
-		if (req.action.at(requestedObject))
-		{
-			if (!objectSet.insert(req.objects.at(requestedObject)).second)
-				return UPDATE_ERROR_OBJECT_ALREADY_IN_DB;
-		}
-		else
-		{
-			if (objectSet.erase(req.objects.at(requestedObject)) != 1)
-			{
-				return UPDATE_ERROR_OBJECT_NOT_IN_DB;
-			}
-		}
-	}
-
-	class_ids = std::vector<std::string>(objectSet.begin(), objectSet.end());
-	res.error = UPDATE_NO_ERROR;
-	return true;
-}*/
-
-bool start(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
-{
-	ROS_INFO("DEPRECATED SERVICE: object recognition ENABLED");
-	return true;
+    std_msgs::String event_out;
+    event_out.data = event_msg;
+    pub_event_handling.publish(event_out);
 }
 
-bool stop(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+/** @brief event input handling
+ * 
+ *  @param event_msg string message holding the event description
+ *
+ */
+bool eventCallback(const std_msgs::String::ConstPtr &event_msg)
 {
-	ROS_INFO("DEPRECATED SERVICE: object recognition DISABLED");
-	return true;
+    switch(current_state) 
+    {
+        case STOP:
+        {
+            if (event_msg->data == "e_init")
+            {
+                current_state = INIT;
+            } 
+            else if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+            }
+            break;
+        }
+        case INIT:
+        {
+            if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+                eventOut("e_stop_done");
+            }
+            break;
+        }
+        case READY:
+        {
+            if (event_msg->data == "e_recognize")
+            {
+                current_state = RECOGNIZE;
+            }
+            else if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+                eventOut("e_stop_done");
+            }
+            break;
+        }
+        case RECOGNIZE:
+        {
+            if (event_msg->data == "e_stop")
+            {
+                current_state = STOP;
+                eventOut("e_stop_done");
+            }
+            break;
+        }
+        default:
+        {}
+    }
+    return true;
 }
 
-void publish_object_lists()
+/** @brief conversion of 2D object region to pointcloud
+ * 
+ *  @param object 2D object description as defined in linemod.h
+ *  @param cloud input cloud needed
+ *  @param hue_multiplier 
+ *
+ */
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr convert2DTemplateTo3DPointCloud(ObjectRegion object, const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud, int hue_multiplier)
 {
-	pub_objects_in_db.publish(objects_in_db);
-	for (size_t i = 0; i < class_ids.size(); i++)
-	{
-		mcr_perception_msgs::Object current_object;
-		current_object.name = class_ids[i];
-		objects_searched.objects.push_back(current_object);
-	}
-	pub_objects_active.publish(objects_searched);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr object_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    object_cloud->header = cloud->header;
+    int offset_x = object.x;
+    int offset_y = object.y;
+    for (size_t feature_id = 0; feature_id < object.template_found->features.size(); feature_id++)
+    {
+        int point_x = offset_x + object.template_found->features.at(feature_id).x;
+        int point_y = offset_y + object.template_found->features.at(feature_id).y;
+        pcl::PointXYZRGBA a_point = cloud->at(point_x, point_y);
+        pcl::PointXYZRGB point;
+        point.x = a_point.x;
+        point.y = a_point.y;
+        point.z = a_point.z;
+        point.r = 0;
+        point.g = (255 - 20 * hue_multiplier) % 255;
+        point.b = 0;
+        if (!isnan(point.x) && !isnan(point.y) && !isnan(point.z))
+        {
+            object_cloud->push_back(point);
+        }
+    }
+    return object_cloud;
+}
+
+void visualize(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud, std::vector<ObjectRegion> objects)
+{
+    pcl::PointCloud<pcl::PointXYZRGB> output_cloud;
+    output_cloud.header = cloud->header;
+    for (size_t i = 0; i < objects.size(); i++)
+    {
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr object_cloud = convert2DTemplateTo3DPointCloud(objects.at(i), cloud, i);
+        output_cloud += *object_cloud;
+
+        visualization_msgs::Marker marker_object_label;
+        marker_object_label.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        marker_object_label.header.frame_id = dyn_recfg_parameters.base_link;
+        marker_object_label.header.stamp = ros::Time::now();
+        marker_object_label.ns = "basic_labels";
+        marker_object_label.id = i + 1;
+        marker_object_label.text = objects.at(i).name;
+        marker_object_label.action = visualization_msgs::Marker::ADD;
+        pcl::PointXYZRGBA point = cloud->at(objects.at(i).x,objects.at(i).y);
+        marker_object_label.pose.position.x = objects.at(i).world_x;
+        marker_object_label.pose.position.y = objects.at(i).world_y;
+        marker_object_label.pose.position.z = objects.at(i).world_z;
+        marker_object_label.scale.z = 0.05f;
+        marker_object_label.color.r = 1.0f;
+        marker_object_label.color.g = 1.0f * ((100.0 - i) / 100.0);
+        marker_object_label.color.b = 1.0f;
+        marker_object_label.color.a = 1.0f;
+        marker_object_label.lifetime = ros::Duration(3.0);
+        pub_marker_object.publish(marker_object_label);
+    }
+    sensor_msgs::PointCloud2 out_msg;
+    pcl::toROSMsg(output_cloud, out_msg);
+    pub_scan_objects.publish(out_msg);
 }
 
 int main(int argc, char **argv)
 {
-	/* init ROS node with a name and a node handle*/
-	ros::init(argc, argv, "mcr_object_recognition_linemod");
-	ros::NodeHandle nh("~");
-	ros::ServiceServer srvGetObjectList, srvUpdateObjectSet, srv_start, srv_stop;
-	tf_listener = new tf::TransformListener();
+    ros::init(argc, argv, "mcr_object_recognition");
+    ros::NodeHandle nh("~");
+    ros::Rate loop_rate(10);
+    tf_listener = boost::make_shared<tf::TransformListener>();
+    pub_marker_object = nh.advertise<visualization_msgs::Marker>("visualization_marker_object", 1);
+    pub_scan_objects = nh.advertise<sensor_msgs::PointCloud2>("objects_visualization", 1);
+    pub_objects = nh.advertise<mcr_perception_msgs::ObjectList>("objects", 1);
+    pub_event_handling = nh.advertise<std_msgs::String>("event_out", 1);
+    sub_event_handling = nh.subscribe<std_msgs::String>("event_in", 1, eventCallback);
+    dynamic_reconfigure::Server<mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig> server;
+    dynamic_reconfigure::Server<mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig>::CallbackType f;
+    f = boost::bind(&reconfigureCallback, _1, _2);
+    server.setCallback(f);
+    linemod.reset(new Linemod(dyn_recfg_parameters.database_folder_name, dyn_recfg_parameters.database_file_name, 
+                        dyn_recfg_parameters.detection_threshold, dyn_recfg_parameters.num_modalities));
+    current_state = STOP;
 
-	pub_scan = nh.advertise < sensor_msgs::PointCloud2 > ("recognized_objects", 1);
-	pub_objects_in_db = nh.advertise < mcr_perception_msgs::ObjectList > ("objects_in_database", 1);
-	pub_objects_active = nh.advertise < mcr_perception_msgs::ObjectList > ("objects_in_search", 1);
+    while (ros::ok())
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
 
-	dynamic_reconfigure::Server < mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig > server;
-	dynamic_reconfigure::Server<mcr_object_recognition_linemod::ObjectRecognitionLinemodConfig>::CallbackType f;
-	f = boost::bind(&callback, _1, _2);
-	server.setCallback(f);
+        switch(current_state) 
+        {
+            case STOP:
+            {
+                sub_pointcloud.shutdown();
+                break;
+            }
+            case INIT:
+            {
+                sub_pointcloud = nh.subscribe<sensor_msgs::PointCloud2>(dyn_recfg_parameters.input_cloud_topic, 1, pointcloudCallback);
+                linemod->setMask(dyn_recfg_parameters.roi_min_x, dyn_recfg_parameters.roi_max_x, dyn_recfg_parameters.roi_min_y, 
+                                dyn_recfg_parameters.roi_max_y, dyn_recfg_parameters.roi_min_z, dyn_recfg_parameters.roi_max_z);
+                current_state = WAIT;
+                eventOut("e_init_done");
+                break;    
+            }
+            case WAIT:
+            {
+                break;
+            }
+            case READY:
+            {
+                break;
+            }
+            case RECOGNIZE:
+            {
+                pcl::fromROSMsg(*pointcloud_saved_msg, *cloud);
+                tf::StampedTransform center_transform;
+                try
+                {
+                    tf_listener->waitForTransform(dyn_recfg_parameters.base_link, pointcloud_saved_msg->header.frame_id, pointcloud_saved_msg->header.stamp, ros::Duration(5.0));
+                    tf_listener->lookupTransform(dyn_recfg_parameters.base_link, pointcloud_saved_msg->header.frame_id, pointcloud_saved_msg->header.stamp, center_transform);
+                    pcl_ros::transformPointCloud(*cloud, *cloud, center_transform);
+                    cloud->header.frame_id = dyn_recfg_parameters.base_link;
+                } 
+                catch (tf::TransformException &ex)
+                {
+                    ROS_WARN("TF lookup failed: %s",ex.what());
+                }
+                object_candidates.clear();
+                object_candidates_unfiltered = linemod->computeDetections(cloud);
+                
+                // Make sure we have unique objects
+                for (size_t i = 0; i < object_candidates_unfiltered.size(); i++) 
+                {
+                    if (object_candidates_unfiltered.at(i).similarity <= dyn_recfg_parameters.detection_threshold)
+                    {
+                        continue;
+                    }
+                    
+                    int found_object = -1;
+                    double found_object_similarity = 0.0f;
+                    for (size_t candidate = 0; candidate < object_candidates.size(); candidate++)
+                    {
+                        if (object_candidates.at(candidate).name != object_candidates_unfiltered.at(i).name)
+                        {
+                            continue;
+                        }
+                        if (object_candidates.at(candidate).similarity > found_object_similarity) 
+                        {
+                            found_object = candidate;
+                            found_object_similarity = object_candidates.at(candidate).similarity;
+                        }
+                    }
+                    if (found_object == -1)
+                    {
+                        object_candidates.push_back(object_candidates_unfiltered.at(i));  
+                        found_object == -1;
+                    } 
+                    else if (object_candidates_unfiltered.at(i).similarity > object_candidates.at(found_object).similarity)
+                    {
+                        object_candidates.erase(object_candidates.begin() + found_object);
+                        object_candidates.push_back(object_candidates_unfiltered.at(i));  
+                        found_object == -1;
+                    }
+                }
 
-	linemod_recognition = new LinemodRecognition(filename, matching_threshold);
-	class_ids_in_database = class_ids = linemod_recognition->getObjectList();
-	for (size_t i = 0; i < class_ids_in_database.size(); i++)
-	{
-		mcr_perception_msgs::Object current_object;
-		current_object.name = class_ids_in_database[i];
-		objects_in_db.objects.push_back(current_object);
-	}
+                for (size_t i = 0; i < object_candidates.size(); i++)
+                {
+                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr object_cloud = convert2DTemplateTo3DPointCloud(object_candidates.at(i), cloud, i);
+                    pcl::PointXYZRGB point = tool_box.pointCloudCentroid(*object_cloud);
+                    object_candidates.at(i).world_x = point.x;
+                    object_candidates.at(i).world_y = point.y;
+                    object_candidates.at(i).world_z = point.z;
+                }
 
-	srv_start = nh.advertiseService("start", start);
-	srv_stop = nh.advertiseService("stop", stop);
-	srvGetObjectList = nh.advertiseService("get_recognized_objects", getObjects);
-	//srvUpdateObjectSet = nh.advertiseService("update_object_set", updateObjectSet);
+                for (size_t hypothesized_object = 0; hypothesized_object < object_candidates.size(); hypothesized_object++)
+                {
+                    bool valid_object_hypothesis = true;
+                    for (size_t detected_object = 0; detected_object < objects.size(); detected_object++)
+                    {
+                        double position_difference = sqrt(pow(object_candidates.at(hypothesized_object).world_x - objects.at(detected_object).world_x, 2) + 
+                                                          pow(object_candidates.at(hypothesized_object).world_y - objects.at(detected_object).world_y, 2) +
+                                                          pow(object_candidates.at(hypothesized_object).world_z - objects.at(detected_object).world_z, 2));
 
-	head_forward = true;
+                        if (position_difference < dyn_recfg_parameters.minimum_object_distance)
+                        {
+                            valid_object_hypothesis = false;
+                            break;
+                        }
+                    }
+                    if (valid_object_hypothesis)
+                    {
+                        objects.push_back(object_candidates.at(hypothesized_object));
+                    }
+                }
 
-	ros::Rate loop_rate(2);
+                // Gather objects for publishing
+                mcr_perception_msgs::ObjectList objects_msg;
+                for (size_t object = 0; object < objects.size(); object++)
+                {
+                    mcr_perception_msgs::Object msg_object;
+                    msg_object.name = objects.at(object).name;
+                    msg_object.probability = objects.at(object).similarity;
+                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr object_cloud = convert2DTemplateTo3DPointCloud(object_candidates.at(object), cloud, object);
+                    toROSMsg(*object_cloud, msg_object.pointcloud);
+                    msg_object.pointcloud.header.frame_id = dyn_recfg_parameters.base_link;
+                    msg_object.pose.header.frame_id = dyn_recfg_parameters.base_link;
 
-	while (ros::ok())
-	{
-		ros::spinOnce();
-		publish_object_lists();
-		loop_rate.sleep();
-	}
+                    geometry_msgs::PointStamped centroid;
+                    centroid.header.frame_id = dyn_recfg_parameters.base_link;
+                    centroid.header.stamp = msg_object.pointcloud.header.stamp;
+                    pcl::PointXYZRGB point = tool_box.pointCloudCentroid(*object_cloud);
 
-	return 0;
+                    msg_object.pose.pose.position.x = point.x;
+                    msg_object.pose.pose.position.y = point.y;
+                    msg_object.pose.pose.position.z = point.z;
+                    objects_msg.objects.push_back(msg_object);
+                }
+                
+                pub_objects.publish(objects_msg);
+
+                if (dyn_recfg_parameters.mode_visualization)
+                {
+                    visualize(cloud, objects);
+                }
+
+                current_state = READY;
+                eventOut("e_recognize_done");
+                object_candidates_unfiltered.clear();
+                object_candidates.clear();
+                objects.clear();
+                break;
+            }
+            default:
+            {}
+        }
+
+    }
+    return 0;
 }

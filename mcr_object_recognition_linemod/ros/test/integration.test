@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="pi/2" value="1.5707963267948966" />
+  	<arg name="optical_rotate" value="0 0 0 -$(arg pi/2) 0 -$(arg pi/2)" />
+
+  	<node pkg="tf" type="static_transform_publisher" name="link2_broadcaster" args="0 0 1.275 0.0 0.45 0.0 base_link camera_link 100" />
+	<node pkg="tf" type="static_transform_publisher" name="camera_base_link"  args="0 -0.02  0 0 0 0 camera_link camera_depth_frame 100" />  
+	<node pkg="tf" type="static_transform_publisher" name="camera_base_link1" args="0 -0.045 0 0 0 0 camera_link camera_rgb_frame 100" />  
+	<node pkg="tf" type="static_transform_publisher" name="camera_base_link2" args="$(arg optical_rotate) camera_depth_frame camera_depth_optical_frame 100" />  
+	<node pkg="tf" type="static_transform_publisher" name="camera_base_link3" args="$(arg optical_rotate) camera_rgb_frame camera_rgb_optical_frame 100" />
+
+    <node pkg="mcr_object_recognition_linemod" type="object_recognition_node" name="mcr_object_recognition" output="screen">
+    	<param name="database_folder_name" value="$(find mds_object_recognition_linemod)/trained_templates/" />
+    	<param name="detection_threshold" value="0.92" />
+    </node>
+
+    <test pkg="mcr_object_recognition_linemod" type="integration_test_linemod" test-name="mcr_object_recognition_integration_test">
+        <param name="component_namespace" value="/mcr_object_recognition" />
+        <param name="dataset_path" value="$(find mds_pointclouds)/objects/table_setups/" />
+        <param name="database_path" value="$(find mds_object_recognition_linemod)/trained_templates/" />
+    </test>
+</launch>
