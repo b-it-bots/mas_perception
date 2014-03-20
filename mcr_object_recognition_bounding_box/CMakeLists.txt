@@ -10,6 +10,8 @@ find_package(catkin REQUIRED
     pcl_ros
 )
 
+catkin_python_setup()
+
 catkin_package(
   CATKIN_DEPENDS
     mcr_perception_msgs

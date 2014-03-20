@@ -5,7 +5,6 @@ NODE = 'object_recognizer'
 SERVICE = 'recognize_object'
 
 import roslib
-roslib.load_manifest(PACKAGE)
 import rospy
 
 import sys
@@ -13,8 +12,7 @@ from os.path import join
 import numpy as np
 
 # Import helper class for loading trained network
-sys.path.append(join(roslib.packages.get_pkg_dir(PACKAGE), 'common', 'src'))
-from classification_network import ClassificationNetwork
+from mcr_object_recognition_bounding_box.classification_network import ClassificationNetwork
 
 from mcr_perception_msgs.srv import RecognizeObject
 from mcr_perception_msgs.srv import AnalyzeCloudColor
