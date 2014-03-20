@@ -3,8 +3,8 @@
 import yaml
 import numpy as np
 
-from pybrain.tools.xml.networkwriter import NetworkWriter
-from pybrain.tools.xml.networkreader import NetworkReader
+from pybrain.tools.customxml.networkwriter import NetworkWriter
+from pybrain.tools.customxml.networkreader import NetworkReader
 
 
 class ClassificationNetwork:
