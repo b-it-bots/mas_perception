@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-PACKAGE = 'mcr_object_recognition'
+PACKAGE = 'mcr_object_recognition_bounding_box'
 NODE = 'object_recognizer'
 SERVICE = 'recognize_object'
 
