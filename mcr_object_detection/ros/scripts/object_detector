@@ -1,16 +1,8 @@
 #!/usr/bin/env python
 
-PACKAGE = 'mcr_object_detection'
 NODE = 'object_detector'
 
-import roslib
-roslib.load_manifest(PACKAGE)
-import sys
-from os.path import join
-
-# Import states for calling services from mcr_scene_segmentation
-sys.path.append(join(roslib.packages.get_pkg_dir(PACKAGE), 'ros', 'src'))
-import service_states
+import mcr_object_detection.service_states
 
 import rospy
 import numpy as np
@@ -19,7 +11,7 @@ from smach import State, StateMachine
 from tf.transformations import quaternion_from_matrix
 import tf
 
-from label_visualizer import LabelVisualizer
+from mcr_scene_segmentation.label_visualizer import LabelVisualizer
 from mcr_perception_msgs.srv import GetObjects, GetObjectsResponse
 from mcr_perception_msgs.msg import Object
 from mcr_perception_msgs.srv import RecognizeObject
