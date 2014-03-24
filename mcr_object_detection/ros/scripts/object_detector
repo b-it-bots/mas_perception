@@ -42,8 +42,8 @@ class RecognizeObjects(State):
                        outcomes=['done'])
         self.label_vis = LabelVisualizer('object_labels', 'teal')
         try:
-            rospy.wait_for_service('recognize_object', timeout=5)
-            self.recognize = rospy.ServiceProxy('recognize_object',
+            rospy.wait_for_service('/mcr_perception/object_recognizer/recognize_object', timeout=5)
+            self.recognize = rospy.ServiceProxy('/mcr_perception/object_recognizer/recognize_object',
                                                 RecognizeObject)
         except rospy.ROSException:
             rospy.logwarn('Object recognition service is not available, '
