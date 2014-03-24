@@ -2,7 +2,7 @@
 <launch>
 
   <!-- This launch file brings up the complete scene segmentation pipeline with reasonable (for @Work) parameters. -->
-  <group ns="mcr_perception" />
+  <group ns="mcr_perception">
 
     <node pkg="mcr_scene_segmentation" type="workspace_finder" name="workspace_finder" output="screen">
       <param name="min_z" value="0.3" type="double"/>
