@@ -48,7 +48,7 @@ public:
   WorkspaceFinderNode()
   : polygon_visualizer_("workspace_polygon", Color::SALMON)
   {
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
     find_workspace_server_ = nh.advertiseService("find_workspace", &WorkspaceFinderNode::findWorkspaceCallback, this);
     ROS_INFO("Started [find_workspace] service.");
     plane_extraction_.setSortByArea(true);
@@ -58,11 +58,12 @@ private:
 
   bool findWorkspaceCallback(mcr_perception_msgs::FindWorkspace::Request& request, mcr_perception_msgs::FindWorkspace::Response& response)
   {
+    ros::NodeHandle nh("~");
     ROS_INFO("Received [find_workspace] request.");
     updateConfiguration();
 
     ROS_INFO("Waiting for a point cloud message...");
-    auto ros_cloud = ros::topic::waitForMessage<sensor_msgs::PointCloud2>("/camera/depth_registered/points", ros::Duration(cloud_timeout_));
+    auto ros_cloud = ros::topic::waitForMessage<sensor_msgs::PointCloud2>("input_pointcloud", nh, ros::Duration(cloud_timeout_));
     if (!ros_cloud)
     {
       ROS_ERROR("No point cloud messages during last %i seconds, aborting.", cloud_timeout_);
