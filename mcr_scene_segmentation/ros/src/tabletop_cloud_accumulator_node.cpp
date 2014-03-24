@@ -40,7 +40,7 @@ public:
 
   TabletopCloudAccumulatorNode()
   {
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
     accumulate_service_ = nh.advertiseService("accumulate_tabletop_cloud", &TabletopCloudAccumulatorNode::accumulateCallback, this);
     accumulated_cloud_publisher_ = nh.advertise<sensor_msgs::PointCloud2>("accumulated_cloud", 1);
     ROS_INFO("Service [accumulate_tabletop_cloud] started.");
@@ -58,8 +58,8 @@ private:
     polygon_cloud->points = polygon.getContour();
     eppd_.setInputPlanarHull(polygon_cloud);
     ca_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
-    ros::NodeHandle nh;
-    ros::Subscriber subscriber = nh.subscribe("/camera/depth_registered/points", 1, &TabletopCloudAccumulatorNode::cloudCallback, this);
+    ros::NodeHandle nh("~");
+    ros::Subscriber subscriber = nh.subscribe("input_pointcloud", 1, &TabletopCloudAccumulatorNode::cloudCallback, this);
 
     // Wait some time while data is being accumulated.
     ros::Time start = ros::Time::now();

@@ -38,7 +38,7 @@ bool analyzeCallback(mcr_perception_msgs::AnalyzeCloudColor::Request& request, m
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "cloud_color_analyzer");
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
 
   ros::ServiceServer analyzer_service = nh.advertiseService("analyze_cloud_color", analyzeCallback);
 

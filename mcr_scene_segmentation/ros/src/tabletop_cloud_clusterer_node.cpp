@@ -47,7 +47,7 @@ public:
   TabletopCloudClustererNode()
   : cluster_visualizer_("tabletop_clusters")
   {
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
     cluster_server_ = nh.advertiseService("cluster_tabletop_cloud", &TabletopCloudClustererNode::clusterCallback, this);
     ROS_INFO("Service [cluster_tabletop_cloud] started.");
   }

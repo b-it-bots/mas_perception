@@ -38,7 +38,7 @@ public:
   BoundingBoxMakerNode()
   : bounding_box_visualizer_("bounding_boxes", Color::SEA_GREEN)
   {
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
     make_bounding_box_server_ = nh.advertiseService("make_bounding_boxes", &BoundingBoxMakerNode::makeBoundingBoxesCallback, this);
     ROS_INFO("Started [make_bounding_boxes] service.");
   }

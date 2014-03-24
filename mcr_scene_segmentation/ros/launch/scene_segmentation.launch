@@ -14,11 +14,14 @@
 
     <node pkg="mcr_scene_segmentation" type="tabletop_cloud_accumulator" name="tabletop_cloud_accumulator" output="screen">
       <param name="accumulate_clouds" value="30" type="int"/>
+      <remap from="~input_pointcloud" to="/tower_cam3d/depth_registered/points" />
     </node>
 
     <node pkg="mcr_scene_segmentation" type="tabletop_cloud_clusterer" name="tabletop_cloud_clusterer" output="screen"/>
 
-    <node pkg="mcr_scene_segmentation" type="bounding_box_maker" name="bounding_box_maker" output="screen"/>
+    <node pkg="mcr_scene_segmentation" type="bounding_box_maker" name="bounding_box_maker" output="screen" >
+      <remap from="bounding_boxes" to="/visualization_marker" />
+    </node>
   
   </group>
 

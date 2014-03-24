@@ -13,7 +13,7 @@ BoundingBoxVisualizer::BoundingBoxVisualizer(const std::string& topic_name, Colo
 : color_(color)
 , check_subscribers_(check_subscribers)
 {
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
   marker_publisher_ = nh.advertise<visualization_msgs::Marker>(topic_name, 10);
 }
 

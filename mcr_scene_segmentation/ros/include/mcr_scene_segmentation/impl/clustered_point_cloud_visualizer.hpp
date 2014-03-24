@@ -17,7 +17,7 @@ namespace visualization
 ClusteredPointCloudVisualizer::ClusteredPointCloudVisualizer(const std::string& topic_name, bool check_subscribers)
 : check_subscribers_(check_subscribers)
 {
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
   cloud_publisher_ = nh.advertise<sensor_msgs::PointCloud2>(topic_name, 1);
   for (size_t i = 0; i < COLORS_NUM; ++i)
   {
