@@ -15,9 +15,12 @@ find_package(PCL 1.6 REQUIRED)
 find_package(VTK REQUIRED)
 find_package(OpenCV REQUIRED)
 
+catkin_python_setup()
+
 generate_dynamic_reconfigure_options(
   ros/config/PlaneExtraction.cfg
 )
+
 
 catkin_package(
   CATKIN_DEPENDS 
