@@ -25,7 +25,7 @@ def load_neural_network(filename):
 if __name__ == '__main__':
     rospy.init_node(NODE)
     net = load_neural_network(sys.argv[1])
-    analyze = rospy.ServiceProxy('analyze_cloud_color', AnalyzeCloudColor)
+    analyze = rospy.ServiceProxy('/mcr_perception/cloud_color_analyzer/analyze_cloud_color', AnalyzeCloudColor)
 
     def recognize_object_cb(request):
         rospy.loginfo('Received [%s] request.' % SERVICE)
