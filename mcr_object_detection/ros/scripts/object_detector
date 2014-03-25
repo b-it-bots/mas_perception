@@ -12,7 +12,7 @@ from tf.transformations import quaternion_from_matrix
 import tf
 
 from mcr_scene_segmentation.label_visualizer import LabelVisualizer
-from mcr_perception_msgs.srv import GetObjects, GetObjectsResponse
+from mcr_perception_msgs.srv import GetObjectList, GetObjectListResponse
 from mcr_perception_msgs.msg import Object
 from mcr_perception_msgs.srv import RecognizeObject
 
@@ -77,7 +77,7 @@ class PackResponse(State):
                        outcomes=['done'])
 
     def execute(self, ud):
-        ud.response = GetObjectsResponse()
+        ud.response = GetObjectListResponse()
         for c, b, n in zip(ud.clusters, ud.bounding_boxes, ud.names):
             obj = Object()
             q = self.get_orientation(b.vertices)
@@ -167,6 +167,6 @@ if __name__ == '__main__':
         else:
             raise rospy.ServiceException('Object detection failed')
 
-    s = rospy.Service('detect_objects', GetObjects, detect_objects_cb)
+    s = rospy.Service('~detect_objects', GetObjectList, detect_objects_cb)
     rospy.loginfo('Started [detect_objects] service.')
     rospy.spin()
