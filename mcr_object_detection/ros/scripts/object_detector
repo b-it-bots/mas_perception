@@ -40,7 +40,7 @@ class RecognizeObjects(State):
                        input_keys=['clusters', 'bounding_boxes', 'names'],
                        output_keys=['names'],
                        outcomes=['done'])
-        self.label_vis = LabelVisualizer('object_labels', 'teal')
+        self.label_vis = LabelVisualizer('/visualization_marker_array', 'teal')
         try:
             rospy.wait_for_service('/mcr_perception/object_recognizer/recognize_object', timeout=5)
             self.recognize = rospy.ServiceProxy('/mcr_perception/object_recognizer/recognize_object',
