@@ -40,7 +40,7 @@ def make_boxes_response_cb(userdata, response):
     for b in userdata.bounding_boxes:
         b.dimensions.x += 0.01
 
-make_bounding_boxes = ServiceState('make_bounding_boxes',
+make_bounding_boxes = ServiceState('/mcr_perception/bounding_box_maker/make_bounding_boxes',
                                    srv.MakeBoundingBoxes,
                                    request_cb=make_boxes_request_cb,
                                    response_cb=make_boxes_response_cb)
