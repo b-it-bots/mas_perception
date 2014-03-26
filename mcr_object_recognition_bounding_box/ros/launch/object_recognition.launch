@@ -7,7 +7,7 @@
 
   <arg name="network" default="go2013"/>
 
-  <include file="$(find mcr_scene_segmentation)/ros/launch/scene_segmentation.launch"/>
+  <include file="$(find mcr_object_detection)/ros/launch/object_detection.launch"/>
 
   <group ns="mcr_perception">
     <node pkg="mcr_object_recognition_bounding_box" type="cloud_color_analyzer" name="cloud_color_analyzer" output="screen"/>

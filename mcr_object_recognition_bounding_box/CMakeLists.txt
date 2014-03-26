@@ -15,7 +15,7 @@ catkin_python_setup()
 catkin_package(
   CATKIN_DEPENDS
     mcr_perception_msgs
-    mcr_scene_segmentation
+    mcr_object_detection
     rospy
     smach
     smach_ros
