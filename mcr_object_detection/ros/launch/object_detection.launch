@@ -9,7 +9,7 @@
 
   <group ns="mcr_perception">
 
-    <node pkg="mcr_object_detection" type="object_detector" name="object_detector" ns="mcr_perception" output="screen"/>
+    <node pkg="mcr_object_detection" type="object_detector" name="object_detector" output="screen"/>
 
   </group>
 
