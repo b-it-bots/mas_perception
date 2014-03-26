@@ -1,27 +1,16 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- This launch file brings up the nodes from mcr_scene_segmentation that are needed for object detection/recognition.
+  <!-- This launch file brings up the nodes from mcr_scene_segmentation that are needed for object detection and the object detector itself.
        The parameters have been adjusted to work well with @Work scenarios. -->
 
-  <node pkg="mcr_scene_segmentation" type="workspace_finder" name="workspace_finder" ns="mcr_perception" output="screen">
-    <param name="min_z" value="0.3" type="double"/>
-    <param name="max_z" value="1.5" type="double"/>
-    <rosparam command="load" file="$(find mcr_object_detection)/ros/config/workspace_constraints.yaml"/>
-    <remap from="/camera/depth_registered/points" to="/tower_cam3d/depth_registered/points"/>
-  </node>
+  <include file="$(find mcr_scene_segmentation)/ros/launch/scene_segmentation.launch" />
 
-  <node pkg="mcr_scene_segmentation" type="tabletop_cloud_accumulator" name="tabletop_cloud_accumulator" ns="mcr_perception" output="screen">
-    <param name="accumulate_clouds" value="30" type="int"/>
-    <remap from="/camera/depth_registered/points" to="/tower_cam3d/depth_registered/points"/>
-  </node>
 
-  <node pkg="mcr_scene_segmentation" type="tabletop_cloud_clusterer" name="tabletop_cloud_clusterer" ns="mcr_perception" output="screen">
-    <param name="min_cluster_size" value="50" type="int"/>
-  </node>
+  <group ns="mcr_perception">
 
-  <node pkg="mcr_scene_segmentation" type="bounding_box_maker" name="bounding_box_maker" ns="mcr_perception" output="screen"/>
+    <node pkg="mcr_object_detection" type="object_detector" name="object_detector" ns="mcr_perception" output="screen"/>
 
-  <node pkg="mcr_object_detection" type="object_detector" name="object_detector" ns="mcr_perception" output="screen"/>
+  </group>
 
 </launch>
