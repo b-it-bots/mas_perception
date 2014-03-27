@@ -27,7 +27,7 @@
     </node>
 
     <node pkg="mcr_scene_segmentation" type="bounding_box_maker" name="bounding_box_maker" output="screen" >
-      <remap from="bounding_boxes" to="/visualization_marker" />
+      <remap from="~bounding_boxes" to="/visualization_marker" />
     </node>
   
   </group>
