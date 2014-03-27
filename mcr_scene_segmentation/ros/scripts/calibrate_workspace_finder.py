@@ -15,7 +15,7 @@ import os
 
 from mcr_perception_msgs.srv import FindWorkspace
 
-SERVICE = '/find_workspace'
+SERVICE = '/mcr_perception/workspace_finder/find_workspace'
 CONFIG = 'workspace_constraints.yaml'
 
 
