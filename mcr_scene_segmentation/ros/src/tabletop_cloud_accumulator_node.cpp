@@ -107,7 +107,19 @@ private:
 
     PointCloud::Ptr tabletop_cloud(new PointCloud);
     pcl::copyPointCloud(*cloud, *tabletop_indices, *tabletop_cloud);
-    ca_->addCloud(tabletop_cloud);
+    PointCloud::Ptr verified_cloud(new PointCloud);
+
+    for(size_t i=0; i < tabletop_cloud->points.size(); ++i)
+    {
+      if(!pcl::isXYPointIn2DXYPolygon(tabletop_cloud->points[i], *eppd_.getInputPlanarHull()))
+      {
+        continue;
+      }
+
+      verified_cloud->points.push_back(tabletop_cloud->points[i]);
+    }
+    
+    ca_->addCloud(verified_cloud);
   }
 
   void updateConfiguration()
