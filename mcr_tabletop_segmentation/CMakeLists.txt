@@ -7,7 +7,6 @@ find_package(catkin REQUIRED
     geometry_msgs
     image_transport
     mcr_perception_msgs
-    #object_manipulation_msgs  # not yet catkinized
     roscpp
     sensor_msgs
     std_srvs
@@ -28,7 +27,6 @@ catkin_package(
   CATKIN_DEPENDS
     geometry_msgs
     mcr_perception_msgs
-    #object_manipulation_msgs  # not yet catkinized
     sensor_msgs
     std_srvs
 )
