@@ -109,6 +109,7 @@ add_executable(bounding_box_maker
 )
 target_link_libraries(bounding_box_maker
   ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
   bounding_box 
 )
 
