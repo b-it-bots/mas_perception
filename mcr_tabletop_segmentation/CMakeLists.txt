@@ -8,7 +8,6 @@ find_package(catkin REQUIRED
     image_transport
     mcr_perception_msgs
     #object_manipulation_msgs  # not yet catkinized
-    pcl_ros
     roscpp
     sensor_msgs
     std_srvs

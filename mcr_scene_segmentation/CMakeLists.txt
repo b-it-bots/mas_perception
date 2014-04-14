@@ -5,7 +5,6 @@ find_package(catkin REQUIRED
   COMPONENTS
     dynamic_reconfigure
     mcr_perception_msgs
-    pcl_ros
     polyclipping
     roscpp
     rospy

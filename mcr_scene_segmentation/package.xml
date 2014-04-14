@@ -16,7 +16,6 @@
   <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>opencv2</build_depend>
   <build_depend>pcl</build_depend>
-  <build_depend>pcl_ros</build_depend>
   <build_depend>polyclipping</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
