@@ -59,7 +59,7 @@ def _detect_objects_cb(request):
 if __name__ == '__main__':
     rospy.init_node("detect_objects_node_mockup")
 
-    s = rospy.Service('detect_objects', GetObjectList, _detect_objects_cb)
+    s = rospy.Service('~detect_objects', GetObjectList, _detect_objects_cb)
     rospy.loginfo('detect_objects service MOCKUP started')
     
     rospy.Subscriber("~set_object_to_mockup", ObjectList, _set_object_cb)
