@@ -22,7 +22,10 @@ generate_dynamic_reconfigure_options(
 
 
 catkin_package(
-  CATKIN_DEPENDS 
+  INCLUDE_DIRS
+    common/include
+    ros/include
+  CATKIN_DEPENDS
     dynamic_reconfigure
     polyclipping
     visualization_msgs
