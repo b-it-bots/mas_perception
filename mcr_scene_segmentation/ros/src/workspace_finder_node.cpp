@@ -101,6 +101,7 @@ private:
     }
     response.stamp = ros_cloud->header.stamp;
     convertPlanarPolygon(polygon, response.polygon);
+    response.polygon.contour.push_back(response.polygon.contour.front());
     polygon_visualizer_.publish(polygon, ros_cloud->header.frame_id);
     return true;
   }
