@@ -2,7 +2,7 @@
 <package>
   <name>mcr_perception</name>
   <version>0.0.1</version>
-  <description>The mcr_perception meta package</description>
+  <description>perception related message and services</description>
 
   <maintainer email="frederik.hegger@h-brs.de">Frederik Hegger</maintainer>
   <maintainer email="sven.schneider@h-brs.de">Sven Schneider</maintainer>
