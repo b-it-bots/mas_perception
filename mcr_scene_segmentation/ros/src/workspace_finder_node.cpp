@@ -9,11 +9,11 @@
 #include <pcl/filters/passthrough.h>
 
 #include <mcr_perception_msgs/FindWorkspace.h>
-#include <planar_polygon_visualizer.h>
 
-#include "helpers.hpp"
-#include "plane_extraction.h"
-#include "polyclipping.h"
+#include "mcr_scene_segmentation/planar_polygon_visualizer.h"
+#include "mcr_scene_segmentation/impl/helpers.hpp"
+#include "mcr_scene_segmentation/plane_extraction.h"
+#include "mcr_scene_segmentation/polyclipping.h"
 
 using namespace mcr::visualization;
 
