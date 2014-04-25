@@ -49,3 +49,7 @@ target_link_libraries(waist_tracking_node
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
+
+install(TARGETS waist_tracking_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
