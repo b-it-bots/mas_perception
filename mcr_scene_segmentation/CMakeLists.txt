@@ -27,6 +27,7 @@ catkin_package(
     ros/include
   CATKIN_DEPENDS
     dynamic_reconfigure
+    mcr_perception_msgs
     polyclipping
     visualization_msgs
 )
