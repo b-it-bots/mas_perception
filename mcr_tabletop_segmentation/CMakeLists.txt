@@ -74,9 +74,23 @@ target_link_libraries(tabletop_segmentation_node
   mcr_toolbox_ros
 )
 
-install(TARGETS tabletop_segmentation_node tabletop_segmentation_node
+
+install(TARGETS tabletop_segmentation_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(TARGETS mcr_toolbox_ros
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(TARGETS mcr_plane_extraction
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(TARGETS mcr_object_candidate_extraction
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
 install(DIRECTORY ros/include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
