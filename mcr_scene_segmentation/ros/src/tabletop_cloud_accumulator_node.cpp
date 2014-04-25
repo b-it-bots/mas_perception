@@ -11,9 +11,9 @@
 
 #include <mcr_perception_msgs/AccumulateTabletopCloud.h>
 
-#include "aliases.h"
-#include "cloud_accumulation.h"
-#include "helpers.hpp"
+#include "mcr_scene_segmentation/aliases.h"
+#include "mcr_scene_segmentation/cloud_accumulation.h"
+#include "mcr_scene_segmentation/impl/helpers.hpp"
 
 /** This node provides a service to accumulate parts of pointclouds that are
   * above some given planar polygon.

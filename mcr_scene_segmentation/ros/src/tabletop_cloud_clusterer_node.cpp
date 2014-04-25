@@ -12,8 +12,8 @@
 #include <clustered_point_cloud_visualizer.h>
 #include <mcr_perception_msgs/ClusterTabletopCloud.h>
 
-#include "aliases.h"
-#include "helpers.hpp"
+#include "mcr_scene_segmentation/aliases.h"
+#include "mcr_scene_segmentation/helpers.hpp"
 
 using namespace mcr::visualization;
 
