@@ -5,7 +5,7 @@
  *      Author: Christian Mueller
  */
 
-#include "object_candidate_extraction.h"
+#include "mcr_tabletop_segmentation/object_candidate_extraction.h"
 #include <omp.h>
 
 #define OBJECT_CLUSTER_TOLERANCE 0.034

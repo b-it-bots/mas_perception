@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 #include <ros/console.h>
 
-#include "reconfigurable_plane_extraction.hpp"
-#include "offline_test_base.hpp"
+#include "mcr_scene_segmentation/impl/reconfigurable_plane_extraction.hpp"
+#include "mcr_scene_segmentation/impl/offline_test_base.hpp"
 
 class TestNode : public OfflineTestBase
 {

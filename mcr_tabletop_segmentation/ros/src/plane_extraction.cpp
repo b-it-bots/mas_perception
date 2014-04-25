@@ -4,7 +4,7 @@
  *  Created on: 09.12.2010
  *      Author: Christian Mueller
  */
-#include "plane_extraction.h"
+#include "mcr_tabletop_segmentation/plane_extraction.h"
 #include <Eigen/StdVector>
 
 #define THRESHOLD_JOIN_PLANES_HEIGHT 0.01f

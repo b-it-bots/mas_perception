@@ -32,13 +32,13 @@ catkin_package(
 )
 
 include_directories(
-  ros/include/${PROJECT_NAME}
+  ros/include/
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 
-add_library(mcr_toolbox_ros 
+add_library(mcr_toolbox_ros
   ros/src/toolbox_ros.cpp
 )
 target_link_libraries(mcr_toolbox_ros 

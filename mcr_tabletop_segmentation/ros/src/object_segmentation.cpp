@@ -1,4 +1,4 @@
-#include "object_segmentation.h"
+#include "mcr_tabletop_segmentation/object_segmentation.h"
 
 #include <mcr_perception_msgs/ObjectList.h>
 #include <pcl_conversions/pcl_conversions.h>

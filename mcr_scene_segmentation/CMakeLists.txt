@@ -23,8 +23,11 @@ generate_dynamic_reconfigure_options(
 
 catkin_package(
   INCLUDE_DIRS
-    common/include
     ros/include
+    common/include
+  LIBRARIES
+    scene_segmentation
+    bounding_box
   CATKIN_DEPENDS
     dynamic_reconfigure
     mcr_perception_msgs
@@ -33,9 +36,8 @@ catkin_package(
 )
 
 include_directories(
-  ros/include/${PROJECT_NAME}/impl/
-  ros/include/${PROJECT_NAME}/
-  common/include/${PROJECT_NAME}/
+  ros/include
+  common/include
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}

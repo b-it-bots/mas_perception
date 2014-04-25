@@ -6,7 +6,7 @@
 #include <dynamic_reconfigure/server.h>
 
 #include "mcr_scene_segmentation/PlaneExtractionConfig.h"
-#include "plane_extraction.h"
+#include "mcr_scene_segmentation/plane_extraction.h"
 
 /** This class encapsulates PlaneExtraction object and augments it with a
   * dynamic reconfigure server which could be used to easily tweak the

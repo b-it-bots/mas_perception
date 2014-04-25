@@ -1,7 +1,7 @@
 #include <pcl/common/transforms.h>
 #include <opencv/cv.h>
 
-#include "bounding_box.h"
+#include "mcr_scene_segmentation/bounding_box.h"
 
 BoundingBox BoundingBox::create(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& cloud,
                                 const Eigen::Vector3f& normal)

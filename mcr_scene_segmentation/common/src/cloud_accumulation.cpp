@@ -1,6 +1,6 @@
 #include <pcl/octree/octree_impl.h>
 
-#include "cloud_accumulation.h"
+#include "mcr_scene_segmentation/cloud_accumulation.h"
 
 CloudAccumulation::CloudAccumulation(double resolution)
 : resolution_(resolution)

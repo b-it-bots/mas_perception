@@ -5,7 +5,7 @@
  *      Author: Christian Mueller
  */
 
-#include "toolbox_ros.h"
+#include "mcr_tabletop_segmentation/toolbox_ros.h"
 
 double CToolBoxROS::euclDistanceBtwPoints(pcl::PointXYZ &p1, pcl::PointXYZ &p2)
 {

@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <polyclipping/clipper.hpp>
 
-#include "polyclipping.h"
+#include "mcr_scene_segmentation/polyclipping.h"
 
 void clipPlanarPolygon(PlanarPolygon& planar_polygon, double clip_by)
 {

@@ -8,8 +8,8 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include "reconfigurable_plane_extraction.hpp"
-#include "online_test_base.hpp"
+#include "mcr_scene_segmentation/impl/reconfigurable_plane_extraction.hpp"
+#include "mcr_scene_segmentation/online_test_base.hpp"
 
 class TestNode : public OnlineTestBase
 {

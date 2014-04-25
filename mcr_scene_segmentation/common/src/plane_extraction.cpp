@@ -4,8 +4,8 @@
 #include <pcl/console/print.h>
 #include <pcl/surface/convex_hull.h>
 
-#include "plane_extraction.h"
-#include "helpers.hpp"
+#include "mcr_scene_segmentation/plane_extraction.h"
+#include "mcr_scene_segmentation/impl/helpers.hpp"
 
 PlaneExtraction::PlaneExtraction()
 : apply_angular_constraints_(false)

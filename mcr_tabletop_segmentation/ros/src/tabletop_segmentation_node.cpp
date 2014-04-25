@@ -1,4 +1,4 @@
-#include "object_segmentation.h"
+#include "mcr_tabletop_segmentation/object_segmentation.h"
 
 int main(int argc, char **argv)
 {

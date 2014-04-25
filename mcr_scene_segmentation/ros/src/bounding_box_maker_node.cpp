@@ -7,10 +7,10 @@
 
 #include <mcr_perception_msgs/MakeBoundingBoxes.h>
 #include <mcr_perception_msgs/BoundingBox.h>
-#include <bounding_box_visualizer.h>
 
-#include "helpers.hpp"
-#include "bounding_box.h"
+#include "mcr_scene_segmentation/bounding_box_visualizer.h"
+#include "mcr_scene_segmentation/impl/helpers.hpp"
+#include "mcr_scene_segmentation/bounding_box.h"
 
 using namespace mcr::visualization;
 
