@@ -36,7 +36,6 @@ void peopleDetectionCallback(const mcr_perception_msgs::PersonList::ConstPtr& ms
 
 TEST(BodyDetection3D, integrationTest)
 {
-	std::string component_namespace = "";
 	std::string dataset_path = "";
 	std_srvs::Empty srv;
 	pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
@@ -45,13 +44,12 @@ TEST(BodyDetection3D, integrationTest)
 	geometry_msgs::Point point;
 
 	// get Parameter from server
-	ASSERT_TRUE(nh_ptr->getParam("component_namespace", component_namespace));
 	ASSERT_TRUE(nh_ptr->getParam("dataset_path", dataset_path));
 
-	ros::Publisher pub_pointcloud = nh_ptr->advertise<sensor_msgs::PointCloud2> ("/camera/depth/points", 1);
-	ros::Subscriber sub_person_msg = nh_ptr->subscribe < mcr_perception_msgs::PersonList > (component_namespace + "/people_positions", 1, peopleDetectionCallback);
-	ros::ServiceClient srv_start = nh_ptr->serviceClient < std_srvs::Empty > (component_namespace + "/start");
-	ros::ServiceClient srv_stop = nh_ptr->serviceClient < std_srvs::Empty > (component_namespace + "/stop");
+	ros::Publisher pub_pointcloud = nh_ptr->advertise<sensor_msgs::PointCloud2> ("input_pointcloud", 1);
+	ros::Subscriber sub_person_msg = nh_ptr->subscribe < mcr_perception_msgs::PersonList > ("people_positions", 1, peopleDetectionCallback);
+	ros::ServiceClient srv_start = nh_ptr->serviceClient < std_srvs::Empty > ("/mcr_perception/body_detection_3d/start");
+	ros::ServiceClient srv_stop = nh_ptr->serviceClient < std_srvs::Empty > ("/mcr_perception/body_detection_3d/stop");
 
 	// fill map
 	point.x = 1.41975; point.y = 0.0241818; point.z = 1.10918;
@@ -62,7 +60,8 @@ TEST(BodyDetection3D, integrationTest)
 	expected_detections.insert(DetectionPair("person_in_apartment_environment_3.pcd", point));
 
 	// wait for and call "start" service
-	ASSERT_TRUE(ros::service::waitForService(component_namespace + "/start", ros::Duration(60)));
+	ASSERT_TRUE(ros::service::waitForService("/mcr_perception/body_detection_3d/start", ros::Duration(60)));
+
 	ASSERT_TRUE(srv_start.call(srv));
 
 	for(DetectionMap::iterator it = expected_detections.begin(); it != expected_detections.end(); ++it)
@@ -96,7 +95,8 @@ TEST(BodyDetection3D, integrationTest)
 	}
 
 	// wait for and call "stop" service
-	ASSERT_TRUE(ros::service::waitForService(component_namespace + "/stop", ros::Duration(60)));
+	ASSERT_TRUE(ros::service::waitForService("/mcr_perception/body_detection_3d/stop", ros::Duration(60)));
+  
 	ASSERT_TRUE(srv_stop.call(srv));
 }
 
