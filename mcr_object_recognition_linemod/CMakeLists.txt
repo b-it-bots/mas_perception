@@ -26,7 +26,6 @@ catkin_package(
     dynamic_reconfigure
     mcr_perception_msgs
     sensor_msgs
-    std_srvs
     mcr_tabletop_segmentation
     visualization_msgs
     geometry_msgs
