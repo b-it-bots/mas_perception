@@ -37,7 +37,7 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
 )
 
-add_library(linemod_implementation 
+add_library(linemod_implementation
   common/src/linemod.cpp
 )
 
