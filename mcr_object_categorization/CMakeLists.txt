@@ -202,9 +202,32 @@ target_link_libraries(convert_models_from_text_to_binary
   ${catkin_LIBRARIES}
 )
   
-install(TARGETS object_categorization_node object_categorization_node
+install(
+  TARGETS
+    object_categorization_node
+    object_categorization_node
+    training_object_categorization
+    convert_models_from_text_to_binary
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(
+  TARGETS
+    auto_encoder
+    object_geometric_service
+    object_categorization_geometric
+    rtp_neural_network_ensemble
+    neural_gas object_decomposition
+    johnson_apsp
+    b_svm_classifier
+    svm_linear_classifier
+    svm_one_class_classifier
+    svm_cascade
+    svm_classifier
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+
 
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
