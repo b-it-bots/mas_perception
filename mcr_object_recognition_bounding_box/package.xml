@@ -2,7 +2,7 @@
 <package>
   <name>mcr_object_recognition_bounding_box</name>
   <version>0.0.0</version>
-  <description>The mcr_object_recognition_bounding_box package</description>
+  <description>Object recognition based on the estimate bounding box of an object cluster as well as its color distribution</description>
 
   <maintainer email="sergey.alexandrov@smail.inf.h-brs.de">Sergey Alexandrov</maintainer>
 

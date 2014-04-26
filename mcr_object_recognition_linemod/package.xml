@@ -2,7 +2,7 @@
 <package>
   <name>mcr_object_recognition_linemod</name>
   <version>0.1.0</version>
-  <description>This node provides a service to learn objects using template matching based on LINE_MOD by Stefan Hinterstoisser (TUM). The input is an RGB and a depth image. The user can configure the matching threshold, which is defined as a percentage. A strong threshold would be 98%, 90% would be much weaker. Values below 88% can be seen as meaningless. Usage hints: The object_learning node uses visual interaction with the user so a screen will be needed</description>
+  <description>Component which provides a service to learn objects using template matching based on LINE_MOD by Stefan Hinterstoisser (TUM). The input is an RGB and a depth image. The user can configure the matching threshold, which is defined as a percentage. A strong threshold would be 98%, 90% would be much weaker. Values below 88% can be seen as meaningless. Usage hints: The object_learning node uses visual interaction with the user so a screen will be needed</description>
  
   <maintainer email="alexander.hagg@smail.inf.h-brs.de">Alexander Hagg</maintainer>
 

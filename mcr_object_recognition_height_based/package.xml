@@ -2,7 +2,7 @@
 <package>
   <name>mcr_object_recognition_height_based</name>
   <version>0.0.1</version>
-  <description>The mcr_object_recognition_height_based package</description>
+  <description>Object recognition using tabletop segmentation. The height of an object cluster is used as recognition feature</description>
 
   <maintainer email="frederik.hegger@h-brs.de">Frederik Hegger</maintainer>
 
