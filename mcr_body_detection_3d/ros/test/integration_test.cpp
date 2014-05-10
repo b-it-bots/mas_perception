@@ -14,7 +14,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <std_srvs/Empty.h>
+#include <std_msgs/String.h>
 
 #include <mcr_perception_msgs/PersonList.h>
 
@@ -37,7 +37,7 @@ void peopleDetectionCallback(const mcr_perception_msgs::PersonList::ConstPtr& ms
 TEST(BodyDetection3D, integrationTest)
 {
 	std::string dataset_path = "";
-	std_srvs::Empty srv;
+	std_msgs::String event;
 	pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
 	sensor_msgs::PointCloud2 sensor_msgs_cloud;
 	DetectionMap expected_detections;
@@ -47,10 +47,9 @@ TEST(BodyDetection3D, integrationTest)
 	ASSERT_TRUE(nh_ptr->getParam("dataset_path", dataset_path));
 
 	ROS_INFO("register publisher and subscriber");
+	ros::Publisher pub_event = nh_ptr->advertise<std_msgs::String> ("event_out", 1, true);
 	ros::Publisher pub_pointcloud = nh_ptr->advertise<sensor_msgs::PointCloud2> ("input_pointcloud", 1);
 	ros::Subscriber sub_person_msg = nh_ptr->subscribe < mcr_perception_msgs::PersonList > ("people_positions", 1, peopleDetectionCallback);
-	ros::ServiceClient srv_start = nh_ptr->serviceClient < std_srvs::Empty > ("/mcr_perception/body_detection_3d/start");
-	ros::ServiceClient srv_stop = nh_ptr->serviceClient < std_srvs::Empty > ("/mcr_perception/body_detection_3d/stop");
 
 	// fill map
 	point.x = 1.41975; point.y = 0.0241818; point.z = 1.10918;
@@ -60,12 +59,9 @@ TEST(BodyDetection3D, integrationTest)
 	point.x = 2.95234; point.y = -0.429274; point.z = 1.04201;
 	expected_detections.insert(DetectionPair("person_in_apartment_environment_3.pcd", point));
 
-	ROS_INFO("wait for service start to become available");
-	// wait for and call "start" service
-	ASSERT_TRUE(ros::service::waitForService("/mcr_perception/body_detection_3d/start", ros::Duration(60)));
-
-	ROS_INFO("call service start");
-	ASSERT_TRUE(srv_start.call(srv));
+	ROS_INFO("publish start event");
+	event.data = "e_start";
+	pub_event.publish(event);
 
 	for(DetectionMap::iterator it = expected_detections.begin(); it != expected_detections.end(); ++it)
 	{
@@ -77,6 +73,8 @@ TEST(BodyDetection3D, integrationTest)
 
 		sensor_msgs_cloud.header.frame_id = "/base_link";
 		sensor_msgs_cloud.header.stamp = ros::Time::now();
+
+		people_msg_received = false;
 
 		ROS_INFO("publish pointcloud");
 		// publish pointcloud
@@ -98,16 +96,11 @@ TEST(BodyDetection3D, integrationTest)
 		ASSERT_EQ(ROUND_TWO_DIGITS(person_list.persons[0].pose.pose.position.x), ROUND_TWO_DIGITS(it->second.x));
 		ASSERT_EQ(ROUND_TWO_DIGITS(person_list.persons[0].pose.pose.position.y), ROUND_TWO_DIGITS(it->second.y));
 		ASSERT_EQ(ROUND_TWO_DIGITS(person_list.persons[0].pose.pose.position.z), ROUND_TWO_DIGITS(it->second.z));
-
-		people_msg_received = false;
 	}
 
-	ROS_INFO("wait for service stop to become available");
-	// wait for and call "stop" service
-	ASSERT_TRUE(ros::service::waitForService("/mcr_perception/body_detection_3d/stop", ros::Duration(60)));
-  
-	ROS_INFO("call service stop");
-	ASSERT_TRUE(srv_stop.call(srv));
+	ROS_INFO("publish stop event");
+	event.data = "e_stop";
+	pub_event.publish(event);
 }
 
 int main(int argc, char **argv)

@@ -10,7 +10,7 @@ find_package(catkin REQUIRED
     roscpp
     rostest
     sensor_msgs
-    std_srvs
+    std_msgs
     tf
     visualization_msgs
 )
@@ -28,6 +28,7 @@ catkin_package(
     mcr_algorithms
     mcr_perception_msgs
     sensor_msgs
+    std_msgs
     visualization_msgs
 )
 

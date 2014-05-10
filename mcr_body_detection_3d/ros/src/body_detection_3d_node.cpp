@@ -13,7 +13,7 @@
 #include <pcl_ros/transforms.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <std_srvs/Empty.h>
+#include <std_msgs/String.h>
 #include <tf/transform_listener.h>
 #include <dynamic_reconfigure/server.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -136,7 +136,7 @@ mcr_perception_msgs::PersonList convertToRosMsg(const vector<Person> &person_lis
 	return ros_msg;
 }
 
-void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
+void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr &cloud2_input)
 {
 	sensor_msgs::PointCloud2 cloud2_transformed;
 
@@ -194,20 +194,18 @@ void dynamic_reconfig_callback(mcr_body_detection_3d::BodyDetection3DConfig &con
     dyn_recfg_parameters = config;
 }
 
-bool start(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+void eventCallback(const std_msgs::String::ConstPtr &msg)
 {
-	sub_pointcloud2 = nh_ptr->subscribe<sensor_msgs::PointCloud2> ("pointcloud_xyzrgb", 1, pointcloud2Callback);
-
-	ROS_INFO("3D body detector ENABLED");
-	return true;
-}
-
-bool stop(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
-{
-	sub_pointcloud2.shutdown();
-
-	ROS_INFO("3D body detector DISABLED");
-	return true;
+	if(msg->data == "e_start")
+	{
+		sub_pointcloud2 = nh_ptr->subscribe<sensor_msgs::PointCloud2> ("pointcloud_xyzrgb", 1, pointcloud2Callback);
+		ROS_INFO("3D body detector ENABLED");
+	}
+	else if(msg->data == "e_stop")
+	{
+		sub_pointcloud2.shutdown();
+		ROS_INFO("3D body detector DISABLED");
+	}
 }
 
 int main(int argc, char** argv)
@@ -232,13 +230,11 @@ int main(int argc, char** argv)
 	dynamic_reconfig_server.setCallback(boost::bind(&dynamic_reconfig_callback, _1, _2));
 
 	// Subscriber and Publisher
+	ros::Subscriber sub_event = nh.subscribe<std_msgs::String>("event_in", 1, eventCallback);
+
 	pub_person_msg = nh.advertise<mcr_perception_msgs::PersonList>("people_positions", 1);
 	pub_segmented_cloud = nh.advertise<sensor_msgs::PointCloud2>("debug/segmented_cloud", 1);
 	pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
-
-	//Service Server
-	ros::ServiceServer srv_start = nh.advertiseService("start", start);
-	ros::ServiceServer srv_stop = nh.advertiseService("stop", stop);
 
 	//TF
 	transform_listener = new tf::TransformListener();
