@@ -42,7 +42,8 @@ BodyDetection3D* body_detector = NULL;
 tf::TransformListener *transform_listener = NULL;
 bool is_pointcloud_received = false;
 pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud_input(new pcl::PointCloud<pcl::PointXYZ>);
-mcr_perception_msgs::PersonList person_list;
+vector<Person> person_list;
+mcr_perception_msgs::PersonList ros_msg;
 mcr_body_detection_3d::BodyDetection3DConfig dyn_recfg_parameters;
 
 
@@ -102,6 +103,39 @@ void publishVisualizationMarker(const mcr_perception_msgs::PersonList &person_li
 		pub_visualization_marker.publish(marker_array);
 }
 
+mcr_perception_msgs::PersonList convertToRosMsg(const vector<Person> &person_list, const pcl::PCLHeader &pcl_header)
+{
+	mcr_perception_msgs::PersonList ros_msg;
+	geometry_msgs::Quaternion quaternion;
+
+	for(size_t i = 0; i < person_list.size(); ++i)
+	{
+		mcr_perception_msgs::Person person;
+
+		pcl_conversions::fromPCL(pcl_header, person.header);
+
+		person.pose.pose.position.x = person_list[i].position_x;
+		person.pose.pose.position.y = person_list[i].position_y;
+		person.pose.pose.position.z = person_list[i].position_z;
+
+		quaternion = tf::createQuaternionMsgFromYaw(person_list[i].orientation_yaw);
+		person.pose.pose.orientation = quaternion;
+
+		person.height = person_list[i].height;
+		person.width = person_list[i].width;
+		person.depth = person_list[i].depth;
+		person.probability = person_list[i].probability;
+
+		person.id = 0;
+		person.is_occluded = false;
+		person.is_tracked = false;
+
+		ros_msg.persons.push_back(person);
+	}
+
+	return ros_msg;
+}
+
 void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 {
 	sensor_msgs::PointCloud2 cloud2_transformed;
@@ -127,10 +161,13 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 		// detect person
 		person_list = body_detector->getPersonList(pcl_cloud_input);
 
-		if(person_list.persons.size() > 0)
+		// convert
+		ros_msg = convertToRosMsg(person_list, pcl_cloud_input->header);
+
+		if(ros_msg.persons.size() > 0)
 		{
 			if(dyn_recfg_parameters.publish_visualization_markers)
-				publishVisualizationMarker(person_list);
+				publishVisualizationMarker(ros_msg);
 			if(dyn_recfg_parameters.publish_debug_topics)
 			{
 				pcl::toROSMsg(body_detector->getClassifiedCloud(), debug_cloud);
@@ -138,10 +175,10 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 			}
 
 			// publish final person list
-			pub_person_msg.publish(person_list);
+			pub_person_msg.publish(ros_msg);
 		}
 
-		ROS_DEBUG_STREAM("found " << person_list.persons.size() << " person(s)");
+		ROS_DEBUG_STREAM("found " << person_list.size() << " person(s)");
 
 
 	} catch (tf::TransformException ex)
