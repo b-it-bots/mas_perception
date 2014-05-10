@@ -56,16 +56,18 @@ public:
 	~BodyDetection3D();
 
 	void loadModel(const string &filename);
-	mcr_perception_msgs::PersonList getPersonList(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input);
-	void setHistogramBinSize(const double &bin_size) { this->histogram_bin_size_ = bin_size; };
+	vector<Person> getPersonList(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input);
+
 	template <typename PointT>
 	int getPointCloudFeatureVector(const pcl::PointCloud<PointT> &pcl_cloud_segment, vector<double> &feature_vector, const double &sample_label);
 	unsigned int getNumberOfPointCloudFeatures();
 
-	// getter functions for debug purpose
+	// getter functions
 	pcl::PointCloud<pcl::PointXYZRGB> getClassifiedCloud();
+	
 	// setter functions
 	void setMinimumClustersPerPerson(const unsigned int &minimum_clusters_per_person) { this->minimum_clusters_per_person_ = minimum_clusters_per_person; };
+	void setHistogramBinSize(const double &bin_size) { this->histogram_bin_size_ = bin_size; };
 
 private:
 	void preprocessAndSegmentPointCloud(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input, std::vector<Segment3DProperties> &body_segments, std::vector<pcl::PointCloud<PointNormal>, Eigen::aligned_allocator<pcl::PointCloud<PointNormal> > > &pcl_cloud_classified_3d_segments_);
@@ -150,7 +152,7 @@ BodyDetection3D::BodyDetection3D()
 	// segmentation parameters
 	this->slice_height_ = 0.2;
 
-	//feature parameter
+	// feature parameter
 	this->histogram_bin_size_ = 7;
 	this->histogram_min_value_ = -1.0;
 	this->histogram_max_value_ = 1.0;
