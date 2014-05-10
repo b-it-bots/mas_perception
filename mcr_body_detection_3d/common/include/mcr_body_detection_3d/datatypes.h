@@ -11,7 +11,7 @@
 
 struct Segment3D
 {
-	Segment3D() : number_of_segments(0), probability(0) {};
+	Segment3D() : number_of_segments(0), probability(0.0) {};
 	pcl::PointCloud<pcl::PointNormal> pcl_cloud;
 	unsigned int number_of_segments;
 	double probability;
@@ -35,7 +35,7 @@ struct Vertex
 
 struct Edge
 {
-	Edge() : eucl_distance(0) {};
+	Edge() : eucl_distance(0.0) {};
 	double eucl_distance;
 };
 
