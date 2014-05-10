@@ -8,7 +8,6 @@
 #ifndef BODY_DETECTION_3D_H_
 #define BODY_DETECTION_3D_H_
 
-#include <assert.h>
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
