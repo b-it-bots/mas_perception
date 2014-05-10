@@ -11,6 +11,10 @@
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
+#include <fstream>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include <mcr_algorithms/geometry/conversions.h>
 #include <mcr_algorithms/geometry/geometric_distances.hpp>
 #include <mcr_algorithms/geometry/geometric_properties.hpp>
@@ -20,9 +24,6 @@
 #include <mcr_algorithms/wrapper/pcl_wrapper.hpp>
 #include <mcr_perception_msgs/PersonList.h>
 #include <mcr_perception_msgs/Person.h>
-#include <fstream>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
 #include <tf/transform_datatypes.h>
 
 #include "mcr_body_detection_3d/datatypes.h"
