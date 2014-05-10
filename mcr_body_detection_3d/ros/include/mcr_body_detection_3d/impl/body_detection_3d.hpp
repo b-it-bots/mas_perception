@@ -8,6 +8,7 @@
 #ifndef BODY_DETECTION_3D_H_
 #define BODY_DETECTION_3D_H_
 
+
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
@@ -27,8 +28,6 @@
 #include <tf/transform_datatypes.h>
 
 #include "mcr_body_detection_3d/datatypes.h"
-#include "mcr_body_detection_3d/BodyDetection3DConfig.h"
-
 
 /*##################################################
  *      NAMESPACES
@@ -62,10 +61,11 @@ public:
 	template <typename PointT>
 	int getPointCloudFeatureVector(const pcl::PointCloud<PointT> &pcl_cloud_segment, vector<double> &feature_vector, const double &sample_label);
 	unsigned int getNumberOfPointCloudFeatures();
-	void updateParameters(const mcr_body_detection_3d::BodyDetection3DConfig &config);
 
 	// getter functions for debug purpose
 	pcl::PointCloud<pcl::PointXYZRGB> getClassifiedCloud();
+	// setter functions
+	void setMinimumClustersPerPerson(const unsigned int &minimum_clusters_per_person) { this->minimum_clusters_per_person_ = minimum_clusters_per_person; };
 
 private:
 	void preprocessAndSegmentPointCloud(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input, std::vector<Segment3DProperties> &body_segments, std::vector<pcl::PointCloud<PointNormal>, Eigen::aligned_allocator<pcl::PointCloud<PointNormal> > > &pcl_cloud_classified_3d_segments_);
@@ -120,10 +120,10 @@ private:
 	double histogram_min_value_;
 	double histogram_max_value_;
 
-	mcr_body_detection_3d::BodyDetection3DConfig parameters_;
+	// merging parameter
+	double minimum_clusters_per_person_;
 
 	unsigned int vertex_id_counter_;
-
 };
 
 BodyDetection3D::BodyDetection3D()
@@ -154,6 +154,9 @@ BodyDetection3D::BodyDetection3D()
 	this->histogram_bin_size_ = 7;
 	this->histogram_min_value_ = -1.0;
 	this->histogram_max_value_ = 1.0;
+
+	// merging parameter
+	minimum_clusters_per_person_ = 4;
 
 	//create instances
 	this->random_tree_ = new RandomTrees(this->getNumberOfPointCloudFeatures());
@@ -190,11 +193,6 @@ void BodyDetection3D::loadModel(const string &filename)
 		std::cerr << "\tcould not load random forest model " << filename.c_str();
 		exit(0);
 	}
-}
-
-void BodyDetection3D::updateParameters(const mcr_body_detection_3d::BodyDetection3DConfig &config)
-{
-	parameters_ = config;
 }
 
 pcl::PointCloud<pcl::PointXYZRGB> BodyDetection3D::getClassifiedCloud()

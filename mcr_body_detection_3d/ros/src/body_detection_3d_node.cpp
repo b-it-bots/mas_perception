@@ -153,7 +153,7 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 
 void dynamic_reconfig_callback(mcr_body_detection_3d::BodyDetection3DConfig &config, uint32_t level)
 {
-    body_detector->updateParameters(config);
+    body_detector->setMinimumClustersPerPerson(config.minimum_clusters_per_person);
     dyn_recfg_parameters = config;
 }
 
