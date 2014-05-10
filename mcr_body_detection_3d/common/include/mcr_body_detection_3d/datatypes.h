@@ -15,7 +15,6 @@ struct Segment3D
 	pcl::PointCloud<pcl::PointNormal> pcl_cloud;
 	unsigned int number_of_segments;
 	double probability;
-
 };
 
 struct Segment3DProperties
