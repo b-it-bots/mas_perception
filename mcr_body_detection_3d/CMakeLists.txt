@@ -32,7 +32,6 @@ catkin_package(
 )
 
 include_directories(
-  ros/include
   common/include
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}  
