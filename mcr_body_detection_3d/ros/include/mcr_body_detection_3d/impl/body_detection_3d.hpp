@@ -24,7 +24,6 @@
 #include <fstream>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <ros/ros.h>
 #include <tf/transform_datatypes.h>
 
 #include "mcr_body_detection_3d/datatypes.h"
@@ -185,10 +184,10 @@ void BodyDetection3D::loadModel(const string &filename)
 {
 	// load models for random forest classifier
 	if(this->random_tree_->loadModel(filename.c_str()) == 0)
-		ROS_INFO("\tloaded random forest model %s successfully", filename.c_str());
+		std::cout << "\tloaded random forest model " << filename << " successfully";
 	else
 	{
-		ROS_ERROR("\tcould not load random forest model %s", filename.c_str());
+		std::cerr << "\tcould not load random forest model " << filename.c_str();
 		exit(0);
 	}
 }
