@@ -13,7 +13,7 @@
 #include <pcl_ros/transforms.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <std_srvs/Empty.h>
+#include <std_msgs/String.h>
 #include <tf/transform_listener.h>
 #include <dynamic_reconfigure/server.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -42,7 +42,8 @@ BodyDetection3D* body_detector = NULL;
 tf::TransformListener *transform_listener = NULL;
 bool is_pointcloud_received = false;
 pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_cloud_input(new pcl::PointCloud<pcl::PointXYZ>);
-mcr_perception_msgs::PersonList person_list;
+vector<Person> person_list;
+mcr_perception_msgs::PersonList ros_msg;
 mcr_body_detection_3d::BodyDetection3DConfig dyn_recfg_parameters;
 
 
@@ -102,7 +103,40 @@ void publishVisualizationMarker(const mcr_perception_msgs::PersonList &person_li
 		pub_visualization_marker.publish(marker_array);
 }
 
-void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
+mcr_perception_msgs::PersonList convertToRosMsg(const vector<Person> &person_list, const pcl::PCLHeader &pcl_header)
+{
+	mcr_perception_msgs::PersonList ros_msg;
+	geometry_msgs::Quaternion quaternion;
+
+	for(size_t i = 0; i < person_list.size(); ++i)
+	{
+		mcr_perception_msgs::Person person;
+
+		pcl_conversions::fromPCL(pcl_header, person.header);
+
+		person.pose.pose.position.x = person_list[i].position_x;
+		person.pose.pose.position.y = person_list[i].position_y;
+		person.pose.pose.position.z = person_list[i].position_z;
+
+		quaternion = tf::createQuaternionMsgFromYaw(person_list[i].orientation_yaw);
+		person.pose.pose.orientation = quaternion;
+
+		person.height = person_list[i].height;
+		person.width = person_list[i].width;
+		person.depth = person_list[i].depth;
+		person.probability = person_list[i].probability;
+
+		person.id = 0;
+		person.is_occluded = false;
+		person.is_tracked = false;
+
+		ros_msg.persons.push_back(person);
+	}
+
+	return ros_msg;
+}
+
+void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr &cloud2_input)
 {
 	sensor_msgs::PointCloud2 cloud2_transformed;
 
@@ -127,10 +161,13 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 		// detect person
 		person_list = body_detector->getPersonList(pcl_cloud_input);
 
-		if(person_list.persons.size() > 0)
+		// convert
+		ros_msg = convertToRosMsg(person_list, pcl_cloud_input->header);
+
+		if(ros_msg.persons.size() > 0)
 		{
 			if(dyn_recfg_parameters.publish_visualization_markers)
-				publishVisualizationMarker(person_list);
+				publishVisualizationMarker(ros_msg);
 			if(dyn_recfg_parameters.publish_debug_topics)
 			{
 				pcl::toROSMsg(body_detector->getClassifiedCloud(), debug_cloud);
@@ -138,10 +175,10 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 			}
 
 			// publish final person list
-			pub_person_msg.publish(person_list);
+			pub_person_msg.publish(ros_msg);
 		}
 
-		ROS_DEBUG_STREAM("found " << person_list.persons.size() << " person(s)");
+		ROS_DEBUG_STREAM("found " << person_list.size() << " person(s)");
 
 
 	} catch (tf::TransformException ex)
@@ -153,33 +190,31 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr& cloud2_input)
 
 void dynamic_reconfig_callback(mcr_body_detection_3d::BodyDetection3DConfig &config, uint32_t level)
 {
-    body_detector->updateParameters(config);
+    body_detector->setMinimumClustersPerPerson(config.minimum_clusters_per_person);
     dyn_recfg_parameters = config;
 }
 
-bool start(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+void eventCallback(const std_msgs::String::ConstPtr &msg)
 {
-	sub_pointcloud2 = nh_ptr->subscribe<sensor_msgs::PointCloud2> ("pointcloud_xyzrgb", 1, pointcloud2Callback);
-
-	ROS_INFO("3D body detector ENABLED");
-	return true;
-}
-
-bool stop(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
-{
-	sub_pointcloud2.shutdown();
-
-	ROS_INFO("3D body detector DISABLED");
-	return true;
+	if(msg->data == "e_start")
+	{
+		sub_pointcloud2 = nh_ptr->subscribe<sensor_msgs::PointCloud2> ("pointcloud_xyzrgb", 1, pointcloud2Callback);
+		ROS_INFO("3D body detector ENABLED");
+	}
+	else if(msg->data == "e_stop")
+	{
+		sub_pointcloud2.shutdown();
+		ROS_INFO("3D body detector DISABLED");
+	}
 }
 
 int main(int argc, char** argv)
 {
-    std::string random_forest_model_filename = "";
+  std::string random_forest_model_filename = "";
 
-    ros::init(argc, argv, "body_detection_3d");
+	ros::init(argc, argv, "body_detection_3d");
 
-    ros::NodeHandle nh("~");
+	ros::NodeHandle nh("~");
 	nh_ptr = &nh;
 
 	// get Parameter from server
@@ -195,13 +230,11 @@ int main(int argc, char** argv)
 	dynamic_reconfig_server.setCallback(boost::bind(&dynamic_reconfig_callback, _1, _2));
 
 	// Subscriber and Publisher
+	ros::Subscriber sub_event = nh.subscribe<std_msgs::String>("event_in", 1, eventCallback);
+
 	pub_person_msg = nh.advertise<mcr_perception_msgs::PersonList>("people_positions", 1);
 	pub_segmented_cloud = nh.advertise<sensor_msgs::PointCloud2>("debug/segmented_cloud", 1);
 	pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
-
-	//Service Server
-	ros::ServiceServer srv_start = nh.advertiseService("start", start);
-	ros::ServiceServer srv_stop = nh.advertiseService("stop", stop);
 
 	//TF
 	transform_listener = new tf::TransformListener();

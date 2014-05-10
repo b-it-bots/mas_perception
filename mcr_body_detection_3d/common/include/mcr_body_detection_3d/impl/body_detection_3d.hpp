@@ -8,10 +8,14 @@
 #ifndef BODY_DETECTION_3D_H_
 #define BODY_DETECTION_3D_H_
 
-#include <assert.h>
+
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/connected_components.hpp>
+#include <fstream>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 #include <mcr_algorithms/geometry/conversions.h>
 #include <mcr_algorithms/geometry/geometric_distances.hpp>
 #include <mcr_algorithms/geometry/geometric_properties.hpp>
@@ -19,17 +23,8 @@
 #include <mcr_algorithms/segmentation/pointcloud_segmentation.hpp>
 #include <mcr_algorithms/statistics/minmax.hpp>
 #include <mcr_algorithms/wrapper/pcl_wrapper.hpp>
-#include <mcr_perception_msgs/PersonList.h>
-#include <mcr_perception_msgs/Person.h>
-#include <fstream>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <ros/ros.h>
-#include <tf/transform_datatypes.h>
 
 #include "mcr_body_detection_3d/datatypes.h"
-#include "mcr_body_detection_3d/BodyDetection3DConfig.h"
-
 
 /*##################################################
  *      NAMESPACES
@@ -58,22 +53,25 @@ public:
 	~BodyDetection3D();
 
 	void loadModel(const string &filename);
-	mcr_perception_msgs::PersonList getPersonList(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input);
-	void setHistogramBinSize(const double &bin_size) { this->histogram_bin_size_ = bin_size; };
+	vector<Person> getPersonList(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input);
+
 	template <typename PointT>
 	int getPointCloudFeatureVector(const pcl::PointCloud<PointT> &pcl_cloud_segment, vector<double> &feature_vector, const double &sample_label);
 	unsigned int getNumberOfPointCloudFeatures();
-	void updateParameters(const mcr_body_detection_3d::BodyDetection3DConfig &config);
 
-	// getter functions for debug purpose
+	// getter functions
 	pcl::PointCloud<pcl::PointXYZRGB> getClassifiedCloud();
+	
+	// setter functions
+	void setMinimumClustersPerPerson(const unsigned int &minimum_clusters_per_person) { this->minimum_clusters_per_person_ = minimum_clusters_per_person; };
+	void setHistogramBinSize(const double &bin_size) { this->histogram_bin_size_ = bin_size; };
 
 private:
 	void preprocessAndSegmentPointCloud(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input, std::vector<Segment3DProperties> &body_segments, std::vector<pcl::PointCloud<PointNormal>, Eigen::aligned_allocator<pcl::PointCloud<PointNormal> > > &pcl_cloud_classified_3d_segments_);
 	void createStatisticalGraph(std::vector<Segment3DProperties> &body_parts, StatisticalGraph &connectivity_graph);
 	void splitGraphIntoConnectedComponents(StatisticalGraph &graph, vector<StatisticalGraph> &clustered_sub_graphs);
 	void cluster3DSegmentsAccordingToGraph(vector<StatisticalGraph> &clustered_sub_graphs, std::vector<pcl::PointCloud<PointNormal>, Eigen::aligned_allocator<pcl::PointCloud<PointNormal> > > &pcl_cloud_classified_3d_segments_, std::vector<Segment3D, Eigen::aligned_allocator<Segment3D > > &clustered_3d_segments);
-	void classify3DSegment(const std::vector<Segment3D, Eigen::aligned_allocator<Segment3D > > &clustered_3d_segments, mcr_perception_msgs::PersonList &classified_persons);
+	void classify3DSegment(const std::vector<Segment3D, Eigen::aligned_allocator<Segment3D > > &clustered_3d_segments, vector<Person> &classified_persons);
 
 	VertexID addVertex(pcl::PointXYZ &point, unsigned int &related_segment_id, double &probability, StatisticalGraph &graph);
 	VertexID addVertex(pcl::PointXYZ &point, unsigned int &index, unsigned int &related_segment_id, double &probability, StatisticalGraph &graph, std::map<unsigned int, VertexID> &added_points);
@@ -92,7 +90,6 @@ private:
 
 	std::vector<pcl::PointCloud<PointNormal>, Eigen::aligned_allocator<pcl::PointCloud<PointNormal> > > pcl_cloud_segments_;
 	std::vector<pcl::PointCloud<PointNormal>, Eigen::aligned_allocator<pcl::PointCloud<PointNormal> > > pcl_cloud_classified_3d_segments_;
-
 
 	// passthrough filter parameters
 	string height_axis_;
@@ -121,10 +118,10 @@ private:
 	double histogram_min_value_;
 	double histogram_max_value_;
 
-	mcr_body_detection_3d::BodyDetection3DConfig parameters_;
+	// merging parameter
+	double minimum_clusters_per_person_;
 
 	unsigned int vertex_id_counter_;
-
 };
 
 BodyDetection3D::BodyDetection3D()
@@ -151,10 +148,13 @@ BodyDetection3D::BodyDetection3D()
 	// segmentation parameters
 	this->slice_height_ = 0.2;
 
-	//feature parameter
+	// feature parameter
 	this->histogram_bin_size_ = 7;
 	this->histogram_min_value_ = -1.0;
 	this->histogram_max_value_ = 1.0;
+
+	// merging parameter
+	minimum_clusters_per_person_ = 4;
 
 	//create instances
 	this->random_tree_ = new RandomTrees(this->getNumberOfPointCloudFeatures());
@@ -185,17 +185,12 @@ void BodyDetection3D::loadModel(const string &filename)
 {
 	// load models for random forest classifier
 	if(this->random_tree_->loadModel(filename.c_str()) == 0)
-		ROS_INFO("\tloaded random forest model %s successfully", filename.c_str());
+		std::cout << "\tloaded random forest model " << filename << " successfully";
 	else
 	{
-		ROS_ERROR("\tcould not load random forest model %s", filename.c_str());
+		std::cerr << "\tcould not load random forest model " << filename.c_str();
 		exit(0);
 	}
-}
-
-void BodyDetection3D::updateParameters(const mcr_body_detection_3d::BodyDetection3DConfig &config)
-{
-	parameters_ = config;
 }
 
 pcl::PointCloud<pcl::PointXYZRGB> BodyDetection3D::getClassifiedCloud()
@@ -226,14 +221,14 @@ pcl::PointCloud<pcl::PointXYZRGB> BodyDetection3D::getClassifiedCloud()
 }
 
 
-mcr_perception_msgs::PersonList BodyDetection3D::getPersonList(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input)
+vector<Person> BodyDetection3D::getPersonList(const PointCloud<pcl::PointXYZ>::Ptr &pcl_cloud_input)
 {
 	std::vector<Segment3D, Eigen::aligned_allocator<Segment3D > > clustered_3d_segments;
 	std::vector<Segment3DProperties> body_segments;
 	StatisticalGraph connectivity_graph;
 	vector<StatisticalGraph> clustered_sub_graphs;
 	vector<vector<double> > graph_feature_vector;
-	mcr_perception_msgs::PersonList person_list;
+	vector<Person> person_list;
 
 
 	this->preprocessAndSegmentPointCloud(pcl_cloud_input, body_segments, pcl_cloud_classified_3d_segments_);
@@ -419,15 +414,14 @@ void BodyDetection3D::cluster3DSegmentsAccordingToGraph(vector<StatisticalGraph>
 }
 
 
-void BodyDetection3D::classify3DSegment(const std::vector<Segment3D, Eigen::aligned_allocator<Segment3D > > &clustered_3d_segments, mcr_perception_msgs::PersonList &classified_persons)
+void BodyDetection3D::classify3DSegment(const std::vector<Segment3D, Eigen::aligned_allocator<Segment3D > > &clustered_3d_segments, vector<Person> &classified_persons)
 {
 	Eigen::Vector4f centroid;
 	pcl::PointNormal min_x, max_x, min_y, max_y, min_z, max_z;
 	double distance=0, angle=0;
-	geometry_msgs::Quaternion quat;
 
 	// clear person list
-	classified_persons.persons.clear();
+	classified_persons.clear();
 
 	// iterate over clustered graphs
 	for(unsigned int i=0; i < clustered_3d_segments.size(); ++i)
@@ -436,31 +430,24 @@ void BodyDetection3D::classify3DSegment(const std::vector<Segment3D, Eigen::alig
 		MinMax::determineMinMax3D(clustered_3d_segments[i].pcl_cloud, min_x, max_x, min_y, max_y, min_z, max_z);
 
 		// establish person message and add it to the person list
-		mcr_perception_msgs::Person person;
+		Person person;
 
-		pcl_conversions::fromPCL(clustered_3d_segments[i].pcl_cloud.header, classified_persons.header);
-		person.header = person.pose.header = classified_persons.header;
+		person.position_x = centroid[0];
+		person.position_y = centroid[1];
+		person.position_z = centroid[2];
 
-		person.pose.pose.position.x = centroid[0];
-		person.pose.pose.position.y = centroid[1];
-		person.pose.pose.position.z = centroid[2];
-
-		Conversions::cartesian2polar2D(person.pose.pose.position.x, person.pose.pose.position.y, distance, angle);
-		quat = tf::createQuaternionMsgFromYaw(angle);
-		person.pose.pose.orientation = quat;
+		Conversions::cartesian2polar2D(person.position_x, person.position_y, distance, angle);
+		person.orientation_yaw = angle;
 
 		person.height = GeometricDistances::getEuclideanDistance3D(min_z, max_z);
 		person.width = GeometricDistances::getEuclideanDistance3D(min_y, max_y);
 		person.depth = GeometricDistances::getEuclideanDistance3D(min_x, max_x);
 		person.probability = clustered_3d_segments[i].probability;
-		person.id = 0;
-		person.is_occluded = false;
-		person.is_tracked = false;
 
-		if(clustered_3d_segments[i].number_of_segments < (unsigned int)parameters_.minimum_clusters_per_person)
+		if(clustered_3d_segments[i].number_of_segments < minimum_clusters_per_person_)
 			continue;
 
-		classified_persons.persons.push_back(person);
+		classified_persons.push_back(person);
 	}
 }
 

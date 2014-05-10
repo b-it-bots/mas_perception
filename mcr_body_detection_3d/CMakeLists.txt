@@ -10,7 +10,7 @@ find_package(catkin REQUIRED
     roscpp
     rostest
     sensor_msgs
-    std_srvs
+    std_msgs
     tf
     visualization_msgs
 )
@@ -28,24 +28,34 @@ catkin_package(
     mcr_algorithms
     mcr_perception_msgs
     sensor_msgs
+    std_msgs
     visualization_msgs
 )
 
 include_directories(
-  ros/include
   common/include
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}  
 )
 
-add_library(mcr_body_detection_3d ros/src/body_detection_3d.cpp)
-add_dependencies(mcr_body_detection_3d ${catkin_EXPORTED_TARGETS})
+add_library(mcr_body_detection_3d
+	common/src/body_detection_3d.cpp
+)
+add_dependencies(mcr_body_detection_3d
+	${catkin_EXPORTED_TARGETS}
+)
 
-add_executable(body_detection_3d_node ros/src/body_detection_3d_node.cpp)
-add_dependencies(body_detection_3d_node ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
+add_executable(body_detection_3d_node
+	ros/src/body_detection_3d_node.cpp
+)
+add_dependencies(body_detection_3d_node
+	${PROJECT_NAME}_gencfg 
+	${catkin_EXPORTED_TARGETS}
+)
 target_link_libraries(body_detection_3d_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
+	mcr_body_detection_3d
 )
 
 install(TARGETS mcr_body_detection_3d mcr_body_detection_3d
