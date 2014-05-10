@@ -54,6 +54,7 @@ add_dependencies(body_detection_3d_node
 target_link_libraries(body_detection_3d_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
+	mcr_body_detection_3d
 )
 
 install(TARGETS mcr_body_detection_3d mcr_body_detection_3d
