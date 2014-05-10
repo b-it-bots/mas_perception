@@ -20,13 +20,14 @@ struct Segment3D
 
 struct Segment3DProperties
 {
+	Segment3DProperties() : probability(0.0) {};
 	pcl::PointXYZ centroid;
 	double probability;
 };
 
 struct Vertex
 {
-	Vertex() : related_segment_id(0), id(0) {};
+	Vertex() : related_segment_id(0), id(0), probability(0.0) {};
 	pcl::PointXYZ point;
 	unsigned int related_segment_id;
 	unsigned int id;
