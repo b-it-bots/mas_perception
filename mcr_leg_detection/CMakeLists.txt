@@ -1,6 +1,23 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_leg_detection)
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs message_generation dynamic_reconfigure mcr_algorithms message_filters tf)
+
+find_package(catkin REQUIRED
+  COMPONENTS
+    laser_geometry
+    mcr_perception_msgs
+    roscpp
+    sensor_msgs
+    std_msgs
+    std_srvs
+    geometry_msgs
+    message_generation
+    dynamic_reconfigure
+    mcr_algorithms
+    message_filters
+    tf
+    visualization_msgs
+)
+
 find_package(OpenCV REQUIRED)
 
 # bfl (Bayesian Filtering Library) is a third party package that uses pkg-config
@@ -23,7 +40,12 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime dynamic_reconfigure mcr_algorithms std_msgs geometry_msgs
+  CATKIN_DEPENDS
+    message_runtime
+    dynamic_reconfigure
+    mcr_algorithms
+    std_msgs
+    geometry_msgs
 )
 
 include_directories(
