@@ -50,7 +50,6 @@ catkin_package(
 
 include_directories(
   ros/include/
-  cfg/cpp/
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${BFL_INCLUDE_DIRS}
