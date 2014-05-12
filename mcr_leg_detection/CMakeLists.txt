@@ -77,4 +77,3 @@ target_link_libraries(leg_detection_node
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
-find_package(OpenCV)
