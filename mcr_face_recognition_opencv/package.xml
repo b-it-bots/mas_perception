@@ -12,9 +12,12 @@
   <author email="sven.schneider@h-brs.de">Sven Schneider</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>cv_bridge</build_depend>  
   
   <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>libface</build_depend>
+  <build_depend>roscpp</build_depend>
   
   <run_depend>mcr_perception_msgs</run_depend>
   <run_depend>libface</run_depend>
