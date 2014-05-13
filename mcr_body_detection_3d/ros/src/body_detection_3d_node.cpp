@@ -114,6 +114,7 @@ mcr_perception_msgs::PersonList convertToRosMsg(const vector<Person> &person_lis
 
 		pcl_conversions::fromPCL(pcl_header, person.header);
 
+		person.pose.header = person.header;
 		person.pose.pose.position.x = person_list[i].position_x;
 		person.pose.pose.position.y = person_list[i].position_y;
 		person.pose.pose.position.z = person_list[i].position_z;
