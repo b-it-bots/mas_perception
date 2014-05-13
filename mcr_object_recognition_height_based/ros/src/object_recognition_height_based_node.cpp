@@ -17,6 +17,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <std_srvs/Empty.h>
 #include <tf/transform_listener.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <mcr_tabletop_segmentation/object_candidate_extraction.h>
 #include <mcr_tabletop_segmentation/toolbox_ros.h>
@@ -35,6 +36,7 @@
 
 pcl::PointCloud<pcl::PointXYZ> cloud_Inliers;
 ros::Publisher pmd_pub0, pmd_pub1, pmd_pub2, pmd_pub4, pmd_pub5;
+ros::Publisher pub_marker;
 
 CObjectCandidateExtraction *objectCandidateExtractor;
 CToolBoxROS toolBox;
@@ -84,6 +86,59 @@ std::map<std::string, double> known_objects;
 
 #define KINECT_MAX_TILT (30)
 #define KINECT_MIN_TILT (-30)
+
+void publishVisualizationMarker(const mcr_perception_msgs::ObjectList &object_list)
+{
+	visualization_msgs::MarkerArray marker_array;
+
+	// convert person msgs into markers for rviz visualization
+	for(unsigned int i=0, j=0; i < object_list.objects.size(); ++i)
+	{
+		visualization_msgs::Marker marker_text;
+		visualization_msgs::Marker marker_shape;
+
+		marker_shape.header.frame_id = marker_text.header.frame_id = object_list.objects[i].pose.header.frame_id;
+		marker_shape.header.stamp = marker_text.header.stamp = ros::Time::now();
+		marker_shape.ns = "object recognition - poses";
+		marker_text.ns = "object recognition - labels";
+		marker_shape.action = marker_text.action = visualization_msgs::Marker::ADD;
+
+		marker_shape.id = ++j;
+		marker_text.id = ++j;
+
+		marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+		marker_shape.type = visualization_msgs::Marker::SPHERE;
+
+		marker_shape.pose.position = marker_text.pose.position = object_list.objects[i].pose.pose.position;
+		marker_shape.pose.orientation = marker_text.pose.orientation = object_list.objects[i].pose.pose.orientation;
+
+		marker_text.text = object_list.objects[i].name;
+
+		marker_shape.scale.x = 0.05;
+		marker_shape.scale.y = 0.05;
+		marker_shape.scale.z = 0.05;
+		marker_shape.color.r = 1.0;
+		marker_shape.color.g = 0.0;
+		marker_shape.color.b = 0.0;
+		marker_shape.color.a = 0.5;;
+
+		marker_text.scale.x = 0.2;
+		marker_text.scale.y = 0.2;
+		marker_text.scale.z = 0.2;
+		marker_text.color.r = 1.0;
+		marker_text.color.g = 1.0;
+		marker_text.color.b = 1.0;
+		marker_text.color.a = 1.0;
+
+		marker_shape.lifetime = marker_text.lifetime = ros::Duration(1);
+
+		marker_array.markers.push_back(marker_shape);
+		marker_array.markers.push_back(marker_text);
+	}
+
+	if(marker_array.markers.size() > 0)
+		pub_marker.publish(marker_array);
+}
 
 int findBestObject(std::vector<geometry_msgs::Point> clusteredObjectsCentroidsMsg, std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal> > clusteredObjects)
 {
@@ -353,6 +408,7 @@ void objectCandidateExtractionCallback(const sensor_msgs::PointCloud2::ConstPtr&
 			}
 
 			pmd_pub4.publish(pointcloud_3d_msg);
+			publishVisualizationMarker(pointcloud_3d_msg);
 		}
 
 		if (SHOW_OBJECTS)
@@ -442,6 +498,7 @@ int main(int argc, char **argv)
 	pmd_pub2 = n.advertise < sensor_msgs::PointCloud2 > ("planes_cloud", 1);
 	pmd_pub4 = n.advertise < mcr_perception_msgs::ObjectList > ("detected_objects", 1);
 	pmd_pub5 = n.advertise < mcr_perception_msgs::ObjectList > ("recognized_objects", 1);
+	pub_marker = n.advertise<visualization_msgs::MarkerArray>("visualization_marker", 1);
 
 	ros::ServiceServer srv_start = n.advertiseService("start", start);
 	ros::ServiceServer srv_stop = n.advertiseService("stop", stop);

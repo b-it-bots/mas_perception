@@ -10,6 +10,7 @@ find_package(catkin REQUIRED
     sensor_msgs
     std_srvs
     tf
+    visualization_msgs
 )
 
 find_package(PCL 1.5 REQUIRED)
