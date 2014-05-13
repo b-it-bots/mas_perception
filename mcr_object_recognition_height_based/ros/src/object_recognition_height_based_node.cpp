@@ -388,6 +388,7 @@ void objectCandidateExtractionCallback(const sensor_msgs::PointCloud2::ConstPtr&
 				ROS_WARN("no objects extracted");
 
 			pmd_pub5.publish(outList);
+			publishVisualizationMarker(outList);
 		}
 
 		if (DO_CANDIDATION)
@@ -408,7 +409,6 @@ void objectCandidateExtractionCallback(const sensor_msgs::PointCloud2::ConstPtr&
 			}
 
 			pmd_pub4.publish(pointcloud_3d_msg);
-			publishVisualizationMarker(pointcloud_3d_msg);
 		}
 
 		if (SHOW_OBJECTS)
