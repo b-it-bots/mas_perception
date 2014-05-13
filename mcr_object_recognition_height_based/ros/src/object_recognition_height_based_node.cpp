@@ -122,9 +122,9 @@ void publishVisualizationMarker(const mcr_perception_msgs::ObjectList &object_li
 		marker_shape.color.b = 0.0;
 		marker_shape.color.a = 0.5;;
 
-		marker_text.scale.x = 0.1;
-		marker_text.scale.y = 0.1;
-		marker_text.scale.z = 0.1;
+		marker_text.scale.x = 0.05;
+		marker_text.scale.y = 0.05;
+		marker_text.scale.z = 0.05;
 		marker_text.color.r = 1.0;
 		marker_text.color.g = 1.0;
 		marker_text.color.b = 1.0;
