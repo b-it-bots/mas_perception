@@ -923,7 +923,7 @@ int main(int argc, char **argv)
 	objectCategorizationGeometric = new CObjectCategorizationGeometric();
 
 	//set new home folder which is from previous loaded launch file
-	objectCategorizationGeometric->setHomePath(homePath + std::string("ros/data/"));
+	objectCategorizationGeometric->setHomePath(homePath + std::string("/ros/config/"));
 
 	loadObjectCategorizationGeometric();
 

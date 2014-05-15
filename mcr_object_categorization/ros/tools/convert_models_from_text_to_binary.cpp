@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     try
 	{
         // Object Decompisition Model File
-        model_filename = "./ros/data/objectDecompostion/objDecomp_objDecomp.od";
+        model_filename = "./ros/config/objectDecompostion/objDecomp_objDecomp.od";
 		cout << "convert file "<< model_filename << " from text to binary" << std::endl;
 		ifstream ifs_obj_decomp(model_filename.c_str()); 
 	    boost::archive::text_iarchive ia_obj_decomp(ifs_obj_decomp);      
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
 
         // RTPNN Ensemble Model File
-        model_filename = "./ros/data/rtpnnEnsemble/rtpnn_ensemble.rtp";
+        model_filename = "./ros/config/rtpnnEnsemble/rtpnn_ensemble.rtp";
 		cout << "convert file "<< model_filename << " from text to binary" << endl;
 		ifstream ifs_rtpnn(model_filename.c_str()); 
 	    boost::archive::text_iarchive ia_rtpnn(ifs_rtpnn);      
