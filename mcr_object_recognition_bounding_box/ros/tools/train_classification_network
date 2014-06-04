@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-PACKAGE = 'mcr_object_recognition'
+PACKAGE = 'mcr_object_recognition_bounding_box'
 
 import roslib
 roslib.load_manifest(PACKAGE)
@@ -10,8 +10,8 @@ import argparse
 
 # Import helper classes for managing training data and saving network
 sys.path.append(join(roslib.packages.get_pkg_dir(PACKAGE), 'common', 'src'))
-from dataset import Dataset, JointDataset
-from classification_network import ClassificationNetwork
+from mcr_object_recognition_bounding_box.dataset import Dataset, JointDataset
+from mcr_object_recognition_bounding_box.classification_network import ClassificationNetwork
 
 # Import numpy and pybrain tools
 import numpy as np

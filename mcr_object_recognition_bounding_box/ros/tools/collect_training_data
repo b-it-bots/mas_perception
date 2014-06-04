@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-PACKAGE = 'mcr_object_recognition'
+PACKAGE = 'mcr_object_recognition_bounding_box'
 NODE = 'collect_training_data'
 
 import roslib
@@ -10,13 +10,13 @@ from os.path import join
 
 # Import helper states for user input and counting
 sys.path.append(join(roslib.packages.get_pkg_dir(PACKAGE), 'common', 'src'))
-from confirm_state import ConfirmState
-from counter_state import CounterState
+from mcr_object_recognition_bounding_box.confirm_state import ConfirmState
+from mcr_object_recognition_bounding_box.counter_state import CounterState
 
 # Import states for calling services from hbrs_scene_segmentation
 sys.path.append(join(roslib.packages.get_pkg_dir('mcr_object_detection'),
                      'ros', 'src'))
-import service_states
+import mcr_object_detection.service_states as service_states
 
 import rospy
 import argparse
@@ -26,7 +26,7 @@ from smach_ros import ServiceState, ConditionState
 
 from mcr_perception_msgs.srv import AnalyzeCloudColor, AnalyzeCloudColorRequest
 
-from dataset import Dataset
+from mcr_object_recognition_bounding_box.dataset import Dataset
 
 
 class StoreObject(State):
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             return r
 
         StateMachine.add('ANALYZE_CLOUD_COLOR',
-                         ServiceState('analyze_cloud_color',
+                         ServiceState('/mcr_perception/cloud_color_analyzer/analyze_cloud_color',
                                       AnalyzeCloudColor,
                                       request_cb=analyze_color_request_cb,
                                       response_slots=['mean',
