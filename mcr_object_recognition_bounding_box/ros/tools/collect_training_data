@@ -2,6 +2,7 @@
 
 PACKAGE = 'mcr_object_recognition_bounding_box'
 NODE = 'collect_training_data'
+DATA_PACKAGE = 'mds_object_recognition_bounding_box'
 
 import roslib
 roslib.load_manifest(PACKAGE)
@@ -17,6 +18,7 @@ from mcr_object_recognition_bounding_box.counter_state import CounterState
 sys.path.append(join(roslib.packages.get_pkg_dir('mcr_object_detection'),
                      'ros', 'src'))
 import mcr_object_detection.service_states as service_states
+import mcr_object_detection.topic_states as topic_states
 
 import rospy
 import argparse
@@ -35,8 +37,8 @@ class StoreObject(State):
                        outcomes=['stored'],
                        input_keys=['bounding_boxes', 'clusters', 'mean',
                                    'median', 'points'])
-        base = roslib.packages.get_pkg_dir(PACKAGE)
-        self.dataset = Dataset(join(base, 'common', 'data'), dataset)
+        base = roslib.packages.get_pkg_dir(DATA_PACKAGE)
+        self.dataset = Dataset(join(base, 'training_data'), dataset)
         self.object_id = object_id
 
     def execute(self, ud):
@@ -61,7 +63,7 @@ if __name__ == '__main__':
     sm = StateMachine(['succeeded', 'aborted', 'preempted'])
     with sm:
         StateMachine.add('FIND_WORKSPACE',
-                         service_states.find_workspace,
+                         topic_states.FindWorkspace(),
                          transitions={'succeeded': 'CONFIRM_WORKSPACE',
                                       'aborted': 'FIND_WORKSPACE'})
         StateMachine.add('CONFIRM_WORKSPACE',

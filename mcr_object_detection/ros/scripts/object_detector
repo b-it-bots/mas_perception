@@ -3,6 +3,7 @@
 NODE = 'object_detector'
 
 import mcr_object_detection.service_states
+import mcr_object_detection.topic_states
 
 import rospy
 import numpy as np
@@ -133,7 +134,7 @@ if __name__ == '__main__':
                       output_keys=['response'])
     with sm:
         StateMachine.add('FIND_WORKSPACE',
-                         mcr_object_detection.service_states.find_workspace,
+                         mcr_object_detection.topic_states.FindWorkspace(),
                          transitions={'succeeded': 'ACCUMULATE_CLOUD',
                                       'aborted': 'FIND_WORKSPACE_ABORTED'})
         StateMachine.add('FIND_WORKSPACE_ABORTED',

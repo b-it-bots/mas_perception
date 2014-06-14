@@ -8,7 +8,8 @@
 #include <pcl/conversions.h>
 #include <pcl/filters/passthrough.h>
 
-#include <mcr_perception_msgs/FindWorkspace.h>
+#include <mcr_perception_msgs/PlanarPolygon.h>
+#include <std_msgs/String.h>
 
 #include "mcr_scene_segmentation/planar_polygon_visualizer.h"
 #include "mcr_scene_segmentation/impl/helpers.hpp"
@@ -17,7 +18,7 @@
 
 using namespace mcr::visualization;
 
-/** This node provides a service to find a workspace in the data coming from
+/** This node finds a workspace in the data coming from
   * a Kinect/Asus camera.
   *
   * Here "workspace" means a planar polygon. Since there might be multiple
@@ -28,11 +29,14 @@ using namespace mcr::visualization;
   * (normal orientation and plane elevation) could be supplied via node
   * parameters.
   *
-  * Provides services:
-  *   1) "find_workspace"
+  * The node is started with the message "e_start" on the topic "event_in"
+  * and publishes "e_done" (workspace found) or "e_failed" (no workspace found)
+  * on the topic "event_out" when complete.
   *
   * Publishes:
-  *   1) "workspace_polygon"
+  *   1) "polygon"
+  *      A PlanarPolygon defined as a list of points that form the contour
+  *   2) "workspace_polygon"
   *      An RViz marker that visualizes the polygon that defines the detected
   *      workspace.
   *
@@ -49,14 +53,52 @@ public:
   : polygon_visualizer_("workspace_polygon", Color::SALMON)
   {
     ros::NodeHandle nh("~");
-    find_workspace_server_ = nh.advertiseService("find_workspace", &WorkspaceFinderNode::findWorkspaceCallback, this);
+
+    polygon_publisher_ = nh.advertise<mcr_perception_msgs::PlanarPolygon>("polygon", 1);   
+    event_out_publisher_ = nh.advertise<std_msgs::String>("event_out", 1);
+
+    event_in_subscriber_ = nh.subscribe("event_in", 1, &WorkspaceFinderNode::eventInCallback, this);    
+
     ROS_INFO("Started [find_workspace] service.");
     plane_extraction_.setSortByArea(true);
+    start_workspace_finder_ = false;
+  }
+
+  void run()
+  {
+    while(ros::ok())
+    {
+      ros::Rate(10).sleep();
+      ros::spinOnce();
+      if (!start_workspace_finder_)
+      {
+        continue;
+      }
+      std_msgs::String event_out_str;
+      if (findWorkspace())
+      {
+        event_out_str.data = "e_done";
+      }
+      else
+      {
+        event_out_str.data = "e_failed";
+      }
+      event_out_publisher_.publish(event_out_str);
+      start_workspace_finder_ = false;
+    }
   }
 
 private:
 
-  bool findWorkspaceCallback(mcr_perception_msgs::FindWorkspace::Request& request, mcr_perception_msgs::FindWorkspace::Response& response)
+  void eventInCallback(const std_msgs::String &event_in_command)
+  {
+    if (event_in_command.data == "e_start")
+    {
+      start_workspace_finder_ = true;
+    }      
+  }
+    
+  bool findWorkspace()
   {
     ros::NodeHandle nh("~");
     ROS_INFO("Received [find_workspace] request.");
@@ -99,9 +141,10 @@ private:
     {
       ROS_ERROR("Failed to clip polygon (%s), output original unclipped one.", e.what());
     }
-    response.stamp = ros_cloud->header.stamp;
-    convertPlanarPolygon(polygon, response.polygon);
-    response.polygon.contour.push_back(response.polygon.contour.front());
+    mcr_perception_msgs::PlanarPolygon ros_polygon;
+    convertPlanarPolygon(polygon, ros_polygon);
+    ros_polygon.contour.push_back(ros_polygon.contour.front());
+    polygon_publisher_.publish(ros_polygon);
     polygon_visualizer_.publish(polygon, ros_cloud->header.frame_id);
     return true;
   }
@@ -157,7 +200,11 @@ private:
   PlaneExtraction plane_extraction_;
   std::unique_ptr<pcl::PassThrough<PointT>> pass_through_;
 
-  ros::ServiceServer find_workspace_server_;
+  ros::Subscriber event_in_subscriber_;
+  ros::Publisher polygon_publisher_;
+  ros::Publisher event_out_publisher_;
+
+  bool start_workspace_finder_;
 
   std::string cloud_topic_;
   int cloud_timeout_;
@@ -171,7 +218,7 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "workspace_finder");
   WorkspaceFinderNode wfn;
-  ros::spin();
+  wfn.run();
   return 0;
 }
 
