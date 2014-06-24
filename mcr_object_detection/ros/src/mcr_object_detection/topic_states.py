@@ -7,20 +7,18 @@ roslib.load_manifest(PACKAGE)
 
 import rospy
 
-from smach import State, StateMachine
-from std_msgs.msg import String
-from mcr_perception_msgs.msg import PlanarPolygon
+import smach
+import std_msgs.msg
+import mcr_perception_msgs.msg
 
-class FindWorkspace(State):
+class FindWorkspace(smach.State):
     def __init__(self):
-        State.__init__(self,
+        smach.State.__init__(self,
                         output_keys=['polygon'],
                         outcomes=['succeeded', 'aborted'])
-        self.polygon_event = ""
-        self.polygon = None
-        self.event_pub = rospy.Publisher('/mcr_perception/workspace_finder/event_in', String, queue_size=1)
-        self.event_sub = rospy.Subscriber('/mcr_perception/workspace_finder/event_out', String, self.e_callback)
-        self.polygon_sub = rospy.Subscriber('/mcr_perception/workspace_finder/polygon', PlanarPolygon, self.poly_callback)
+        self.event_pub = rospy.Publisher('/mcr_perception/workspace_finder/event_in', std_msgs.msg.String, queue_size=1)
+        self.event_sub = rospy.Subscriber('/mcr_perception/workspace_finder/event_out', std_msgs.msg.String, self.e_callback)
+        self.polygon_sub = rospy.Subscriber('/mcr_perception/workspace_finder/polygon', mcr_perception_msgs.msg.PlanarPolygon, self.poly_callback)
 
     def e_callback(self, event):
         self.polygon_event = event.data
@@ -29,7 +27,10 @@ class FindWorkspace(State):
         self.polygon = data
         
     def execute(self, userdata):
-        self.event_pub.publish(String("e_start"))
+        self.polygon_event = ""
+        self.polygon = None
+
+        self.event_pub.publish("e_trigger")
 
         timeout = rospy.Duration.from_sec(10.0) # wait max of 10.0 seconds
         start_time = rospy.Time.now()

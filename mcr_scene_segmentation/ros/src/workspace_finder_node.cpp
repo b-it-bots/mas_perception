@@ -29,9 +29,14 @@ using namespace mcr::visualization;
   * (normal orientation and plane elevation) could be supplied via node
   * parameters.
   *
-  * The node is started with the message "e_start" on the topic "event_in"
-  * and publishes "e_done" (workspace found) or "e_failed" (no workspace found)
-  * on the topic "event_out" when complete.
+  * Events:
+  * 1) Input Events: "event_in" topic
+  *   a) e_trigger  runs workspace finder once
+  *   b) e_start    continuously runs workspace finder until e_stop is received
+  *   c) e_stop     stops workspace finder which was started by e_start
+  * 2) Output Events: "event_out" topic
+  *   a) e_done     published if workspace was found
+  *   b) e_failed   published if workspace was not found
   *
   * Publishes:
   *   1) "polygon"
@@ -59,32 +64,33 @@ public:
 
     event_in_subscriber_ = nh.subscribe("event_in", 1, &WorkspaceFinderNode::eventInCallback, this);    
 
-    ROS_INFO("Started [find_workspace] service.");
+    ROS_INFO("Started [find_workspace] node.");
     plane_extraction_.setSortByArea(true);
-    start_workspace_finder_ = false;
+    trigger_workspace_finder_ = false;
+    run_workspace_finder_ = false;
   }
 
   void run()
   {
+    std_msgs::String event_out_str;
     while(ros::ok())
     {
+      if (trigger_workspace_finder_ || run_workspace_finder_)
+      {
+        if (findWorkspace())
+        {
+          event_out_str.data = "e_done";
+        }
+        else
+        {
+          event_out_str.data = "e_failed";
+        }
+        event_out_publisher_.publish(event_out_str);
+
+        trigger_workspace_finder_ = false;
+      }
       ros::Rate(10).sleep();
       ros::spinOnce();
-      if (!start_workspace_finder_)
-      {
-        continue;
-      }
-      std_msgs::String event_out_str;
-      if (findWorkspace())
-      {
-        event_out_str.data = "e_done";
-      }
-      else
-      {
-        event_out_str.data = "e_failed";
-      }
-      event_out_publisher_.publish(event_out_str);
-      start_workspace_finder_ = false;
     }
   }
 
@@ -92,10 +98,18 @@ private:
 
   void eventInCallback(const std_msgs::String &event_in_command)
   {
-    if (event_in_command.data == "e_start")
+    if (event_in_command.data == "e_trigger")
     {
-      start_workspace_finder_ = true;
-    }      
+      trigger_workspace_finder_ = true;
+    }
+    else if (event_in_command.data == "e_start")
+    {
+      run_workspace_finder_ = true;
+    }
+    else if (event_in_command.data == "e_stop")
+    {
+      run_workspace_finder_ = false;
+    }
   }
     
   bool findWorkspace()
@@ -204,7 +218,8 @@ private:
   ros::Publisher polygon_publisher_;
   ros::Publisher event_out_publisher_;
 
-  bool start_workspace_finder_;
+  bool trigger_workspace_finder_;
+  bool run_workspace_finder_;
 
   std::string cloud_topic_;
   int cloud_timeout_;
