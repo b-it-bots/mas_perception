@@ -84,8 +84,8 @@ install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
-install(FILES ros/config/body_detection_model.mdl
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config/body_detection_model.mdl
+install(FILES common/config/body_detection_model.mdl
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config/body_detection_model.mdl
 )
 
 add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
