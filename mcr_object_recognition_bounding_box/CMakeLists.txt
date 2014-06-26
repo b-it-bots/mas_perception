@@ -68,9 +68,6 @@ install(TARGETS cloud_color_analyzer
 install(DIRECTORY common/config/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config
 )
-install(DIRECTORY common/data/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/data
-)
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
