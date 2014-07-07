@@ -158,6 +158,7 @@ private:
     mcr_perception_msgs::PlanarPolygon ros_polygon;
     convertPlanarPolygon(polygon, ros_polygon);
     ros_polygon.contour.push_back(ros_polygon.contour.front());
+    ros_polygon.header = ros_cloud->header;
     polygon_publisher_.publish(ros_polygon);
     polygon_visualizer_.publish(polygon, ros_cloud->header.frame_id);
     return true;
