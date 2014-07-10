@@ -13,10 +13,11 @@ from tf.transformations import quaternion_from_matrix
 import tf
 
 from mcr_scene_segmentation.label_visualizer import LabelVisualizer
-from mcr_perception_msgs.srv import GetObjectList, GetObjectListResponse
+from mcr_perception_msgs.msg import ObjectList
 from mcr_perception_msgs.msg import Object
 from mcr_perception_msgs.srv import RecognizeObject
 
+import std_msgs.msg
 
 class FindWorkspaceAborted(State):
     def __init__(self):
@@ -78,7 +79,7 @@ class PackResponse(State):
                        outcomes=['done'])
 
     def execute(self, ud):
-        ud.response = GetObjectListResponse()
+        ud.response = ObjectList()
         for c, b, n in zip(ud.clusters, ud.bounding_boxes, ud.names):
             obj = Object()
             q = self.get_orientation(b.vertices)
@@ -160,14 +161,18 @@ if __name__ == '__main__':
                          PublishTf(),
                          transitions={'done': 'succeeded'})
 
-    def detect_objects_cb(request):
-        rospy.loginfo('Received [detect_objects] request.')
-        outcome = sm.execute()
-        if outcome == 'succeeded':
-            return sm.userdata.response
-        else:
-            raise rospy.ServiceException('Object detection failed')
+    def event_in_cb(data):
+        if data.data == "e_trigger":
+            rospy.loginfo('Received [detect_objects] request.')
+            outcome = sm.execute()
+            if outcome == 'succeeded':
+                object_list_pub.publish(sm.userdata.response)
+                event_out_pub.publish("e_done")
+            else:
+                event_out_pub.publish("e_failed")
 
-    s = rospy.Service('~detect_objects', GetObjectList, detect_objects_cb)
-    rospy.loginfo('Started [detect_objects] service.')
+    object_list_pub = rospy.Publisher('~object_list', ObjectList)
+    event_in_sub = rospy.Subscriber('~event_in', std_msgs.msg.String, event_in_cb)
+    event_out_pub = rospy.Publisher('~event_out', std_msgs.msg.String)
+    rospy.loginfo('Started [detect_objects] node.')
     rospy.spin()
