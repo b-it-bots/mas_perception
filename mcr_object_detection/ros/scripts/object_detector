@@ -80,6 +80,7 @@ class PackResponse(State):
 
     def execute(self, ud):
         ud.response = ObjectList()
+        object_id = 0
         for c, b, n in zip(ud.clusters, ud.bounding_boxes, ud.names):
             obj = Object()
             q = self.get_orientation(b.vertices)
@@ -91,7 +92,9 @@ class PackResponse(State):
             obj.pose.pose.orientation.y = q[2]
             obj.pose.pose.orientation.z = q[3]
             obj.name = n
+            obj.database_id = object_id
             ud.response.objects.append(obj)
+            object_id = object_id + 1
         return 'done'
 
     def get_orientation(self, box):
