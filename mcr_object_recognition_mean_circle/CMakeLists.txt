@@ -42,7 +42,9 @@ include_directories(
 add_executable(object_recognition_mean_circle_test
   ros/test/object_recognition_mean_circle_test.cpp
 )
-
+add_dependencies(object_recognition_mean_circle_test
+  ${catkin_EXPORTED_TARGETS}
+)
 target_link_libraries(object_recognition_mean_circle_test
   ${GTEST_LIBRARIES}
   ${catkin_LIBRARIES}
