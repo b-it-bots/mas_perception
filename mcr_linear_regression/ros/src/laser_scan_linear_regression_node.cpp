@@ -104,8 +104,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle n;
 
 	std::string topic;
-	if(!n.getParam("scan_topic",topic))
-			topic = "/scan_front";
+	ros::param::param<std::string>("~scan_topic", topic, "/scan_front");
 
 	ROS_DEBUG("Listen to scan_topic: %s", topic.c_str());
 
