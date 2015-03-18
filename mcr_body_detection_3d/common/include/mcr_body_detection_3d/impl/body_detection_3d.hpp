@@ -162,15 +162,10 @@ BodyDetection3D::BodyDetection3D()
 	this->cloud_segmentation_ = new PointCloudSegmentation<pcl::PointNormal>(this->min_range_height_, this->max_range_height_, this->slice_height_,
 											this->cluster_tolerance_, this->min_cluster_size_, this->max_cluster_size_);
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr tmp1(new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointXYZ>::Ptr tmp2(new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointXYZ>::Ptr tmp3(new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::PointCloud<pcl::PointNormal>::Ptr tmp4(new pcl::PointCloud<pcl::PointNormal>);
-
-	this->pcl_cloud_pass_through_ = tmp1;
-	this->pcl_cloud_pass_through_tmp_ = tmp2;
-	this->pcl_cloud_downsampled_ = tmp3;
-	this->pcl_cloud_point_normals_ = tmp4;
+	this->pcl_cloud_pass_through_ = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);;
+	this->pcl_cloud_pass_through_tmp_ = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);;
+	this->pcl_cloud_downsampled_ = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);;
+	this->pcl_cloud_point_normals_ = pcl::PointCloud<pcl::PointNormal>::Ptr(new pcl::PointCloud<pcl::PointNormal>);;
 }
 
 BodyDetection3D::~BodyDetection3D()
