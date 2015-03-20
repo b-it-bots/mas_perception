@@ -25,6 +25,7 @@ add_message_files(
     PersonList.msg
     Plane.msg
     PlanarPolygon.msg
+    PointCloud2List.msg
 )
 
 add_service_files(
