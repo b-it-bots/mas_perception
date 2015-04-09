@@ -13,35 +13,70 @@ import textwrap
 import numpy as np
 import os
 
-from mcr_perception_msgs.srv import FindWorkspace
+from mcr_perception_msgs.msg import PlanarPolygon
+from std_msgs.msg import String
 
-SERVICE = '/mcr_perception/workspace_finder/find_workspace'
+WORKSPACE_TOPIC_NAME = '/mcr_perception/workspace_finder/polygon'
+EVENT_TOPIC_NAME = '/mcr_perception/workspace_finder/event_in'
+
 CONFIG = 'workspace_constraints.yaml'
 
 
+
+def workspace_callback(data):
+    global workspace_data
+
+
+    print 'received data'
+    workspace_data = data
+
 if __name__ == '__main__':
+    rospy.init_node('workspace_calibration')
+
     print ':: Workspace finder calibration ::'
     print ''
     print textwrap.fill(__doc__)
     print ''
-    print 'Waiting for [%s] service...' % SERVICE
-    rospy.wait_for_service(SERVICE)
-    print 'Server is up, starting to gather data.'
-    find_workspace = rospy.ServiceProxy(SERVICE, FindWorkspace)
+
+    global workspace_data
+
+    workspace_data = None 
+ 
+    pub_event = rospy.Publisher(EVENT_TOPIC_NAME, String, queue_size=1)
+    sub_workspace = rospy.Subscriber(WORKSPACE_TOPIC_NAME, PlanarPolygon, workspace_callback)
+
+    rospy.sleep(1)
+	
     dataset = np.array([])
-    while True:
-        print '\nCalling [%s] service...' % SERVICE
+
+    while not rospy.is_shutdown():
+	print '\nPublish event msg to topic <<%s>> ...' % EVENT_TOPIC_NAME
+	pub_event.publish("e_trigger")
+
+	print '\nWait for workspace data  <<%s>> ...' % WORKSPACE_TOPIC_NAME
+
+	start_time = rospy.Time.now()
+	while workspace_data is None and not rospy.is_shutdown() and (rospy.Time.now() - start_time).to_sec() < 4:
+	    print "time diff", (rospy.Time.now() - start_time).to_sec()
+	    rospy.sleep(0.1)
+	    
         try:
-            response = find_workspace()
             answer = raw_input('Workspace found. Add it to the dataset? ')
-            if not answer:
-                print 'Added', response.polygon.coefficients, 'to the dataset'
-                dataset = np.append(dataset, response.polygon.coefficients)
+            if answer == 'a':
+                print 'Added', workspace_data.coefficients, 'to the dataset'
+                dataset = np.append(dataset, workspace_data.coefficients)
             elif answer == 'stop':
                 print 'Done with data gathering.'
                 break
+	    else:
+		continue
+
         except rospy.ServiceException:
             exit('Service call failed!')
+
+        workspace_data = None
+
+
     print ''
     dataset = np.reshape(dataset, (-1, 4))
     median = np.median(dataset, axis=0)
