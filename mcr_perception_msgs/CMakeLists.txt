@@ -26,6 +26,8 @@ add_message_files(
     Plane.msg
     PlanarPolygon.msg
     PointCloud2List.msg
+    Blob.msg
+    BlobList.msg
 )
 
 add_service_files(
