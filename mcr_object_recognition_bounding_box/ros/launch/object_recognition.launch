@@ -5,7 +5,7 @@
        The "network" argument should contain the name of the previously trained network. Corresponding
        files (*.xml and *.yaml) should be present in the "common/config/" folder of the package. -->
 
-  <arg name="network" default="eight_objects_laying_noV20"/>
+  <arg name="network" default="arm_cam_view"/>
 
   <include file="$(find mcr_object_detection)/ros/launch/object_detection.launch"/>
 
