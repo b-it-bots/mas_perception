@@ -24,6 +24,7 @@
 
     <node pkg="mcr_scene_segmentation" type="tabletop_cloud_clusterer" name="tabletop_cloud_clusterer" output="screen" >
        <!--param name="min_cluster_size" value="50" type="int" /-->
+       <param name="cluster_tolerance" value="0.02" type="double" />
     </node>
 
     <node pkg="mcr_scene_segmentation" type="bounding_box_maker" name="bounding_box_maker" output="screen" >
