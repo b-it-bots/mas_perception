@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """This script will call workspace finder service in an infinite loop. After
 each workspace detection the user is asked to confirm that the output if
-correct. If yes, the user should hit \"enter\" without typing anything. If no,
-the user should type any character(s) and then hit \"enter\". To stop data
-gathering and process it the user should type \"stop\".
+correct. If yes, the user should hit \"a\" and press \"enter\". If no,
+the user should just hit \"enter\". To stop data gathering and process it the user should type \"stop\".
 """
 
 NODE = 'calibrate_workspace_finder'
@@ -69,6 +68,7 @@ if __name__ == '__main__':
                 print 'Done with data gathering.'
                 break
 	    else:
+		print "Not added"
 		continue
 
         except rospy.ServiceException:
