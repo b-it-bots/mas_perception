@@ -1,10 +1,14 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="workspace_finder_config_file" default="PASS THE CONFIGFILE NAME AS ARGUMENT" />
+
   <!-- This launch file brings up the nodes from mcr_scene_segmentation that are needed for object detection and the object detector itself.
        The parameters have been adjusted to work well with @Work scenarios. -->
 
-  <include file="$(find mcr_scene_segmentation)/ros/launch/scene_segmentation.launch" />
+  <include file="$(find mcr_scene_segmentation)/ros/launch/scene_segmentation.launch" >
+    <arg name="workspace_finder_config_file" value="$(arg workspace_finder_config_file)" />
+  </include>
 
 
   <group ns="mcr_perception">

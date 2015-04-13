@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="workspace_finder_config_file" default="PASS THE CONFIGFILE NAME AS ARGUMENT" />
+
   <!-- This launch file brings up the complete scene segmentation pipeline with reasonable (for @Work) parameters. -->
   <group ns="mcr_perception">
 
@@ -8,7 +10,7 @@
       <param name="min_z" value="0.3" type="double"/>
       <param name="max_z" value="1.3" type="double"/>
       <param name="clip_polygon_by" value="0.03" type="double"/>
-      <rosparam command="load" file="$(find mcr_scene_segmentation)/ros/config/workspace_constraints.yaml"/>
+      <rosparam command="load" file="$(arg workspace_finder_config_file)"/>
       <remap from="~workspace_polygon" to="/visualization_marker" />
       <remap from="~input_pointcloud" to="/tower_cam3d/depth_registered/points" />
     </node>
