@@ -58,13 +58,10 @@ target_link_libraries(body_detection_3d_node
 	mcr_body_detection_3d
 )
 
-install(TARGETS mcr_body_detection_3d mcr_body_detection_3d
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(TARGETS body_detection_3d_node body_detection_3d_node
+install(
+  TARGETS
+    mcr_body_detection_3d
+    body_detection_3d_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -84,8 +81,8 @@ install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
-install(FILES common/config/body_detection_model.mdl
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config/body_detection_model.mdl
+install(DIRECTORY common/config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config
 )
 
 add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
