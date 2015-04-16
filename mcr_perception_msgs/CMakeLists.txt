@@ -15,10 +15,12 @@ add_message_files(
   FILES
     BoundingBox.msg
     BoundingBoxList.msg
+    Cavity.msg
     Face.msg
     FaceList.msg
     LaserScanSegment.msg
     LaserScanSegmentList.msg
+    MatchingErrorStamped.msg
     Object.msg
     ObjectList.msg
     Person.msg
