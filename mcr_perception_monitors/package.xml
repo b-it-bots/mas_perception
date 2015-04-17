@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<package>
+
+  <name>mcr_perception_monitors</name>
+  <version>0.1.0</version>
+  <description>Perception monitors package used to monitor the output (like blob tracking error) of various perception components</description>
+
+  <maintainer email="mashoksc@gmail.com">Ashok Meenakshi Sundaram</maintainer>
+
+  <license>GPLv3</license>
+
+  <author email="mashoksc@gmail.com">Ashok Meenakshi Sundaram</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>mcr_manipulation_msgs</build_depend>
+  
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>mcr_manipulation_msgs</run_depend>
+  
+</package>
