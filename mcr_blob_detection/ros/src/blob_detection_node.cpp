@@ -88,9 +88,12 @@ void BlobDetectionNode::runState()
 void BlobDetectionNode::detectBlobs()
 { 
 
+    IplImage ipl_img_tmp;
+    cv_bridge::CvImagePtr cv_img_tmp;
+
     try {
-        cv_bridge::CvImagePtr cv_img_tmp = cv_bridge::toCvCopy(image_message_, sensor_msgs::image_encodings::BGR8);
-        IplImage ipl_img_tmp = cv_img_tmp->image;
+        cv_img_tmp = cv_bridge::toCvCopy(image_message_, sensor_msgs::image_encodings::BGR8);
+        ipl_img_tmp = cv_img_tmp->image;
         cv_image_ = &ipl_img_tmp;
     } catch (cv_bridge::Exception &e) {
         ROS_ERROR("Could not convert from '%s' to 'rgb8'.", image_message_->encoding.c_str());

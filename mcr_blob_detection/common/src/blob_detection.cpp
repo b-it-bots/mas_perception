@@ -64,7 +64,10 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
         }
 
         cvSetZero(gray_image_);
+        cvSetZero(blob_image_);
+        cvSetZero(input_image);
         cvReleaseImage(&gray_image_);
+        cvReleaseImage(&blob_image_);
 
         return 1; //Blobs Detected
 
