@@ -104,9 +104,8 @@ void ImageCartesianMapperNode::imagetoCartesianMapper()
     }
 
     Size cv_img_size = cv_img_ptr->image.size();
-    center_x_ = cv_img_size.height/2;
-    center_y_ = cv_img_size.width/2;
-
+    center_x_ = cv_img_size.width/2;
+    center_y_ = cv_img_size.height/2;
 
     geometry_msgs::Pose pose;
     geometry_msgs::Point point;
@@ -114,7 +113,7 @@ void ImageCartesianMapperNode::imagetoCartesianMapper()
 
     point.x = pose_2d_.x - center_x_;
     point.y = pose_2d_.y - center_y_;
-    quaternion = tf::createQuaternionMsgFromYaw(pose_2d_.theta);
+    quaternion = tf::createQuaternionMsgFromYaw(pose_2d_.theta*PI/180);
     pose.position = point;
     pose.orientation = quaternion;
 

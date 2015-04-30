@@ -19,6 +19,8 @@
 #include <opencv/highgui.h>
 #include <opencv2/opencv.hpp>
 
+#define PI 3.14159265
+
 using namespace cv;
 
 
