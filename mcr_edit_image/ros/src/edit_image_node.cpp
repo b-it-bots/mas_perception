@@ -94,6 +94,7 @@ void EditImageNode::editImage()
         cv_img_ptr = cv_bridge::toCvCopy(image_message_, sensor_msgs::image_encodings::BGR8);
     } catch (cv_bridge::Exception &e) {
         ROS_ERROR("Could not convert from '%s' to 'bgr8'.", image_message_->encoding.c_str());
+        return;
     }
 
     if(is_crop_){
