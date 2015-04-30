@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <node pkg="mcr_image_cartesian_mapper" type="image_cartesian_mapper_node" name="image_cartesian_mapper" ns="mcr_perception" output="screen" respawn="true">
-    	<remap from="~image_width" to="/mcr_perception/edit_image/edited_image/width"/>
-    	<remap from="~image_height" to="/mcr_perception/edit_image/edited_image/height"/>
+    	<remap from="~image" to="/mcr_perception/edit_image/edited_image"/>
     	<remap from="~pose" to="/mcr_perception/blob_tracker/blob_pose"/>
     </node>
 </launch>

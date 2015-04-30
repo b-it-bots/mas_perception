@@ -12,6 +12,14 @@
 #include <std_msgs/UInt32.h>
 #include <tf/transform_datatypes.h>
 #include <string>
+#include <image_transport/image_transport.h>
+#include <sensor_msgs/image_encodings.h>
+#include <cv_bridge/cv_bridge.h>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
 
 
 class ImageCartesianMapperNode
@@ -21,8 +29,7 @@ class ImageCartesianMapperNode
         ImageCartesianMapperNode(ros::NodeHandle &nh);
         virtual ~ImageCartesianMapperNode();
         void eventCallback(const std_msgs::String &event_command);
-        void imageHeightCallback(const std_msgs::UInt32::ConstPtr &image_height);
-        void imageWidthCallback(const std_msgs::UInt32::ConstPtr &image_width);
+        void imageCallback(const sensor_msgs::ImageConstPtr &image);
         void poseCallback(const geometry_msgs::Pose2D::ConstPtr &pose);
         void states();
         void initState();
@@ -41,12 +48,12 @@ class ImageCartesianMapperNode
         ros::NodeHandle node_handler_;
         ros::Subscriber event_sub_;
         ros::Subscriber pose_sub_;
-        ros::Subscriber image_height_sub_;
-        ros::Subscriber image_width_sub_;
+        image_transport::Subscriber image_sub_;
+        sensor_msgs::ImageConstPtr image_message_;
+        image_transport::ImageTransport image_transporter_;
         ros::Publisher event_pub_;
         ros::Publisher cartesian_pub_;
-        bool image_height_sub_status_;
-        bool image_width_sub_status_;
+        bool image_sub_status_;
         bool pose_sub_status_;
         bool start_cartesian_mapper_;
         geometry_msgs::Pose2D pose_2d_;

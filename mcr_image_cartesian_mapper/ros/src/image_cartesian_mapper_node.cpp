@@ -1,26 +1,23 @@
 #include <mcr_image_cartesian_mapper/image_cartesian_mapper_node.h>
 
-ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_handler_(nh)
+ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_handler_(nh), image_transporter_(nh)
 {
     event_sub_ = node_handler_.subscribe("event_in", 1, &ImageCartesianMapperNode::eventCallback, this);
     pose_sub_ = node_handler_.subscribe("pose", 1, &ImageCartesianMapperNode::poseCallback, this);
-    image_height_sub_ = node_handler_.subscribe("image_height", 1, &ImageCartesianMapperNode::imageHeightCallback, this);
-    image_width_sub_ = node_handler_.subscribe("image_width", 1, &ImageCartesianMapperNode::imageWidthCallback, this);
+    image_sub_ = image_transporter_.subscribe("image", 1, &ImageCartesianMapperNode::imageCallback, this);
     cartesian_pub_ = node_handler_.advertise<geometry_msgs::PoseStamped>("cartesian_pose", 1);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
     run_state_ = INIT;
     start_cartesian_mapper_ = false;
     pose_sub_status_ = false;
-    image_height_sub_status_ = false;
-    image_width_sub_status_ = false;  
+    image_sub_status_ = false; 
 }
 
 ImageCartesianMapperNode::~ImageCartesianMapperNode()
 {
     event_sub_.shutdown();
     pose_sub_.shutdown();
-    image_height_sub_.shutdown();
-    image_height_sub_.shutdown();
+    image_sub_.shutdown();
     cartesian_pub_.shutdown();
     event_pub_.shutdown();  
 }
@@ -44,17 +41,14 @@ void ImageCartesianMapperNode::poseCallback(const geometry_msgs::Pose2D::ConstPt
     pose_sub_status_ = true;
 }
 
-void ImageCartesianMapperNode::imageHeightCallback(const std_msgs::UInt32::ConstPtr &image_height)
+void ImageCartesianMapperNode::imageCallback(const sensor_msgs::ImageConstPtr &image)
 {
-    center_y_ = image_height->data/2;
-    image_height_sub_status_ = true;
+    image_message_ = image;
+    image_sub_status_ = true;
+
 }
 
-void ImageCartesianMapperNode::imageWidthCallback(const std_msgs::UInt32::ConstPtr &image_width)
-{
-    center_x_ =  image_width->data/2;
-    image_width_sub_status_ = true;
-}
+
 
 void ImageCartesianMapperNode::states()
 {
@@ -75,11 +69,10 @@ void ImageCartesianMapperNode::states()
 
 void ImageCartesianMapperNode::initState()
 {
-    if (pose_sub_status_ && image_height_sub_status_ && image_width_sub_status_) {
+    if (pose_sub_status_ && image_sub_status_) {
         run_state_ = IDLE;
         pose_sub_status_ = false;
-        image_height_sub_status_ = false;
-        image_width_sub_status_ = false;
+        image_sub_status_ = false;
     }
 }
 
@@ -100,6 +93,20 @@ void ImageCartesianMapperNode::runState()
 
 void ImageCartesianMapperNode::imagetoCartesianMapper()
 {
+
+    cv_bridge::CvImagePtr cv_img_ptr;
+    
+    try {
+        cv_img_ptr = cv_bridge::toCvCopy(image_message_, sensor_msgs::image_encodings::BGR8);
+    } catch (cv_bridge::Exception &e) {
+        ROS_ERROR("Could not convert from '%s' to 'bgr8'.", image_message_->encoding.c_str());
+        return;
+    }
+
+    Size cv_img_size = cv_img_ptr->image.size();
+    center_x_ = cv_img_size.height/2;
+    center_y_ = cv_img_size.width/2;
+
 
     geometry_msgs::Pose pose;
     geometry_msgs::Point point;

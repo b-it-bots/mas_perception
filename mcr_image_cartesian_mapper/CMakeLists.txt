@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 2.8.3)
 project(mcr_image_cartesian_mapper)
 
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  image_transport
   geometry_msgs
+  sensor_msgs
   roscpp
   std_msgs
 )
@@ -12,8 +15,11 @@ catkin_package(
     ros/include
   CATKIN_DEPENDS 
     geometry_msgs
+    cv_bridge
+    image_transport
     roscpp
     std_msgs
+    sensor_msgs
 )
 
 include_directories(
