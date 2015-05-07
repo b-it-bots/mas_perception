@@ -58,7 +58,7 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
             blobs[x][3] = blob_area;
             if (debug_mode_) {
                 temp_blob.FillBlob(blob_image_, CV_RGB(0, 255, 0));
-                debug_image = *blob_image_;
+                debug_image = *cvCloneImage(blob_image_);
                 cvWaitKey(1);
             }
         }
