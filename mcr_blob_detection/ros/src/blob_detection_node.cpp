@@ -147,9 +147,15 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
     ROS_INFO("Blob Detection Node Initialised");
     BlobDetectionNode bd(nh);
+
+    double cycle_time;
+    nh.param<double>("cycle_time", cycle_time, 0.01);
+
     while (ros::ok()) {
         bd.states();
+        ros::Duration(cycle_time).sleep();
         ros::spinOnce();
     }
+
     return 0;
 }
