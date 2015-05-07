@@ -102,16 +102,16 @@ void BlobDetectionNode::detectBlobs()
     blob_detection_status_ = bd_.detectBlobs(cv_image_, debug_image_, blobs_);
 
     if (blob_detection_status_ == 1) {
-        status_msg_.data = "Blobs Detected";
+        event_out_msg_.data = "e_blobs_detected";
     } else if (blob_detection_status_ == -1) {
-        status_msg_.data = "No Blobs Detected";
+        event_out_msg_.data = "e_no_blobs_detected";
     } else if (blob_detection_status_ == -2) {
-        status_msg_.data = "Input Image Error";
+        event_out_msg_.data = "e_error";
     } else {
-        status_msg_.data = "Unidentified Error";
+        event_out_msg_.data = "e_error";
     }
 
-    event_pub_.publish(status_msg_);
+    event_pub_.publish(event_out_msg_);
 
     blob_list_.blobs.clear();
 

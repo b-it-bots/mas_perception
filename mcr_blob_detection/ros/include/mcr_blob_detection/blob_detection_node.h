@@ -59,7 +59,7 @@ class BlobDetectionNode
         std::vector<vector<double> > blobs_;
         mcr_perception_msgs::BlobList blob_list_;
         mcr_perception_msgs::Blob blob_;
-        std_msgs::String status_msg_;
+        std_msgs::String event_out_msg_;
         States run_state_;
 
 };
