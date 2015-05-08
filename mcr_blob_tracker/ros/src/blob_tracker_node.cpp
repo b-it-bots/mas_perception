@@ -1,6 +1,18 @@
 #include <mcr_blob_tracker/blob_tracker_node.h>
 
-BlobTrackerNode::BlobTrackerNode(ros::NodeHandle &nh) : node_handler_(nh), image_transporter_(nh)
+BlobTrackerNode::BlobTrackerNode(ros::NodeHandle &nh) :
+                                                        node_handler_(nh), 
+                                                        image_transporter_(nh),
+                                                        run_state_(INIT),
+                                                        start_blob_tracker_(false),
+                                                        image_sub_status_(false),
+                                                        blobs_sub_status_(false),
+                                                        first_pass_(true),
+                                                        blob_tracked_index_(0),
+                                                        blob_distance_threshold_(800),
+                                                        tracker_type_("First Largest"),
+                                                        debug_mode_(true)
+
 {
     dynamic_reconfig_server_.setCallback(boost::bind(&BlobTrackerNode::dynamicReconfigCallback, this, _1, _2));  
     event_sub_ = node_handler_.subscribe("event_in", 1, &BlobTrackerNode::eventCallback, this);
@@ -9,11 +21,8 @@ BlobTrackerNode::BlobTrackerNode(ros::NodeHandle &nh) : node_handler_(nh), image
     blob_pose_pub_ = node_handler_.advertise<geometry_msgs::Pose2D>("blob_pose", 1);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
     image_pub_ = image_transporter_.advertise("debug_image", 1);
-    run_state_ = INIT;
-    start_blob_tracker_ = false;
-    image_sub_status_ = false;
-    blobs_sub_status_ = false;
-    first_pass_ = true;  
+    event_out_msg_.data = "e_blob_lost";
+
 }
 
 BlobTrackerNode::~BlobTrackerNode()
@@ -24,7 +33,6 @@ BlobTrackerNode::~BlobTrackerNode()
     blob_pose_pub_.shutdown();
     image_pub_.shutdown();
     event_pub_.shutdown();
-    
 }
 
 void BlobTrackerNode::dynamicReconfigCallback(mcr_blob_tracker::BlobTrackerConfig &config, uint32_t level)
@@ -109,11 +117,11 @@ void BlobTrackerNode::trackBlob()
         }
     }
 
-    status_msg_.data = "Blob Lost";
+    event_out_msg_.data = "e_blob_lost";
 
     if(blob_list_.blobs.size()>0){
 
-        status_msg_.data = "Blob Tracking";
+        event_out_msg_.data = "e_blob_tracking";
 
         blobs_.resize(blob_list_.blobs.size());
 
@@ -131,7 +139,7 @@ void BlobTrackerNode::trackBlob()
             trackFirstLargesBlob();
         }
 
-        if(status_msg_.data.compare("Blob Tracking") == 0){
+        if(event_out_msg_.data.compare("e_blob_tracking") == 0){
             blob_pose_pub_.publish(blob_tracked_pose_);
             if (debug_mode_ && image_sub_status_) {
                 Size cv_img_size = cv_img_ptr->image.size();
@@ -147,7 +155,7 @@ void BlobTrackerNode::trackBlob()
 
     }
 
-    event_pub_.publish(status_msg_);
+    event_pub_.publish(event_out_msg_);
 
     if (debug_mode_ && image_sub_status_) {
         image_pub_.publish(cv_img_ptr->toImageMsg());
@@ -203,7 +211,7 @@ void BlobTrackerNode::trackFirstLargesBlob()
         blob_tracked_pose_.y = blobs_.at(blob_tracked_index_).at(1);
         blob_tracked_pose_.theta = blobs_.at(blob_tracked_index_).at(2);
     } else {
-        status_msg_.data = "Blob Far";
+        event_out_msg_.data = "e_blob_away";
     }
 
 }
@@ -214,9 +222,16 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
     ROS_INFO("Blob Tracker Node Initialised");
     BlobTrackerNode bt(nh);
+
+    int loop_rate = 30;
+    nh.param<int>("loop_rate", loop_rate, 30);
+    ros::Rate rate(loop_rate);
+
     while (ros::ok()) {
-        bt.states();
         ros::spinOnce();
+        bt.states();
+        rate.sleep();
     }
+    
     return 0;
 }

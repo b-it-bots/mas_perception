@@ -1,27 +1,22 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_blob_tracker)
 
-find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
-  dynamic_reconfigure
-  geometry_msgs
-  image_transport
-  roscpp
-  sensor_msgs
-  std_msgs
-  mcr_perception_msgs
+find_package(catkin REQUIRED 
+  COMPONENTS
+    cv_bridge
+    dynamic_reconfigure
+    geometry_msgs
+    image_transport
+    roscpp
+    sensor_msgs
+    std_msgs
+    mcr_perception_msgs
 )
 
-find_package(OpenCV REQUIRED)
-find_package(Boost REQUIRED)
+find_package(OpenCV 2.3 REQUIRED)
 
 generate_dynamic_reconfigure_options(
   ros/config/BlobTracker.cfg
-)
-
-generate_messages(
-  DEPENDENCIES
-    std_msgs  
 )
 
 catkin_package(
@@ -51,8 +46,8 @@ add_executable(blob_tracker_node
 )
 
 add_dependencies(blob_tracker_node
-  ${catkin_EXPORTED_TARGETS}
   ${PROJECT_NAME}_gencfg
+  ${catkin_EXPORTED_TARGETS}
 )
 
 target_link_libraries(blob_tracker_node

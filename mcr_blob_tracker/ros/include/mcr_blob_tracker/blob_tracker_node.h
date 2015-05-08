@@ -64,12 +64,11 @@ class BlobTrackerNode
         bool first_pass_;
         string tracker_type_;
         double blob_distance_threshold_;
-        int blob_tracker_status_ ;
         int blob_tracked_index_;
         vector<vector<double> > blobs_;
         mcr_perception_msgs::BlobList blob_list_;
         geometry_msgs::Pose2D blob_tracked_pose_;
-        std_msgs::String status_msg_;
+        std_msgs::String event_out_msg_;
         States run_state_;
 
 };
