@@ -7,7 +7,6 @@ import mcr_object_detection.topic_states
 
 import rospy
 import numpy as np
-
 from smach import State, StateMachine
 from tf.transformations import quaternion_from_matrix
 import tf
@@ -87,10 +86,10 @@ class PackResponse(State):
             obj.dimensions.vector = b.dimensions
             obj.pose.header = c.header
             obj.pose.pose.position = b.center
-            obj.pose.pose.orientation.w = q[0]
-            obj.pose.pose.orientation.x = q[1]
-            obj.pose.pose.orientation.y = q[2]
-            obj.pose.pose.orientation.z = q[3]
+            obj.pose.pose.orientation.x = q[0]
+            obj.pose.pose.orientation.y = q[1]
+            obj.pose.pose.orientation.z = q[2]
+            obj.pose.pose.orientation.w = q[3]
             obj.name = n
             obj.database_id = self.object_id
             ud.response.objects.append(obj)
@@ -126,7 +125,7 @@ class PublishTf(State):
         for i, obj in enumerate(ud.response.objects):
             p = obj.pose.pose.position
             q = obj.pose.pose.orientation
-            self.tf.sendTransform((p.x, p.y, p.z), (q.w, q.x, q.y, q.z),
+            self.tf.sendTransform((p.x, p.y, p.z), (q.x, q.y, q.z,q.w),
                                   rospy.Time.now(), 'object_%i' % i,
                                   obj.pose.header.frame_id)
         return 'done'

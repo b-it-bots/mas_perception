@@ -15,10 +15,12 @@ add_message_files(
   FILES
     BoundingBox.msg
     BoundingBoxList.msg
+    Cavity.msg
     Face.msg
     FaceList.msg
     LaserScanSegment.msg
     LaserScanSegmentList.msg
+    MatchingErrorStamped.msg
     Object.msg
     ObjectList.msg
     Person.msg
@@ -26,6 +28,8 @@ add_message_files(
     Plane.msg
     PlanarPolygon.msg
     PointCloud2List.msg
+    Blob.msg
+    BlobList.msg
 )
 
 add_service_files(
