@@ -4,7 +4,7 @@
 
   <name>mcr_blob_tracker</name>
   <version>0.1.0</version>
-  <description>Blob Tracker Package</description>
+  <description> Blob Tracker Package - Takes the list of detected blobs as input and outputs the Pose2D of the single tracked blob (Tracker Mode: First Largest - Initialise with largest blob at the start and then on track the blob closest to the previously tracked blob within the provided pixel distance) </description>
 
   <maintainer email="mashoksc@gmail.com">Ashok Meenakshi Sundaram</maintainer>
 
