@@ -4,7 +4,7 @@
 
   <name>mcr_blob_detection</name>
   <version>0.1.0</version>
-  <description>Blob Detection Package</description>
+  <description>Blob Detection Package - Uses cvblobs library to detect all blobs satisfying the minimum and maximum area provided</description>
 
   <maintainer email="mashoksc@gmail.com">Ashok Meenakshi Sundaram</maintainer>
 

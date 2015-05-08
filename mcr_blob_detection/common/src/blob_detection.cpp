@@ -2,7 +2,8 @@
 
 BlobDetection::BlobDetection()
 {
-
+    gray_image_ = NULL;
+    blob_image_ = NULL;
 }
 
 BlobDetection::~BlobDetection()
@@ -12,10 +13,10 @@ BlobDetection::~BlobDetection()
 
 int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vector<vector<double> > &blobs)
 {
-    double pose_x;
-    double pose_y;
-    double pose_theta;
-    double blob_area;
+    double pose_x = 0.0;
+    double pose_y = 0.0;
+    double pose_theta = 0.0;
+    double blob_area = 0.0;
 
     if (!input_image) {
         return -2; // Image not found
@@ -25,6 +26,8 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
     gray_image_ = cvCreateImage(cvGetSize(input_image), IPL_DEPTH_8U, 1);
 
     cvCvtColor(input_image, gray_image_, CV_BGR2GRAY);
+
+    // Uncomment the below required pre processing components as required
     //cvSmooth(gray_image_, gray_image_, CV_GAUSSIAN, 11, 11);
     //cvEqualizeHist(gray_image_, gray_image_);
     cvAdaptiveThreshold(gray_image_, gray_image_, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY_INV, 15, 0);
