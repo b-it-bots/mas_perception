@@ -148,13 +148,14 @@ int main(int argc, char **argv)
     ROS_INFO("Blob Detection Node Initialised");
     BlobDetectionNode bd(nh);
 
-    double cycle_time;
-    nh.param<double>("cycle_time", cycle_time, 0.01);
+    int loop_rate = 30;
+    nh.param<int>("loop_rate", loop_rate, 30);
+    ros::Rate rate(loop_rate);
 
     while (ros::ok()) {
-        bd.states();
-        ros::Duration(cycle_time).sleep();
         ros::spinOnce();
+        bd.states();
+        rate.sleep();
     }
 
     return 0;

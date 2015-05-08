@@ -2,6 +2,6 @@
 <launch>
     <node pkg="mcr_blob_detection" type="blob_detection_node" name="blob_detection" ns="mcr_perception" output="screen" respawn="true">
     	<remap from="~input_image" to="/mcr_perception/edit_image/edited_image"/>
-    	<param name="cycle_time" type="double" value="0.03" />
+    	<param name="loop_rate" type="int" value="30" />
     </node>
 </launch>
