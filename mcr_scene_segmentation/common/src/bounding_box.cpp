@@ -1,9 +1,9 @@
 #include <pcl/common/transforms.h>
 #include <opencv/cv.h>
 
-#include "mcr_scene_segmentation/bounding_box.h"
+#include <mcr_scene_segmentation/bounding_box.h>
 
-BoundingBox BoundingBox::create(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& cloud,
+BoundingBox BoundingBox::create(const PointCloud::ConstPtr& cloud,
                                 const Eigen::Vector3f& normal)
 {
   BoundingBox box;
@@ -12,7 +12,7 @@ BoundingBox BoundingBox::create(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPt
   Eigen::Vector3f perpendicular(-normal[1], normal[0], normal[2]);
   Eigen::Affine3f transform = pcl::getTransFromUnitVectorsZY(normal, perpendicular);
   Eigen::Affine3f inverse_transform = transform.inverse(Eigen::Isometry);
-  pcl::PointCloud<pcl::PointXYZRGB> cloud_transformed;
+  PointCloud cloud_transformed;
   pcl::transformPointCloud(*cloud, cloud_transformed, transform);
 
   // Step 2: project cloud onto the plane and calculate bounding box for the projected points.
@@ -28,7 +28,7 @@ BoundingBox BoundingBox::create(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPt
 
   for (size_t i = 0; i < cloud_transformed.points.size(); i++)
   {
-    const pcl::PointXYZRGB& pt = cloud_transformed.points[i];
+    const PointT& pt = cloud_transformed.points[i];
     if (!isnan(pt.z))
     {
       CvPoint p;
@@ -71,10 +71,10 @@ BoundingBox BoundingBox::create(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPt
   return box;
 }
 
-BoundingBox BoundingBox::create(const pcl::PointCloud<pcl::PointXYZRGB>::VectorType& points,
+BoundingBox BoundingBox::create(const PointCloud::VectorType& points,
                                 const Eigen::Vector3f& normal)
 {
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+  PointCloud::Ptr cloud(new PointCloud);
   cloud->points = points;
   cloud->width = points.size();
   cloud->height = 1;

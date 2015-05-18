@@ -3,6 +3,7 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include "aliases.h"
 
 class BoundingBox
 {
@@ -22,12 +23,12 @@ class BoundingBox
 
     /** Create a bounding box around the cloud, restricting it to be parallel to
       * the plane defined by the normal. */
-    static BoundingBox create(const typename pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& cloud,
+    static BoundingBox create(const typename PointCloud::ConstPtr& cloud,
                               const Eigen::Vector3f& normal);
 
     /** Create a bounding box around the point vector, restricting it to be
       * parallel to the plane defined by the normal. */
-    static BoundingBox create(const typename pcl::PointCloud<pcl::PointXYZRGB>::VectorType& points,
+    static BoundingBox create(const typename PointCloud::VectorType& points,
                               const Eigen::Vector3f& normal);
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

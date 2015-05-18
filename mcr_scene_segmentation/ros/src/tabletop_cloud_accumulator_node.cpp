@@ -61,8 +61,8 @@ private:
     eppd_.setInputPlanarHull(polygon_cloud);
     ca_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
     
-    pcl::PointXYZRGB polygon_min_point;
-    pcl::PointXYZRGB polygon_max_point;
+    PointT polygon_min_point;
+    PointT polygon_max_point;
     pcl::getMinMax3D(*polygon_cloud, polygon_min_point, polygon_max_point);
     passthrough_filter_x_.setFilterFieldName("x");
     passthrough_filter_y_.setFilterFieldName("y"); 
