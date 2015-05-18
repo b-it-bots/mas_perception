@@ -93,12 +93,18 @@ target_link_libraries(object_categorization_geometric
 
 add_library(svm_classifier  
   common/src/svm/svm_classifier.cpp 
-  common/src/svm/svm.cpp
+)
+target_link_libraries(svm_classifier
+  svm
 )
 
 add_library(svm_one_class_classifier  
   common/src/svm/svm_one_class_classifier.cpp
 )
+target_link_libraries(svm_one_class_classifier
+  svm
+)
+
   
 add_library(svm_cascade  
   common/src/svm/svm_cascade.cpp

@@ -6,7 +6,6 @@ find_package(catkin REQUIRED
     cv_bridge
     dynamic_reconfigure
     image_transport
-    libsvm
     message_generation
     roscpp
     rospy
@@ -29,10 +28,11 @@ generate_messages(
 catkin_package(
   CATKIN_DEPENDS
     dynamic_reconfigure
-    libsvm
     message_runtime
     std_msgs
     std_srvs
+  DEPENDS
+    libsvm
 )
 
 include_directories(
@@ -59,6 +59,7 @@ add_dependencies(atie_old
 )
 target_link_libraries(atie_old
   ${catkin_LIBRARIES}
+  svm
 )
 
 add_library(active_tie

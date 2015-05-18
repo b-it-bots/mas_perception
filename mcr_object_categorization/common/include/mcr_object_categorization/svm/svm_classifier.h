@@ -16,7 +16,7 @@
 
 #include <mcr_tabletop_segmentation/toolbox_ros.h>
 
-#include "svm/svm.h"
+#include <libsvm/svm.h>
 
 
 #define GRID_SEARCH_ITERATIONS 10 //12 //12 
