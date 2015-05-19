@@ -3,13 +3,14 @@ project(mcr_pose_estimation)
 
 find_package(catkin REQUIRED
   COMPONENTS
+    cmake_modules
     roscpp
     sensor_msgs
     geometry_msgs
 )
 
 find_package(PCL 1.7 REQUIRED)
-find_package(EIGEN REQUIRED)
+find_package(Eigen REQUIRED)
 
 catkin_package()
 
