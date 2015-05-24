@@ -90,8 +90,12 @@ install(DIRECTORY common/config
 if(CATKIN_ENABLE_TESTING)
   find_package(catkin REQUIRED
     COMPONENTS
+      roslaunch
       rostest
   )
+
+  roslaunch_add_file_check(ros/launch)
+
   add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
   target_link_libraries(integration_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
   add_dependencies(tests integration_test)
