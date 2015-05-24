@@ -8,7 +8,6 @@ find_package(catkin REQUIRED
     mcr_perception_msgs 
     pcl_ros
     roscpp
-    rostest
     sensor_msgs
     std_msgs
     tf
@@ -86,8 +85,16 @@ install(DIRECTORY common/config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config
 )
 
-add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
-target_link_libraries(integration_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(tests integration_test)
-add_dependencies(integration_test body_detection_3d_node)
-add_rostest(ros/test/integration.test)
+
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(catkin REQUIRED
+    COMPONENTS
+      rostest
+  )
+  add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
+  target_link_libraries(integration_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
+  add_dependencies(tests integration_test)
+  add_dependencies(integration_test body_detection_3d_node)
+  add_rostest(ros/test/integration.test)
+endif()
