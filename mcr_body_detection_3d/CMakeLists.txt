@@ -39,23 +39,23 @@ include_directories(
 )
 
 add_library(mcr_body_detection_3d
-	common/src/body_detection_3d.cpp
+  common/src/body_detection_3d.cpp
 )
 add_dependencies(mcr_body_detection_3d
-	${catkin_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
 )
 
 add_executable(body_detection_3d_node
-	ros/src/body_detection_3d_node.cpp
+  ros/src/body_detection_3d_node.cpp
 )
 add_dependencies(body_detection_3d_node
-	${PROJECT_NAME}_gencfg 
-	${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencfg 
+  ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(body_detection_3d_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
-	mcr_body_detection_3d
+  mcr_body_detection_3d
 )
 
 install(
