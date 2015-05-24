@@ -58,6 +58,7 @@ target_link_libraries(body_detection_3d_node
   mcr_body_detection_3d
 )
 
+### INSTALLS
 install(
   TARGETS
     mcr_body_detection_3d
