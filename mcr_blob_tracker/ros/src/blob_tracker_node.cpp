@@ -117,11 +117,7 @@ void BlobTrackerNode::trackBlob()
         }
     }
 
-    event_out_msg_.data = "e_blob_lost";
-
     if(blob_list_.blobs.size()>0){
-
-        event_out_msg_.data = "e_blob_tracking";
 
         blobs_.resize(blob_list_.blobs.size());
 
@@ -139,7 +135,9 @@ void BlobTrackerNode::trackBlob()
             trackFirstLargesBlob();
         }
 
-        if(event_out_msg_.data.compare("e_blob_tracking") == 0){
+        if(event_out_msg_.data.compare("e_blob_away") == 0){
+            event_pub_.publish(event_out_msg_);
+        } else {
             blob_pose_pub_.publish(blob_tracked_pose_);
             if (debug_mode_ && image_sub_status_) {
                 Size cv_img_size = cv_img_ptr->image.size();
@@ -153,9 +151,10 @@ void BlobTrackerNode::trackBlob()
             }
         }
 
+    } else {
+        event_out_msg_.data = "e_blob_lost";
+        event_pub_.publish(event_out_msg_);
     }
-
-    event_pub_.publish(event_out_msg_);
 
     if (debug_mode_ && image_sub_status_) {
         image_pub_.publish(cv_img_ptr->toImageMsg());
