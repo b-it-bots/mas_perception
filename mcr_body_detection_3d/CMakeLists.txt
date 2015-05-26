@@ -57,6 +57,24 @@ target_link_libraries(body_detection_3d_node
   mcr_body_detection_3d
 )
 
+
+### TESTS
+add_executable(integration_test ros/test/integration_test.cpp)
+target_link_libraries(integration_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(integration_test body_detection_3d_node)
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(catkin REQUIRED
+    COMPONENTS
+      roslaunch
+      rostest
+  )
+
+  roslaunch_add_file_check(ros/launch)
+  add_rostest(ros/test/integration.test)
+endif()
+
+
 ### INSTALLS
 install(
   TARGETS
@@ -84,21 +102,3 @@ install(DIRECTORY ros/launch
 install(DIRECTORY common/config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config
 )
-
-
-### TESTS
-if(CATKIN_ENABLE_TESTING)
-  find_package(catkin REQUIRED
-    COMPONENTS
-      roslaunch
-      rostest
-  )
-
-  roslaunch_add_file_check(ros/launch)
-
-  add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
-  target_link_libraries(integration_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
-  add_dependencies(tests integration_test)
-  add_dependencies(integration_test body_detection_3d_node)
-  add_rostest(ros/test/integration.test)
-endif()
