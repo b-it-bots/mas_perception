@@ -1,10 +1,10 @@
-#ifndef EDITIMAGENODE_H_
-#define EDITIMAGENODE_H_
+#ifndef IMAGEFILTERNODE_H_
+#define IMAGEFILTERNODE_H_
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <dynamic_reconfigure/server.h>
-#include <mcr_edit_image/EditImageConfig.h>
+#include <mcr_image_filter/ImageFilterConfig.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
 #include <cv_bridge/cv_bridge.h>
@@ -14,20 +14,20 @@
 
 using namespace cv;
 
-class EditImageNode
+class ImageFilterNode
 {
 
     public:
-        EditImageNode(ros::NodeHandle &nh);
-        virtual ~EditImageNode();
-        void dynamicReconfigCallback(mcr_edit_image::EditImageConfig &config, uint32_t level);
+        ImageFilterNode(ros::NodeHandle &nh);
+        virtual ~ImageFilterNode();
+        void dynamicReconfigCallback(mcr_image_filter::ImageFilterConfig &config, uint32_t level);
         void eventCallback(const std_msgs::String &event_command);
         void imageCallback(const sensor_msgs::ImageConstPtr &image_message);
         void states();
         void initState();
         void idleState();
         void runState();
-        void editImage();
+        void filterImage();
 
     private:
         enum States {
@@ -38,7 +38,7 @@ class EditImageNode
 
     private:
         ros::NodeHandle node_handler_;
-        dynamic_reconfigure::Server<mcr_edit_image::EditImageConfig> dynamic_reconfig_server_;
+        dynamic_reconfigure::Server<mcr_image_filter::ImageFilterConfig> dynamic_reconfig_server_;
         ros::Subscriber event_sub_;
         image_transport::Subscriber image_sub_;
         image_transport::ImageTransport image_transporter_;
@@ -47,7 +47,7 @@ class EditImageNode
         sensor_msgs::ImageConstPtr image_message_;
         bool is_rotation_;
         bool is_crop_;
-        bool start_edit_image_;
+        bool start_filter_image_;
         double crop_factor_top_;
         double crop_factor_bottom_;
         double crop_factor_left_;
@@ -56,4 +56,4 @@ class EditImageNode
 
 };
 
-#endif /* EDITIMAGENODE_H_ */
+#endif /* IMAGEFILTERNODE_H_ */

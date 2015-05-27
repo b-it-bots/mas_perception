@@ -1,24 +1,26 @@
-#include <mcr_edit_image/edit_image_node.h>
+#include <mcr_image_filter/image_filter_node.h>
 
-EditImageNode::EditImageNode(ros::NodeHandle &nh) : node_handler_(nh), image_transporter_(nh)
+ImageFilterNode::ImageFilterNode(ros::NodeHandle &nh) : 
+                                                        node_handler_(nh), 
+                                                        image_transporter_(nh)
 {
-    dynamic_reconfig_server_.setCallback(boost::bind(&EditImageNode::dynamicReconfigCallback, this, _1, _2));
-    event_sub_ = node_handler_.subscribe("event_in", 1, &EditImageNode::eventCallback, this);
-    image_pub_ = image_transporter_.advertise("edited_image", 1);
-    image_sub_ = image_transporter_.subscribe("input_image", 1, &EditImageNode::imageCallback, this);
+    dynamic_reconfig_server_.setCallback(boost::bind(&ImageFilterNode::dynamicReconfigCallback, this, _1, _2));
+    event_sub_ = node_handler_.subscribe("event_in", 1, &ImageFilterNode::eventCallback, this);
+    image_pub_ = image_transporter_.advertise("filtered_image", 1);
+    image_sub_ = image_transporter_.subscribe("input_image", 1, &ImageFilterNode::imageCallback, this);
     run_state_ = INIT;
-    start_edit_image_ = false;
+    start_filter_image_ = false;
     image_sub_status_ = false;  
 }
 
-EditImageNode::~EditImageNode()
+ImageFilterNode::~ImageFilterNode()
 {
     event_sub_.shutdown();
     image_pub_.shutdown();
     image_sub_.shutdown();
 }
 
-void EditImageNode::dynamicReconfigCallback(mcr_edit_image::EditImageConfig &config, uint32_t level)
+void ImageFilterNode::dynamicReconfigCallback(mcr_image_filter::ImageFilterConfig &config, uint32_t level)
 {
     is_rotation_ = config.rotate_image;
     is_crop_ = config.crop_image;
@@ -28,24 +30,24 @@ void EditImageNode::dynamicReconfigCallback(mcr_edit_image::EditImageConfig &con
     crop_factor_right_ = config.crop_factor_right;
 }
 
-void EditImageNode::eventCallback(const std_msgs::String &event_command)
+void ImageFilterNode::eventCallback(const std_msgs::String &event_command)
 {
     if (event_command.data == "e_start") {
-        start_edit_image_ = true;
-        ROS_INFO("2D Edit Image ENABLED");
+        start_filter_image_ = true;
+        ROS_INFO("2D Image Filter ENABLED");
     } else if (event_command.data == "e_stop") {
-        start_edit_image_ = false;
-        ROS_INFO("2D Edit Image DISABLED");
+        start_filter_image_ = false;
+        ROS_INFO("2D Image Filter DISABLED");
     }
 }
 
-void EditImageNode::imageCallback(const sensor_msgs::ImageConstPtr &img_msg)
+void ImageFilterNode::imageCallback(const sensor_msgs::ImageConstPtr &img_msg)
 {
     image_message_ = img_msg;
     image_sub_status_ = true;
 }
 
-void EditImageNode::states()
+void ImageFilterNode::states()
 {
     switch (run_state_) {
         case INIT:
@@ -62,7 +64,7 @@ void EditImageNode::states()
     }
 }
 
-void EditImageNode::initState()
+void ImageFilterNode::initState()
 {
     if (image_sub_status_) {
         run_state_ = IDLE;
@@ -70,22 +72,22 @@ void EditImageNode::initState()
     }
 }
 
-void EditImageNode::idleState()
+void ImageFilterNode::idleState()
 {
-    if (start_edit_image_) {
+    if (start_filter_image_) {
         run_state_ = RUNNING;
     } else {
         run_state_ = INIT;
     }
 }
 
-void EditImageNode::runState()
+void ImageFilterNode::runState()
 {
-    editImage();
+    filterImage();
     run_state_ = INIT;
 }
 
-void EditImageNode::editImage()
+void ImageFilterNode::filterImage()
 { 
 
     cv_bridge::CvImagePtr cv_img_ptr;
@@ -115,12 +117,12 @@ void EditImageNode::editImage()
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "edit_image");
+    ros::init(argc, argv, "image_filter");
     ros::NodeHandle nh("~");
-    ROS_INFO("Edit Image Node Initialised");
-    EditImageNode ei(nh);
+    ROS_INFO("Image Filter Node Initialised");
+    ImageFilterNode ifn(nh);
     while (ros::ok()) {
-        ei.states();
+        ifn.states();
         ros::spinOnce();
     }
     return 0;

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(mcr_edit_image)
+project(mcr_image_filter)
 
 find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OpenCV REQUIRED)
 
 generate_dynamic_reconfigure_options(
-  ros/config/EditImage.cfg
+  ros/config/ImageFilter.cfg
 )
 
 catkin_package(
@@ -36,20 +36,20 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-add_executable(edit_image_node
-  ros/src/edit_image_node.cpp
+add_executable(image_filter_node
+  ros/src/image_filter_node.cpp
 )
 
-add_dependencies(edit_image_node
+add_dependencies(image_filter_node
   ${catkin_EXPORTED_TARGETS}
 )
 
-target_link_libraries(edit_image_node
+target_link_libraries(image_filter_node
    ${catkin_LIBRARIES}
    ${OpenCV_LIBRARIES}
 )
 
-install(TARGETS edit_image_node
+install(TARGETS image_filter_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <node pkg="mcr_edit_image" type="edit_image_node" name="edit_image" ns="mcr_perception" output="screen" respawn="true">
-    	<remap from="~input_image" to="/usb_cam/image_raw"/>
-    </node>
-</launch>

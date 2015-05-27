@@ -2,9 +2,9 @@
 
 <package>
 
-  <name>mcr_edit_image</name>
+  <name>mcr_image_filter</name>
   <version>0.1.0</version>
-  <description>Edit Image Package</description>
+  <description>Image filter package used to do required pre-processing (like cropping, rotation, filters (yet to be implemented), noise reduction (yet to be implemented)) to the rgb image.</description>
 
   <maintainer email="mashoksc@gmail.com">Ashok Meenakshi Sundaram</maintainer>
 
