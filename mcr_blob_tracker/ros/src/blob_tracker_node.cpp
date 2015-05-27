@@ -21,7 +21,7 @@ BlobTrackerNode::BlobTrackerNode(ros::NodeHandle &nh) :
     blob_pose_pub_ = node_handler_.advertise<geometry_msgs::Pose2D>("blob_pose", 1);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
     image_pub_ = image_transporter_.advertise("debug_image", 1);
-    event_out_msg_.data = "e_blob_lost";
+    event_out_msg_.data = "";
 
 }
 
@@ -117,6 +117,8 @@ void BlobTrackerNode::trackBlob()
         }
     }
 
+    event_out_msg_.data = "";
+
     if(blob_list_.blobs.size()>0){
 
         blobs_.resize(blob_list_.blobs.size());
@@ -135,8 +137,9 @@ void BlobTrackerNode::trackBlob()
             trackFirstLargesBlob();
         }
 
-        if(event_out_msg_.data.compare("e_blob_away") == 0){
+        if(event_out_msg_.data.compare("e_blob_lost") == 0){
             event_pub_.publish(event_out_msg_);
+            start_blob_tracker_ = false;
         } else {
             blob_pose_pub_.publish(blob_tracked_pose_);
             if (debug_mode_ && image_sub_status_) {
@@ -154,6 +157,7 @@ void BlobTrackerNode::trackBlob()
     } else {
         event_out_msg_.data = "e_blob_lost";
         event_pub_.publish(event_out_msg_);
+        start_blob_tracker_ = false;
     }
 
     if (debug_mode_ && image_sub_status_) {
@@ -210,7 +214,7 @@ void BlobTrackerNode::trackFirstLargesBlob()
         blob_tracked_pose_.y = blobs_.at(blob_tracked_index_).at(1);
         blob_tracked_pose_.theta = blobs_.at(blob_tracked_index_).at(2);
     } else {
-        event_out_msg_.data = "e_blob_away";
+        event_out_msg_.data = "e_blob_lost";
     }
 
 }
