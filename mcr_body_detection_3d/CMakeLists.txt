@@ -63,11 +63,8 @@ target_link_libraries(body_detection_3d_node
 
 
 if(CATKIN_ENABLE_TESTING)
-  find_package(catkin REQUIRED
-    COMPONENTS
-      roslaunch
-      rostest
-  )
+  find_package(rostest REQUIRED)
+  find_package(roslaunch REQUIRED)
 
   roslaunch_add_file_check(ros/launch)
 
