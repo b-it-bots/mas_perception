@@ -1,11 +1,11 @@
-#ifndef BLOBTRACKERNODE_H_
-#define BLOBTRACKERNODE_H_
+#ifndef BLOBTRACKINGNODE_H_
+#define BLOBTRACKINGNODE_H_
 
 #include <ros/ros.h>
 #include <ros/package.h>
 #include <std_msgs/String.h>
 #include <dynamic_reconfigure/server.h>
-#include <mcr_blob_tracker/BlobTrackerConfig.h>
+#include <mcr_blob_tracking/BlobTrackingConfig.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
 #include <cv_bridge/cv_bridge.h>
@@ -19,13 +19,13 @@
 
 using namespace cv;
 
-class BlobTrackerNode
+class BlobTrackingNode
 {
 
     public:
-        BlobTrackerNode(ros::NodeHandle &nh);
-        virtual ~BlobTrackerNode();
-        void dynamicReconfigCallback(mcr_blob_tracker::BlobTrackerConfig &config, uint32_t level);
+        BlobTrackingNode(ros::NodeHandle &nh);
+        virtual ~BlobTrackingNode();
+        void dynamicReconfigCallback(mcr_blob_tracking::BlobTrackingConfig &config, uint32_t level);
         void eventCallback(const std_msgs::String &event_command);
         void imageCallback(const sensor_msgs::ImageConstPtr &image_message);
         void blobsCallback(const mcr_perception_msgs::BlobList::ConstPtr &blobs);
@@ -45,7 +45,7 @@ class BlobTrackerNode
 
     private:
         ros::NodeHandle node_handler_;
-        dynamic_reconfigure::Server<mcr_blob_tracker::BlobTrackerConfig> dynamic_reconfig_server_;
+        dynamic_reconfigure::Server<mcr_blob_tracking::BlobTrackingConfig> dynamic_reconfig_server_;
         ros::Subscriber event_sub_;
         ros::Publisher event_pub_;
         ros::Publisher blob_pose_pub_;
@@ -58,9 +58,9 @@ class BlobTrackerNode
         sensor_msgs::ImageConstPtr image_message_;
         Mat debug_image_;
         bool debug_mode_;
-        bool start_blob_tracker_;
+        bool start_blob_tracking_;
         bool first_pass_;
-        string tracker_type_;
+        string tracking_type_;
         double blob_distance_threshold_;
         int blob_tracked_index_;
         vector<vector<double> > blobs_;
@@ -71,4 +71,4 @@ class BlobTrackerNode
 
 };
 
-#endif /* BLOBDETECTIONNODE_H_ */
+#endif /* BLOBTRACKINGNODE_H_ */

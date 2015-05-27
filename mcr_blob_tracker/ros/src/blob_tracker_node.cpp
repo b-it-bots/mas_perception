@@ -1,23 +1,23 @@
-#include <mcr_blob_tracker/blob_tracker_node.h>
+#include <mcr_blob_tracking/blob_tracking_node.h>
 
-BlobTrackerNode::BlobTrackerNode(ros::NodeHandle &nh) :
+BlobTrackingNode::BlobTrackingNode(ros::NodeHandle &nh) :
                                                         node_handler_(nh), 
                                                         image_transporter_(nh),
                                                         run_state_(INIT),
-                                                        start_blob_tracker_(false),
+                                                        start_blob_tracking_(false),
                                                         image_sub_status_(false),
                                                         blobs_sub_status_(false),
                                                         first_pass_(true),
                                                         blob_tracked_index_(0),
                                                         blob_distance_threshold_(800),
-                                                        tracker_type_("First Largest"),
+                                                        tracking_type_("First Largest"),
                                                         debug_mode_(true)
 
 {
-    dynamic_reconfig_server_.setCallback(boost::bind(&BlobTrackerNode::dynamicReconfigCallback, this, _1, _2));  
-    event_sub_ = node_handler_.subscribe("event_in", 1, &BlobTrackerNode::eventCallback, this);
-    blobs_sub_ = node_handler_.subscribe("blobs", 1, &BlobTrackerNode::blobsCallback, this);
-    image_sub_ = image_transporter_.subscribe("input_image", 1, &BlobTrackerNode::imageCallback, this);
+    dynamic_reconfig_server_.setCallback(boost::bind(&BlobTrackingNode::dynamicReconfigCallback, this, _1, _2));  
+    event_sub_ = node_handler_.subscribe("event_in", 1, &BlobTrackingNode::eventCallback, this);
+    blobs_sub_ = node_handler_.subscribe("blobs", 1, &BlobTrackingNode::blobsCallback, this);
+    image_sub_ = image_transporter_.subscribe("input_image", 1, &BlobTrackingNode::imageCallback, this);
     blob_pose_pub_ = node_handler_.advertise<geometry_msgs::Pose2D>("blob_pose", 1);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
     image_pub_ = image_transporter_.advertise("debug_image", 1);
@@ -25,7 +25,7 @@ BlobTrackerNode::BlobTrackerNode(ros::NodeHandle &nh) :
 
 }
 
-BlobTrackerNode::~BlobTrackerNode()
+BlobTrackingNode::~BlobTrackingNode()
 {
     image_sub_.shutdown();
     event_sub_.shutdown();
@@ -35,37 +35,37 @@ BlobTrackerNode::~BlobTrackerNode()
     event_pub_.shutdown();
 }
 
-void BlobTrackerNode::dynamicReconfigCallback(mcr_blob_tracker::BlobTrackerConfig &config, uint32_t level)
+void BlobTrackingNode::dynamicReconfigCallback(mcr_blob_tracking::BlobTrackingConfig &config, uint32_t level)
 {
     debug_mode_ = config.debug_mode;
-    tracker_type_ = config.tracking_type;
+    tracking_type_ = config.tracking_type;
     blob_distance_threshold_ = config.blob_distance_threshold;
 }
 
-void BlobTrackerNode::eventCallback(const std_msgs::String &event_command)
+void BlobTrackingNode::eventCallback(const std_msgs::String &event_command)
 {
     if (event_command.data == "e_start") {
-        start_blob_tracker_ = true;
-        ROS_INFO("2D Blob Tracker ENABLED");
+        start_blob_tracking_ = true;
+        ROS_INFO("2D Blob Tracking ENABLED");
     } else if (event_command.data == "e_stop") {
-        start_blob_tracker_ = false;
-        ROS_INFO("2D Blob Tracker DISABLED");
+        start_blob_tracking_ = false;
+        ROS_INFO("2D Blob Tracking DISABLED");
     }
 }
 
-void BlobTrackerNode::blobsCallback(const mcr_perception_msgs::BlobList::ConstPtr &blobs)
+void BlobTrackingNode::blobsCallback(const mcr_perception_msgs::BlobList::ConstPtr &blobs)
 {
     blob_list_ = *blobs;
     blobs_sub_status_ = true;;
 }
 
-void BlobTrackerNode::imageCallback(const sensor_msgs::ImageConstPtr &img_msg)
+void BlobTrackingNode::imageCallback(const sensor_msgs::ImageConstPtr &img_msg)
 {
     image_message_ = img_msg;
     image_sub_status_ = true;
 }
 
-void BlobTrackerNode::states()
+void BlobTrackingNode::states()
 {
     switch (run_state_) {
         case INIT:
@@ -82,7 +82,7 @@ void BlobTrackerNode::states()
     }
 }
 
-void BlobTrackerNode::initState()
+void BlobTrackingNode::initState()
 {
     if (blobs_sub_status_) {
         run_state_ = IDLE;
@@ -90,22 +90,22 @@ void BlobTrackerNode::initState()
     }
 }
 
-void BlobTrackerNode::idleState()
+void BlobTrackingNode::idleState()
 {
-    if (start_blob_tracker_) {
+    if (start_blob_tracking_) {
         run_state_ = RUNNING;
     } else {
         run_state_ = INIT;
     }
 }
 
-void BlobTrackerNode::runState()
+void BlobTrackingNode::runState()
 {
     trackBlob();
     run_state_ = INIT;
 }
 
-void BlobTrackerNode::trackBlob()
+void BlobTrackingNode::trackBlob()
 {
 
     cv_bridge::CvImagePtr cv_img_ptr;
@@ -133,13 +133,13 @@ void BlobTrackerNode::trackBlob()
 
         }
 
-        if(tracker_type_.compare("First Largest") == 0){
+        if(tracking_type_.compare("First Largest") == 0){
             trackFirstLargesBlob();
         }
 
         if(event_out_msg_.data.compare("e_blob_lost") == 0){
             event_pub_.publish(event_out_msg_);
-            start_blob_tracker_ = false;
+            start_blob_tracking_ = false;
         } else {
             blob_pose_pub_.publish(blob_tracked_pose_);
             if (debug_mode_ && image_sub_status_) {
@@ -157,7 +157,7 @@ void BlobTrackerNode::trackBlob()
     } else {
         event_out_msg_.data = "e_blob_lost";
         event_pub_.publish(event_out_msg_);
-        start_blob_tracker_ = false;
+        start_blob_tracking_ = false;
     }
 
     if (debug_mode_ && image_sub_status_) {
@@ -168,7 +168,7 @@ void BlobTrackerNode::trackBlob()
 
 }
 
-void BlobTrackerNode::trackFirstLargesBlob()
+void BlobTrackingNode::trackFirstLargesBlob()
 {
 
     if(first_pass_){
@@ -221,10 +221,10 @@ void BlobTrackerNode::trackFirstLargesBlob()
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "blob_tracker");
+    ros::init(argc, argv, "blob_tracking");
     ros::NodeHandle nh("~");
-    ROS_INFO("Blob Tracker Node Initialised");
-    BlobTrackerNode bt(nh);
+    ROS_INFO("Blob Tracking Node Initialised");
+    BlobTrackingNode bt(nh);
 
     int loop_rate = 30;
     nh.param<int>("loop_rate", loop_rate, 30);

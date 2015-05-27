@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(mcr_blob_tracker)
+project(mcr_blob_tracking)
 
 find_package(catkin REQUIRED 
   COMPONENTS
@@ -16,7 +16,7 @@ find_package(catkin REQUIRED
 find_package(OpenCV 2.3 REQUIRED)
 
 generate_dynamic_reconfigure_options(
-  ros/config/BlobTracker.cfg
+  ros/config/BlobTracking.cfg
 )
 
 catkin_package(
@@ -41,21 +41,21 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-add_executable(blob_tracker_node
-  ros/src/blob_tracker_node.cpp
+add_executable(blob_tracking_node
+  ros/src/blob_tracking_node.cpp
 )
 
-add_dependencies(blob_tracker_node
+add_dependencies(blob_tracking_node
   ${PROJECT_NAME}_gencfg
   ${catkin_EXPORTED_TARGETS}
 )
 
-target_link_libraries(blob_tracker_node
+target_link_libraries(blob_tracking_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )
 
-install(TARGETS blob_tracker_node
+install(TARGETS blob_tracking_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
