@@ -121,9 +121,15 @@ int main(int argc, char **argv)
     ros::NodeHandle nh("~");
     ROS_INFO("Image Filter Node Initialised");
     ImageFilterNode ifn(nh);
+
+    int loop_rate = 30;
+    nh.param<int>("loop_rate", loop_rate, 30);
+    ros::Rate rate(loop_rate);
+
     while (ros::ok()) {
         ifn.states();
         ros::spinOnce();
+        rate.sleep();
     }
     return 0;
 }
