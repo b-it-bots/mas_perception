@@ -146,8 +146,8 @@ void BlobTrackerNode::trackBlob()
                 line(cv_img_ptr->image, Point(0, height/2), Point(width, height/2), CV_RGB(0, 0, 255), 2);
                 line(cv_img_ptr->image, Point(width/2, 0), Point(width/2, height), CV_RGB(0, 0, 255), 2);
                 circle(cv_img_ptr->image, Point(blob_tracked_pose_.x, blob_tracked_pose_.y), 8, CV_RGB(255, 0, 0), 2);
-                line(cv_img_ptr->image, Point(blob_tracked_pose_.x+cos(blob_tracked_pose_.theta*PI/180)*40, blob_tracked_pose_.y-sin(blob_tracked_pose_.theta*PI/180)*40), Point(blob_tracked_pose_.x-cos(blob_tracked_pose_.theta*PI/180)*40, blob_tracked_pose_.y+sin(blob_tracked_pose_.theta*PI/180)*40), CV_RGB(255, 0, 0), 2);
-                line(cv_img_ptr->image, Point(blob_tracked_pose_.x-cos(blob_tracked_pose_.theta*PI/180)*40, blob_tracked_pose_.y-sin(blob_tracked_pose_.theta*PI/180)*40), Point(blob_tracked_pose_.x+cos(blob_tracked_pose_.theta*PI/180)*40, blob_tracked_pose_.y+sin(blob_tracked_pose_.theta*PI/180)*40), CV_RGB(255, 0, 0), 2);
+                line(cv_img_ptr->image, Point(blob_tracked_pose_.x+cos(blob_tracked_pose_.theta*M_PI/180)*40, blob_tracked_pose_.y-sin(blob_tracked_pose_.theta*M_PI/180)*40), Point(blob_tracked_pose_.x-cos(blob_tracked_pose_.theta*M_PI/180)*40, blob_tracked_pose_.y+sin(blob_tracked_pose_.theta*M_PI/180)*40), CV_RGB(255, 0, 0), 2);
+                line(cv_img_ptr->image, Point(blob_tracked_pose_.x-cos(blob_tracked_pose_.theta*M_PI/180)*40, blob_tracked_pose_.y-sin(blob_tracked_pose_.theta*M_PI/180)*40), Point(blob_tracked_pose_.x+cos(blob_tracked_pose_.theta*M_PI/180)*40, blob_tracked_pose_.y+sin(blob_tracked_pose_.theta*M_PI/180)*40), CV_RGB(255, 0, 0), 2);
             }
         }
 

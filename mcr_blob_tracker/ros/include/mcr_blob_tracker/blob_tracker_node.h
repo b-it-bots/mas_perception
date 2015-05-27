@@ -17,8 +17,6 @@
 #include <string>
 #include <math.h>
 
-#define PI 3.14159265
-
 using namespace cv;
 
 class BlobTrackerNode
