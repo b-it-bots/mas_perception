@@ -18,7 +18,8 @@
   <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>libface</build_depend>
   <build_depend>roscpp</build_depend>
-  
+  <build_depend>roslaunch</build_depend>
+
   <run_depend>mcr_perception_msgs</run_depend>
   <run_depend>libface</run_depend>
   
