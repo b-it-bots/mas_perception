@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     ObjectSelector object_selector;
 
     nh.param<int>("frame_rate", frame_rate, 30);
-    ROS_INFO("[object_selector] node started");
+    ROS_INFO("node started");
 
     ros::Rate loop_rate(frame_rate);
 
