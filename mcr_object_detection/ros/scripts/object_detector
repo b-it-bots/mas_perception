@@ -114,12 +114,36 @@ class PackResponse(State):
         n1 = to_array(box[4]) - to_array(box[0])
         n2 = to_array(box[1]) - to_array(box[0])
         n3 = to_array(box[3]) - to_array(box[0])
+
         n1_norm = np.linalg.norm(n1)
         n2_norm = np.linalg.norm(n2)
         n3_norm = np.linalg.norm(n3)
-        n1 /= n1_norm
-        n2 = n2 / n2_norm if n2_norm > n3_norm else n3 / n3_norm
-        n3 = np.cross(n1, n2)
+
+        normals = [n1, n2, n3]
+        normal_norm  = [n1_norm, n2_norm, n3_norm]
+
+        # x-axis is always along the longest axis
+        max_norm_index = np.argmax(normal_norm)
+        x_norm = normals[max_norm_index] / normal_norm[max_norm_index]
+        del normals[max_norm_index]
+        del normal_norm[max_norm_index]
+
+        # if longest axis is along the height of the object (object is vertical)
+        # set y axis as second longest axis and z and the cross product of x and y
+        if max_norm_index == 0:
+            max_norm_index = np.argmax(normal_norm)
+            y_norm = normals[max_norm_index] / normal_norm[max_norm_index]
+            z_norm = np.cross(x_norm, y_norm)
+        else:
+            # if longest axis is lying on the plane (object is horizontal)
+            # set z-axis pointing up and y-axis as the cross of z and x
+            z_norm = n1 / n1_norm
+            y_norm = np.cross(z_norm, x_norm)
+
+        n1 = x_norm
+        n2 = y_norm
+        n3 = z_norm
+
         m = np.array([[n1[0], n2[0], n3[0], 0],
                       [n1[1], n2[1], n3[1], 0],
                       [n1[2], n2[2], n3[2], 0],
