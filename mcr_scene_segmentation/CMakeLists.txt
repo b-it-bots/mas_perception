@@ -33,6 +33,8 @@ catkin_package(
     mcr_perception_msgs
     polyclipping
     visualization_msgs
+  CFG_EXTRAS
+    export_config.cmake
 )
 
 include_directories(
@@ -136,6 +138,14 @@ target_link_libraries(online_plane_extraction_test
   scene_segmentation
 )
 
+
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+  roslaunch_add_file_check(ros/launch workspace_finder_config_file:=${CMAKE_CURRENT_SOURCE_DIR}/ros/config/workspace_constraints.yaml)
+endif()
+
+### INSTALLS
 install(DIRECTORY common/include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
