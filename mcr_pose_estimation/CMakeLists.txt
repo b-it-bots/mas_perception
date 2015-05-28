@@ -42,6 +42,13 @@ target_link_libraries(pca_pose_estimator
   ${PCL_LIBRARIES}
 )
 
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+  roslaunch_add_file_check(ros/launch)
+endif()
+
+### INSTALLS
 install(TARGETS pca_pose_estimator
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
