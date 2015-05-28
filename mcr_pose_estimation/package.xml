@@ -15,5 +15,6 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>pcl</build_depend>
+  <build_depend>roslaunch</build_depend>
 
 </package>
