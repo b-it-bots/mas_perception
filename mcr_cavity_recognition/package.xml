@@ -18,8 +18,10 @@
   <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>message_filters</build_depend>
+  <build_depend>roslaunch</build_depend>
 
   <run_depend>mcr_perception_msgs</run_depend>
   <run_depend>mcr_contour_matching</run_depend>
+  <run_depend>mcr_pose_estimation</run_depend>
 
 </package>
