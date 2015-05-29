@@ -115,8 +115,8 @@ int main(int argc, char **argv)
     ROS_INFO("Initialised");
     BlobTrackingErrorMonitorNode btem(nh);
 
-    int loop_rate = 30;
-    nh.param<int>("loop_rate", loop_rate, 30);
+    double loop_rate = 30;
+    nh.param<double>("loop_rate", loop_rate, 30);
     ros::Rate rate(loop_rate);
 
     while (ros::ok()) {

@@ -2,6 +2,6 @@
 <launch>
     <node pkg="mcr_perception_monitors" type="blob_tracking_error_monitor_node" name="blob_tracking_error_monitor" ns="mcr_perception" output="screen" respawn="true">
     	<remap from="~pose_error" to="/component_wise_pose_error_calculator/pose_error"/>
-    	<param name="loop_rate" type="int" value="60" />
+    	<param name="loop_rate" type="double" value="30" />
     </node>
 </launch>
