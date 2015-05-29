@@ -41,6 +41,7 @@ add_executable(image_filter_node
 )
 
 add_dependencies(image_filter_node
+  ${PROJECT_NAME}_gencfg
   ${catkin_EXPORTED_TARGETS}
 )
 
