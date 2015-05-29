@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_perception_monitors)
 
-find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  roscpp
-  std_msgs
-  dynamic_reconfigure
-  mcr_manipulation_msgs
+find_package(catkin REQUIRED 
+  COMPONENTS
+    geometry_msgs
+    roscpp
+    std_msgs
+    dynamic_reconfigure
+    mcr_manipulation_msgs
 )
 
 generate_dynamic_reconfigure_options(
@@ -14,8 +15,6 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  INCLUDE_DIRS
-    ros/include
   CATKIN_DEPENDS 
     geometry_msgs
     roscpp
@@ -27,7 +26,6 @@ catkin_package(
 include_directories(
   ros/include
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
 )
 
 add_executable(blob_tracking_error_monitor_node
