@@ -64,25 +64,31 @@ void BlobTrackingErrorMonitorNode::states()
 
 void BlobTrackingErrorMonitorNode::initState()
 {
-    if (tracking_error_sub_status_) {
-        run_state_ = IDLE;
-        tracking_error_sub_status_ = false;
+    if (start_tracking_error_monitor_) {
+        run_state_ = IDLE;  
+    } else {
+        run_state_ = INIT;
     }
 }
 
 void BlobTrackingErrorMonitorNode::idleState()
 {
-    if (start_tracking_error_monitor_) {
+    if (tracking_error_sub_status_) {
         run_state_ = RUNNING;
+        tracking_error_sub_status_ = false;
     } else {
-        run_state_ = INIT;
+        run_state_ = IDLE;
     }
 }
 
 void BlobTrackingErrorMonitorNode::runState()
 {
     blobTrackingErrorMonitor();
-    run_state_ = INIT;
+    if (start_tracking_error_monitor_) {
+        run_state_ = IDLE;
+    } else {
+        run_state_ = INIT;
+    }
 }
 
 void BlobTrackingErrorMonitorNode::blobTrackingErrorMonitor()
