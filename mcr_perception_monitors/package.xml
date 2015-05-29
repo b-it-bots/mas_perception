@@ -4,7 +4,11 @@
 
   <name>mcr_perception_monitors</name>
   <version>0.1.0</version>
-  <description>Perception monitors package used to monitor the output (like blob tracking error) of various perception components</description>
+  <description>
+  	Perception monitors package used to monitor the output of various perception components
+  	Current Functionality: 
+  		blob_tracking_error_monitor_node - Monitor the blob tracking error based on the output from component wise pose error calculator node (which will give the difference i.e. error between the current tracked blob and the image center). The monitor then sends event e_done when the error is within the allowed threshold.
+  </description>
 
   <maintainer email="mashoksc@gmail.com">Ashok Meenakshi Sundaram</maintainer>
 
