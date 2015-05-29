@@ -83,7 +83,11 @@ void BlobTrackingErrorMonitorNode::idleState()
 
 void BlobTrackingErrorMonitorNode::runState()
 {
-    blobTrackingErrorMonitor();
+    if(isBlobTrackingErrorWithinThreshold()){
+        status_msg_.data = "e_done";
+        event_pub_.publish(status_msg_);
+    }
+
     if (start_tracking_error_monitor_) {
         run_state_ = IDLE;
     } else {
@@ -91,16 +95,17 @@ void BlobTrackingErrorMonitorNode::runState()
     }
 }
 
-void BlobTrackingErrorMonitorNode::blobTrackingErrorMonitor()
+bool BlobTrackingErrorMonitorNode::isBlobTrackingErrorWithinThreshold()
 {
 
-    
     if( (fabs(error_.linear.x) < threshold_linear_x_) && (fabs(error_.linear.y) < threshold_linear_y_) && (fabs(error_.linear.z) < threshold_linear_z_)){
         if( (fabs(error_.angular.x) < threshold_angular_x_) && (fabs(error_.angular.y) < threshold_angular_y_) && (fabs(error_.angular.z) < threshold_angular_z_)){
-            status_msg_.data = "e_done";
-            event_pub_.publish(status_msg_);
+            return true;
         }
     }
+
+    return false;
+
 }
 
 int main(int argc, char **argv)

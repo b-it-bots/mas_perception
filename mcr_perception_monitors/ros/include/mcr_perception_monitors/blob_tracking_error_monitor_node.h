@@ -25,7 +25,7 @@ class BlobTrackingErrorMonitorNode
         void initState();
         void idleState();
         void runState();
-        void blobTrackingErrorMonitor();
+        bool isBlobTrackingErrorWithinThreshold();
 
     private:
         enum States {
