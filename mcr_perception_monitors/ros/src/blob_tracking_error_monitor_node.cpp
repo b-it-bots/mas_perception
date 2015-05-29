@@ -18,7 +18,8 @@ BlobTrackingErrorMonitorNode::~BlobTrackingErrorMonitorNode()
     event_pub_.shutdown();  
 }
 
-void BlobTrackingErrorMonitorNode::dynamicReconfigCallback(mcr_perception_monitors::BlobTrackingErrorMonitorConfig &config, uint32_t level){
+void BlobTrackingErrorMonitorNode::dynamicReconfigCallback(mcr_perception_monitors::BlobTrackingErrorMonitorConfig &config, uint32_t level)
+{
     threshold_linear_x_ = config.threshold_linear_x;
     threshold_linear_y_ = config.threshold_linear_y;
     threshold_linear_z_ = config.threshold_linear_z;
@@ -31,10 +32,10 @@ void BlobTrackingErrorMonitorNode::eventCallback(const std_msgs::String &event_c
 {
     if (event_command.data == "e_start") {
         start_tracking_error_monitor_ = true;
-        ROS_INFO("Blob Tracking Error Monitor ENABLED");
+        ROS_INFO("ENABLED");
     } else if (event_command.data == "e_stop") {
         start_tracking_error_monitor_ = false;
-        ROS_INFO("Blob Tracking Error Monitor DISABLED");
+        ROS_INFO("DISABLED");
     }
 }
 
@@ -88,8 +89,8 @@ void BlobTrackingErrorMonitorNode::blobTrackingErrorMonitor()
 {
 
     
-    if( (fabs(error_.linear.x)< threshold_linear_x_) && (fabs(error_.linear.y)< threshold_linear_y_) && (fabs(error_.linear.z)< threshold_linear_z_)){
-        if( (fabs(error_.angular.x)< threshold_angular_x_) && (fabs(error_.angular.y)< threshold_angular_y_) && (fabs(error_.angular.z)< threshold_angular_z_)){
+    if( (fabs(error_.linear.x) < threshold_linear_x_) && (fabs(error_.linear.y) < threshold_linear_y_) && (fabs(error_.linear.z) < threshold_linear_z_)){
+        if( (fabs(error_.angular.x) < threshold_angular_x_) && (fabs(error_.angular.y) < threshold_angular_y_) && (fabs(error_.angular.z) < threshold_angular_z_)){
             status_msg_.data = "e_done";
             event_pub_.publish(status_msg_);
         }
@@ -100,7 +101,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "blob_tracking_error_monitor");
     ros::NodeHandle nh("~");
-    ROS_INFO("Blob Tracking Error Monitor Node Initialised");
+    ROS_INFO("Initialised");
     BlobTrackingErrorMonitorNode btem(nh);
 
     int loop_rate = 30;
