@@ -122,7 +122,8 @@ add_executable(offline_plane_extraction_test
   ros/src/offline_plane_extraction_test.cpp
 )
 add_dependencies(offline_plane_extraction_test 
-  ${catkin_EXPORT_TARGETS} ${PROJECT_NAME}_gencfg
+  ${catkin_EXPORT_TARGETS}
+  ${PROJECT_NAME}_gencfg
 )
 target_link_libraries(offline_plane_extraction_test
   ${catkin_LIBRARIES}
