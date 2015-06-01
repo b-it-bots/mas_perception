@@ -40,24 +40,27 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
 )
 
-add_executable(object_recognition_mean_circle_test
-  ros/test/object_recognition_mean_circle_test.cpp
-)
-add_dependencies(object_recognition_mean_circle_test
-  ${catkin_EXPORTED_TARGETS}
-)
-target_link_libraries(object_recognition_mean_circle_test
-  ${GTEST_LIBRARIES}
-  ${catkin_LIBRARIES}
-)
 
 ### TESTS
 if(CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(ros/launch workspace_finder_config_file:=${mcr_scene_segmentation_workspace_constraints_file})
-endif()
+  find_package(rostest REQUIRED)
 
-add_rostest(ros/test/object_recognition_mean_circle.test)
+  roslaunch_add_file_check(ros/launch workspace_finder_config_file:=${mcr_scene_segmentation_workspace_constraints_file})
+
+  add_rostest_gtest(object_recognition_mean_circle_test
+    ros/test/object_recognition_mean_circle.test
+    ros/test/object_recognition_mean_circle_test.cpp
+  )
+
+  add_dependencies(object_recognition_mean_circle_test
+    ${catkin_EXPORTED_TARGETS}
+  )
+
+  target_link_libraries(object_recognition_mean_circle_test
+    ${catkin_LIBRARIES}
+  )
+endif()
 
 
 ### INSTALLS
