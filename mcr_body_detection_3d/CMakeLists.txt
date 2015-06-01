@@ -59,9 +59,6 @@ target_link_libraries(body_detection_3d_node
 
 
 ### TESTS
-
-
-
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   find_package(roslaunch REQUIRED)
