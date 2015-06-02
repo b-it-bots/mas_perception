@@ -19,6 +19,7 @@
   <build_depend>pcl</build_depend>
   <build_depend>pcl_ros</build_depend>
   <build_depend>opencv2</build_depend>
+  <build_depend>roslaunch</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>visualization_msgs</build_depend>
 
