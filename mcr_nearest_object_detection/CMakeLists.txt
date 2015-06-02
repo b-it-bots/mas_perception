@@ -39,6 +39,14 @@ target_link_libraries(nearest_object_detection_node
 )
 
 
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+
+  roslaunch_add_file_check(ros/launch)
+endif()
+
+
 ### INSTALLS
 install(TARGETS nearest_object_detection_node nearest_object_detection_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
