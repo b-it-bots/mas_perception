@@ -37,9 +37,12 @@ target_link_libraries(nearest_object_detection_node
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
-#install(TARGETS nearest_object_detection_node nearest_object_detection_node
-#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+
+
+### INSTALLS
+install(TARGETS nearest_object_detection_node nearest_object_detection_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
