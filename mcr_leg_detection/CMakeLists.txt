@@ -74,6 +74,8 @@ target_link_libraries(leg_detection_node
   ${BFL_LIBRARIES}
 )
 
+
+### INSTALLS
 install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
