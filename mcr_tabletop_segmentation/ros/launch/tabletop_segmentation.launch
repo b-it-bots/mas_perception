@@ -1,10 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-	<!-- cluster bounding box finder-->
-	<node pkg="object_manipulator" type="cluster_bounding_box_finder_server.py" name="cluster_bounding_box_finder" output="screen" respawn="false">
-		<param name="z_up_frame" value="/base_link" />
-	</node>
-
+	
 	<!-- object segmentation -->
 	<node pkg="mcr_tabletop_segmentation" type="tabletop_segmentation_node" name="tabletop_segmentation" ns="mcr_perception" output="screen">
 
