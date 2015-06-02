@@ -75,6 +75,15 @@ target_link_libraries(tabletop_segmentation_node
 )
 
 
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+
+  roslaunch_add_file_check(ros/launch)
+endif()
+
+
+### INSTALLS
 install(TARGETS tabletop_segmentation_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
