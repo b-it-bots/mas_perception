@@ -27,17 +27,16 @@ catkin_package(
     visualization_msgs
 )
 
-#add_executable(nearest_object_detection_node 
-#  ros/src/nearest_object_detection_node.cpp
-#)
-#add_dependencies(nearest_object_detection_node 
-#  ${catkin_EXPORTED_TARGETS}
-#)
-#target_link_libraries(nearest_object_detection_node
-#  ${catkin_LIBRARIES}
-#  ${PCL_LIBRARIES}
-#)
-
+add_executable(nearest_object_detection_node 
+  ros/src/nearest_object_detection_node.cpp
+)
+add_dependencies(nearest_object_detection_node 
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries(nearest_object_detection_node
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
 #install(TARGETS nearest_object_detection_node nearest_object_detection_node
 #  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 #)
