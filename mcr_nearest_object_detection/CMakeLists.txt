@@ -4,7 +4,7 @@ project(mcr_nearest_object_detection)
 find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs
-    #laser_filters    # not yet catkinized
+    laser_filters
     mcr_algorithms
     roscpp
     sensor_msgs
