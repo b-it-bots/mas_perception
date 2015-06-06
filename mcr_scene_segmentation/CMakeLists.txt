@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
     polyclipping
     roscpp
     rospy
+    tf
     visualization_msgs
 )
 find_package(PCL 1.6 REQUIRED)
