@@ -19,6 +19,8 @@ from mcr_perception_msgs.srv import RecognizeObject
 import std_msgs.msg
 import geometry_msgs.msg
 
+import topic_tools.srv
+
 class FindWorkspaceAborted(State):
     def __init__(self):
         State.__init__(self,
@@ -167,12 +169,34 @@ class PublishTf(State):
                                   obj.pose.header.frame_id)
         return 'done'
 
+class PointCloudSubscription(State):
+    def __init__(self, subscribe=False):
+        State.__init__(self,
+                       outcomes=['done','failed'])
+        self.subscribe = subscribe
+        self.mux_service = rospy.ServiceProxy('/mcr_perception/mux_pointcloud/select', topic_tools.srv.MuxSelect)
+
+    def execute(self, ud):
+        if self.subscribe:
+            topic = '/tower_cam3d/depth_registered/points'
+        else:
+            topic = '/empty_topic'
+        try:
+            resp = self.mux_service(topic)
+        except rospy.ServiceException as exc:
+            print "Service exception ", str(exc)
+            return 'failed'
+        return 'done'
 
 if __name__ == '__main__':
     rospy.init_node(NODE)
     sm = StateMachine(outcomes=['succeeded', 'aborted', 'preempted'],
                       output_keys=['response'])
     with sm:
+        StateMachine.add('SUBSCRIBE_TO_POINTCLOUD',
+                         PointCloudSubscription(True),
+                         transitions={'done': 'FIND_WORKSPACE',
+                                      'failed': 'aborted'})
         StateMachine.add('FIND_WORKSPACE',
                          mcr_object_detection.topic_states.FindWorkspace(),
                          transitions={'succeeded': 'ACCUMULATE_CLOUD',
@@ -198,7 +222,11 @@ if __name__ == '__main__':
                          transitions={'done': 'PUBLISH_TF'})
         StateMachine.add('PUBLISH_TF',
                          PublishTf(),
-                         transitions={'done': 'succeeded'})
+                         transitions={'done': 'UNSUBSCRIBE_FROM_POINTCLOUD'})
+        StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD',
+                         PointCloudSubscription(False),
+                         transitions={'done': 'succeeded',
+                                      'failed': 'succeeded'})
 
     def event_in_cb(data):
         if data.data == "e_trigger":
