@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+  <group ns="mcr_perception">
+    <node pkg="mcr_perception_tools" type="save_pointcloud" name="save_pointcloud" output="screen" respawn="false">
+      <param name="input_topic" value="$(arg input_topic)" />
+      <param name="frame_rate" type="int" value="5" />
+      <!-- file type options are ascii, binary and compressed -->
+      <param name="file_type" type="string" value="ascii" />
+    </node>
+  </group>
+</launch>
