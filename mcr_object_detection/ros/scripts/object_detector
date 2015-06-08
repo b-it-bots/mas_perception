@@ -104,6 +104,7 @@ class PackResponse(State):
 
             obj.pose = obj_pose
             obj.name = n
+            obj.bounding_box = b
             obj.database_id = self.object_id
             ud.response.objects.append(obj)
             self.object_id = self.object_id + 1
