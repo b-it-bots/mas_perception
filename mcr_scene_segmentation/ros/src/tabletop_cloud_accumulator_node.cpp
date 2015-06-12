@@ -1,12 +1,12 @@
 #include <ros/ros.h>
 #include <ros/console.h>
+#include <tf/transform_listener.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
-#include <pcl/filters/passthrough.h>
 #include <pcl/common/common.h>
 
 #include <mcr_perception_msgs/AccumulateTabletopCloud.h>
@@ -45,7 +45,13 @@ public:
     ros::NodeHandle nh("~");
     accumulate_service_ = nh.advertiseService("accumulate_tabletop_cloud", &TabletopCloudAccumulatorNode::accumulateCallback, this);
     accumulated_cloud_publisher_ = nh.advertise<sensor_msgs::PointCloud2>("accumulated_cloud", 1);
+    tf_listener_ = new tf::TransformListener();
     ROS_INFO("Service [accumulate_tabletop_cloud] started.");
+  }
+
+  ~TabletopCloudAccumulatorNode()
+  {
+      delete tf_listener_;
   }
 
 private:
@@ -54,22 +60,27 @@ private:
   {
     ROS_INFO("Received [accumulate_tabletop_cloud] request.");
     updateConfiguration();
+
+    ros::NodeHandle nh("~");
+    // set viewpoint of camera so that points are accumulated on the side facing the camera
+    try {
+      std::string camera_frame;
+      nh.param<std::string>("camera_frame", camera_frame, "/tower_cam3d_rgb_optical_frame");
+      tf::StampedTransform transform;
+      tf_listener_->lookupTransform(request.polygon.header.frame_id, camera_frame, request.polygon.header.stamp, transform);
+      eppd_.setViewPoint(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
+    } catch (std::exception &e) {
+      ROS_ERROR_STREAM("Could not lookup transform to camera frame: " << e.what());
+      return false;
+    }
+
     PointCloud::Ptr polygon_cloud(new PointCloud);
     PlanarPolygon polygon;
     convertPlanarPolygon(request.polygon, polygon);
     polygon_cloud->points = polygon.getContour();
     eppd_.setInputPlanarHull(polygon_cloud);
     ca_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
-    
-    PointT polygon_min_point;
-    PointT polygon_max_point;
-    pcl::getMinMax3D(*polygon_cloud, polygon_min_point, polygon_max_point);
-    passthrough_filter_x_.setFilterFieldName("x");
-    passthrough_filter_y_.setFilterFieldName("y"); 
-    passthrough_filter_x_.setFilterLimits(polygon_min_point.x, polygon_max_point.x);
-    passthrough_filter_y_.setFilterLimits(polygon_min_point.y, polygon_max_point.y);
-   
-    ros::NodeHandle nh("~");
+
     ros::Subscriber subscriber = nh.subscribe("input_pointcloud", 1, &TabletopCloudAccumulatorNode::cloudCallback, this);
 
     // Wait some time while data is being accumulated.
@@ -106,11 +117,6 @@ private:
     pcl::fromPCLPointCloud2(pc2, *cloud);
     frame_id_ = ros_cloud->header.frame_id;
 
-    passthrough_filter_x_.setInputCloud(cloud);
-    passthrough_filter_x_.filter(*cloud);
-    passthrough_filter_y_.setInputCloud(cloud);
-    passthrough_filter_y_.filter(*cloud);
-
     pcl::PointIndices::Ptr tabletop_indices(new pcl::PointIndices);
     eppd_.setInputCloud(cloud);
     eppd_.segment(*tabletop_indices);
@@ -145,9 +151,6 @@ private:
   pcl::ExtractPolygonalPrismData<PointT> eppd_;
   CloudAccumulation::UPtr ca_;
 
-  pcl::PassThrough<PointT> passthrough_filter_x_;
-  pcl::PassThrough<PointT> passthrough_filter_y_;
-
   ros::ServiceServer accumulate_service_;
   ros::Publisher accumulated_cloud_publisher_;
 
@@ -155,6 +158,8 @@ private:
   int accumulation_timeout_;
   int accumulate_clouds_;
   double octree_resolution_;
+
+  tf::TransformListener *tf_listener_;
 
 };
 

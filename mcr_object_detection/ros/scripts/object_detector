@@ -19,6 +19,7 @@ from mcr_perception_msgs.srv import RecognizeObject
 import std_msgs.msg
 import geometry_msgs.msg
 
+
 class FindWorkspaceAborted(State):
     def __init__(self):
         State.__init__(self,
@@ -174,6 +175,10 @@ if __name__ == '__main__':
     sm = StateMachine(outcomes=['succeeded', 'aborted', 'preempted'],
                       output_keys=['response'])
     with sm:
+        StateMachine.add('SUBSCRIBE_TO_POINTCLOUD',
+                         mcr_object_detection.service_states.PointCloudSubscription(True),
+                         transitions={'done': 'FIND_WORKSPACE',
+                                      'failed': 'aborted'})
         StateMachine.add('FIND_WORKSPACE',
                          mcr_object_detection.topic_states.FindWorkspace(),
                          transitions={'succeeded': 'ACCUMULATE_CLOUD',
@@ -181,7 +186,7 @@ if __name__ == '__main__':
         StateMachine.add('FIND_WORKSPACE_ABORTED',
                          FindWorkspaceAborted(),
                          transitions={'retry': 'FIND_WORKSPACE',
-                                      'failed': 'aborted'})
+                                      'failed': 'UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT'})
         StateMachine.add('ACCUMULATE_CLOUD',
                          mcr_object_detection.service_states.accumulate_tabletop_cloud,
                          transitions={'succeeded': 'CLUSTER_CLOUD'})
@@ -199,7 +204,15 @@ if __name__ == '__main__':
                          transitions={'done': 'PUBLISH_TF'})
         StateMachine.add('PUBLISH_TF',
                          PublishTf(),
-                         transitions={'done': 'succeeded'})
+                         transitions={'done': 'UNSUBSCRIBE_FROM_POINTCLOUD'})
+        StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT',
+                         mcr_object_detection.service_states.PointCloudSubscription(False),
+                         transitions={'done': 'aborted',
+                                      'failed': 'aborted'})
+        StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD',
+                         mcr_object_detection.service_states.PointCloudSubscription(False),
+                         transitions={'done': 'succeeded',
+                                      'failed': 'succeeded'})
 
     def event_in_cb(data):
         if data.data == "e_trigger":

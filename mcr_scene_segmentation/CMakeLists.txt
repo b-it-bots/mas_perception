@@ -5,9 +5,11 @@ find_package(catkin REQUIRED
   COMPONENTS
     dynamic_reconfigure
     mcr_perception_msgs
+    message_filters
     polyclipping
     roscpp
     rospy
+    tf
     visualization_msgs
 )
 find_package(PCL 1.6 REQUIRED)
