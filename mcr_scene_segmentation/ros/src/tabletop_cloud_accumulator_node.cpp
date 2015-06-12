@@ -70,7 +70,8 @@ private:
       tf_listener_->lookupTransform(request.polygon.header.frame_id, camera_frame, request.polygon.header.stamp, transform);
       eppd_.setViewPoint(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
     } catch (std::exception &e) {
-      ROS_WARN_STREAM("Could not lookup transform to camera frame: " << e.what());
+      ROS_ERROR_STREAM("Could not lookup transform to camera frame: " << e.what());
+      return false;
     }
 
     PointCloud::Ptr polygon_cloud(new PointCloud);
