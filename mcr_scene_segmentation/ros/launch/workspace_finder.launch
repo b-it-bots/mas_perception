@@ -9,7 +9,7 @@
     <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager"/>
 
     <node pkg="nodelet" type="nodelet" name="transform"
-          args="load pcl/VoxelGrid $(arg manager)">
+          args="load pcl/PassThrough $(arg manager)">
       <param name="filter_field_name" type="string" value="z" />
       <param name="filter_limit_min" type="double" value="0.0" />
       <param name="filter_limit_max" type="double" value="1.0" />
