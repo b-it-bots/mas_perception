@@ -22,27 +22,26 @@
     <node pkg="nodelet" type="nodelet" name="voxel_filter"
           args="load pcl/VoxelGrid $(arg manager)">
       <param name="leaf_size" type="double" value="0.02" />
-      <param name="filter_field_name" type="string" value="" />
 
       <remap from="~input" to="/mcr_perception/transform/output" />
     </node>
 
-    <node pkg="nodelet" type="nodelet" name="passthroughz"
+    <node pkg="nodelet" type="nodelet" name="passthrough_z"
           args="load pcl/PassThrough $(arg manager)">
       <param name="filter_field_name" type="string" value="z" />
-      <param name="filter_limit_min" type="double" value="0.05" />
+      <param name="filter_limit_min" type="double" value="-0.05" />
       <param name="filter_limit_max" type="double" value="0.2" />
 
       <remap from="~input" to="/mcr_perception/voxel_filter/output" />
     </node>
 
-    <node pkg="nodelet" type="nodelet" name="passthroughx"
+    <node pkg="nodelet" type="nodelet" name="passthrough_x"
           args="load pcl/PassThrough $(arg manager)">
       <param name="filter_field_name" type="string" value="x" />
       <param name="filter_limit_min" type="double" value="0.0" />
       <param name="filter_limit_max" type="double" value="1.0" />
 
-      <remap from="~input" to="/mcr_perception/passthroughz/output" />
+      <remap from="~input" to="/mcr_perception/passthrough_z/output" />
     </node>
 
     <node pkg="nodelet" type="nodelet" name="normal_estimation"
@@ -51,7 +50,7 @@
       <param name="radius_search" type="double" value="0.03" />
       <param name="spatial_locator" type="int" value="0" />
 
-      <remap from="~input" to="/mcr_perception/passthroughx/output" />
+      <remap from="~input" to="/mcr_perception/passthrough_x/output" />
     </node>
 
     <node pkg="nodelet" type="nodelet" name="planar_segmentation"
@@ -87,15 +86,8 @@
         normal_distance_weight: 0.05
       </rosparam>
 
-      <remap from="~input"   to="/mcr_perception/passthroughx/output" />
+      <remap from="~input"   to="/mcr_perception/passthrough_x/output" />
       <remap from="~normals" to="/mcr_perception/normal_estimation/output" />
-    </node>
-
-    <node pkg="nodelet" type="nodelet" name="extract_plane_indices" args="load pcl/ExtractIndices $(arg manager)" output="screen">
-      <param name="negative" type="bool" value="true" />
-
-      <remap from="~input"   to="/mcr_perception/passthroughx/output" />
-      <remap from="~indices" to="/mcr_perception/planar_segmentation/inliers" />
     </node>
 
     <node pkg="nodelet" type="nodelet" name="project_plane_inliers" args="load pcl/ProjectInliers $(arg manager)" output="screen">
@@ -104,7 +96,7 @@
          copy_all_data: false
          copy_all_fields: true
        </rosparam>
-       <remap from="~input"   to="/mcr_perception/passthroughx/output" />
+       <remap from="~input"   to="/mcr_perception/passthrough_x/output" />
        <remap from="~indices" to="/mcr_perception/planar_segmentation/inliers" />
        <remap from="~model"   to="/mcr_perception/planar_segmentation/model" />
     </node>
