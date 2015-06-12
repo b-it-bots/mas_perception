@@ -7,7 +7,6 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
-#include <pcl/filters/passthrough.h>
 #include <pcl/common/common.h>
 
 #include <mcr_perception_msgs/AccumulateTabletopCloud.h>
@@ -80,15 +79,7 @@ private:
     polygon_cloud->points = polygon.getContour();
     eppd_.setInputPlanarHull(polygon_cloud);
     ca_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
-    
-    PointT polygon_min_point;
-    PointT polygon_max_point;
-    pcl::getMinMax3D(*polygon_cloud, polygon_min_point, polygon_max_point);
-    passthrough_filter_x_.setFilterFieldName("x");
-    passthrough_filter_y_.setFilterFieldName("y");
-    passthrough_filter_x_.setFilterLimits(polygon_min_point.x, polygon_max_point.x);
-    passthrough_filter_y_.setFilterLimits(polygon_min_point.y, polygon_max_point.y);
-   
+
     ros::Subscriber subscriber = nh.subscribe("input_pointcloud", 1, &TabletopCloudAccumulatorNode::cloudCallback, this);
 
     // Wait some time while data is being accumulated.
@@ -125,11 +116,6 @@ private:
     pcl::fromPCLPointCloud2(pc2, *cloud);
     frame_id_ = ros_cloud->header.frame_id;
 
-    passthrough_filter_x_.setInputCloud(cloud);
-    passthrough_filter_x_.filter(*cloud);
-    passthrough_filter_y_.setInputCloud(cloud);
-    passthrough_filter_y_.filter(*cloud);
-
     pcl::PointIndices::Ptr tabletop_indices(new pcl::PointIndices);
     eppd_.setInputCloud(cloud);
     eppd_.segment(*tabletop_indices);
@@ -163,9 +149,6 @@ private:
 
   pcl::ExtractPolygonalPrismData<PointT> eppd_;
   CloudAccumulation::UPtr ca_;
-
-  pcl::PassThrough<PointT> passthrough_filter_x_;
-  pcl::PassThrough<PointT> passthrough_filter_y_;
 
   ros::ServiceServer accumulate_service_;
   ros::Publisher accumulated_cloud_publisher_;
