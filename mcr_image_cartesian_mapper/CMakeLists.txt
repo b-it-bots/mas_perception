@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_image_cartesian_mapper)
 
-find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
-  image_transport
-  geometry_msgs
-  sensor_msgs
-  roscpp
-  std_msgs
+find_package(catkin REQUIRED 
+  COMPONENTS
+  	cv_bridge
+  	image_transport
+  	geometry_msgs
+  	sensor_msgs
+  	roscpp
+  	std_msgs
+  	tf
 )
+
+find_package(Eigen REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -20,11 +24,15 @@ catkin_package(
     roscpp
     std_msgs
     sensor_msgs
+    tf
+  DEPENDS
+  	Eigen
 )
 
 include_directories(
   ros/include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
 )
 
 add_executable(image_cartesian_mapper_node
