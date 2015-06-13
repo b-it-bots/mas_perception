@@ -69,17 +69,24 @@ void ImageCartesianMapperNode::states()
 
 void ImageCartesianMapperNode::initState()
 {
-    if (pose_sub_status_ && camera_info_sub_status_) {
+    if (start_cartesian_mapper_) {
         run_state_ = IDLE;
-        pose_sub_status_ = false;
-        camera_info_sub_status_ = false;
+    } else {
+        run_state_ = INIT;
     }
+
 }
 
 void ImageCartesianMapperNode::idleState()
 {
     if (start_cartesian_mapper_) {
-        run_state_ = RUNNING;
+        if (pose_sub_status_ && camera_info_sub_status_) {
+            run_state_ = RUNNING;
+            pose_sub_status_ = false;
+            camera_info_sub_status_ = false;
+        } else {
+            run_state_ = IDLE;
+        }
     } else {
         run_state_ = INIT;
     }
@@ -97,7 +104,12 @@ void ImageCartesianMapperNode::runState()
         }
     }
 
-    run_state_ = INIT;
+    if (start_cartesian_mapper_) {
+        run_state_ = IDLE;
+    } else {
+        run_state_ = INIT;
+    }
+    
 }
 
 
@@ -119,7 +131,7 @@ bool ImageCartesianMapperNode::cameraOpticalToCameraMetrical()
     point.x = camera_metrical_coordinates_(0,0);
     point.y = camera_metrical_coordinates_(1,0);
     point.z = camera_metrical_coordinates_(2,0);
-    quaternion = tf::createQuaternionMsgFromYaw(pose_2d_.theta*PI/180);
+    quaternion = tf::createQuaternionMsgFromYaw(pose_2d_.theta*M_PI/180);
     pose.position = point;
     pose.orientation = quaternion;
 

@@ -13,8 +13,7 @@
 #include <sensor_msgs/CameraInfo.h>
 #include <tf/transform_listener.h>
 #include <Eigen/LU>
-
-#define PI 3.14159265
+#include <math.h>
 
 class ImageCartesianMapperNode
 {
