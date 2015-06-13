@@ -7,10 +7,8 @@ ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_h
     camera_info_sub_ = node_handler_.subscribe("camera_info", 1, &ImageCartesianMapperNode::cameraInfoCallback, this);
     cartesian_pub_ = node_handler_.advertise<geometry_msgs::PoseStamped>("cartesian_pose", 1);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
-    target_frame_ = "base_link";
-    node_handler_.getParam("target_frame", target_frame_);
-    source_frame_ = "tower_cam3d_rgb_optical_frame";
-    node_handler_.getParam("source_frame", source_frame_);
+    node_handler_.param<std::string>("target_frame", target_frame_, "base_link");
+    node_handler_.param<std::string>("source_frame", source_frame_, "tower_cam3d_rgb_optical_frame");
     run_state_ = INIT;
     start_cartesian_mapper_ = false;
     pose_sub_status_ = false;
@@ -109,7 +107,7 @@ void ImageCartesianMapperNode::runState()
     } else {
         run_state_ = INIT;
     }
-    
+
 }
 
 
@@ -161,11 +159,17 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "image_cartesian_mapper");
     ros::NodeHandle nh("~");
     ROS_INFO("Initialised");
-
     ImageCartesianMapperNode icm(nh);
+
+    int loop_rate = 30;
+    nh.param<int>("loop_rate", loop_rate, 30);
+    ros::Rate rate(loop_rate);
+    
     while (ros::ok()) {
-        icm.states();
         ros::spinOnce();
+        icm.states();
+        rate.sleep();
     }
+
     return 0;
 }
