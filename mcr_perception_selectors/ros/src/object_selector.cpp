@@ -14,6 +14,11 @@ ObjectSelector::ObjectSelector() : nh_("~"), object_name_received_(false), objec
 
 ObjectSelector::~ObjectSelector()
 {
+	pub_event_out_.shutdown();
+	pub_object_pose_.shutdown();
+	sub_object_list_.shutdown();
+	sub_event_in_.shutdown();
+	sub_object_name_.shutdown();
 }
 
 void ObjectSelector::objectNameCallback(const std_msgs::String::Ptr &msg)
