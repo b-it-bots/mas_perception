@@ -38,7 +38,7 @@ class ObjectSelector
 
 
     private:
-        void objectNameCallback(const std_msgs::String &msg);
+        void objectNameCallback(const std_msgs::String::Ptr &msg);
         void objectListCallback(const mcr_perception_msgs::ObjectList::Ptr &msg);
 
 

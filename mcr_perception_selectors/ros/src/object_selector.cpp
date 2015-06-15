@@ -16,9 +16,9 @@ ObjectSelector::~ObjectSelector()
 {
 }
 
-void ObjectSelector::objectNameCallback(const std_msgs::String &msg)
+void ObjectSelector::objectNameCallback(const std_msgs::String::Ptr &msg)
 {
-    object_name_ = msg;
+    object_name_ = *msg;
     object_name_received_ = true;
 }
 
