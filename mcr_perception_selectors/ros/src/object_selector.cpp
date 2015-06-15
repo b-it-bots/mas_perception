@@ -9,6 +9,7 @@ ObjectSelector::ObjectSelector() : nh_("~"), object_name_received_(false), objec
     pub_event_out_ = nh_.advertise<std_msgs::String>("event_out", 1);
     pub_object_pose_ = nh_.advertise<geometry_msgs::PoseStamped>("output/object_pose", 1);
     sub_object_list_ = nh_.subscribe("input/object_list", 1, &ObjectSelector::objectListCallback, this);
+    sub_event_in_ = nh_.subscribe("event_in", 1, &ObjectSelector::eventCallback, this);
     sub_object_name_ = nh_.subscribe("input/object_name", 1, &ObjectSelector::objectNameCallback, this);
 }
 
@@ -33,6 +34,11 @@ void ObjectSelector::objectListCallback(const mcr_perception_msgs::ObjectList::P
     object_list_received_ = true;
 }
 
+void ObjectSelector::eventCallback(const std_msgs::String::Ptr &msg)
+{
+    event_in_ = *msg;
+    event_in_received_ = true;
+}
 void ObjectSelector::update()
 {
     if (!object_name_received_) {
