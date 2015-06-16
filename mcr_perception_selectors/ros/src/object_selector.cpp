@@ -154,7 +154,7 @@ void ObjectSelector::update()
     else if (object_selection_type_ == RANDOM)
         object_selected = selectRandomObject(object);
     else if (object_selection_type_ == CLOSEST)
-        object_selected = selectRandomObject(object);
+        object_selected = selectClosestObject(object);
 
     if (object_selected) {
         pub_object_pose_.publish(object.pose);
