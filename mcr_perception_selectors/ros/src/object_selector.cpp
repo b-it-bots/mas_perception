@@ -98,16 +98,23 @@ bool ObjectSelector::selectClosestObject(mcr_perception_msgs::Object &selected_o
     double current_object_distance = 0.0;
     double closest_distance = std::numeric_limits<double>::max();
     std::vector<mcr_perception_msgs::Object>::iterator iter;
+    std::vector<mcr_perception_msgs::Object>::iterator closest_object;
 
     for (iter = object_list_->objects.begin(); iter != object_list_->objects.end(); ++iter) {
         current_object_distance = sqrt(pow(iter->pose.pose.position.x, 2) + pow(iter->pose.pose.position.y, 2) + pow(iter->pose.pose.position.z, 2));
 
         if (fabs(current_object_distance) < closest_distance) {
             closest_distance = fabs(current_object_distance);
-            selected_object = *iter;
+            closest_object = iter;
         }
     }
 
+    if (object_list_->objects.size() == 1)
+	closest_object = object_list_->objects.begin();
+
+    selected_object = *closest_object;
+    object_list_->objects.erase(closest_object);
+    
     return true;
 }
 
