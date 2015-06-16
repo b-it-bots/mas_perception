@@ -5,7 +5,9 @@
 
   <group ns="mcr_perception">
 
-    <node pkg="topic_tools" type="mux" name="mux_pointcloud" args="mux:=mux_pointcloud /mcr_perception/depth_registered/points /empty_topic /tower_cam3d/depth_registered/points"/>
+    <node pkg="topic_tools" type="mux" name="mux_pointcloud" args="mux:=mux_pointcloud /mcr_perception/depth_registered/points /empty_topic $(arg input_pointcloud_topic)">
+	<param name="lazy" value="true" />
+    </node>
 
     <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager"/>
 
