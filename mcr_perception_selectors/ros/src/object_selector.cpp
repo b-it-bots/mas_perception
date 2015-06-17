@@ -16,6 +16,7 @@ ObjectSelector::ObjectSelector() : nh_("~"), object_name_received_(false), objec
     object_selection_type_ =  static_cast<SelectionType>(selection_type);
 
     pub_event_out_ = nh_.advertise<std_msgs::String>("event_out", 1);
+    pub_object_ = nh_.advertise<mcr_perception_msgs::Object>("output/object", 1);
     pub_object_pose_ = nh_.advertise<geometry_msgs::PoseStamped>("output/object_pose", 1);
     sub_object_list_ = nh_.subscribe("input/object_list", 1, &ObjectSelector::objectListCallback, this);
     sub_event_in_ = nh_.subscribe("event_in", 1, &ObjectSelector::eventCallback, this);
@@ -33,6 +34,7 @@ ObjectSelector::ObjectSelector() : nh_("~"), object_name_received_(false), objec
 ObjectSelector::~ObjectSelector()
 {
     pub_event_out_.shutdown();
+    pub_object_.shutdown();
     pub_object_pose_.shutdown();
     sub_object_list_.shutdown();
     sub_event_in_.shutdown();
@@ -165,6 +167,7 @@ void ObjectSelector::update()
         object_selected = selectRandomObject(object);
 
     if (object_selected) {
+        pub_object_.publish(object);
         pub_object_pose_.publish(object.pose);
 
         event_out.data = "e_selected";

@@ -57,9 +57,8 @@ class ObjectSelector
         ros::Subscriber sub_object_list_;
         ros::Subscriber sub_event_in_;
 
-
-
         ros::Publisher pub_event_out_;
+        ros::Publisher pub_object_;
         ros::Publisher pub_object_pose_;
 
         std_msgs::String object_name_;
