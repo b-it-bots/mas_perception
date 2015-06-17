@@ -67,6 +67,8 @@ private:
       std::string camera_frame;
       nh.param<std::string>("camera_frame", camera_frame, "/tower_cam3d_rgb_optical_frame");
       tf::StampedTransform transform;
+
+      tf_listener_->waitForTransform(request.polygon.header.frame_id, camera_frame, request.polygon.header.stamp, ros::Duration(1.0));
       tf_listener_->lookupTransform(request.polygon.header.frame_id, camera_frame, request.polygon.header.stamp, transform);
       eppd_.setViewPoint(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
     } catch (std::exception &e) {
