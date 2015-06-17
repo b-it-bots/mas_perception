@@ -110,6 +110,12 @@ bool ObjectSelector::selectClosestObject(mcr_perception_msgs::Object &selected_o
         }
     }
 
+    // "return" selected object
+    selected_object = *closest_object; 
+
+    // remove selected object from list
+    object_list_->objects.erase(closest_object);
+
     return true;
 }
 
