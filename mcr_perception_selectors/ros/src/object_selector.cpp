@@ -99,7 +99,9 @@ bool ObjectSelector::selectClosestObject(mcr_perception_msgs::Object &selected_o
     double closest_distance = std::numeric_limits<double>::max();
     std::vector<mcr_perception_msgs::Object>::iterator iter;
 
+    // find closest object
     for (iter = object_list_->objects.begin(); iter != object_list_->objects.end(); ++iter) {
+        // calculate Euclidean distance based on x, y, z
         current_object_distance = sqrt(pow(iter->pose.pose.position.x, 2) + pow(iter->pose.pose.position.y, 2) + pow(iter->pose.pose.position.z, 2));
 
         if (fabs(current_object_distance) < closest_distance) {
