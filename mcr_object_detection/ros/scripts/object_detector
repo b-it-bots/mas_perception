@@ -189,7 +189,8 @@ if __name__ == '__main__':
                                       'failed': 'UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT'})
         StateMachine.add('ACCUMULATE_CLOUD',
                          mcr_object_detection.service_states.accumulate_tabletop_cloud,
-                         transitions={'succeeded': 'CLUSTER_CLOUD'})
+                         transitions={'succeeded': 'CLUSTER_CLOUD',
+				      'aborted':'UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT'})
         StateMachine.add('CLUSTER_CLOUD',
                          mcr_object_detection.service_states.cluster_tabletop_cloud,
                          transitions={'succeeded': 'MAKE_BOUNDING_BOXES'})

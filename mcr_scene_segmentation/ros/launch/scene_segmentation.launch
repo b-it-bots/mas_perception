@@ -1,11 +1,16 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="input_pointcloud_topic" default="/tower_cam3d/depth_registered/points" />
+  <arg name="camera_frame" default="tower_cam3d_rgb_optical_frame" />
+ 
 
   <!-- This launch file brings up the complete scene segmentation pipeline with reasonable (for @Work) parameters. -->
 
   <arg name="workspace_finder_config_file" default="PASS THE CONFIGFILE NAME AS ARGUMENT" />
 
-  <include file="$(find mcr_scene_segmentation)/ros/launch/workspace_finder.launch" />
+  <include file="$(find mcr_scene_segmentation)/ros/launch/workspace_finder.launch">
+    <arg name="input_pointcloud_topic" value="$(arg input_pointcloud_topic)" />
+  </include>
 
   <group ns="mcr_perception">
 
@@ -21,6 +26,7 @@
       <param name="octree_resolution" value="0.0025" type="double"/>
       <param name="min_height" value="0.01" type="double"/>
       <param name="max_height" value="0.10" type="double"/>
+      <param name="camera_frame" value="$(arg camera_frame)" />
       <remap from="~input_pointcloud" to="/mcr_perception/transform/output" />
     </node>
 

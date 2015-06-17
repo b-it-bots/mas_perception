@@ -100,6 +100,7 @@ bool ObjectSelector::selectClosestObject(mcr_perception_msgs::Object &selected_o
     double current_object_distance = 0.0;
     double closest_distance = std::numeric_limits<double>::max();
     std::vector<mcr_perception_msgs::Object>::iterator iter;
+    std::vector<mcr_perception_msgs::Object>::iterator closest_object;
 
     // find closest object
     for (iter = object_list_->objects.begin(); iter != object_list_->objects.end(); ++iter) {
@@ -108,7 +109,7 @@ bool ObjectSelector::selectClosestObject(mcr_perception_msgs::Object &selected_o
 
         if (fabs(current_object_distance) < closest_distance) {
             closest_distance = fabs(current_object_distance);
-            selected_object = *iter;
+            closest_object = iter;
         }
     }
 
@@ -164,7 +165,7 @@ void ObjectSelector::update()
     else if (object_selection_type_ == RANDOM)
         object_selected = selectRandomObject(object);
     else if (object_selection_type_ == CLOSEST)
-        object_selected = selectRandomObject(object);
+        object_selected = selectClosestObject(object);
 
     if (object_selected) {
         pub_object_.publish(object);
