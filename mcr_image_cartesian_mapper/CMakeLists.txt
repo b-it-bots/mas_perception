@@ -3,13 +3,13 @@ project(mcr_image_cartesian_mapper)
 
 find_package(catkin REQUIRED 
   COMPONENTS
-  	cv_bridge
-  	image_transport
-  	geometry_msgs
-  	sensor_msgs
-  	roscpp
-  	std_msgs
-  	tf
+    cv_bridge
+    image_transport
+    geometry_msgs
+    sensor_msgs
+    roscpp
+    std_msgs
+    tf
 )
 
 find_package(Eigen REQUIRED)
@@ -18,15 +18,15 @@ catkin_package(
   INCLUDE_DIRS
     ros/include
   CATKIN_DEPENDS 
-    geometry_msgs
     cv_bridge
     image_transport
+    geometry_msgs
+    sensor_msgs
     roscpp
     std_msgs
-    sensor_msgs
     tf
   DEPENDS
-  	Eigen
+    Eigen
 )
 
 include_directories(
@@ -41,11 +41,11 @@ add_executable(image_cartesian_mapper_node
 
 add_dependencies(image_cartesian_mapper_node
   ${catkin_EXPORTED_TARGETS}
-  ${PROJECT_NAME}_gencfg
 )
 
 target_link_libraries(image_cartesian_mapper_node
   ${catkin_LIBRARIES}
+  ${Eigen_LIBRARIES}
 )
 
 install(TARGETS image_cartesian_mapper_node

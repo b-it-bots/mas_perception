@@ -4,7 +4,7 @@
 
   <name>mcr_image_cartesian_mapper</name>
   <version>0.1.0</version>
-  <description>Image to Cartesian Mapper</description>
+  <description>A package that converts 2D pixel metric to cartesian metric system with respect to camera_optical_frame and then transforms it to the given target_frame</description>
 
   <maintainer email="mashoksc@gmail.com">Ashok Meenakshi Sundaram</maintainer>
 
