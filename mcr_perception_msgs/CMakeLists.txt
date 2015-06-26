@@ -73,6 +73,7 @@ add_executable(object_msg_visualizer_node
 )
 add_dependencies(object_msg_visualizer_node
   ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_messages_cpp
 )
 target_link_libraries(object_msg_visualizer_node
   ${catkin_LIBRARIES}
