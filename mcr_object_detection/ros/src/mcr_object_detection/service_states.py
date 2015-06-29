@@ -46,22 +46,3 @@ make_bounding_boxes = ServiceState('/mcr_perception/bounding_box_maker/make_boun
                                    srv.MakeBoundingBoxes,
                                    request_cb=make_boxes_request_cb,
                                    response_cb=make_boxes_response_cb)
-
-class PointCloudSubscription(State):
-    def __init__(self, subscribe=False):
-        State.__init__(self,
-                       outcomes=['done','failed'])
-        self.subscribe = subscribe
-        self.mux_service = rospy.ServiceProxy('/mcr_perception/mux_pointcloud/select', topic_tools.srv.MuxSelect)
-
-    def execute(self, ud):
-        if self.subscribe:
-            topic = '/tower_cam3d/depth_registered/points'
-        else:
-            topic = '/empty_topic'
-        try:
-            resp = self.mux_service(topic)
-        except rospy.ServiceException as exc:
-            print "Service exception ", str(exc)
-            return 'failed'
-        return 'done'
