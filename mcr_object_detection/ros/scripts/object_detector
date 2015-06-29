@@ -176,9 +176,8 @@ if __name__ == '__main__':
                       output_keys=['response'])
     with sm:
         StateMachine.add('SUBSCRIBE_TO_POINTCLOUD',
-                         mcr_object_detection.service_states.PointCloudSubscription(True),
-                         transitions={'done': 'FIND_WORKSPACE',
-                                      'failed': 'aborted'})
+                         mcr_object_detection.topic_states.PointCloudSubscription(True),
+                         transitions={'done': 'FIND_WORKSPACE'})
         StateMachine.add('FIND_WORKSPACE',
                          mcr_object_detection.topic_states.FindWorkspace(),
                          transitions={'succeeded': 'ACCUMULATE_CLOUD',
@@ -207,13 +206,11 @@ if __name__ == '__main__':
                          PublishTf(),
                          transitions={'done': 'UNSUBSCRIBE_FROM_POINTCLOUD'})
         StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT',
-                         mcr_object_detection.service_states.PointCloudSubscription(False),
-                         transitions={'done': 'aborted',
-                                      'failed': 'aborted'})
+                         mcr_object_detection.topic_states.PointCloudSubscription(False),
+                         transitions={'done': 'aborted'})
         StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD',
-                         mcr_object_detection.service_states.PointCloudSubscription(False),
-                         transitions={'done': 'succeeded',
-                                      'failed': 'succeeded'})
+                         mcr_object_detection.topic_states.PointCloudSubscription(False),
+                         transitions={'done': 'succeeded'})
 
     def event_in_cb(data):
         if data.data == "e_trigger":
