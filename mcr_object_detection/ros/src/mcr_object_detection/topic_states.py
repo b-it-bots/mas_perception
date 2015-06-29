@@ -53,15 +53,16 @@ class FindWorkspace(smach.State):
 
 
 class PointCloudSubscription(smach.State):
-    def __init__(self, subscribe=False):
+    def __init__(self, subscribe=False, cloud_topic=None):
         smach.State.__init__(self,
                        outcomes=['done'])
         self.subscribe = subscribe
+        self.cloud_topic = cloud_topic
         self.mux_topic_pub = rospy.Publisher('/mcr_perception/mux_pointcloud/select', std_msgs.msg.String)
 
     def execute(self, ud):
         if self.subscribe:
-            topic = '/tower_cam3d/depth_registered/points'
+            topic = self.cloud_topic
         else:
             topic = '/empty_topic'
         resp = self.mux_topic_pub.publish(topic)

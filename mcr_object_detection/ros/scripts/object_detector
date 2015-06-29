@@ -172,11 +172,12 @@ class PublishTf(State):
 
 if __name__ == '__main__':
     rospy.init_node(NODE)
+    cloud_topic = rospy.get_param("~input_pointcloud_topic")
     sm = StateMachine(outcomes=['succeeded', 'aborted', 'preempted'],
                       output_keys=['response'])
     with sm:
         StateMachine.add('SUBSCRIBE_TO_POINTCLOUD',
-                         mcr_object_detection.topic_states.PointCloudSubscription(True),
+                         mcr_object_detection.topic_states.PointCloudSubscription(True, cloud_topic),
                          transitions={'done': 'FIND_WORKSPACE'})
         StateMachine.add('FIND_WORKSPACE',
                          mcr_object_detection.topic_states.FindWorkspace(),
