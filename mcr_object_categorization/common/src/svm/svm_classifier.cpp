@@ -8,7 +8,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "svm/svm_classifier.h"
-#include "svm/svm.h"
+#include <libsvm/svm.h>
 
 using namespace std;
 CSvmClassifier::CSvmClassifier()

@@ -17,6 +17,8 @@ from mcr_perception_msgs.msg import Object
 from mcr_perception_msgs.srv import RecognizeObject
 
 import std_msgs.msg
+import geometry_msgs.msg
+
 
 class FindWorkspaceAborted(State):
     def __init__(self):
@@ -77,6 +79,8 @@ class PackResponse(State):
                        output_keys=['response'],
                        outcomes=['done'])
         self.object_id = 0
+        self.tf_listener = tf.TransformListener()
+        self.target_frame_id = rospy.get_param("~target_frame")
 
     def execute(self, ud):
         ud.response = ObjectList()
@@ -84,13 +88,24 @@ class PackResponse(State):
             obj = Object()
             q = self.get_orientation(b.vertices)
             obj.dimensions.vector = b.dimensions
-            obj.pose.header = c.header
-            obj.pose.pose.position = b.center
-            obj.pose.pose.orientation.x = q[0]
-            obj.pose.pose.orientation.y = q[1]
-            obj.pose.pose.orientation.z = q[2]
-            obj.pose.pose.orientation.w = q[3]
+
+            obj_pose = geometry_msgs.msg.PoseStamped()
+            obj_pose.header = c.header
+            obj_pose.pose.position = b.center
+            obj_pose.pose.orientation.x = q[0]
+            obj_pose.pose.orientation.y = q[1]
+            obj_pose.pose.orientation.z = q[2]
+            obj_pose.pose.orientation.w = q[3]
+
+            if self.target_frame_id:
+                try:
+                    obj_pose = self.tf_listener.transformPose(self.target_frame_id, obj_pose)
+                except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                    rospy.logerr('Unable to transform %s -> %s' % (obj_pose.header.frame_id, self.target_frame_id))
+
+            obj.pose = obj_pose
             obj.name = n
+            obj.bounding_box = b
             obj.database_id = self.object_id
             ud.response.objects.append(obj)
             self.object_id = self.object_id + 1
@@ -101,12 +116,36 @@ class PackResponse(State):
         n1 = to_array(box[4]) - to_array(box[0])
         n2 = to_array(box[1]) - to_array(box[0])
         n3 = to_array(box[3]) - to_array(box[0])
+
         n1_norm = np.linalg.norm(n1)
         n2_norm = np.linalg.norm(n2)
         n3_norm = np.linalg.norm(n3)
-        n1 /= n1_norm
-        n2 = n2 / n2_norm if n2_norm > n3_norm else n3 / n3_norm
-        n3 = np.cross(n1, n2)
+
+        normals = [n1, n2, n3]
+        normal_norm  = [n1_norm, n2_norm, n3_norm]
+
+        # x-axis is always along the longest axis
+        max_norm_index = np.argmax(normal_norm)
+        x_norm = normals[max_norm_index] / normal_norm[max_norm_index]
+        del normals[max_norm_index]
+        del normal_norm[max_norm_index]
+
+        # if longest axis is along the height of the object (object is vertical)
+        # set y axis as second longest axis and z and the cross product of x and y
+        if max_norm_index == 0:
+            max_norm_index = np.argmax(normal_norm)
+            y_norm = normals[max_norm_index] / normal_norm[max_norm_index]
+            z_norm = np.cross(x_norm, y_norm)
+        else:
+            # if longest axis is lying on the plane (object is horizontal)
+            # set z-axis pointing up and y-axis as the cross of z and x
+            z_norm = n1 / n1_norm
+            y_norm = np.cross(z_norm, x_norm)
+
+        n1 = x_norm
+        n2 = y_norm
+        n3 = z_norm
+
         m = np.array([[n1[0], n2[0], n3[0], 0],
                       [n1[1], n2[1], n3[1], 0],
                       [n1[2], n2[2], n3[2], 0],
@@ -133,9 +172,13 @@ class PublishTf(State):
 
 if __name__ == '__main__':
     rospy.init_node(NODE)
+    cloud_topic = rospy.get_param("~input_pointcloud_topic")
     sm = StateMachine(outcomes=['succeeded', 'aborted', 'preempted'],
                       output_keys=['response'])
     with sm:
+        StateMachine.add('SUBSCRIBE_TO_POINTCLOUD',
+                         mcr_object_detection.topic_states.PointCloudSubscription(True, cloud_topic),
+                         transitions={'done': 'FIND_WORKSPACE'})
         StateMachine.add('FIND_WORKSPACE',
                          mcr_object_detection.topic_states.FindWorkspace(),
                          transitions={'succeeded': 'ACCUMULATE_CLOUD',
@@ -143,10 +186,11 @@ if __name__ == '__main__':
         StateMachine.add('FIND_WORKSPACE_ABORTED',
                          FindWorkspaceAborted(),
                          transitions={'retry': 'FIND_WORKSPACE',
-                                      'failed': 'aborted'})
+                                      'failed': 'UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT'})
         StateMachine.add('ACCUMULATE_CLOUD',
                          mcr_object_detection.service_states.accumulate_tabletop_cloud,
-                         transitions={'succeeded': 'CLUSTER_CLOUD'})
+                         transitions={'succeeded': 'CLUSTER_CLOUD',
+				      'aborted':'UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT'})
         StateMachine.add('CLUSTER_CLOUD',
                          mcr_object_detection.service_states.cluster_tabletop_cloud,
                          transitions={'succeeded': 'MAKE_BOUNDING_BOXES'})
@@ -161,6 +205,12 @@ if __name__ == '__main__':
                          transitions={'done': 'PUBLISH_TF'})
         StateMachine.add('PUBLISH_TF',
                          PublishTf(),
+                         transitions={'done': 'UNSUBSCRIBE_FROM_POINTCLOUD'})
+        StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT',
+                         mcr_object_detection.topic_states.PointCloudSubscription(False),
+                         transitions={'done': 'aborted'})
+        StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD',
+                         mcr_object_detection.topic_states.PointCloudSubscription(False),
                          transitions={'done': 'succeeded'})
 
     def event_in_cb(data):

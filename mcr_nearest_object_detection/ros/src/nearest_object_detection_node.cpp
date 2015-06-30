@@ -15,6 +15,7 @@
 #include <std_srvs/Empty.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <tf/tf.h>
 #include <laser_filters/angular_bounds_filter.h>
 
@@ -48,8 +49,8 @@ geometry_msgs::PoseStamped calculateNearestObject(sensor_msgs::LaserScanConstPtr
 	pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_scan(new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::PointCloud<pcl::PointNormal>::Ptr pcl_with_normals(new pcl::PointCloud<pcl::PointNormal>);
 
-	pcl_scan->header = scan->header;
-	pcl_with_normals->header = scan->header;
+	pcl_scan->header = pcl_conversions::toPCL(scan->header);
+	pcl_with_normals->header = pcl_conversions::toPCL(scan->header);
 
 	//reduce scan to a certain angle, see params
 	sensor_msgs::LaserScanPtr scan_filtered(new sensor_msgs::LaserScan);

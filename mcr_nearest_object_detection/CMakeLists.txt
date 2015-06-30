@@ -4,7 +4,7 @@ project(mcr_nearest_object_detection)
 find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs
-    #laser_filters    # not yet catkinized
+    laser_filters
     mcr_algorithms
     roscpp
     sensor_msgs
@@ -27,20 +27,30 @@ catkin_package(
     visualization_msgs
 )
 
-#add_executable(nearest_object_detection_node 
-#  ros/src/nearest_object_detection_node.cpp
-#)
-#add_dependencies(nearest_object_detection_node 
-#  ${catkin_EXPORTED_TARGETS}
-#)
-#target_link_libraries(nearest_object_detection_node
-#  ${catkin_LIBRARIES}
-#  ${PCL_LIBRARIES}
-#)
+add_executable(nearest_object_detection_node 
+  ros/src/nearest_object_detection_node.cpp
+)
+add_dependencies(nearest_object_detection_node 
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries(nearest_object_detection_node
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
 
-#install(TARGETS nearest_object_detection_node nearest_object_detection_node
-#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+
+  roslaunch_add_file_check(ros/launch)
+endif()
+
+
+### INSTALLS
+install(TARGETS nearest_object_detection_node nearest_object_detection_node
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch

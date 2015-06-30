@@ -17,9 +17,13 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>mcr_perception_msgs</build_depend>
+  <build_depend>mcr_scene_segmentation</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>pcl_ros</build_depend>
+  <build_depend>roslaunch</build_depend>
+  <build_depend>rostest</build_depend>
 
+  <run_depend>mcr_object_detection</run_depend>
   <run_depend>mcr_perception_msgs</run_depend>
   <run_depend>rospy</run_depend>
 

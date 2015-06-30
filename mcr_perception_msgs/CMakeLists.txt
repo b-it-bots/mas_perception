@@ -9,6 +9,7 @@ find_package(catkin REQUIRED
     rospy
     sensor_msgs
     std_msgs
+    visualization_msgs
 )
 
 add_message_files(
@@ -28,6 +29,8 @@ add_message_files(
     Plane.msg
     PlanarPolygon.msg
     PointCloud2List.msg
+    Blob.msg
+    BlobList.msg
 )
 
 add_service_files(
@@ -62,4 +65,35 @@ catkin_package(
     message_runtime
     sensor_msgs
     std_msgs
+)
+
+### EXECUTABLES ###
+add_executable(object_msg_visualizer_node
+  ros/src/object_msg_visualizer_node.cpp
+)
+add_dependencies(object_msg_visualizer_node
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencpp
+)
+target_link_libraries(object_msg_visualizer_node
+  ${catkin_LIBRARIES}
+)
+
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+
+  roslaunch_add_file_check(ros/launch)
+endif()
+
+
+### INSTALLS
+install(
+  TARGETS
+    object_msg_visualizer_node 
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY ros/launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
