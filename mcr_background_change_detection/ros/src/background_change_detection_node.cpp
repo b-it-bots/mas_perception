@@ -88,12 +88,13 @@ void BackgroundChangeDetectionNode::runState()
     if(is_timeout_mode_ && ((ros::Time::now()-start_time_).toSec() > timeout_time_)) {
         event_out_msg_.data = "e_timeout";
         event_pub_.publish(event_out_msg_);
-        event_in_msg_.data = "e_stop";
+        current_state_ = INIT;
     } else {
         if (detectBackgroundChange()) {
             event_out_msg_.data = "e_change";
             event_pub_.publish(event_out_msg_);
         }
+        current_state_ = IDLE;
     } 
 
     if (is_debug_mode_)
@@ -102,13 +103,6 @@ void BackgroundChangeDetectionNode::runState()
         debug_image_msg.encoding = sensor_msgs::image_encodings::MONO8;
         debug_image_msg.image = debug_image_;
         image_pub_.publish(debug_image_msg.toImageMsg());
-    }
-
-    if (event_in_msg_.data == "e_stop"){
-        current_state_ = INIT;
-        event_in_msg_.data == "";
-    } else {
-        current_state_ = IDLE;
     }
 }
 
