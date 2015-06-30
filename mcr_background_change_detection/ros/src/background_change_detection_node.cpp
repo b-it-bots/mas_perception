@@ -63,35 +63,29 @@ void BackgroundChangeDetectionNode::states()
 
 void BackgroundChangeDetectionNode::initState()
 {
-    if (event_in_msg_.data == "e_start" || event_in_msg_.data == "e_trigger") {
+    if (event_in_msg_.data == "e_start") {
         current_state_ = IDLE;
+        event_in_msg_.data == "";
         bcd_ = new BackgroundChangeDetection();
         start_time_ = ros::Time::now();
         bcd_->updateDynamicVariables(is_debug_mode_, background_change_threshold_, background_learning_rate_);
-    } else if (event_in_msg_.data == "e_stop"){
-        current_state_ = INIT;
     } else {
         current_state_ = INIT;
     }
 }
 
 void BackgroundChangeDetectionNode::idleState()
-{
-    if (event_in_msg_.data == "e_start" || event_in_msg_.data == "e_trigger") {
-        if(has_image_data_){
-            current_state_ = RUNNING;
-            has_image_data_ = false;
-        } else {
-            current_state_ = IDLE;
-        }  
-    } else if (event_in_msg_.data == "e_stop") {
+{      
+    if (event_in_msg_.data == "e_stop") {
         current_state_ = INIT;
+        event_in_msg_.data == "";
         delete bcd_;
         bcd_ = NULL;
+    } else if(has_image_data_) {
+        current_state_ = RUNNING;
+        has_image_data_ = false;
     } else {
-        current_state_ = INIT;
-        delete bcd_;
-        bcd_ = NULL;        
+            current_state_ = IDLE;
     }
 }
 
@@ -107,11 +101,6 @@ void BackgroundChangeDetectionNode::runState()
         if (detectBackgroundChange()) {
             event_out_msg_.data = "e_change";
             event_pub_.publish(event_out_msg_);
-            if (event_in_msg_.data == "e_trigger") {
-                event_in_msg_.data = "e_stop";
-                delete bcd_;
-                bcd_ = NULL;
-            }
         }
     } 
 
@@ -123,16 +112,13 @@ void BackgroundChangeDetectionNode::runState()
         image_pub_.publish(debug_image_msg.toImageMsg());
     }
 
-    if (event_in_msg_.data == "e_start" || event_in_msg_.data == "e_trigger") {
-        current_state_ = IDLE;
-    } else if (event_in_msg_.data == "e_stop"){
+    if (event_in_msg_.data == "e_stop"){
         current_state_ = INIT;
+        event_in_msg_.data == "";
         delete bcd_;
         bcd_ = NULL;
     } else {
-        current_state_ = INIT;
-        delete bcd_;
-        bcd_ = NULL;
+        current_state_ = IDLE;
     }
 }
 
