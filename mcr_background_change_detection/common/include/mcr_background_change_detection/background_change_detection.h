@@ -9,10 +9,11 @@ class BackgroundChangeDetection
         BackgroundChangeDetection();
         virtual ~BackgroundChangeDetection();
         bool detectBackgroundChange(const cv::Mat &current_frame, cv::Mat &debug_image);
+        void initializeBackgroundModel(const cv::Mat &current_frame);
         void updateDynamicVariables(bool debug_mode, double background_change_threshold, double background_learning_rate);
 
     private:
-        cv::Ptr<cv::BackgroundSubtractor> pMOG;
+        cv::BackgroundSubtractorMOG pMOG;
         bool is_debug_mode_;
         double background_change_threshold_;
         double background_learning_rate_;

@@ -9,7 +9,6 @@ BackgroundChangeDetectionNode::BackgroundChangeDetectionNode(ros::NodeHandle &nh
     image_pub_ = image_transporter_.advertise("debug_image", 1);
     current_state_ = INIT;
     has_image_data_ = false;
-    bcd_ = NULL;
 }
 
 BackgroundChangeDetectionNode::~BackgroundChangeDetectionNode()
@@ -28,9 +27,7 @@ void BackgroundChangeDetectionNode::dynamicReconfigCallback(mcr_background_chang
     timeout_time_ = config.timeout_time;
     is_timeout_mode_ = config.is_timeout_mode;
     is_debug_mode_ = config.is_debug_mode;
-    if(bcd_){
-        bcd_->updateDynamicVariables(is_debug_mode_, background_change_threshold_, background_learning_rate_);
-    }
+    bcd_.updateDynamicVariables(is_debug_mode_, background_change_threshold_, background_learning_rate_);
 }
 
 void BackgroundChangeDetectionNode::eventCallback(const std_msgs::String &event_msg)
@@ -66,9 +63,8 @@ void BackgroundChangeDetectionNode::initState()
     if (event_in_msg_.data == "e_start") {
         current_state_ = IDLE;
         event_in_msg_.data == "";
-        bcd_ = new BackgroundChangeDetection();
+        is_first_pass_ = true;
         start_time_ = ros::Time::now();
-        bcd_->updateDynamicVariables(is_debug_mode_, background_change_threshold_, background_learning_rate_);
     } else {
         current_state_ = INIT;
     }
@@ -79,8 +75,6 @@ void BackgroundChangeDetectionNode::idleState()
     if (event_in_msg_.data == "e_stop") {
         current_state_ = INIT;
         event_in_msg_.data == "";
-        delete bcd_;
-        bcd_ = NULL;
     } else if(has_image_data_) {
         current_state_ = RUNNING;
         has_image_data_ = false;
@@ -95,8 +89,6 @@ void BackgroundChangeDetectionNode::runState()
         event_out_msg_.data = "e_timeout";
         event_pub_.publish(event_out_msg_);
         event_in_msg_.data = "e_stop";
-        delete bcd_;
-        bcd_ = NULL;
     } else {
         if (detectBackgroundChange()) {
             event_out_msg_.data = "e_change";
@@ -115,8 +107,6 @@ void BackgroundChangeDetectionNode::runState()
     if (event_in_msg_.data == "e_stop"){
         current_state_ = INIT;
         event_in_msg_.data == "";
-        delete bcd_;
-        bcd_ = NULL;
     } else {
         current_state_ = IDLE;
     }
@@ -127,7 +117,11 @@ bool BackgroundChangeDetectionNode::detectBackgroundChange()
     try {
         cv_bridge::CvImagePtr cv_img_tmp = cv_bridge::toCvCopy(image_msg_, sensor_msgs::image_encodings::BGR8);
         cv::Mat current_frame = cv_img_tmp->image;
-        if (bcd_->detectBackgroundChange(current_frame, debug_image_)) {
+        if(is_first_pass_){
+            bcd_.initializeBackgroundModel(current_frame);
+            is_first_pass_ = false;
+        }
+        if (bcd_.detectBackgroundChange(current_frame, debug_image_)) {
             return true;
         } else {
             return false;

@@ -54,7 +54,8 @@ class BackgroundChangeDetectionNode
         std_msgs::String event_in_msg_;
         bool has_image_data_;
         cv::Mat debug_image_;
-        BackgroundChangeDetection *bcd_;
+        BackgroundChangeDetection bcd_;
+        bool is_first_pass_;
 
 };
 
