@@ -13,7 +13,7 @@ class BackgroundChangeDetection
         void updateDynamicVariables(bool debug_mode, double background_change_threshold, double background_learning_rate);
 
     private:
-        cv::BackgroundSubtractorMOG pMOG;
+        cv::BackgroundSubtractorMOG bsmog_;
         bool is_debug_mode_;
         double background_change_threshold_;
         double background_learning_rate_;
