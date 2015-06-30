@@ -1,0 +1,18 @@
+## Description
+This package transforms the image pixel pose to cartesian space with respect to the required frame
+
+## Usage
+1. Launch the component:
+```roslaunch mcr_image_cartesian_mapper image_cartesian_mapper.launch```
+2. Subscribe to the result of the component:
+```rostopic echo /mcr_perception/image_cartesian_mapper/cartesian_pose```
+3. Subscribe to the event out of the component:
+```rostopic echo /mcr_perception/image_cartesian_mapper/event_out```
+4. Publish the pixel pose(geometry_msgs::Pose2D) in /mcr_perception/blob_tracker/blob_pose topic
+5. Publish the camera_info(sensor_msgs::CameraInfo) in /tower_cam3d/rgb/camera_info topic 
+
+### To start the component:
+```rostopic pub /mcr_perception/image_cartesian_mapper/event_in std_msgs/String 'e_start'```
+
+### To stop the component:
+```rostopic pub /mcr_perception/image_cartesian_mapper/event_in std_msgs/String  'e_stop'```

@@ -1,3 +1,9 @@
+/**
+ * @file image_cartesian_mapper_node.cpp
+ * @author Ashok Meenakshi Sundaram (mashoksc@gmail.com)
+ * @data June, 2015
+ */
+
 #include <mcr_image_cartesian_mapper/image_cartesian_mapper_node.h>
 
 ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_handler_(nh)

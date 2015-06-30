@@ -4,7 +4,6 @@
     	<remap from="~image" to="/tower_cam3d/rgb/image_raw"/>
     	<remap from="~camera_info" to="/tower_cam3d/rgb/camera_info"/>
     	<remap from="~pose" to="/mcr_perception/blob_tracker/blob_pose"/>
-    	<param name="source_frame" type="string" value="tower_cam3d_rgb_optical_frame"/>
     	<param name="target_frame" type="string" value="base_link"/>
     	<param name="loop_rate" type="int" value="30"/>
     </node>
