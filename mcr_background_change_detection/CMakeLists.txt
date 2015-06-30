@@ -64,7 +64,10 @@ target_link_libraries(background_change_detection_node
   background_change_detection
 )
 
-install(TARGETS background_change_detection_node
+install(
+  TARGETS
+    background_change_detection 
+    background_change_detection_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -87,3 +90,9 @@ install(DIRECTORY ros/launch
 install(DIRECTORY ros/config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config
 )
+
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+  roslaunch_add_file_check(ros/launch)
+endif()
