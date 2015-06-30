@@ -37,9 +37,20 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
+add_library(background_change_detection
+  common/src/background_change_detection.cpp
+)
+
+add_dependencies(background_change_detection
+  ${catkin_EXPORTED_TARGETS}
+)
+
+target_link_libraries(background_change_detection
+  ${OpenCV_LIBRARIES}
+)
+
 add_executable(background_change_detection_node 
   ros/src/background_change_detection_node.cpp
-  common/src/background_change_detection.cpp
 )
 
 add_dependencies(background_change_detection_node 
@@ -50,6 +61,7 @@ add_dependencies(background_change_detection_node
 target_link_libraries(background_change_detection_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
+  background_change_detection
 )
 
 install(TARGETS background_change_detection_node
