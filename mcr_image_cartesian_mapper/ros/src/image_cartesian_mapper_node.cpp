@@ -10,22 +10,32 @@ ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_h
 {
     event_sub_ = node_handler_.subscribe("event_in", 1, &ImageCartesianMapperNode::eventCallback, this);
     pose_sub_ = node_handler_.subscribe("pose", 1, &ImageCartesianMapperNode::poseCallback, this);
-    camera_info_sub_ = node_handler_.subscribe("camera_info", 1, &ImageCartesianMapperNode::cameraInfoCallback, this);
     cartesian_pub_ = node_handler_.advertise<geometry_msgs::PoseStamped>("cartesian_pose", 1);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
     node_handler_.param<std::string>("target_frame", target_frame_, "base_link");
     node_handler_.param<std::string>("source_frame", source_frame_, "tower_cam3d_rgb_optical_frame");
-    run_state_ = INIT;
-    start_cartesian_mapper_ = false;
-    pose_sub_status_ = false;
-    camera_info_sub_status_ = false;
+    node_handler_.param<std::string>("camera_info_param", camera_info_param_, "/realsense_node/camera_matrix/data");
+    node_handler_.getParam(camera_info_param_, camera_intrinsic_list_);
+    node_handler_.param<bool>("is_image_crop_enabled", is_image_crop_enabled_, "false");
+    if (is_image_crop_enabled_) {
+        node_handler_.param<std::string>("camera_width_param", camera_width_param_, "/realsense_node/image_width");
+        node_handler_.getParam(camera_width_param_, image_width_);
+        node_handler_.param<std::string>("camera_height_param", camera_height_param_, "/realsense_node/image_height");
+        node_handler_.getParam(camera_height_param_, image_height_);
+        node_handler_.param<std::string>("camera_crop_factor_top_param", camera_crop_factor_top_param_, "/mcr_perception/image_filter/crop_factor_top");
+        node_handler_.getParam(camera_crop_factor_top_param_, crop_factor_top_);
+        node_handler_.param<std::string>("camera_crop_factor_left_param", camera_crop_factor_left_param_, "/mcr_perception/image_filter/crop_factor_left");
+        node_handler_.getParam(camera_crop_factor_left_param_, crop_factor_left_); 
+   }
+    current_state_ = INIT;
+    has_pose_data_ = false;
+    has_required_params_ = false;
 }
 
 ImageCartesianMapperNode::~ImageCartesianMapperNode()
 {
     event_sub_.shutdown();
     pose_sub_.shutdown();
-    camera_info_sub_.shutdown();
     cartesian_pub_.shutdown();
     event_pub_.shutdown();  
 }
@@ -33,30 +43,18 @@ ImageCartesianMapperNode::~ImageCartesianMapperNode()
 
 void ImageCartesianMapperNode::eventCallback(const std_msgs::String &event_command)
 {
-    if (event_command.data == "e_start") {
-        start_cartesian_mapper_ = true;
-        ROS_INFO("ENABLED");
-    } else if (event_command.data == "e_stop") {
-        start_cartesian_mapper_ = false;
-        ROS_INFO("DISABLED");
-    }
+    event_in_msg_ = event_command;
 }
 
 void ImageCartesianMapperNode::poseCallback(const geometry_msgs::Pose2D::ConstPtr &pose)
 {
     pose_2d_ = *pose;
-    pose_sub_status_ = true;
-}
-
-void ImageCartesianMapperNode::cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr &camera_info)
-{
-    camera_info_ = camera_info;
-    camera_info_sub_status_ = true;
+    has_pose_data_ = true;
 }
 
 void ImageCartesianMapperNode::states()
 {
-    switch (run_state_) {
+    switch (current_state_) {
         case INIT:
             initState();
             break;
@@ -73,58 +71,63 @@ void ImageCartesianMapperNode::states()
 
 void ImageCartesianMapperNode::initState()
 {
-    if (start_cartesian_mapper_) {
-        run_state_ = IDLE;
+    if (event_in_msg_.data == "e_start") {
+        current_state_ = IDLE;
+        event_in_msg_.data == "";
     } else {
-        run_state_ = INIT;
+        current_state_ = INIT;
     }
-
 }
 
 void ImageCartesianMapperNode::idleState()
 {
-    if (start_cartesian_mapper_) {
-        if (pose_sub_status_ && camera_info_sub_status_) {
-            run_state_ = RUNNING;
-            pose_sub_status_ = false;
-            camera_info_sub_status_ = false;
-        } else {
-            run_state_ = IDLE;
-        }
+    if (is_image_crop_enabled_) {
+        has_required_params_ = node_handler_.getParam(camera_info_param_, camera_intrinsic_list_) && 
+                               node_handler_.getParam(camera_width_param_, image_width_) && 
+                               node_handler_.getParam(camera_height_param_, image_height_) && 
+                               node_handler_.getParam(camera_crop_factor_top_param_, crop_factor_top_) && 
+                               node_handler_.getParam(camera_crop_factor_left_param_, crop_factor_left_);
     } else {
-        run_state_ = INIT;
+        has_required_params_ = node_handler_.getParam(camera_info_param_, camera_intrinsic_list_);
+    }
+
+    if (event_in_msg_.data == "e_stop") {
+        current_state_ = INIT;
+        event_in_msg_.data == "";
+    } else if (has_pose_data_ && has_required_params_) {
+        current_state_ = RUNNING;
+        has_pose_data_ = false;
+        has_required_params_ = false;
+    } else {
+            current_state_ = IDLE;
     }
 }
 
 void ImageCartesianMapperNode::runState()
 {
-
-    if(cameraOpticalToCameraMetrical()){
-        if(cameraMetricalToCartesian()){
-            cartesian_pub_.publish(cartesian_pose_);    
-        } else {
-            event_out_msg_.data = "e_error";
-            event_pub_.publish(event_out_msg_);
-        }
-    }
-
-    if (start_cartesian_mapper_) {
-        run_state_ = IDLE;
+    if (cameraOpticalToCameraMetrical() && cameraMetricalToCartesian()) {
+        cartesian_pub_.publish(cartesian_pose_);
+        event_out_msg_.data = "e_done";    
     } else {
-        run_state_ = INIT;
+        event_out_msg_.data = "e_error";
     }
-
+    event_pub_.publish(event_out_msg_);
+    current_state_ = IDLE;
 }
 
 
 bool ImageCartesianMapperNode::cameraOpticalToCameraMetrical()
 {
+    if (is_image_crop_enabled_) {
+        camera_coordinates_ << pose_2d_.x + image_width_*crop_factor_left_, pose_2d_.y + image_height_*crop_factor_top_, 1;
+    } else {
+        camera_coordinates_ << pose_2d_.x, pose_2d_.y, 1;
+    }
+    
 
-    camera_coordinates_ << pose_2d_.x, pose_2d_.y, 1;
-
-    camera_intrinsic_matrix_ << camera_info_->K[0], camera_info_->K[1], camera_info_->K[2], 
-                                camera_info_->K[3], camera_info_->K[4], camera_info_->K[5], 
-                                camera_info_->K[6], camera_info_->K[7], camera_info_->K[8];
+    camera_intrinsic_matrix_ << camera_intrinsic_list_[0], camera_intrinsic_list_[1], camera_intrinsic_list_[2], 
+                                camera_intrinsic_list_[3], camera_intrinsic_list_[4], camera_intrinsic_list_[5], 
+                                camera_intrinsic_list_[6], camera_intrinsic_list_[7], camera_intrinsic_list_[8];
 
     camera_metrical_coordinates_ = camera_intrinsic_matrix_.inverse()*camera_coordinates_;
 

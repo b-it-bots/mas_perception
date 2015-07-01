@@ -56,13 +56,6 @@ class ImageCartesianMapperNode
          * @param pose Image pixel 2D position.
          */
         void poseCallback(const geometry_msgs::Pose2D::ConstPtr &pose);
-
-        /**
-         * Call back for camera info topic that carries the calibration information.
-         * 
-         * @param camera_info Camera info message.
-         */
-        void cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr &camera_info);
         
         /**
          * Handles the current state of the node based on the events and data availability.
@@ -124,16 +117,6 @@ class ImageCartesianMapperNode
         ros::Subscriber pose_sub_;
 
         /**
-         * ROS subscriber for camera_info topic to receive the camera matrix
-         */
-        ros::Subscriber camera_info_sub_;
-
-        /**
-         * Camera info pointer to store the camera info message
-         */
-        sensor_msgs::CameraInfoConstPtr camera_info_;
-
-        /**
          * ROS publisher to publish the event out message in event_out topic
          */
         ros::Publisher event_pub_;
@@ -146,17 +129,22 @@ class ImageCartesianMapperNode
         /**
          * Represents the pose data availability in pose topic to receive image pixel pose in 2D
          */
-        bool pose_sub_status_;
+        bool has_pose_data_;
 
         /**
-         * Represents the start and stop event from the event_in topic
+         * Stores the event message sent in the event_in topic
          */
-        bool start_cartesian_mapper_;
+        std_msgs::String event_in_msg_;
 
         /**
-         * Represents the camera info availability in camera_info topic to receive camera matrix
+         * Represents the availability of all required params from realsense camera driver and image filter component
          */
-        bool camera_info_sub_status_;
+        bool has_required_params_;
+
+        /**
+         * Represents if image cropping is enabled through image filter node
+         */
+        bool is_image_crop_enabled_;
 
         /**
          * Stores the Pose2D message sent in pose topic
@@ -169,14 +157,14 @@ class ImageCartesianMapperNode
         geometry_msgs::PoseStamped camera_optical_pose_;
 
         /**
-         * Stores the cartesian pose with respect to the required fram as specified by the param
+         * Stores the cartesian pose with respect to the required frame as specified by the param
          */
         geometry_msgs::PoseStamped cartesian_pose_;
 
         /**
          * Stores the current state of the node
          */
-        States run_state_;
+        States current_state_;
 
         /**
          * Object to TransformLister class handle frame transformations
@@ -192,6 +180,11 @@ class ImageCartesianMapperNode
          * Stores the source frame from which the transformation has to be made
          */
         std::string source_frame_;
+
+        /**
+         * Camera Intrincsic Matrix stored in a vector list
+         */
+        std::vector<double> camera_intrinsic_list_;
 
         /**
          * Stores the pixel pose in camera coordinates
@@ -212,6 +205,52 @@ class ImageCartesianMapperNode
          * Stores the event out messaged to be published in event_out topic
          */
         std_msgs::String event_out_msg_;
+
+        /**
+         * Stores the name of the camera info param provided by realsense camera driver
+         */
+        std::string camera_info_param_;
+
+        /**
+         * Stores the name of the camera info param provided by realsense camera driver
+         */
+        std::string camera_width_param_;
+
+        /**
+         * Stores the name of the camera info param provided by realsense camera driver
+         */
+        std::string camera_height_param_;
+
+        /**
+         * Stores the name of the camera info param provided by realsense camera driver
+         */
+        std::string camera_crop_factor_top_param_;
+
+        /**
+         * Stores the name of the camera info param provided by realsense camera driver
+         */
+        std::string camera_crop_factor_left_param_;
+
+        /**
+         * Image width as provided in the realsense camera driver
+         */
+        double image_width_;
+
+        /**
+         * Image height as provided in the realsense camera driver
+         */
+        double image_height_;
+
+        /**
+         * Crop factor top as provided in the image filter param
+         */
+        double crop_factor_top_;
+
+        /**
+         * Crop factor left as provided in the image filter param
+         */
+        double crop_factor_left_;
+
 
 };
 
