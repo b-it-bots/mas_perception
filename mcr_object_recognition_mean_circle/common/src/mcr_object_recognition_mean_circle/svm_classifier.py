@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from sklearn.externals import joblib
+import numpy as np
 
 class SVMObjectClassifier:
     """
@@ -15,7 +16,7 @@ class SVMObjectClassifier:
         self.std = std
 
     def classify(self, feature_vector):
-        feature_vector -= self.mean
+        feature_vector -= np.array(self.mean)
         feature_vector /= self.std
         prediction = self.classifier.predict(feature_vector)
         return self.label_encoder.inverse_transform(prediction)[0]
