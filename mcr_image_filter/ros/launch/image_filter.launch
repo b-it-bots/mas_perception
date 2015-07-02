@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <node pkg="mcr_image_filter" type="image_filter_node" name="image_filter" ns="mcr_perception" output="screen" respawn="true">
-    	<remap from="~input_image" to="/usb_cam/image_raw"/>
+    	<remap from="~input_image" to="/camera/image/rgb_raw"/>
     	<param name="loop_rate" type="int" value="30"/>
     </node>
 </launch>
