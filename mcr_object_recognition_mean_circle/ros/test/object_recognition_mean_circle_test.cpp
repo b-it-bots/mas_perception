@@ -26,7 +26,7 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
     nh.getParam("desired_recog_rate", desired_recog_rate);
     nh.getParam("object_list", object_list);
 
-    ros::service::waitForService("/mcr_perception/object_recognizer/recognize_object", 5);
+    ros::service::waitForService("/mcr_perception/object_recognizer/recognize_object", ros::Duration(5.0));
 
     std::string test_data_path;
 
