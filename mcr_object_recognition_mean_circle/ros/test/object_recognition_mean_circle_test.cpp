@@ -40,7 +40,7 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
     int total_count = 0;
     int correct_count = 0;
 
-    for (int i = 0; i < object_list.size(); i++) {
+    for (size_t i = 0; i < object_list.size(); i++) {
         std::string object_name = object_list.at(i);
         std::string full_path = default_dataset_path;
         full_path.append(object_name);
