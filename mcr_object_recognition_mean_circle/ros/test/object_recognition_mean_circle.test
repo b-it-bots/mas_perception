@@ -4,7 +4,7 @@
 
   <group ns="mcr_perception">
     <node pkg="mcr_object_recognition_mean_circle" type="object_recognizer" name="object_recognizer" output="screen">
-      <rosparam param="classifier">eight_obj_anypose</rosparam>
+      <rosparam param="classifier">realsense</rosparam>
     </node>
   </group>
 
