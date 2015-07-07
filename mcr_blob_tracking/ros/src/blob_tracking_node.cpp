@@ -139,8 +139,6 @@ void BlobTrackingNode::trackBlob()
 
         if(event_out_msg_.data.compare("e_blob_lost") == 0){
             event_pub_.publish(event_out_msg_);
-            start_blob_tracking_ = false;
-            ROS_INFO("2D Blob Tracking DISABLED");
         } else {
             blob_pose_pub_.publish(blob_tracked_pose_);
             if (debug_mode_ && image_sub_status_) {
@@ -158,8 +156,6 @@ void BlobTrackingNode::trackBlob()
     } else {
         event_out_msg_.data = "e_blob_lost";
         event_pub_.publish(event_out_msg_);
-        start_blob_tracking_ = false;
-        ROS_INFO("2D Blob Tracking DISABLED");
     }
 
     if (debug_mode_ && image_sub_status_) {
