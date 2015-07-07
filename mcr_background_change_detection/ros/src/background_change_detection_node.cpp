@@ -62,7 +62,7 @@ void BackgroundChangeDetectionNode::initState()
 {
     if (event_in_msg_.data == "e_start") {
         current_state_ = IDLE;
-        event_in_msg_.data == "";
+        event_in_msg_.data = "";
         is_first_pass_ = true;
         start_time_ = ros::Time::now();
     } else {
@@ -71,10 +71,10 @@ void BackgroundChangeDetectionNode::initState()
 }
 
 void BackgroundChangeDetectionNode::idleState()
-{      
+{
     if (event_in_msg_.data == "e_stop") {
         current_state_ = INIT;
-        event_in_msg_.data == "";
+        event_in_msg_.data = "";
     } else if(has_image_data_) {
         current_state_ = RUNNING;
         has_image_data_ = false;
