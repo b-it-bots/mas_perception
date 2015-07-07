@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch>
     <node pkg="mcr_image_cartesian_mapper" type="image_cartesian_mapper_node" name="image_cartesian_mapper" ns="mcr_perception" output="screen" respawn="true">
-    	<remap from="~pose" to="/mcr_perception/blob_tracker/blob_pose"/>
-    	<param name="target_frame" type="string" value="base_link"/>
+        <remap from="~pose" to="/mcr_perception/blob_tracker/blob_pose"/>
+        <param name="target_frame" type="string" value="base_link"/>
         <param name="source_frame" type="string" value="tower_cam3d_rgb_optical_frame"/>
         <param name="camera_info_param" type="string" value="/realsense_node/camera_matrix/data"/>
         <param name="image_height_param" type="string" value="/realsense_node/image_height"/>
@@ -10,6 +10,6 @@
         <param name="is_image_crop_enabled" type="bool" value="true"/>
         <param name="crop_factor_top_param" type="string" value="/mcr_perception/image_filter/crop_factor_top"/>
         <param name="crop_factor_left_param" type="string" value="/mcr_perception/image_filter/crop_factor_left"/>
-    	<param name="loop_rate" type="int" value="30"/>
+        <param name="loop_rate" type="int" value="30"/>
     </node>
 </launch>
