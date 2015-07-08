@@ -33,6 +33,7 @@
     <node pkg="mcr_scene_segmentation" type="tabletop_cloud_clusterer" name="tabletop_cloud_clusterer" output="screen" >
        <param name="outlier_radius" value="0.03" type="double" />
        <param name="cluster_tolerance" value="0.02" type="double" />
+       <param name="min_distance_to_polygon" value="0.03" type="double" />
     </node>
 
     <node pkg="mcr_scene_segmentation" type="bounding_box_maker" name="bounding_box_maker" output="screen" >

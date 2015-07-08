@@ -8,6 +8,7 @@
 #include <pcl/common/centroid.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/common/distances.h>
 
 #include <mcr_perception_msgs/ClusterTabletopCloud.h>
 
@@ -76,6 +77,7 @@ private:
 
     std::vector<PointCloud::Ptr> clusters;
     size_t rejected_count = 0;
+    size_t distance_rejected_count = 0;
     for (const pcl::PointIndices& cluster_indices : clusters_indices)
     {
       PointCloud::Ptr cluster(new PointCloud);
@@ -85,12 +87,17 @@ private:
         rejected_count++;
         continue;
       }
+      if (getClusterCentroidDistanceToPolygon(*cluster, polygon) < min_distance_to_polygon_)
+      {
+        distance_rejected_count++;
+        continue;
+      }
       sensor_msgs::PointCloud2 ros_cluster;
       pcl::toROSMsg(*cluster, ros_cluster);
       response.clusters.push_back(ros_cluster);
       clusters.push_back(cluster);
     }
-    ROS_INFO("Found %zu clusters, but rejected %zu due to low height.", clusters_indices.size(), rejected_count);
+    ROS_INFO("Found %zu clusters, but rejected %zu due to low height and %zu due to distance to polygon", clusters_indices.size(), rejected_count, distance_rejected_count);
 
     cluster_visualizer_.publish<PointT>(clusters, request.cloud.header.frame_id);
 
@@ -105,6 +112,37 @@ private:
     pcl::compute3DCentroid(cluster, centroid);
     centroid[3] = 1;
     return centroid.dot(polygon.getCoefficients());
+  }
+
+  /**
+   * Calculates shortest distance from centroid of cluster to polygon
+   * - assumes last point of polygon is same as first
+   * - assumes polygon is on x-y plane
+   */
+  static double getClusterCentroidDistanceToPolygon(const PointCloud& cluster, const PlanarPolygon& polygon)
+  {
+    double min_distance = std::numeric_limits<double>::max();
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid(cluster, centroid);
+    PointCloud::VectorType contour = polygon.getContour();
+    for (int i = 0; i < contour.size() - 1; i++)
+    {
+      PointT p1 = contour.at(i);
+      PointT p2 = contour.at(i + 1);
+      // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+      double line_length = std::sqrt(std::pow(p1.x - p2.x, 2.0) + std::pow(p1.y - p2.y, 2.0));
+      double distance = std::abs(
+              ((p2.y - p1.y) * centroid[0]) -
+              ((p2.x - p1.x) * centroid[1]) +
+              (p2.x * p1.y) -
+              (p2.y * p1.x) ) / line_length;
+
+      if (distance < min_distance)
+      {
+        min_distance = distance;
+      }
+    }
+    return min_distance;
   }
 
   void updateConfiguration()
@@ -133,6 +171,7 @@ private:
 
     // Other settings
     pn.param("object_min_height", object_min_height_, 0.011);
+    pn.param("min_distance_to_polygon", min_distance_to_polygon_, 0.05);
   }
 
   ros::ServiceServer cluster_server_;
@@ -141,6 +180,7 @@ private:
   pcl::EuclideanClusterExtraction<PointT> ece_;
 
   double object_min_height_;
+  double min_distance_to_polygon_;
 
   ClusteredPointCloudVisualizer cluster_visualizer_;
 
