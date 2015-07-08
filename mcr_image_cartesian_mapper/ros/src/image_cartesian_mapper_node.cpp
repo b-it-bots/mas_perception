@@ -10,26 +10,25 @@ ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_h
 {
     event_sub_ = node_handler_.subscribe("event_in", 1, &ImageCartesianMapperNode::eventCallback, this);
     pose_sub_ = node_handler_.subscribe("pose", 1, &ImageCartesianMapperNode::poseCallback, this);
+
     cartesian_pub_ = node_handler_.advertise<geometry_msgs::PoseStamped>("cartesian_pose", 1);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
+
+    node_handler_.getParam("camera_matrix/data", camera_intrinsic_list_);
     node_handler_.param<std::string>("target_frame", target_frame_, "base_link");
     node_handler_.param<std::string>("source_frame", source_frame_, "tower_cam3d_rgb_optical_frame");
-    node_handler_.param<std::string>("camera_info_param", camera_info_param_, "/realsense_node/camera_matrix/data");
-    node_handler_.getParam(camera_info_param_, camera_intrinsic_list_);
-    node_handler_.param<bool>("is_image_crop_enabled", is_image_crop_enabled_, "false");
-    if (is_image_crop_enabled_) {
-        node_handler_.param<std::string>("camera_width_param", camera_width_param_, "/realsense_node/image_width");
-        node_handler_.getParam(camera_width_param_, image_width_);
-        node_handler_.param<std::string>("camera_height_param", camera_height_param_, "/realsense_node/image_height");
-        node_handler_.getParam(camera_height_param_, image_height_);
-        node_handler_.param<std::string>("camera_crop_factor_top_param", camera_crop_factor_top_param_, "/mcr_perception/image_filter/crop_factor_top");
-        node_handler_.getParam(camera_crop_factor_top_param_, crop_factor_top_);
-        node_handler_.param<std::string>("camera_crop_factor_left_param", camera_crop_factor_left_param_, "/mcr_perception/image_filter/crop_factor_left");
-        node_handler_.getParam(camera_crop_factor_left_param_, crop_factor_left_); 
+    node_handler_.param<bool>("is_image_filter_enabled", is_image_filter_enabled_, false);
+    node_handler_.param<bool>("crop_image", is_image_crop_enabled_, false);
+
+    if (is_image_filter_enabled_ && is_image_crop_enabled_) {
+        node_handler_.param<double>("image_width", image_width_, 640);
+        node_handler_.param<double>("image_height", image_height_, 480);
+        node_handler_.param<double>("crop_factor_top", crop_factor_top_, false);
+        node_handler_.param<double>("crop_factor_left", crop_factor_left_, false); 
    }
+
     current_state_ = INIT;
     has_pose_data_ = false;
-    has_required_params_ = false;
 }
 
 ImageCartesianMapperNode::~ImageCartesianMapperNode()
@@ -74,6 +73,7 @@ void ImageCartesianMapperNode::initState()
     if (event_in_msg_.data == "e_start") {
         current_state_ = IDLE;
         event_in_msg_.data == "";
+        has_pose_data_ = false;
     } else {
         current_state_ = INIT;
     }
@@ -81,23 +81,12 @@ void ImageCartesianMapperNode::initState()
 
 void ImageCartesianMapperNode::idleState()
 {
-    if (is_image_crop_enabled_) {
-        has_required_params_ = node_handler_.getParam(camera_info_param_, camera_intrinsic_list_) && 
-                               node_handler_.getParam(camera_width_param_, image_width_) && 
-                               node_handler_.getParam(camera_height_param_, image_height_) && 
-                               node_handler_.getParam(camera_crop_factor_top_param_, crop_factor_top_) && 
-                               node_handler_.getParam(camera_crop_factor_left_param_, crop_factor_left_);
-    } else {
-        has_required_params_ = node_handler_.getParam(camera_info_param_, camera_intrinsic_list_);
-    }
-
     if (event_in_msg_.data == "e_stop") {
         current_state_ = INIT;
         event_in_msg_.data == "";
-    } else if (has_pose_data_ && has_required_params_) {
+    } else if (has_pose_data_) {
         current_state_ = RUNNING;
         has_pose_data_ = false;
-        has_required_params_ = false;
     } else {
             current_state_ = IDLE;
     }
@@ -118,7 +107,7 @@ void ImageCartesianMapperNode::runState()
 
 bool ImageCartesianMapperNode::cameraOpticalToCameraMetrical()
 {
-    if (is_image_crop_enabled_) {
+    if (is_image_filter_enabled_ && is_image_crop_enabled_) {
         camera_coordinates_ << pose_2d_.x + image_width_*crop_factor_left_, pose_2d_.y + image_height_*crop_factor_top_, 1;
     } else {
         camera_coordinates_ << pose_2d_.x, pose_2d_.y, 1;

@@ -137,9 +137,9 @@ class ImageCartesianMapperNode
         std_msgs::String event_in_msg_;
 
         /**
-         * Represents the availability of all required params from realsense camera driver and image filter component
+         * Represents if image filter node is enabled
          */
-        bool has_required_params_;
+        bool is_image_filter_enabled_;
 
         /**
          * Represents if image cropping is enabled through image filter node
@@ -207,31 +207,6 @@ class ImageCartesianMapperNode
         std_msgs::String event_out_msg_;
 
         /**
-         * Stores the name of the camera info param provided by realsense camera driver
-         */
-        std::string camera_info_param_;
-
-        /**
-         * Stores the name of the camera info param provided by realsense camera driver
-         */
-        std::string camera_width_param_;
-
-        /**
-         * Stores the name of the camera info param provided by realsense camera driver
-         */
-        std::string camera_height_param_;
-
-        /**
-         * Stores the name of the camera info param provided by realsense camera driver
-         */
-        std::string camera_crop_factor_top_param_;
-
-        /**
-         * Stores the name of the camera info param provided by realsense camera driver
-         */
-        std::string camera_crop_factor_left_param_;
-
-        /**
          * Image width as provided in the realsense camera driver
          */
         double image_width_;
@@ -250,7 +225,6 @@ class ImageCartesianMapperNode
          * Crop factor left as provided in the image filter param
          */
         double crop_factor_left_;
-
 
 };
 
