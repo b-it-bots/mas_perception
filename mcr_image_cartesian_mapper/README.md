@@ -18,3 +18,6 @@ This package transforms the image pixel pose to cartesian space with respect to 
 
 ### To stop the component:
 ```rostopic pub /mcr_perception/image_cartesian_mapper/event_in std_msgs/String  'e_stop'```
+
+### Camera calibration:
+Use camera_calibration ros node. Tutorials are provided for calibrating monocular cameras in http://wiki.ros.org/camera_calibration
