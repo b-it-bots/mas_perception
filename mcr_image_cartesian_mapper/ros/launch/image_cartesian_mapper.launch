@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+
+    <node pkg="mcr_image_cartesian_mapper" type="image_cartesian_mapper_node" name="image_cartesian_mapper" ns="mcr_perception" output="screen" respawn="true">
+        <remap from="~pose" to="/mcr_perception/blob_tracker/blob_pose"/>
+        <param name="target_frame" type="string" value="base_link"/>
+        <param name="source_frame" type="string" value="tower_cam3d_rgb_optical_frame"/>
+        <param name="is_image_filter_enabled" type="bool" value="true"/>
+        <param name="loop_rate" type="int" value="30"/>
+        <rosparam command="load" file="$(find mcr_image_filter)/ros/config/image_filter_params.yaml"/>
+        <rosparam command="load" file="$(find mir_default_robot_config)/$(arg robot)/realsense_camera_calibration_640_480.yaml"/>
+    </node>
+</launch>
