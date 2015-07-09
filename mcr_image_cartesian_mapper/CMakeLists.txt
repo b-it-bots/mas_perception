@@ -15,8 +15,6 @@ find_package(catkin REQUIRED
 find_package(Eigen REQUIRED)
 
 catkin_package(
-  INCLUDE_DIRS
-    ros/include
   CATKIN_DEPENDS 
     cv_bridge
     image_transport
