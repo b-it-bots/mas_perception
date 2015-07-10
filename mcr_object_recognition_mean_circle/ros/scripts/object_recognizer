@@ -16,6 +16,7 @@ from mcr_object_recognition_mean_circle.svm_classifier import SVMObjectClassifie
 from mcr_object_recognition_mean_circle.features import calculate_feature_vector
 
 from mcr_perception_msgs.srv import RecognizeObject
+from mcr_perception_msgs.srv import RecognizeObjectResponse
 
 
 def load_classifier(classifier_name):
@@ -44,8 +45,11 @@ if __name__ == '__main__':
         cloud = request.cloud
         xyzrgb = convert_to_xyzrgb(cloud)
         features = calculate_feature_vector(xyzrgb, True)
-        l = classifier.classify(features)
-        return l
+        label, probability = classifier.classify(features)
+        resp = RecognizeObjectResponse()
+        resp.name = label
+        resp.probability = probability
+        return resp
 
     s = rospy.Service(SERVICE, RecognizeObject, recognize_object_cb)
     rospy.loginfo('Started [%s] service.' % SERVICE)
