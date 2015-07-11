@@ -14,7 +14,7 @@
 
   <node pkg="mcr_object_recognition_mean_circle" type="object_recognizer" name="object_recognizer"
           output="screen" ns="mcr_perception">
-      <rosparam param="classifier">realsense</rosparam>
+      <rosparam param="classifier">realsense_640_atwork</rosparam>
   </node>
 
 </launch>

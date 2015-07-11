@@ -40,8 +40,8 @@ class FindWorkspaceAborted(State):
 class RecognizeObjects(State):
     def __init__(self):
         State.__init__(self,
-                       input_keys=['clusters', 'bounding_boxes', 'names'],
-                       output_keys=['names'],
+                       input_keys=['clusters', 'bounding_boxes', 'names', 'probabilities'],
+                       output_keys=['names', 'probabilities'],
                        outcomes=['done'])
         self.label_vis = LabelVisualizer('/visualization_marker_array', 'teal')
         try:
@@ -55,13 +55,17 @@ class RecognizeObjects(State):
 
     def execute(self, ud):
         ud.names = list()
+        ud.probabilities = list()
         for c, b in zip(ud.clusters, ud.bounding_boxes):
             if not self.recognize is None:
                 response = self.recognize(c, b.dimensions)
                 name = response.name
+                probability = response.probability
             else:
                 name = 'unknown'
+                probability = 0.0
             ud.names.append(name)
+            ud.probabilities.append(probability)
         if ud.names:
             self.label_vis.publish(ud.names,
                                    [b.center for b in ud.bounding_boxes],
@@ -75,6 +79,7 @@ class PackResponse(State):
                        input_keys=['clusters',
                                    'bounding_boxes',
                                    'names',
+                                   'probabilities',
                                    'response'],
                        output_keys=['response'],
                        outcomes=['done'])
@@ -84,7 +89,7 @@ class PackResponse(State):
 
     def execute(self, ud):
         ud.response = ObjectList()
-        for c, b, n in zip(ud.clusters, ud.bounding_boxes, ud.names):
+        for c, b, n, p in zip(ud.clusters, ud.bounding_boxes, ud.names, ud.probabilities):
             obj = Object()
             q = self.get_orientation(b.vertices)
             obj.dimensions.vector = b.dimensions
@@ -107,6 +112,7 @@ class PackResponse(State):
             obj.name = n
             obj.bounding_box = b
             obj.database_id = self.object_id
+            obj.probability = p
             ud.response.objects.append(obj)
             self.object_id = self.object_id + 1
         return 'done'
