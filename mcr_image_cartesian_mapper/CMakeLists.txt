@@ -64,5 +64,5 @@ install(DIRECTORY ros/launch
 ### TESTS
 if(CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(ros/launch)
+  roslaunch_add_file_check(ros/launch robot:=youbot-brsu-1)
 endif()
