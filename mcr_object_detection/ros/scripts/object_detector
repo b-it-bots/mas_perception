@@ -106,6 +106,12 @@ class PackResponse(State):
                 try:
                     common_time = self.tf_listener.getLatestCommonTime(self.target_frame_id, obj_pose.header.frame_id)
                     obj_pose.header.stamp = common_time
+
+                    self.tf_listener.waitForTransform(
+                        self.target_frame_id, obj_pose.header.frame_id,
+                        obj_pose.header.stamp, rospy.Duration(0.1)
+                    )
+
                     obj_pose = self.tf_listener.transformPose(self.target_frame_id, obj_pose)
                 except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                     rospy.logerr('Unable to transform %s -> %s' % (obj_pose.header.frame_id, self.target_frame_id))
