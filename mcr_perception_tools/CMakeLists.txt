@@ -45,6 +45,10 @@ install(DIRECTORY ros/include/${PROJECT_NAME}/
    FILES_MATCHING PATTERN "*.h"
 )
 
+install(DIRECTORY ros/scripts/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/scripts
+)
+
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
