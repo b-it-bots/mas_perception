@@ -15,6 +15,10 @@ class SVMObjectClassifier:
         self.mean = mean
         self.std = std
 
+    def save(self, classifier_name, label_encoder_name):
+        joblib.dump(self.classifier, classifier_name)
+        joblib.dump([self.label_encoder, self.mean, self.std], label_encoder_name)
+
     def classify(self, feature_vector):
         feature_vector -= np.array(self.mean)
         feature_vector /= self.std
