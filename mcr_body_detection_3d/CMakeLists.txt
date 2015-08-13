@@ -8,7 +8,6 @@ find_package(catkin REQUIRED
     mcr_perception_msgs 
     pcl_ros
     roscpp
-    rostest
     sensor_msgs
     std_msgs
     tf
@@ -39,25 +38,45 @@ include_directories(
 )
 
 add_library(mcr_body_detection_3d
-	common/src/body_detection_3d.cpp
+  common/src/body_detection_3d.cpp
 )
 add_dependencies(mcr_body_detection_3d
-	${catkin_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
 )
 
 add_executable(body_detection_3d_node
-	ros/src/body_detection_3d_node.cpp
+  ros/src/body_detection_3d_node.cpp
 )
 add_dependencies(body_detection_3d_node
-	${PROJECT_NAME}_gencfg 
-	${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencfg 
+  ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(body_detection_3d_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
-	mcr_body_detection_3d
+  mcr_body_detection_3d
 )
 
+
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  find_package(roslaunch REQUIRED)
+
+  roslaunch_add_file_check(ros/launch)
+
+  add_rostest_gtest(body_detection_3d_integration_test
+    ros/test/integration.test
+    ros/test/integration_test.cpp
+  )
+  target_link_libraries(body_detection_3d_integration_test
+    ${catkin_LIBRARIES}
+  )
+
+endif()
+
+
+### INSTALLS
 install(
   TARGETS
     mcr_body_detection_3d
@@ -84,9 +103,3 @@ install(DIRECTORY ros/launch
 install(DIRECTORY common/config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config
 )
-
-add_executable(integration_test EXCLUDE_FROM_ALL ros/test/integration.test ros/test/integration_test.cpp)
-target_link_libraries(integration_test ${GTEST_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(tests integration_test)
-add_dependencies(integration_test body_detection_3d_node)
-add_rostest(ros/test/integration.test)

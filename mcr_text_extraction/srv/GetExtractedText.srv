@@ -1,4 +1,0 @@
----
-std_msgs/String text
-std_msgs/String label
-std_msgs/Float32 confidence

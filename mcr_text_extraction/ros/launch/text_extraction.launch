@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-	<node pkg="mcr_text_extraction" type="atie_old_node" name="text_extraction" ns="text_extraction" output="screen">
-		<remap from="image" to="/stereo/left/image_raw"/>
-	</node>
-</launch>

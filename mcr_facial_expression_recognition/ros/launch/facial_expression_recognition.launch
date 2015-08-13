@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-
-  <node pkg="mcr_facial_expression_recognition" type="facial_expression_recognition_node" name="mcr_facial_expression_recognition" output="screen"/>
-
-</launch>

@@ -207,7 +207,17 @@ target_link_libraries(convert_models_from_text_to_binary
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}
 )
-  
+
+
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+
+  roslaunch_add_file_check(ros/launch)
+endif()
+
+
+### INSTALLS
 install(
   TARGETS
     object_categorization_node
