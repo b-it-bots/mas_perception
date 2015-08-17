@@ -60,6 +60,13 @@ target_link_libraries(blob_detection_node
    ${OpenCV_LIBRARIES}
 )
 
+### TESTS
+if(CATKIN_ENABLE_TESTING)
+  find_package(roslaunch REQUIRED)
+
+  roslaunch_add_file_check(ros/launch)
+endif()
+
 ### INSTALLS
 install(TARGETS blob_detection_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
