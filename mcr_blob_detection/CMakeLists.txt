@@ -60,6 +60,7 @@ target_link_libraries(blob_detection_node
    ${OpenCV_LIBRARIES}
 )
 
+### INSTALLS
 install(TARGETS blob_detection_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
