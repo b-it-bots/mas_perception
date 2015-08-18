@@ -3,6 +3,7 @@ project(mcr_image_cartesian_mapper)
 
 find_package(catkin REQUIRED 
   COMPONENTS
+    cmake_modules
     cv_bridge
     image_transport
     geometry_msgs
