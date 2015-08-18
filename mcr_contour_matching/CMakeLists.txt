@@ -59,6 +59,7 @@ add_dependencies(contour_template_matcher
 )
 add_dependencies(contour_finder
   ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencfg
 )
 
 target_link_libraries(contour_finder
