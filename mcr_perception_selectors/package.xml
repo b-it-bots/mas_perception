@@ -3,7 +3,7 @@
   <name>mcr_perception_selectors</name>
   <version>0.1.0</version>
   <description>
-      Nodes for selecting instances of perceived items (objects, planes, etc.)
+      Components for selecting instances of perceived items (objects, planes, etc.)
   </description>
 
   <maintainer email="santosh.thoduka@smail.inf.h-brs.de">Santosh Thoduka</maintainer>
