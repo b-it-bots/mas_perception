@@ -9,7 +9,10 @@ find_package(catkin REQUIRED
     mcr_perception_msgs
 )
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS
+    mcr_perception_msgs
+)
 
 include_directories(
   ros/include
