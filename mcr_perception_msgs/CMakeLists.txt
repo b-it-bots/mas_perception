@@ -67,6 +67,10 @@ catkin_package(
     std_msgs
 )
 
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
+
 ### EXECUTABLES ###
 add_executable(object_msg_visualizer_node
   ros/src/object_msg_visualizer_node.cpp

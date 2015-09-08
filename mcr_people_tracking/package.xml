@@ -16,7 +16,7 @@
   <build_depend>roscpp</build_depend>
   <build_depend>mcr_algorithms</build_depend>
   <build_depend>mcr_perception_msgs</build_depend>
-  <build_depend>pcl</build_depend>
+  <build_depend>libpcl-all-dev</build_depend>
   <build_depend>pcl_ros</build_depend>
   <build_depend>opencv2</build_depend>
   <build_depend>tf</build_depend>

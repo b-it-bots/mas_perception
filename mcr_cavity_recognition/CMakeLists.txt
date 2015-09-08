@@ -4,6 +4,7 @@ project(mcr_cavity_recognition)
 find_package(catkin REQUIRED
   COMPONENTS
     message_filters
+    roscpp
     roslib
     sensor_msgs
     geometry_msgs
