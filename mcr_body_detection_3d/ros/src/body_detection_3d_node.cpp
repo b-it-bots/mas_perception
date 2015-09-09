@@ -1,4 +1,5 @@
-/*
+/* Copyright [2013] <Bonn-Rhein-Sieg University>
+ *
  * body_detection_3d_node.cpp
  *
  *  Created on: 22.08.2010

@@ -1,4 +1,5 @@
-/*
+/* Copyright [2013] <Bonn-Rhein-Sieg University>
+ *
  * datatypes.h
  *
  *  Created on: May 22, 2013

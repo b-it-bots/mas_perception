@@ -1,4 +1,5 @@
-/*
+/* Copyright [2013] <Bonn-Rhein-Sieg University>
+ *
  * integration_test.cpp
  *
  *  Created on: 19.08.2013
