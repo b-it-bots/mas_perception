@@ -229,7 +229,7 @@ int main(int argc, char** argv)
         ROS_WARN("\tparameter \"model_filename\" not specified in launch file, used default value: %s",
                 random_forest_model_filename.c_str());
 
-    //People Detector
+    // People Detector
     body_detector = new BodyDetection3D();
     body_detector->loadModel(random_forest_model_filename);
 
@@ -244,7 +244,7 @@ int main(int argc, char** argv)
     pub_segmented_cloud = nh.advertise<sensor_msgs::PointCloud2>("debug/segmented_cloud", 1);
     pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
 
-    //TF
+    // TF
     transform_listener = new tf::TransformListener();
 
     ROS_INFO("node successfully initialized");
