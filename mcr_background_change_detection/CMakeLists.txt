@@ -20,6 +20,8 @@ catkin_package(
   INCLUDE_DIRS 
     ros/include
     common/include
+  LIBRARIES
+    background_change_detection
   CATKIN_DEPENDS 
     dynamic_reconfigure 
     image_transport 
