@@ -22,7 +22,7 @@
 #include <mcr_perception_msgs/PersonList.h>
 
 
-#define ROUND_TWO_DIGITS(x) ( floor(x * 100.0) / 100.0 )
+#define ROUND_TWO_DIGITS(x) (floor(x * 100.0) / 100.0)
 
 ros::NodeHandle *nh_ptr = NULL;
 bool people_msg_received = false;
