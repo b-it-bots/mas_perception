@@ -97,7 +97,8 @@ TEST(BodyDetection3D, integrationTest)
             ros::spinOnce();
             sleep(0.01);
         }
-        while (!people_msg_received);
+        while (!people_msg_received)
+            continue;
 
         ROS_INFO("detection results reveiced");
 
