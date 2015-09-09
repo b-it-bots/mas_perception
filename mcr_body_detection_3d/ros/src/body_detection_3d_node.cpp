@@ -185,8 +185,6 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr &cloud2_input)
         }
 
         ROS_DEBUG_STREAM("found " << person_list.size() << " person(s)");
-
-
     }
     catch (tf::TransformException ex)
     {
