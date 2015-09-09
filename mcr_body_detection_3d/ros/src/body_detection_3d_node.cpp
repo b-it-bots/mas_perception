@@ -147,8 +147,10 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr &cloud2_input)
         if (cloud2_input->header.frame_id != dyn_recfg_parameters.target_frame)
         {
             // transform point cloud to base link
-            transform_listener->waitForTransform(dyn_recfg_parameters.target_frame, cloud2_input->header.frame_id, cloud2_input->header.stamp, ros::Duration(1.0));
-            pcl_ros::transformPointCloud(dyn_recfg_parameters.target_frame, *cloud2_input, cloud2_transformed, *transform_listener);
+            transform_listener->waitForTransform(dyn_recfg_parameters.target_frame, cloud2_input->header.frame_id,
+                    cloud2_input->header.stamp, ros::Duration(1.0));
+            pcl_ros::transformPointCloud(dyn_recfg_parameters.target_frame, *cloud2_input, cloud2_transformed,
+                    *transform_listener);
         }
         else
             cloud2_transformed = *cloud2_input;
@@ -222,7 +224,8 @@ int main(int argc, char** argv)
 
     // get Parameter from server
     if (nh.getParam("model_filename", random_forest_model_filename) == false)
-        ROS_WARN("\tparameter \"model_filename\" not specified in launch file, used default value: %s", random_forest_model_filename.c_str());
+        ROS_WARN("\tparameter \"model_filename\" not specified in launch file, used default value: %s",
+                random_forest_model_filename.c_str());
 
     //People Detector
     body_detector = new BodyDetection3D();

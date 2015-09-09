@@ -11,7 +11,8 @@
 
 struct Person
 {
-    Person() : position_x(0.0), position_y(0.0), position_z(0.0), orientation_yaw(0.0), height(0.0), width(0.0), depth(0.0), probability(0.0) {};
+    Person() : position_x(0.0), position_y(0.0), position_z(0.0), orientation_yaw(0.0), height(0.0), width(0.0),
+                depth(0.0), probability(0.0) {};
     double position_x;
     double position_y;
     double position_z;
