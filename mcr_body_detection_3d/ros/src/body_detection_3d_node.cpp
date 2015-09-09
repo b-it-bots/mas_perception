@@ -8,6 +8,8 @@
 
 #include <boost/random.hpp>
 #include <Eigen/StdVector>
+#include <string>
+#include <vector>
 
 #include <geometry_msgs/Point.h>
 #include <pcl/point_types.h>

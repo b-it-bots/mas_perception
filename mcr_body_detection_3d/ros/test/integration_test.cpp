@@ -8,6 +8,8 @@
 
 #include <map>
 #include <math.h>
+#include <utility>
+#include <string>
 
 #include <gtest/gtest.h>
 #include <pcl/io/pcd_io.h>
