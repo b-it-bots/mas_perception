@@ -28,10 +28,6 @@
 #include "mcr_body_detection_3d/BodyDetection3DConfig.h"
 #include "mcr_body_detection_3d/impl/body_detection_3d.hpp"
 
-using namespace std;
-using namespace pcl;
-
-
 ros::Subscriber sub_pointcloud2;
 
 ros::Publisher pub_person_msg;
