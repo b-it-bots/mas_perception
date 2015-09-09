@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
     mcr_perception_msgs 
     pcl_ros
     roscpp
+    roslint
     sensor_msgs
     std_msgs
     tf
@@ -59,6 +60,8 @@ target_link_libraries(body_detection_3d_node
 
 
 ### TESTS
+roslint_cpp()
+
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   find_package(roslaunch REQUIRED)

@@ -1,4 +1,5 @@
-/*
+/* Copyright [2013] <Bonn-Rhein-Sieg University>
+ *
  * body_detection_3d_node.cpp
  *
  *  Created on: 22.08.2010
@@ -7,6 +8,8 @@
 
 #include <boost/random.hpp>
 #include <Eigen/StdVector>
+#include <string>
+#include <vector>
 
 #include <geometry_msgs/Point.h>
 #include <pcl/point_types.h>
@@ -146,8 +149,10 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr &cloud2_input)
         if (cloud2_input->header.frame_id != dyn_recfg_parameters.target_frame)
         {
             // transform point cloud to base link
-            transform_listener->waitForTransform(dyn_recfg_parameters.target_frame, cloud2_input->header.frame_id, cloud2_input->header.stamp, ros::Duration(1.0));
-            pcl_ros::transformPointCloud(dyn_recfg_parameters.target_frame, *cloud2_input, cloud2_transformed, *transform_listener);
+            transform_listener->waitForTransform(dyn_recfg_parameters.target_frame, cloud2_input->header.frame_id,
+                    cloud2_input->header.stamp, ros::Duration(1.0));
+            pcl_ros::transformPointCloud(dyn_recfg_parameters.target_frame, *cloud2_input, cloud2_transformed,
+                    *transform_listener);
         }
         else
             cloud2_transformed = *cloud2_input;
@@ -180,8 +185,6 @@ void pointcloud2Callback(const sensor_msgs::PointCloud2::ConstPtr &cloud2_input)
         }
 
         ROS_DEBUG_STREAM("found " << person_list.size() << " person(s)");
-
-
     }
     catch (tf::TransformException ex)
     {
@@ -221,9 +224,10 @@ int main(int argc, char** argv)
 
     // get Parameter from server
     if (nh.getParam("model_filename", random_forest_model_filename) == false)
-        ROS_WARN("\tparameter \"model_filename\" not specified in launch file, used default value: %s", random_forest_model_filename.c_str());
+        ROS_WARN("\tparameter \"model_filename\" not specified in launch file, used default value: %s",
+                random_forest_model_filename.c_str());
 
-    //People Detector
+    // People Detector
     body_detector = new BodyDetection3D();
     body_detector->loadModel(random_forest_model_filename);
 
@@ -238,7 +242,7 @@ int main(int argc, char** argv)
     pub_segmented_cloud = nh.advertise<sensor_msgs::PointCloud2>("debug/segmented_cloud", 1);
     pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
 
-    //TF
+    // TF
     transform_listener = new tf::TransformListener();
 
     ROS_INFO("node successfully initialized");

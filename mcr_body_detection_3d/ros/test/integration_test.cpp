@@ -1,4 +1,5 @@
-/*
+/* Copyright [2013] <Bonn-Rhein-Sieg University>
+ *
  * integration_test.cpp
  *
  *  Created on: 19.08.2013
@@ -7,6 +8,8 @@
 
 #include <map>
 #include <math.h>
+#include <utility>
+#include <string>
 
 #include <gtest/gtest.h>
 #include <pcl/io/pcd_io.h>
@@ -19,7 +22,7 @@
 #include <mcr_perception_msgs/PersonList.h>
 
 
-#define ROUND_TWO_DIGITS(x) ( floor(x * 100.0) / 100.0 )
+#define ROUND_TWO_DIGITS(x) (floor(x * 100.0) / 100.0)
 
 ros::NodeHandle *nh_ptr = NULL;
 bool people_msg_received = false;
@@ -49,7 +52,8 @@ TEST(BodyDetection3D, integrationTest)
     ROS_INFO("register publisher and subscriber");
     ros::Publisher pub_event = nh_ptr->advertise<std_msgs::String> ("event_out", 1, true);
     ros::Publisher pub_pointcloud = nh_ptr->advertise<sensor_msgs::PointCloud2> ("input_pointcloud", 1);
-    ros::Subscriber sub_person_msg = nh_ptr->subscribe < mcr_perception_msgs::PersonList > ("people_positions", 1, peopleDetectionCallback);
+    ros::Subscriber sub_person_msg = nh_ptr->subscribe < mcr_perception_msgs::PersonList > ("people_positions", 1,
+            peopleDetectionCallback);
 
     // fill map
     point.x = 1.41975;
@@ -93,7 +97,8 @@ TEST(BodyDetection3D, integrationTest)
             ros::spinOnce();
             sleep(0.01);
         }
-        while (!people_msg_received);
+        while (!people_msg_received)
+            continue;
 
         ROS_INFO("detection results reveiced");
 
