@@ -6,8 +6,8 @@
  *      Author: Frederik Hegger
  */
 
-#ifndef DATATYPES_H_
-#define DATATYPES_H_
+#ifndef MCR_BODY_DETECTION_3D_DATATYPES_H
+#define MCR_BODY_DETECTION_3D_DATATYPES_H
 
 struct Person
 {
@@ -53,4 +53,4 @@ struct Edge
 };
 
 
-#endif /* DATATYPES_H_ */
+#endif  // MCR_BODY_DETECTION_3D_DATATYPES_H
