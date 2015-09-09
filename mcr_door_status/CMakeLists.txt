@@ -32,6 +32,9 @@ endif()
 
 
 ### INSTALLS
-install(TARGETS door_status_node
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+install(
+  TARGETS
+    door_status_node
+    door_status_node_mockup
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

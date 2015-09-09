@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_image_cartesian_mapper)
 
+find_package(cmake_modules REQUIRED)
 find_package(catkin REQUIRED 
   COMPONENTS
     cmake_modules
