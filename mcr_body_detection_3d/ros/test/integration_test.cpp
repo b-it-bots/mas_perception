@@ -92,12 +92,12 @@ TEST(BodyDetection3D, integrationTest)
 
         ROS_INFO("wait for detection results");
         // process callbacks
-        do
+
+        while (!people_msg_received)
         {
             ros::spinOnce();
             sleep(0.01);
         }
-        while (!people_msg_received)
 
         ROS_INFO("detection results reveiced");
 
