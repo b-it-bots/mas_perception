@@ -11,22 +11,22 @@ using namespace cv;
 class BlobDetection
 {
 
-    public:
-        BlobDetection();
-        virtual ~BlobDetection();
-        int detectBlobs(IplImage *input_image, IplImage &debug_image, vector<vector<double> > &blobs);
-        void updateDynamicVariables(bool debug_mode, int min_blob_area, int max_blob_area);
+public:
+    BlobDetection();
+    virtual ~BlobDetection();
+    int detectBlobs(IplImage *input_image, IplImage &debug_image, vector<vector<double> > &blobs);
+    void updateDynamicVariables(bool debug_mode, int min_blob_area, int max_blob_area);
 
-    private:
-        IplImage *gray_image_;
-        IplImage *blob_image_;
-        CBlobGetOrientation get_blob_orientation_;
-        CBlobGetArea get_blob_area_;
-        bool debug_mode_;
-        CBlobResult blobs_;
-        CBlob largest_blob_;
-        int min_blob_area_;
-        int max_blob_area_;
+private:
+    IplImage *gray_image_;
+    IplImage *blob_image_;
+    CBlobGetOrientation get_blob_orientation_;
+    CBlobGetArea get_blob_area_;
+    bool debug_mode_;
+    CBlobResult blobs_;
+    CBlob largest_blob_;
+    int min_blob_area_;
+    int max_blob_area_;
 
 };
 

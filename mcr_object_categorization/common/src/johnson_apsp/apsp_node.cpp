@@ -25,37 +25,37 @@
 using namespace std;
 
 apsp_node::apsp_node(const int id)
-: node(id)
+    : node(id)
 {
 
 }
 
 double apsp_node::get_dist_from(node* start)
 {
-	return dists[start];
+    return dists[start];
 }
 
 void apsp_node::set_dist_from(node* start, double dist)
 {
-	dists[start] = dist;
+    dists[start] = dist;
 }
 
 int apsp_node::get_heap_index()
 {
-	return heap_index;
+    return heap_index;
 }
 
 void apsp_node::set_heap_index(const int i)
 {
-	heap_index = i;
+    heap_index = i;
 }
 
 node* apsp_node::get_predecessor_on_path_from(node* source)
 {
-	return predecessors[source];
+    return predecessors[source];
 }
 
 void apsp_node::set_predecessor_on_path_from(node* source, node* predecessor)
 {
-	predecessors[source] = predecessor;
+    predecessors[source] = predecessor;
 }

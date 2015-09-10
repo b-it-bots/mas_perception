@@ -31,21 +31,21 @@
 class prio_queue
 {
 private:
-	apsp_node** heap;
-	int heap_size;
-	apsp_node* source;
-	void min_heapify(int i);
-	int left(int i);
-	int right(int i);
-	int parent(int i);
-	apsp_node* get(int i);
-	void set(int i, apsp_node* element);
-	void infix_tree_walk(int i);
+    apsp_node** heap;
+    int heap_size;
+    apsp_node* source;
+    void min_heapify(int i);
+    int left(int i);
+    int right(int i);
+    int parent(int i);
+    apsp_node* get(int i);
+    void set(int i, apsp_node* element);
+    void infix_tree_walk(int i);
 public:
-	prio_queue(const int heap_size, apsp_node* source, const list<node*>* nodes);
-	apsp_node* extract_min();
-	void decrease_key(const int i);
-	void print();
+    prio_queue(const int heap_size, apsp_node* source, const list<node*>* nodes);
+    apsp_node* extract_min();
+    void decrease_key(const int i);
+    void print();
 };
 
 #endif /* PRIO_QUEUE_HPP_ */

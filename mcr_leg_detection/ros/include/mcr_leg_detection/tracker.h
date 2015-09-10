@@ -1,13 +1,13 @@
 /*********************************************************************
 * Software License Agreement (BSD License)
-* 
+*
 *  Copyright (c) 2008, Willow Garage, Inc.
 *  All rights reserved.
-* 
+*
 *  Redistribution and use in source and binary forms, with or without
 *  modification, are permitted provided that the following conditions
 *  are met:
-* 
+*
 *   * Redistributions of source code must retain the above copyright
 *     notice, this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above
@@ -17,7 +17,7 @@
 *   * Neither the name of the Willow Garage nor the names of its
 *     contributors may be used to endorse or promote products derived
 *     from this software without specific prior written permission.
-* 
+*
 *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -50,41 +50,44 @@ namespace estimation
 class Tracker
 {
 public:
-  /// constructor
-  Tracker(const std::string& name): name_(name) {};
+    /// constructor
+    Tracker(const std::string& name): name_(name) {};
 
-  /// destructor
-  virtual ~Tracker() {};
+    /// destructor
+    virtual ~Tracker() {};
 
-  /// return the name of the tracker
-  const std::string& getName() const {return name_;};
+    /// return the name of the tracker
+    const std::string& getName() const
+    {
+        return name_;
+    };
 
-  /// initialize tracker
-  virtual void initialize(const BFL::StatePosVel& mu, const BFL::StatePosVel& sigma, const double time) = 0;
+    /// initialize tracker
+    virtual void initialize(const BFL::StatePosVel& mu, const BFL::StatePosVel& sigma, const double time) = 0;
 
-  /// return if tracker was initialized
-  virtual bool isInitialized() const = 0;
+    /// return if tracker was initialized
+    virtual bool isInitialized() const = 0;
 
-  /// return measure for tracker quality: 0=bad 1=good
-  virtual double getQuality() const = 0;
+    /// return measure for tracker quality: 0=bad 1=good
+    virtual double getQuality() const = 0;
 
-  /// return the lifetime of the tracker
-  virtual double getLifetime() const = 0;
+    /// return the lifetime of the tracker
+    virtual double getLifetime() const = 0;
 
-  /// return the time of the tracker
-  virtual double getTime() const = 0;
+    /// return the time of the tracker
+    virtual double getTime() const = 0;
 
-  /// update tracker
-  virtual bool updatePrediction(const double time) = 0;
-  virtual bool updateCorrection(const tf::Vector3& meas, 
-				const MatrixWrapper::SymmetricMatrix& cov) = 0;
+    /// update tracker
+    virtual bool updatePrediction(const double time) = 0;
+    virtual bool updateCorrection(const tf::Vector3& meas,
+                                  const MatrixWrapper::SymmetricMatrix& cov) = 0;
 
-  /// get filter posterior
-  virtual void getEstimate(BFL::StatePosVel& est) const = 0;
-  virtual void getEstimate(mcr_leg_detection::PositionMeasurement& est) const = 0;
+    /// get filter posterior
+    virtual void getEstimate(BFL::StatePosVel& est) const = 0;
+    virtual void getEstimate(mcr_leg_detection::PositionMeasurement& est) const = 0;
 
 private:
-  std::string name_;
+    std::string name_;
 
 }; // class
 

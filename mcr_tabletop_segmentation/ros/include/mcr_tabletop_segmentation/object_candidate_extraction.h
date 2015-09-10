@@ -56,32 +56,32 @@
 class CObjectCandidateExtraction
 {
 
- private:
-	CToolBoxROS toolBox;
-	CPlaneExtraction horizontalSurfaceExtractor;
-	ros::NodeHandle nh;
-	double threshold_point_above_lower_plane;
-	int min_points_per_objects;
+private:
+    CToolBoxROS toolBox;
+    CPlaneExtraction horizontalSurfaceExtractor;
+    ros::NodeHandle nh;
+    double threshold_point_above_lower_plane;
+    int min_points_per_objects;
 
-	float fDistance; /*max distance from camera*/
-	double mlsFilering;
-	float dZAxisOffSet; /*distance(height) to compensate difference between object and plane*/
+    float fDistance; /*max distance from camera*/
+    double mlsFilering;
+    float dZAxisOffSet; /*distance(height) to compensate difference between object and plane*/
 
-	std::vector<pcl::PointCloud<pcl::PointXYZRGB> > clusteredObjects; /*last extracted object candidates*/
-	pcl::PointCloud<pcl::PointXYZRGB> clusteredObjectsRGB;
+    std::vector<pcl::PointCloud<pcl::PointXYZRGB> > clusteredObjects; /*last extracted object candidates*/
+    pcl::PointCloud<pcl::PointXYZRGB> clusteredObjectsRGB;
 
- public:
-	CObjectCandidateExtraction();
-	CObjectCandidateExtraction(ros::NodeHandle &nh, float fDistance);
-	void extractObjectCandidates(pcl::PointCloud<pcl::PointXYZRGB> &point_cloud, pcl::PointCloud<pcl::PointXYZRGBNormal> &planar_point_cloud,
-	                             std::vector<StructPlanarSurface*> &hierarchyPlanes);
-	void releaseObjectCandidates(std::vector<StructPlanarSurface*> &hierarchyPlanes);
-	void saveClusteredObjects(std::string filename);
-	void setDistance(float fDistance);
-	void setMlsFiltering(double setMls)
-	{
-		mlsFilering = setMls;
-	}
+public:
+    CObjectCandidateExtraction();
+    CObjectCandidateExtraction(ros::NodeHandle &nh, float fDistance);
+    void extractObjectCandidates(pcl::PointCloud<pcl::PointXYZRGB> &point_cloud, pcl::PointCloud<pcl::PointXYZRGBNormal> &planar_point_cloud,
+                                 std::vector<StructPlanarSurface*> &hierarchyPlanes);
+    void releaseObjectCandidates(std::vector<StructPlanarSurface*> &hierarchyPlanes);
+    void saveClusteredObjects(std::string filename);
+    void setDistance(float fDistance);
+    void setMlsFiltering(double setMls)
+    {
+        mlsFilering = setMls;
+    }
 };
 
 #endif

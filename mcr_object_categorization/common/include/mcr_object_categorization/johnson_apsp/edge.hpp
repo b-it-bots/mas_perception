@@ -27,17 +27,17 @@ class node;
 class edge
 {
 private:
-	double weight;
-	node* tgt;
-	node* src;
+    double weight;
+    node* tgt;
+    node* src;
 public:
 
-	edge(node* src, node* tgt, const double weight);
+    edge(node* src, node* tgt, const double weight);
 
-	double get_weight() const;
-	void set_weight(double weight);
-	node* get_tgt() const;
-	void print() const;
+    double get_weight() const;
+    void set_weight(double weight);
+    node* get_tgt() const;
+    void print() const;
     node *get_src() const;
 
 };

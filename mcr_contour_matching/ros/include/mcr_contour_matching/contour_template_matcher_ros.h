@@ -19,102 +19,102 @@
  */
 class ContourTemplateMatcherROS
 {
-    public:
-        /**
-         * Constructor
-         */
-        ContourTemplateMatcherROS();
-        /**
-         * Destructor
-         */
-        virtual ~ContourTemplateMatcherROS();
+public:
+    /**
+     * Constructor
+     */
+    ContourTemplateMatcherROS();
+    /**
+     * Destructor
+     */
+    virtual ~ContourTemplateMatcherROS();
 
-        /**
-         * If contour pointclouds and template filename have been received, matchContours function is called
-         * This function can be called once or periodically.
-         */
-        void update();
-
-
-    private:
-        /**
-         * Copy constructor.
-         */
-        ContourTemplateMatcherROS(const ContourTemplateMatcherROS &other);
-
-        /**
-         * Copy assignment operator.
-         */
-        ContourTemplateMatcherROS &operator=(ContourTemplateMatcherROS other);
-
-        /**
-         * Callback for contour pointclouds as PointCloud2List
-         *
-         * @param msg
-         *          mcr_perception_msgs::PointCloud2List message containing contours
-         */
-        void contourPointcloudsCallback(const mcr_perception_msgs::PointCloud2List::Ptr &msg);
-
-        /**
-         * Callback for full path of template PCD file
-         *
-         * @param msg
-         *          sensor_msgs::PointCloud2 msg containing the template pointcloud
-         */
-        void templatePointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
-
-        /**
-         * Finds the contour that best matches the given template pointcloud
-         * Publishes the best matching contour and the match error
-         */
-        void matchContours();
+    /**
+     * If contour pointclouds and template filename have been received, matchContours function is called
+     * This function can be called once or periodically.
+     */
+    void update();
 
 
-    private:
-        /**
-         * ContourTemplateMatcher object
-         */
-        ContourTemplateMatcher contour_template_matcher_;
+private:
+    /**
+     * Copy constructor.
+     */
+    ContourTemplateMatcherROS(const ContourTemplateMatcherROS &other);
 
-        /**
-         * Subscriber for contour pointclouds
-         */
-        ros::Subscriber sub_contour_pointclouds_;
+    /**
+     * Copy assignment operator.
+     */
+    ContourTemplateMatcherROS &operator=(ContourTemplateMatcherROS other);
 
-        /**
-         * Subscriber for template pointcloud
-         */
-        ros::Subscriber sub_template_pointcloud_;
+    /**
+     * Callback for contour pointclouds as PointCloud2List
+     *
+     * @param msg
+     *          mcr_perception_msgs::PointCloud2List message containing contours
+     */
+    void contourPointcloudsCallback(const mcr_perception_msgs::PointCloud2List::Ptr &msg);
 
-        /**
-         * Publisher for matching error
-         */
-        ros::Publisher pub_matching_error_;
+    /**
+     * Callback for full path of template PCD file
+     *
+     * @param msg
+     *          sensor_msgs::PointCloud2 msg containing the template pointcloud
+     */
+    void templatePointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
 
-        /**
-         * Publisher for matched contour
-         */
-        ros::Publisher pub_contour_pointcloud_;
+    /**
+     * Finds the contour that best matches the given template pointcloud
+     * Publishes the best matching contour and the match error
+     */
+    void matchContours();
 
-        /**
-         * Used to store template pointcloud message
-         */
-        sensor_msgs::PointCloud2::Ptr template_pointcloud_msg_;
 
-        /**
-         * Used to store contour pointclouds message
-         */
-        mcr_perception_msgs::PointCloud2List::Ptr contours_msg_;
+private:
+    /**
+     * ContourTemplateMatcher object
+     */
+    ContourTemplateMatcher contour_template_matcher_;
 
-        /**
-         * Flag to indicate if contours have been received
-         */
-        bool contours_msg_received_;
+    /**
+     * Subscriber for contour pointclouds
+     */
+    ros::Subscriber sub_contour_pointclouds_;
 
-        /**
-         * Flag to indicate if template pointcloud has been received
-         */
-        bool template_pointcloud_msg_received_;
+    /**
+     * Subscriber for template pointcloud
+     */
+    ros::Subscriber sub_template_pointcloud_;
+
+    /**
+     * Publisher for matching error
+     */
+    ros::Publisher pub_matching_error_;
+
+    /**
+     * Publisher for matched contour
+     */
+    ros::Publisher pub_contour_pointcloud_;
+
+    /**
+     * Used to store template pointcloud message
+     */
+    sensor_msgs::PointCloud2::Ptr template_pointcloud_msg_;
+
+    /**
+     * Used to store contour pointclouds message
+     */
+    mcr_perception_msgs::PointCloud2List::Ptr contours_msg_;
+
+    /**
+     * Flag to indicate if contours have been received
+     */
+    bool contours_msg_received_;
+
+    /**
+     * Flag to indicate if template pointcloud has been received
+     */
+    bool template_pointcloud_msg_received_;
 };
 
 #endif

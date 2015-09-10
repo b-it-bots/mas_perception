@@ -2,13 +2,13 @@
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "tabletop_segmentation");
+    ros::init(argc, argv, "tabletop_segmentation");
 
-	ObjectSegmentation* segmentation = new ObjectSegmentation();
+    ObjectSegmentation* segmentation = new ObjectSegmentation();
 
-	ros::spin();
+    ros::spin();
 
-	delete segmentation;
+    delete segmentation;
 
-	return 0;
+    return 0;
 }

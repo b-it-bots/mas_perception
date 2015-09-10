@@ -1,4 +1,4 @@
-/*  
+/*
  * Created on: Mar 18, 2011
  * Author: Christian Mueller
  */
@@ -25,30 +25,30 @@ class CRTPNeuralNetwork: public CHPNeuralNetwork
 {
 
 private:
-	friend class boost::serialization::access;
+    friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & boost::serialization::base_object<CHPNeuralNetwork>(*this);
-		ar & numRandomAttempt;
-		ar & instanceNum;
-	}
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & boost::serialization::base_object<CHPNeuralNetwork>(*this);
+        ar & numRandomAttempt;
+        ar & instanceNum;
+    }
 protected:
-	int numRandomAttempt;
+    int numRandomAttempt;
 
-	static int instanceCounter;
-	int instanceNum;
+    static int instanceCounter;
+    int instanceNum;
 
 public:
-	CRTPNeuralNetwork();
-	void initHierarchy(float trainTestSetRatio = -1);
-	std::pair<int, int> findRandomMaxDissimilarity(std::vector<int> neurons, unsigned int attempt);
-	std::vector<std::pair<int, int> > getRandomPairs(std::vector<int> neurons, unsigned int numPairs);
-	std::pair<int, int> getRandomPair(std::vector<int> neurons);
-	void divideAndSort(std::vector<int> &neuronsToEvaluate, boost::shared_ptr<SHPNeuralNetworkNeuron> parentNeuron);
+    CRTPNeuralNetwork();
+    void initHierarchy(float trainTestSetRatio = -1);
+    std::pair<int, int> findRandomMaxDissimilarity(std::vector<int> neurons, unsigned int attempt);
+    std::vector<std::pair<int, int> > getRandomPairs(std::vector<int> neurons, unsigned int numPairs);
+    std::pair<int, int> getRandomPair(std::vector<int> neurons);
+    void divideAndSort(std::vector<int> &neuronsToEvaluate, boost::shared_ptr<SHPNeuralNetworkNeuron> parentNeuron);
 
-	~CRTPNeuralNetwork();
+    ~CRTPNeuralNetwork();
 };
 
 #endif /* CRTPNEURALNETWORK_H_ */

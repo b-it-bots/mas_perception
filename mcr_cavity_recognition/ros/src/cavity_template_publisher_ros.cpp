@@ -32,7 +32,8 @@ void CavityTemplatePublisherROS::objectNameCallback(const std_msgs::StringPtr &m
 
     pcl::PCLPointCloud2::Ptr template_cloud(new pcl::PCLPointCloud2);
 
-    if (pcl::io::loadPCDFile(full_path.string(), *template_cloud) == -1) {
+    if (pcl::io::loadPCDFile(full_path.string(), *template_cloud) == -1)
+    {
         ROS_ERROR("Couldn't read template file %s\n", full_path.string().c_str());
         return;
     }

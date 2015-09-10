@@ -24,11 +24,16 @@ WorkspaceFinderNode::~WorkspaceFinderNode()
 
 void WorkspaceFinderNode::eventInCallback(const std_msgs::String &msg)
 {
-    if (msg.data == "e_trigger") {
+    if (msg.data == "e_trigger")
+    {
         trigger_workspace_finder_ = true;
-    } else if (msg.data == "e_start") {
+    }
+    else if (msg.data == "e_start")
+    {
         run_workspace_finder_ = true;
-    } else if (msg.data == "e_stop") {
+    }
+    else if (msg.data == "e_stop")
+    {
         run_workspace_finder_ = false;
         trigger_workspace_finder_ = false;
     }
@@ -44,13 +49,15 @@ void WorkspaceFinderNode::synchronizedCallback(const geometry_msgs::PolygonStamp
 
 void WorkspaceFinderNode::update()
 {
-    if (sync_message_received_ && (trigger_workspace_finder_ || run_workspace_finder_)) {
+    if (sync_message_received_ && (trigger_workspace_finder_ || run_workspace_finder_))
+    {
         mcr_perception_msgs::PlanarPolygon mcr_polygon_msg;
         mcr_polygon_msg.header = polygon_msg_->header;
         mcr_polygon_msg.contour = polygon_msg_->polygon.points;
         mcr_polygon_msg.contour.push_back(mcr_polygon_msg.contour.front());
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++)
+        {
             mcr_polygon_msg.coefficients[i] = coefficients_msg_->values[i];
         }
 
@@ -66,7 +73,8 @@ void WorkspaceFinderNode::update()
 
         sync_message_received_ = false;
 
-        if (trigger_workspace_finder_) {
+        if (trigger_workspace_finder_)
+        {
             trigger_workspace_finder_ = false;
         }
     }
@@ -86,7 +94,8 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(frame_rate);
 
-    while (ros::ok()) {
+    while (ros::ok())
+    {
         workspace_finder.update();
         loop_rate.sleep();
         ros::spinOnce();

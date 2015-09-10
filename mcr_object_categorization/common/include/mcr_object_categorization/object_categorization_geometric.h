@@ -48,209 +48,209 @@
 
 class CObjectCategorizationGeometric
 {
-	//ADAPT 1
-	//BootStrapping 2
+    //ADAPT 1
+    //BootStrapping 2
 #define SVM_TYPE 1
 
 public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-	CLogger *logger;
-	friend class boost::serialization::access;
+    CLogger *logger;
+    friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & trainingData;
-		ar & testingData;
-		ar & testingData2;
-		//ar & autoEncoders;
-		//ar & svms;
-		//ar & isPseudoCatLoaded;
-		//ar & objectPseudoCategorizationGeometric;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & trainingData;
+        ar & testingData;
+        ar & testingData2;
+        //ar & autoEncoders;
+        //ar & svms;
+        //ar & isPseudoCatLoaded;
+        //ar & objectPseudoCategorizationGeometric;
 
-		//ar & doTrainAutoEncoder;
-		//ar & doTrainSvm;
-		//ar & doQueryAutoEncoder;
-		//ar & doQuerySvm;
-	}
+        //ar & doTrainAutoEncoder;
+        //ar & doTrainSvm;
+        //ar & doQueryAutoEncoder;
+        //ar & doQuerySvm;
+    }
 
 protected:
-	CToolBoxROS toolBox;
-	CObjectPseudoCategorizationGeometric objectPseudoCategorizationGeometric;
+    CToolBoxROS toolBox;
+    CObjectPseudoCategorizationGeometric objectPseudoCategorizationGeometric;
 
-	SObjectPointCloudData trainingData;
-	SObjectPointCloudData testingData;
-	SObjectPointCloudData testingData2;
+    SObjectPointCloudData trainingData;
+    SObjectPointCloudData testingData;
+    SObjectPointCloudData testingData2;
 
-	//int numCategories;
-	bool isPseudoCatLoaded;
+    //int numCategories;
+    bool isPseudoCatLoaded;
 
-	//AutoEncoders
-	std::map<int, CStackedAutoEncoder> autoEncoders;
-	std::map<int, double> aEConfidences;
+    //AutoEncoders
+    std::map<int, CStackedAutoEncoder> autoEncoders;
+    std::map<int, double> aEConfidences;
 
-	//SVM
-	std::map<int, CSvmClassifier> svms;
+    //SVM
+    std::map<int, CSvmClassifier> svms;
 
-	std::map<int, CSvmOneClassClassifier> svmOnes;
-	std::map<int, double> svmOnesConfidences;
+    std::map<int, CSvmOneClassClassifier> svmOnes;
+    std::map<int, double> svmOnesConfidences;
 
-	//SVM Cascade
-	std::map<int, CSvmCascade> svmCascade;
+    //SVM Cascade
+    std::map<int, CSvmCascade> svmCascade;
 
-	CSvmLinearClassifier svmLinear;
+    CSvmLinearClassifier svmLinear;
 
-	//print
-	void print(std::map<int, std::vector<std::vector<double> > > &featureVector);
+    //print
+    void print(std::map<int, std::vector<std::vector<double> > > &featureVector);
 
 
-	void verifySvm(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void verifySvm(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
 
-	void verifySvmLinear(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void verifySvmLinear(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
 
-	void loadSVMModel();
-	void saveSVMModel();
+    void loadSVMModel();
+    void saveSVMModel();
 
-	void loadSVMCascade();
-	void loadSVMOneClassModel();
+    void loadSVMCascade();
+    void loadSVMOneClassModel();
 
-	void loadSVMLinearModel();
-	void saveSVMLinearModel();
+    void loadSVMLinearModel();
+    void saveSVMLinearModel();
 
-	void saveSVMCascade();
-	void loadAutoEncoderModel();
-	void saveAutoEncoderModel();
+    void saveSVMCascade();
+    void loadAutoEncoderModel();
+    void saveAutoEncoderModel();
 
-	void augmentSetWithScalePyramid(SObjectPointCloudData &set);
-	void augmentSetWithEnNoisement(SObjectPointCloudData &set);
+    void augmentSetWithScalePyramid(SObjectPointCloudData &set);
+    void augmentSetWithEnNoisement(SObjectPointCloudData &set);
 
-	std::map<int, std::vector<std::vector<double> > > createOneVsAllsetMap(int label, std::map<int, std::vector<std::vector<double> > > &extractedFeatureVectors);
+    std::map<int, std::vector<std::vector<double> > > createOneVsAllsetMap(int label, std::map<int, std::vector<std::vector<double> > > &extractedFeatureVectors);
 
-	bool doTrainAutoEncoder;
-	bool doTrainSvm;
-	bool doTrainSvmLinear;
+    bool doTrainAutoEncoder;
+    bool doTrainSvm;
+    bool doTrainSvmLinear;
 
-	bool doQueryAutoEncoder;
-	bool doQuerySvm;
-	bool doQuerySvmLinear;
+    bool doQueryAutoEncoder;
+    bool doQuerySvm;
+    bool doQuerySvmLinear;
 
-	std::string homePath;
+    std::string homePath;
 
-	float minConfidence;
-	float addEnNoisement;
-	bool doTrainScalePyramid;
+    float minConfidence;
+    float addEnNoisement;
+    bool doTrainScalePyramid;
 
-	std::string tag;
-	bool isTag;
+    std::string tag;
+    bool isTag;
 
 public:
-	CObjectCategorizationGeometric();
+    CObjectCategorizationGeometric();
 
-	void inputObjectPointCloud(pcl::PointCloud<pcl::PointXYZ> objectPointCloud, int label, int type);
-	void inputObjectPointClouds(std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds, std::vector<int> labels, std::vector<std::string> objectNames, int type);
-	void inputObjectPointClouds(std::string dataBasePath, int maxNumObjectPerClass, int type, bool concat);
-	void inputObjectPointClouds(std::string dataPath, int maxNumObjectPerClass, int type, bool concat, int label);
+    void inputObjectPointCloud(pcl::PointCloud<pcl::PointXYZ> objectPointCloud, int label, int type);
+    void inputObjectPointClouds(std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds, std::vector<int> labels, std::vector<std::string> objectNames, int type);
+    void inputObjectPointClouds(std::string dataBasePath, int maxNumObjectPerClass, int type, bool concat);
+    void inputObjectPointClouds(std::string dataPath, int maxNumObjectPerClass, int type, bool concat, int label);
 
-	void inputObjectPointCloudsPseudoCategories(std::string dataPathPseudoCategory, int maxNumObjectPerClass, bool concat = false);
-	void trainPseudoCategories();
-	void trainPseudoCategories(std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds, std::vector<int> labels, std::vector<std::string> objectNames);
+    void inputObjectPointCloudsPseudoCategories(std::string dataPathPseudoCategory, int maxNumObjectPerClass, bool concat = false);
+    void trainPseudoCategories();
+    void trainPseudoCategories(std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds, std::vector<int> labels, std::vector<std::string> objectNames);
 
-	void loadPseudoCategories();
-	void loadModel();
+    void loadPseudoCategories();
+    void loadModel();
 
-	void train();
+    void train();
 
-	std::vector<std::vector<double> > createBootstrap(std::vector<std::vector<double> > &featureVectors, unsigned int numberVec);
-	std::vector<std::vector<double> > createOneVsAllset(int label, std::map<int, std::vector<std::vector<double> > > &extractedFeatureVectors, double ratio = -1.0);
-	std::vector<std::vector<double> > createOneClassSet(int label, std::map<int, std::vector<std::vector<double> > > &extractedFeatureVectors);
-	std::pair<std::vector<std::vector<double> >, std::vector<std::vector<double> > > splitPosNegSet(std::vector<std::vector<double> > set);
-	std::vector<std::vector<double> > removeRandExamples(std::vector<std::vector<double> > &set, unsigned int numtoExtractExamples);
+    std::vector<std::vector<double> > createBootstrap(std::vector<std::vector<double> > &featureVectors, unsigned int numberVec);
+    std::vector<std::vector<double> > createOneVsAllset(int label, std::map<int, std::vector<std::vector<double> > > &extractedFeatureVectors, double ratio = -1.0);
+    std::vector<std::vector<double> > createOneClassSet(int label, std::map<int, std::vector<std::vector<double> > > &extractedFeatureVectors);
+    std::pair<std::vector<std::vector<double> >, std::vector<std::vector<double> > > splitPosNegSet(std::vector<std::vector<double> > set);
+    std::vector<std::vector<double> > removeRandExamples(std::vector<std::vector<double> > &set, unsigned int numtoExtractExamples);
 
-	std::vector<double> extractFeatureVectorRT(std::map<int, std::pair<int, double> > &treeReponses);
-	std::pair<int, double> query(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
-	std::pair<int, double> queryAE(std::vector<double> featureVector);
+    std::vector<double> extractFeatureVectorRT(std::map<int, std::pair<int, double> > &treeReponses);
+    std::pair<int, double> query(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
+    std::pair<int, double> queryAE(std::vector<double> featureVector);
 
-	//one vs all; rbf svm
-	std::pair<int, double> query(std::vector<double> featureVector);
+    //one vs all; rbf svm
+    std::pair<int, double> query(std::vector<double> featureVector);
 
-	//multiclass; linear svm
-	std::pair<int, double> query2(std::vector<double> featureVector);
-	std::pair<int, double> queryEnNoised(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
+    //multiclass; linear svm
+    std::pair<int, double> query2(std::vector<double> featureVector);
+    std::pair<int, double> queryEnNoised(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
 
-	void verifyAutoEncoders();
-	void verifySvmOneClass();
+    void verifyAutoEncoders();
+    void verifySvmOneClass();
 
-	void trainAutoEncoders(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors);
-	void trainSvms(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
-	void trainSvmLinears(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
-	void trainSvmsAdaptive(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
-	void trainSvmsAdaptiveParallel(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors,
-			std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
-	void trainSvmsBoostrapping(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
-	void loadTraintrain();
-	void trainNeuralGas(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
-	void trainSvmOneClass(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void trainAutoEncoders(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors);
+    void trainSvms(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void trainSvmLinears(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void trainSvmsAdaptive(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void trainSvmsAdaptiveParallel(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors,
+                                   std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void trainSvmsBoostrapping(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void loadTraintrain();
+    void trainNeuralGas(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
+    void trainSvmOneClass(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors, std::map<int, std::vector<std::vector<double> > > &extractedTestingFeatureVectors);
 
-	void setDoTrainAutoEncoder(bool train)
-	{
-		this->doTrainAutoEncoder = train;
-	}
-	void setDoTrainSvm(bool train)
-	{
-		this->doTrainSvm = train;
-	}
+    void setDoTrainAutoEncoder(bool train)
+    {
+        this->doTrainAutoEncoder = train;
+    }
+    void setDoTrainSvm(bool train)
+    {
+        this->doTrainSvm = train;
+    }
 
-	void setDoTrainSvmLinear(bool train)
-	{
-		this->doTrainSvmLinear = train;
-	}
+    void setDoTrainSvmLinear(bool train)
+    {
+        this->doTrainSvmLinear = train;
+    }
 
-	void setDoQuerySvm(bool query)
-	{
-		this->doQuerySvm = query;
-	}
+    void setDoQuerySvm(bool query)
+    {
+        this->doQuerySvm = query;
+    }
 
-	void setDoQuerySvmLinear(bool query)
-	{
-		this->doQuerySvmLinear = query;
-	}
+    void setDoQuerySvmLinear(bool query)
+    {
+        this->doQuerySvmLinear = query;
+    }
 
-	void setDoQueryAutoEncoder(bool query)
-	{
-		this->doQueryAutoEncoder = query;
-	}
+    void setDoQueryAutoEncoder(bool query)
+    {
+        this->doQueryAutoEncoder = query;
+    }
 
-	void setHomePath(std::string homePath);
+    void setHomePath(std::string homePath);
 
-	SObjectPointCloudData getTrainingData()
-	{
-		return this->trainingData;
-	}
-	SObjectPointCloudData getTestingData()
-	{
-		return this->trainingData;
-	}
+    SObjectPointCloudData getTrainingData()
+    {
+        return this->trainingData;
+    }
+    SObjectPointCloudData getTestingData()
+    {
+        return this->trainingData;
+    }
 
-	void setTag(std::string tag)
-	{
-		this->tag = tag;
-		isTag = true;
-	}
-	//pointcloud
-	double evaluateQuery1();
-	void evaluateQuery2();
-	double evaluateQuery22(SObjectPointCloudData dataSet);
-	double evaluateQuery22(int set = 2);
-	void evaluateSvm1();
-	bool evaluateSvm2();
-	void evaluateSvm3();
-	bool evaluateSvm4();
-	bool querySvm(pcl::PointCloud<pcl::PointXYZ> queryPointCloud, unsigned int category);
-	std::pair<int, double> queryPseudo(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
-	std::pair<int, std::vector<double> > queryPseudo2(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
-	void updateModelSvmLinear(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors);
+    void setTag(std::string tag)
+    {
+        this->tag = tag;
+        isTag = true;
+    }
+    //pointcloud
+    double evaluateQuery1();
+    void evaluateQuery2();
+    double evaluateQuery22(SObjectPointCloudData dataSet);
+    double evaluateQuery22(int set = 2);
+    void evaluateSvm1();
+    bool evaluateSvm2();
+    void evaluateSvm3();
+    bool evaluateSvm4();
+    bool querySvm(pcl::PointCloud<pcl::PointXYZ> queryPointCloud, unsigned int category);
+    std::pair<int, double> queryPseudo(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
+    std::pair<int, std::vector<double> > queryPseudo2(pcl::PointCloud<pcl::PointXYZ> queryPointCloud);
+    void updateModelSvmLinear(std::map<int, std::vector<std::vector<double> > > &extractedTrainingFeatureVectors);
 
 
 };

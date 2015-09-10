@@ -1,4 +1,4 @@
-/*  
+/*
  * Created on: Mar 18, 2011
  * Author: Christian Mueller
  */
@@ -15,41 +15,41 @@
 
 struct SBinConfig
 {
-	double binSize;
-	double binWidth;
-	double minValue;
-	double maxValue;
-	double cost;
-	double mean;
-	double var;
-	SBinConfig() :
-		binSize(0), binWidth(0), minValue(0), maxValue(0), cost(0), mean(0),
-				var(0)
-	{
-	}
+    double binSize;
+    double binWidth;
+    double minValue;
+    double maxValue;
+    double cost;
+    double mean;
+    double var;
+    SBinConfig() :
+        binSize(0), binWidth(0), minValue(0), maxValue(0), cost(0), mean(0),
+        var(0)
+    {
+    }
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & binSize;
-		ar & binWidth;
-		ar & minValue;
-		ar & maxValue;
-		ar & cost;
-		ar & mean;
-		ar & var;
-	}
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & binSize;
+        ar & binWidth;
+        ar & minValue;
+        ar & maxValue;
+        ar & cost;
+        ar & mean;
+        ar & var;
+    }
 };
 
 struct SBandwidthConfig
 {
-	double bandwidth;
+    double bandwidth;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & bandwidth;
-	}
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & bandwidth;
+    }
 
 };
 

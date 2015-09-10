@@ -35,18 +35,18 @@
 class apsp_node: public node
 {
 private:
-	int heap_index;
+    int heap_index;
 protected:
-	std::map<node*,double> dists;
-	std::map<node*,node*> predecessors;
+    std::map<node*, double> dists;
+    std::map<node*, node*> predecessors;
 public:
-	apsp_node(const int id);
-	double get_dist_from(node* start);
-	void set_dist_from(node* start, double dist);
-	int get_heap_index();
-	void set_heap_index(const int i);
-	node* get_predecessor_on_path_from(node* source);
-	void set_predecessor_on_path_from(node* source, node* predecessor);
+    apsp_node(const int id);
+    double get_dist_from(node* start);
+    void set_dist_from(node* start, double dist);
+    int get_heap_index();
+    void set_heap_index(const int i);
+    node* get_predecessor_on_path_from(node* source);
+    void set_predecessor_on_path_from(node* source, node* predecessor);
 };
 
 #endif /* APSP_NODE_HPP_ */

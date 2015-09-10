@@ -47,21 +47,21 @@
 
 class CPlaneExtraction
 {
- private:
-	CToolBoxROS toolBox;
- public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-	CPlaneExtraction();
-	pcl::PointCloud<pcl::PointXYZRGBNormal> extractHorizontalSurface(pcl::PointCloud<pcl::PointXYZRGBNormal> &point_cloud, bool surface);
-	pcl::PointCloud<pcl::PointXYZRGB> extractHorizontalSurfaceFromNormals(pcl::PointCloud<pcl::PointXYZRGB> &point_cloud, bool surface);
-	std::vector<StructPlanarSurface*> extractMultiplePlanes(
-	        pcl::PointCloud<pcl::PointXYZRGBNormal> &point_cloud_normal, pcl::PointCloud<pcl::PointXYZRGBNormal> &planar_point_cloud_normal,
-	        std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZRGBNormal> > > &clustered_planes,
-	        int axis);
-	std::vector<StructPlanarSurface*> createPlanarHierarchy(
-	        std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZRGBNormal> > > &clustered_planes,
-	        bool doMultiplane = true);
-	void setDistance(float fDistance);
+private:
+    CToolBoxROS toolBox;
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    CPlaneExtraction();
+    pcl::PointCloud<pcl::PointXYZRGBNormal> extractHorizontalSurface(pcl::PointCloud<pcl::PointXYZRGBNormal> &point_cloud, bool surface);
+    pcl::PointCloud<pcl::PointXYZRGB> extractHorizontalSurfaceFromNormals(pcl::PointCloud<pcl::PointXYZRGB> &point_cloud, bool surface);
+    std::vector<StructPlanarSurface*> extractMultiplePlanes(
+        pcl::PointCloud<pcl::PointXYZRGBNormal> &point_cloud_normal, pcl::PointCloud<pcl::PointXYZRGBNormal> &planar_point_cloud_normal,
+        std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZRGBNormal> > > &clustered_planes,
+        int axis);
+    std::vector<StructPlanarSurface*> createPlanarHierarchy(
+        std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZRGBNormal> > > &clustered_planes,
+        bool doMultiplane = true);
+    void setDistance(float fDistance);
 
 };
 

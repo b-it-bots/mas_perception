@@ -21,92 +21,92 @@ class PlaneExtraction
 
 public:
 
-  /** Default constructor will setup all involved PCL classes with sensible
-    * default parameters. */
-  PlaneExtraction();
+    /** Default constructor will setup all involved PCL classes with sensible
+      * default parameters. */
+    PlaneExtraction();
 
-  /** This constructor allows to set parameters of all involved PCL classs. */
-  PlaneExtraction(double normal_max_depth_change_factor,
-                  double normal_smoothing_size,
-                  unsigned int min_inliers,
-                  double angular_threshold,
-                  double distance_threshold,
-                  double maximum_curvature,
-                  double refinement_threshold,
-                  double refinement_depth_dependent);
+    /** This constructor allows to set parameters of all involved PCL classs. */
+    PlaneExtraction(double normal_max_depth_change_factor,
+                    double normal_smoothing_size,
+                    unsigned int min_inliers,
+                    double angular_threshold,
+                    double distance_threshold,
+                    double maximum_curvature,
+                    double refinement_threshold,
+                    double refinement_depth_dependent);
 
-  void extract(PlanarPolygonVector& planar_polygons);
+    void extract(PlanarPolygonVector& planar_polygons);
 
-  inline void setInputCloud(const PointCloud::ConstPtr &cloud)
-  {
-    input_ = cloud;
-  }
+    inline void setInputCloud(const PointCloud::ConstPtr &cloud)
+    {
+        input_ = cloud;
+    }
 
-  inline PointCloud::ConstPtr getInputCloud() const
-  {
-    return input_;
-  }
+    inline PointCloud::ConstPtr getInputCloud() const
+    {
+        return input_;
+    }
 
-  inline void setPlaneConstraints(const Eigen::Vector3f& normal, double angular_threshold)
-  {
-    apply_angular_constraints_ = true;
-    apply_distance_constraints_ = false;
-    plane_normal_ = normal;
-    angular_threshold_ = angular_threshold;
-  }
+    inline void setPlaneConstraints(const Eigen::Vector3f& normal, double angular_threshold)
+    {
+        apply_angular_constraints_ = true;
+        apply_distance_constraints_ = false;
+        plane_normal_ = normal;
+        angular_threshold_ = angular_threshold;
+    }
 
-  inline void setPlaneConstraints(const Eigen::Vector3f& normal, double angular_threshold,
-                                  double distance, double distance_threshold)
-  {
-    apply_angular_constraints_ = true;
-    apply_distance_constraints_ = true;
-    plane_normal_ = normal;
-    angular_threshold_ = angular_threshold;
-    distance_ = distance;
-    distance_threshold_ = distance_threshold;
-  }
+    inline void setPlaneConstraints(const Eigen::Vector3f& normal, double angular_threshold,
+                                    double distance, double distance_threshold)
+    {
+        apply_angular_constraints_ = true;
+        apply_distance_constraints_ = true;
+        plane_normal_ = normal;
+        angular_threshold_ = angular_threshold;
+        distance_ = distance;
+        distance_threshold_ = distance_threshold;
+    }
 
-  inline void removePlaneConstraints()
-  {
-    apply_angular_constraints_ = false;
-    apply_distance_constraints_ = false;
-  }
+    inline void removePlaneConstraints()
+    {
+        apply_angular_constraints_ = false;
+        apply_distance_constraints_ = false;
+    }
 
-  inline void setSortByArea(bool sort)
-  {
-    sort_by_area_ = sort;
-  }
+    inline void setSortByArea(bool sort)
+    {
+        sort_by_area_ = sort;
+    }
 
-  inline bool getSortByArea() const
-  {
-    return sort_by_area_;
-  }
+    inline bool getSortByArea() const
+    {
+        return sort_by_area_;
+    }
 
-  virtual ~PlaneExtraction()
-  {
-    input_.reset();
-  }
+    virtual ~PlaneExtraction()
+    {
+        input_.reset();
+    }
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
 
-  PointCloud::ConstPtr input_;
+    PointCloud::ConstPtr input_;
 
-  pcl::IntegralImageNormalEstimation<PointT, PointNT> ne_;
-  pcl::OrganizedMultiPlaneSegmentation<PointT, PointNT, PointLT> mps_;
-  pcl::ProjectInliers<PointT> pi_;
+    pcl::IntegralImageNormalEstimation<PointT, PointNT> ne_;
+    pcl::OrganizedMultiPlaneSegmentation<PointT, PointNT, PointLT> mps_;
+    pcl::ProjectInliers<PointT> pi_;
 
-  double angular_threshold_;
-  double distance_threshold_;
+    double angular_threshold_;
+    double distance_threshold_;
 
-  Eigen::Vector3f plane_normal_;
-  double distance_;
+    Eigen::Vector3f plane_normal_;
+    double distance_;
 
-  bool apply_angular_constraints_;
-  bool apply_distance_constraints_;
+    bool apply_angular_constraints_;
+    bool apply_distance_constraints_;
 
-  bool sort_by_area_;
+    bool sort_by_area_;
 
 };
 

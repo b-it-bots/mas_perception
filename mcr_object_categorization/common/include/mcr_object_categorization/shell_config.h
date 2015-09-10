@@ -1,4 +1,4 @@
-/*  
+/*
  * Created on: Mar 18, 2011
  * Author: Christian Mueller
  */
@@ -16,19 +16,19 @@
 
 struct SShellConfig
 {
-	int shellSize; //num shells
-	double shellWidth;
-	double minValue; //minDistance
-	double maxValue;
+    int shellSize; //num shells
+    double shellWidth;
+    double minValue; //minDistance
+    double maxValue;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & shellSize;
-		ar & shellWidth;
-		ar & minValue;
-		ar & maxValue;
-	}
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & shellSize;
+        ar & shellWidth;
+        ar & minValue;
+        ar & maxValue;
+    }
 
 };
 

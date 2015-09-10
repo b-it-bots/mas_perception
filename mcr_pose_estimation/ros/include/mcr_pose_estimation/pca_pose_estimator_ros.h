@@ -16,55 +16,55 @@
  */
 class PCAPoseEstimatorRos
 {
-    public:
-        /**
-         * Constructor
-         */
-        PCAPoseEstimatorRos();
-        /**
-         * Destructor
-         */
-        virtual ~PCAPoseEstimatorRos();
+public:
+    /**
+     * Constructor
+     */
+    PCAPoseEstimatorRos();
+    /**
+     * Destructor
+     */
+    virtual ~PCAPoseEstimatorRos();
 
-        /**
-         * if pointcloud has been received, estimatePose is called
-         */
-        void update();
-
-
-    private:
-        /**
-         * Pointcloud callback
-         */
-        void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
-
-        /**
-         * Estimates pose of a pointcloud by calculating its eigenvectors and aligning the x,y,z
-         * axes along the largest to smallest vector.
-         * Publishes a PoseStamped message
-         */
-        void estimatePose();
+    /**
+     * if pointcloud has been received, estimatePose is called
+     */
+    void update();
 
 
-    private:
-        /**
-         * Subscriber to pointcloud
-         */
-        ros::Subscriber sub_pointcloud_;
+private:
+    /**
+     * Pointcloud callback
+     */
+    void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
 
-        /**
-         * Pose publisher
-         */
-        ros::Publisher pub_pose_;
+    /**
+     * Estimates pose of a pointcloud by calculating its eigenvectors and aligning the x,y,z
+     * axes along the largest to smallest vector.
+     * Publishes a PoseStamped message
+     */
+    void estimatePose();
 
-        /**
-         * Used to store pointcloud message
-         */
-        sensor_msgs::PointCloud2::Ptr pointcloud_msg_;
 
-        /**
-         * Flag to indicate if pointcloud has been received
-         */
-        bool pointcloud_msg_received_;
+private:
+    /**
+     * Subscriber to pointcloud
+     */
+    ros::Subscriber sub_pointcloud_;
+
+    /**
+     * Pose publisher
+     */
+    ros::Publisher pub_pose_;
+
+    /**
+     * Used to store pointcloud message
+     */
+    sensor_msgs::PointCloud2::Ptr pointcloud_msg_;
+
+    /**
+     * Flag to indicate if pointcloud has been received
+     */
+    bool pointcloud_msg_received_;
 };
 #endif

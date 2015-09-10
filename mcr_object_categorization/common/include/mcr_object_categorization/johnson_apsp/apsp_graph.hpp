@@ -30,16 +30,17 @@
 #define DEBUG false
 #define TESTRELAX false
 
-class apsp_graph: public graph {
+class apsp_graph: public graph
+{
 public:
-	virtual node* add_node(const int id);
-	void print_matrix() const;
-	void print_matrix(string filename) const;
-	apsp_graph(){};
-	apsp_graph(const char* path);
-	apsp_graph(const graph& g);
-	apsp_graph(const apsp_graph& g);
-	bool apspJohnson();
+    virtual node* add_node(const int id);
+    void print_matrix() const;
+    void print_matrix(string filename) const;
+    apsp_graph() {};
+    apsp_graph(const char* path);
+    apsp_graph(const graph& g);
+    apsp_graph(const apsp_graph& g);
+    bool apspJohnson();
 
 };
 

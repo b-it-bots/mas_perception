@@ -1,4 +1,4 @@
-/*  
+/*
  * Created on: Mar 18, 2011
  * Author: Christian Mueller
  */
@@ -130,73 +130,73 @@
 class CFileSettings
 {
 public:
-	static std::map<int, std::string> trainPath;
-	static std::map<int, std::string> labels;
+    static std::map<int, std::string> trainPath;
+    static std::map<int, std::string> labels;
 
-	static void init()
-	{
+    static void init()
+    {
 
-		CFileSettings::labels.insert(std::pair<int, std::string>(
-				LABEL_NEGATIVE, NAME_NEGATIVE));
-		CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_CUP,
-				NAME_CUP));
-		CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_CAN,
-				NAME_CAN));
-		CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BOX,
-				NAME_BOX));
-		CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BOTTLE,
-				NAME_BOTTLE));
-		CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BOWL,
-				NAME_BOWL));
-		CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_PLATE,
-				NAME_PLATE));
-		CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BALL,
-				NAME_BALL));
-		//CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_ADD0,
-		//				NAME_ADD0));
+        CFileSettings::labels.insert(std::pair<int, std::string>(
+                                         LABEL_NEGATIVE, NAME_NEGATIVE));
+        CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_CUP,
+                                     NAME_CUP));
+        CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_CAN,
+                                     NAME_CAN));
+        CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BOX,
+                                     NAME_BOX));
+        CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BOTTLE,
+                                     NAME_BOTTLE));
+        CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BOWL,
+                                     NAME_BOWL));
+        CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_PLATE,
+                                     NAME_PLATE));
+        CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_BALL,
+                                     NAME_BALL));
+        //CFileSettings::labels.insert(std::pair<int, std::string>(LABEL_ADD0,
+        //              NAME_ADD0));
 
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(
-				LABEL_NEGATIVE, TRAIN_NEGATIVE));
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_CUP,
-				TRAIN_CUP));
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_CAN,
-				TRAIN_CAN));
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_BOX,
-				TRAIN_BOX));
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(
-				LABEL_BOTTLE, TRAIN_BOTTLE));
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_BOWL,
-				TRAIN_BOWL));
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(
-				LABEL_PLATE, TRAIN_PLATE));
-		CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_BALL,
-				TRAIN_BALL));
-		//CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_ADD0,
-		//				TRAIN_ADD0));
-	}
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(
+                                            LABEL_NEGATIVE, TRAIN_NEGATIVE));
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_CUP,
+                                        TRAIN_CUP));
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_CAN,
+                                        TRAIN_CAN));
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_BOX,
+                                        TRAIN_BOX));
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(
+                                            LABEL_BOTTLE, TRAIN_BOTTLE));
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_BOWL,
+                                        TRAIN_BOWL));
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(
+                                            LABEL_PLATE, TRAIN_PLATE));
+        CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_BALL,
+                                        TRAIN_BALL));
+        //CFileSettings::trainPath.insert(std::pair<int, std::string>(LABEL_ADD0,
+        //              TRAIN_ADD0));
+    }
 
-	static void coutStdVector(std::vector<double> data, bool newLines = false);
-	static void saveStdVector(std::string fileName, std::vector<double> data);
-	//static void saveAppendStdVector(std::string fileName,
-	//		std::vector<double> data, bool reCreateFile = false);
-	static std::vector<std::vector<double> >
-	loadStdVector(std::string fileName);
+    static void coutStdVector(std::vector<double> data, bool newLines = false);
+    static void saveStdVector(std::string fileName, std::vector<double> data);
+    //static void saveAppendStdVector(std::string fileName,
+    //      std::vector<double> data, bool reCreateFile = false);
+    static std::vector<std::vector<double> >
+    loadStdVector(std::string fileName);
 
-	static void
-			saveLibSvmItem(bool isAppend, std::string fileName,
-					std::vector<int> labels,
-					std::vector<std::vector<double> > features);
+    static void
+    saveLibSvmItem(bool isAppend, std::string fileName,
+                   std::vector<int> labels,
+                   std::vector<std::vector<double> > features);
 
-	static void
-			saveLibSvmItem2(bool isAppend, std::string fileName,
-					std::vector<int> labels,
-					std::vector<std::vector<double> > features);
-	static void saveUnsupervisedItem(bool isAppend, std::string fileName,std::map<int,std::vector<double> > features);
-	static void saveUnsupervisedItem(bool isAppend, std::string fileName,std::vector<std::vector<double> > features);
+    static void
+    saveLibSvmItem2(bool isAppend, std::string fileName,
+                    std::vector<int> labels,
+                    std::vector<std::vector<double> > features);
+    static void saveUnsupervisedItem(bool isAppend, std::string fileName, std::map<int, std::vector<double> > features);
+    static void saveUnsupervisedItem(bool isAppend, std::string fileName, std::vector<std::vector<double> > features);
 
-	static void tokenize(const std::string& str,
-			std::vector<std::string>& tokens, const std::string& delimiters =
-					" ");
+    static void tokenize(const std::string& str,
+                         std::vector<std::string>& tokens, const std::string& delimiters =
+                             " ");
 
 };
 

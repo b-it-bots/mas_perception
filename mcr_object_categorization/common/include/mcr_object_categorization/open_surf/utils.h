@@ -1,4 +1,4 @@
-/*********************************************************** 
+/***********************************************************
 *  --- OpenSURF ---                                       *
 *  This library is distributed under the GNU GPL. Please   *
 *  use the contact form at http://www.chrisevansdev.com    *
@@ -25,7 +25,7 @@ void error(const char *msg);
 void showImage(const IplImage *img);
 
 //! Show the provided image in titled window and wait for keypress
-void showImage(char *title,const IplImage *img);
+void showImage(char *title, const IplImage *img);
 
 // Convert image to single channel 32F
 IplImage* getGray(const IplImage *img);
@@ -57,7 +57,7 @@ void loadSurf(char *filename, std::vector<Ipoint> &ipts);
 //! Round float to nearest integer
 inline int fRound(float flt)
 {
-  return (int) floor(flt+0.5f);
+    return (int) floor(flt + 0.5f);
 }
 
 #endif

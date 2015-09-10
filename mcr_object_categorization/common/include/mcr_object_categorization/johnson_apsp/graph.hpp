@@ -30,23 +30,23 @@ using namespace std;
 class graph
 {
 protected:
-	list<node*> nodes;
+    list<node*> nodes;
 public:
 
 
-	virtual node* add_node(const int id);
+    virtual node* add_node(const int id);
 
-	void add_undirectedEdge(const int id, const int tgt, const double weight);
-	void add_edge(const int id, const int tgt, const double weight);
-	void print() const;
-	const std::list<node*>* get_nodes() const;
-	graph();
-	graph(const char* path);
-	void load_file(const char* path);
-	graph(const graph& g);
-	void copy_from_graph(const graph& g);
-	std::list<edge*>* create_edge_list();
-	void remove_node(node* node);
+    void add_undirectedEdge(const int id, const int tgt, const double weight);
+    void add_edge(const int id, const int tgt, const double weight);
+    void print() const;
+    const std::list<node*>* get_nodes() const;
+    graph();
+    graph(const char* path);
+    void load_file(const char* path);
+    graph(const graph& g);
+    void copy_from_graph(const graph& g);
+    std::list<edge*>* create_edge_list();
+    void remove_node(node* node);
 };
 
 #endif /* GRAPH_HPP_ */

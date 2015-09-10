@@ -11,64 +11,68 @@
 #include<cmath>
 #define PI 3.14159265
 
-class CToolBoxNG{
+class CToolBoxNG
+{
 private:
-	int id;
+    int id;
 public:
-	CToolBoxNG(){;}
-	std::vector<double> normalizePoint3D(std::vector<double> point)
-	{
-		std::vector<double> normalizedpoint;
+    CToolBoxNG()
+    {
+        ;
+    }
+    std::vector<double> normalizePoint3D(std::vector<double> point)
+    {
+        std::vector<double> normalizedpoint;
 
-		normalizedpoint.resize(point.size());
-		double a;
-		double sum = 0;
+        normalizedpoint.resize(point.size());
+        double a;
+        double sum = 0;
 
-		for(unsigned int i = 0; i<point.size(); i++)
-		{
-			sum +=  (point[i] * point[i]);
-		}
+        for (unsigned int i = 0; i < point.size(); i++)
+        {
+            sum += (point[i] * point[i]);
+        }
 
-		a = sqrt(sum);
+        a = sqrt(sum);
 
-		for(unsigned int i = 0; i<point.size(); i++)
-		{
-			normalizedpoint[i] =  (point[i]/a);
-		}
+        for (unsigned int i = 0; i < point.size(); i++)
+        {
+            normalizedpoint[i] = (point[i] / a);
+        }
 
-		return normalizedpoint;
-	}
+        return normalizedpoint;
+    }
 
-	float angleBetweenPoints(std::vector<double> point1,std::vector<double> point2)
-	{
-		float angle = 0;
-		if(point1.size()!=point2.size())
-			return angle;
+    float angleBetweenPoints(std::vector<double> point1, std::vector<double> point2)
+    {
+        float angle = 0;
+        if (point1.size() != point2.size())
+            return angle;
 
-		std::vector<double> normalizedpoint1;
-		std::vector<double> normalizedpoint2;
+        std::vector<double> normalizedpoint1;
+        std::vector<double> normalizedpoint2;
 
-		normalizedpoint1 = this->normalizePoint3D(point1);
-		normalizedpoint2 = this->normalizePoint3D(point2);
+        normalizedpoint1 = this->normalizePoint3D(point1);
+        normalizedpoint2 = this->normalizePoint3D(point2);
 
-		double sum = 0;
-		for(unsigned int i = 0; i<normalizedpoint1.size(); i++)
-		{
-			sum += normalizedpoint1[i] * normalizedpoint2[i];
-		//	std::cout<<"norm1 "<<normalizedpoint1[i]<<"\n";
-			//std::cout<<"norm2 "<<normalizedpoint2[i]<<"\n";
-		}
+        double sum = 0;
+        for (unsigned int i = 0; i < normalizedpoint1.size(); i++)
+        {
+            sum += normalizedpoint1[i] * normalizedpoint2[i];
+            //  std::cout<<"norm1 "<<normalizedpoint1[i]<<"\n";
+            //std::cout<<"norm2 "<<normalizedpoint2[i]<<"\n";
+        }
 
 
-		angle = (acos(sum) *  180.0 / PI);
+        angle = (acos(sum) *  180.0 / PI);
 
-		//std::cout<<"norm1 "<<normalizedpoint1<<"\n";
-		//std::cout<<"norm2 "<<normalizedpoint2<<"\n";
-	//	std::cout<<"sum "<<sum<<"\n";
-		//std::cout<<"angle "<<angle<<"\n";
+        //std::cout<<"norm1 "<<normalizedpoint1<<"\n";
+        //std::cout<<"norm2 "<<normalizedpoint2<<"\n";
+        //  std::cout<<"sum "<<sum<<"\n";
+        //std::cout<<"angle "<<angle<<"\n";
 
-		return angle;
-	}
+        return angle;
+    }
 };
 
 #endif

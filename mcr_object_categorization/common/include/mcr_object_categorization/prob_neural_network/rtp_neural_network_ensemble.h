@@ -1,4 +1,4 @@
-/*  
+/*
  * Created on: Mar 18, 2011
  * Author: Christian Mueller
  */
@@ -29,77 +29,80 @@
 class CRTPNeuralNetworkEnsemble
 {
 private:
-	friend class boost::serialization::access;
+    friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & this->RTPNNForrest;
-		//ar & this->hModel;
-		//ar & this->hTrainModel;
-		//ar & this->hTestModel;
-		ar & this->trainTestSetRatioForrest;
-		ar & this->hModelVerifications;
-		ar & this->numCategories;
-	}
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & this->RTPNNForrest;
+        //ar & this->hModel;
+        //ar & this->hTrainModel;
+        //ar & this->hTestModel;
+        ar & this->trainTestSetRatioForrest;
+        ar & this->hModelVerifications;
+        ar & this->numCategories;
+    }
 protected:
-	CLogger *logger;
+    CLogger *logger;
 
-	int numCategories;
+    int numCategories;
 
-	std::map<int, CRTPNeuralNetwork> RTPNNForrest;
-	
-	std::map<int, std::vector<SVerficationResult> > hModelVerifications;
+    std::map<int, CRTPNeuralNetwork> RTPNNForrest;
 
-	//label, object id, label', object id', feature vector
-	std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > hModel;
+    std::map<int, std::vector<SVerficationResult> > hModelVerifications;
 
-	std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > hTrainModel;
+    //label, object id, label', object id', feature vector
+    std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > hModel;
 
-	std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > hTestModel;
+    std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > hTrainModel;
 
-	float trainTestSetRatioForrest;
-	float trainSetChunkSize;
-	int numToSelectTrees;
-	//std::vector<std::vector<int> > rootCombinations;
-	void extractDiscriminativeTrees(unsigned int numTreesToExtract);
-	void addDiscriminativeTrees(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees, bool replace = true);
-	void addDiscriminativeTrees2(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees);
-	void addDiscriminativeTrees3(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees);
-	void addDiscriminativeTrees4(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees);
-	int next_comb(int comb[], int k, int n);
-	std::vector<int*> computeCombinations(int n, int k);
-	std::vector<std::vector<int> > generateRootCombinations(unsigned int numberOfNeurons);
-	void setTrainTestSet(float trainTestSetRatio);
+    std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > hTestModel;
 
-	std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > createTrainSetChunk(
-			std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > &trainSet, float chunkSize);
+    float trainTestSetRatioForrest;
+    float trainSetChunkSize;
+    int numToSelectTrees;
+    //std::vector<std::vector<int> > rootCombinations;
+    void extractDiscriminativeTrees(unsigned int numTreesToExtract);
+    void addDiscriminativeTrees(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees, bool replace = true);
+    void addDiscriminativeTrees2(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees);
+    void addDiscriminativeTrees3(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees);
+    void addDiscriminativeTrees4(unsigned int iterTree, CRTPNeuralNetwork tempTree, std::vector<SVerficationResult> tempHModelVerification, unsigned int maxNumTrees);
+    int next_comb(int comb[], int k, int n);
+    std::vector<int*> computeCombinations(int n, int k);
+    std::vector<std::vector<int> > generateRootCombinations(unsigned int numberOfNeurons);
+    void setTrainTestSet(float trainTestSetRatio);
 
-	//trainset , testset
-	std::vector<SVerficationResult> verifyRT(CRTPNeuralNetwork tree);
+    std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > createTrainSetChunk(
+        std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > &trainSet, float chunkSize);
+
+    //trainset , testset
+    std::vector<SVerficationResult> verifyRT(CRTPNeuralNetwork tree);
 public:
-	CRTPNeuralNetworkEnsemble();
-	void initEnsemble(float trainTestSetRatio);
-	std::pair<int, double> fEvaluate(std::map<int, std::map<int, std::vector<double> > > query,std::map<int,std::pair<int,double> > &treeReponses);
+    CRTPNeuralNetworkEnsemble();
+    void initEnsemble(float trainTestSetRatio);
+    std::pair<int, double> fEvaluate(std::map<int, std::map<int, std::vector<double> > > query, std::map<int, std::pair<int, double> > &treeReponses);
 
-	void addHModel(int label, int pattern, std::map<int, std::map<int, std::vector<double> > > &model);
+    void addHModel(int label, int pattern, std::map<int, std::map<int, std::vector<double> > > &model);
 
-	SVerficationResult selfVerificationRTPNNModel();
+    SVerficationResult selfVerificationRTPNNModel();
 
-	SVerficationResult verifyRTPNNModel(std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > toVerifyModel);
+    SVerficationResult verifyRTPNNModel(std::map<int, std::map<int, std::map<int, std::map<int, std::vector<double> > > > > toVerifyModel);
 
-	int getNumTrees()
-	{
-		std::cout << this->RTPNNForrest.size() << " " << hModelVerifications.size() << "\n" << hModelVerifications[0].size() << " " << hModelVerifications[1].size() << std::endl;
-		return this->RTPNNForrest.size();
-	}
+    int getNumTrees()
+    {
+        std::cout << this->RTPNNForrest.size() << " " << hModelVerifications.size() << "\n" << hModelVerifications[0].size() << " " << hModelVerifications[1].size() << std::endl;
+        return this->RTPNNForrest.size();
+    }
 
-	void save(std::string filename);
-	void load(std::string filename);
+    void save(std::string filename);
+    void load(std::string filename);
 
-	int getNumCategories(){ return numCategories;}
+    int getNumCategories()
+    {
+        return numCategories;
+    }
 
-	~CRTPNeuralNetworkEnsemble();
+    ~CRTPNeuralNetworkEnsemble();
 };
 
 //BOOST_CLASS_VERSION(CRTPNeuralNetworkEnsemble, 1)

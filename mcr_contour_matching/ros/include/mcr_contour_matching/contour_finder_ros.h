@@ -23,111 +23,111 @@
  */
 class ContourFinderROS
 {
-    public:
-        /**
-         * Constructor
-         */
-        ContourFinderROS();
-        /**
-         * Destructor
-         */
-        virtual ~ContourFinderROS();
-        /**
-         * If pointcloud message has been received, the findContours function is called.
-         * This function can be called once or periodically.
-         */
-        void update();
+public:
+    /**
+     * Constructor
+     */
+    ContourFinderROS();
+    /**
+     * Destructor
+     */
+    virtual ~ContourFinderROS();
+    /**
+     * If pointcloud message has been received, the findContours function is called.
+     * This function can be called once or periodically.
+     */
+    void update();
 
 
-    private:
-        /**
-         * Copy constructor.
-         */
-        ContourFinderROS(const ContourFinderROS &other);
+private:
+    /**
+     * Copy constructor.
+     */
+    ContourFinderROS(const ContourFinderROS &other);
 
-        /**
-         * Copy assignment operator.
-         */
-        ContourFinderROS &operator=(ContourFinderROS other);
+    /**
+     * Copy assignment operator.
+     */
+    ContourFinderROS &operator=(ContourFinderROS other);
 
-        /**
-         * Callback for pointcloud. Saves the pointcloud message.
-         *
-         * @param msg
-         *          sensor_msgs::PointCloud2 message
-         */
-        void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
+    /**
+     * Callback for pointcloud. Saves the pointcloud message.
+     *
+     * @param msg
+     *          sensor_msgs::PointCloud2 message
+     */
+    void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
 
-        /**
-         * Callback for event_in topic. Starts subscription to pointcloud if event_in is "e_trigger"
-         */
-        void eventInCallback(const std_msgs::String &msg);
+    /**
+     * Callback for event_in topic. Starts subscription to pointcloud if event_in is "e_trigger"
+     */
+    void eventInCallback(const std_msgs::String &msg);
 
-        /**
-         * Callback for dynamic reconfigure server to set canny threshold and multiplier
-         */
-        void dynamicReconfigCallback(mcr_contour_matching::ContourFinderConfig &config, uint32_t level);
+    /**
+     * Callback for dynamic reconfigure server to set canny threshold and multiplier
+     */
+    void dynamicReconfigCallback(mcr_contour_matching::ContourFinderConfig &config, uint32_t level);
 
-        /**
-         * Finds 2D contours and the corresponding 3D contours and publishes the array of 3D contours as pointclouds
-         */
-        void findContours();
+    /**
+     * Finds 2D contours and the corresponding 3D contours and publishes the array of 3D contours as pointclouds
+     */
+    void findContours();
 
 
-    private:
-        /**
-         * Object of ContourFinder
-         */
-        ContourFinder contour_finder_;
+private:
+    /**
+     * Object of ContourFinder
+     */
+    ContourFinder contour_finder_;
 
-        /**
-         * Node handle
-         */
-        ros::NodeHandle nh_;
+    /**
+     * Node handle
+     */
+    ros::NodeHandle nh_;
 
-        /**
-         * Subscriber for input pointcloud
-         */
-        ros::Subscriber sub_pointcloud_;
+    /**
+     * Subscriber for input pointcloud
+     */
+    ros::Subscriber sub_pointcloud_;
 
-        /**
-         * Subscriber for event_in topic
-         */
-        ros::Subscriber sub_event_in_;
+    /**
+     * Subscriber for event_in topic
+     */
+    ros::Subscriber sub_event_in_;
 
-        /**
-         * Publisher for 3D contours list
-         */
-        ros::Publisher pub_contour_pointclouds_;
+    /**
+     * Publisher for 3D contours list
+     */
+    ros::Publisher pub_contour_pointclouds_;
 
-        /**
-         * Publisher for 3D contours as a single pointcloud
-         */
-        ros::Publisher pub_contour_pointclouds_combined_;
+    /**
+     * Publisher for 3D contours as a single pointcloud
+     */
+    ros::Publisher pub_contour_pointclouds_combined_;
 
-        /**
-         * Publisher for debug image showing edges
-         */
-        image_transport::Publisher pub_debug_image_;
+    /**
+     * Publisher for debug image showing edges
+     */
+    image_transport::Publisher pub_debug_image_;
 
-        /**
-         * Used to store pointcloud message received in callback
-         */
-        sensor_msgs::PointCloud2::Ptr pointcloud_msg_;
+    /**
+     * Used to store pointcloud message received in callback
+     */
+    sensor_msgs::PointCloud2::Ptr pointcloud_msg_;
 
-        /**
-         * Dynamic reconfigure server
-         */
-        dynamic_reconfigure::Server<mcr_contour_matching::ContourFinderConfig> dynamic_reconfigure_server_;
+    /**
+     * Dynamic reconfigure server
+     */
+    dynamic_reconfigure::Server<mcr_contour_matching::ContourFinderConfig> dynamic_reconfigure_server_;
 
-        /**
-         * Flag indicating whether pointcloud has been received
-         */
-        bool pointcloud_msg_received_;
-        /**
-         * Flag indicating whether debug image should be published
-         */
-        bool publish_debug_image_;
+    /**
+     * Flag indicating whether pointcloud has been received
+     */
+    bool pointcloud_msg_received_;
+    /**
+     * Flag indicating whether debug image should be published
+     */
+    bool publish_debug_image_;
 };
 
 #endif

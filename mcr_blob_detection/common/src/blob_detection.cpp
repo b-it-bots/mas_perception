@@ -18,7 +18,8 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
     double pose_theta = 0.0;
     double blob_area = 0.0;
 
-    if (!input_image) {
+    if (!input_image)
+    {
         return -2; // Image not found
     }
 
@@ -37,21 +38,25 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
     blobs_.Filter(blobs_, B_EXCLUDE, CBlobGetArea(), B_LESS, min_blob_area_);
     blobs_.Filter(blobs_, B_EXCLUDE, CBlobGetArea(), B_GREATER, max_blob_area_);
 
-    if(debug_mode_){
-        cvMerge( gray_image_, gray_image_, gray_image_, NULL, blob_image_ );
+    if (debug_mode_)
+    {
+        cvMerge(gray_image_, gray_image_, gray_image_, NULL, blob_image_);
     }
 
-    if(blobs_.GetNumBlobs() > 0){
+    if (blobs_.GetNumBlobs() > 0)
+    {
 
         blobs.resize(blobs_.GetNumBlobs()); // Resize vector to match the number of blobs
-        for (int x = 0; x < blobs_.GetNumBlobs(); x++) {
+        for (int x = 0; x < blobs_.GetNumBlobs(); x++)
+        {
             blobs[x].resize(4); // Resize vector width to hold 4 properties of the blob
             CBlob  temp_blob;
             temp_blob = blobs_.GetBlob(x);
             pose_x = ((temp_blob.MinX() + temp_blob.MaxX()) / 2);
             pose_y = ((temp_blob.MinY() + temp_blob.MaxY()) / 2);
             pose_theta = get_blob_orientation_(temp_blob);
-            if (pose_theta > 180) {
+            if (pose_theta > 180)
+            {
                 pose_theta = pose_theta - 180;
             }
             blob_area = get_blob_area_(temp_blob);
@@ -59,7 +64,8 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
             blobs[x][1] = pose_y;
             blobs[x][2] = pose_theta;
             blobs[x][3] = blob_area;
-            if (debug_mode_) {
+            if (debug_mode_)
+            {
                 temp_blob.FillBlob(blob_image_, CV_RGB(0, 255, 0));
                 debug_image = *cvCloneImage(blob_image_);
                 cvWaitKey(1);
@@ -74,7 +80,9 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
 
         return 1; //Blobs Detected
 
-    } else {
+    }
+    else
+    {
         return -1; //No Blobs Detected
     }
 

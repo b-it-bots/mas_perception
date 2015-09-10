@@ -34,7 +34,8 @@ void ContourTemplateMatcherROS::templatePointcloudCallback(const sensor_msgs::Po
 
 void ContourTemplateMatcherROS::update()
 {
-    if (contours_msg_received_ && template_pointcloud_msg_received_) {
+    if (contours_msg_received_ && template_pointcloud_msg_received_)
+    {
         matchContours();
         contours_msg_received_ = false;
     }
@@ -47,7 +48,8 @@ void ContourTemplateMatcherROS::matchContours()
 
     std::vector<pcl::PCLPointCloud2::Ptr> contours;
 
-    for (size_t i = 0; i < contours_msg_->pointclouds.size(); i++) {
+    for (size_t i = 0; i < contours_msg_->pointclouds.size(); i++)
+    {
         pcl::PCLPointCloud2::Ptr contour(new pcl::PCLPointCloud2);
         pcl_conversions::toPCL(contours_msg_->pointclouds[i], *contour);
         contours.push_back(contour);

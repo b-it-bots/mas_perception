@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   CSAEToolBox.h
  * Author: Christian Mueller
  *
@@ -6,12 +6,13 @@
  */
 
 #ifndef CSAETOOLBOX_H
-#define	CSAETOOLBOX_H
+#define CSAETOOLBOX_H
 
 #include<cstdlib>
 #include<vector>
 
-class CSAEToolBox {
+class CSAEToolBox
+{
 public:
     CSAEToolBox();
     static std::vector<double> computeMeanVector(std::vector<std::vector<double> > vectorSet);
@@ -22,5 +23,5 @@ private:
 
 };
 
-#endif	/* CSAETOOLBOX_H */
+#endif  /* CSAETOOLBOX_H */
 

@@ -13,27 +13,30 @@ class CloudAccumulation
 
 public:
 
-  typedef std::unique_ptr<CloudAccumulation> UPtr;
+    typedef std::unique_ptr<CloudAccumulation> UPtr;
 
-  explicit CloudAccumulation(double resolution = 0.0025);
+    explicit CloudAccumulation(double resolution = 0.0025);
 
-  void addCloud(const PointCloud::ConstPtr& cloud);
+    void addCloud(const PointCloud::ConstPtr& cloud);
 
-  void getAccumulatedCloud(PointCloud& cloud);
+    void getAccumulatedCloud(PointCloud& cloud);
 
-  int getCloudCount() const { return cloud_count_; }
+    int getCloudCount() const
+    {
+        return cloud_count_;
+    }
 
-  void reset();
+    void reset();
 
 private:
 
-  typedef OctreePointCloudOccupancyColored<PointT> Octree;
-  typedef std::unique_ptr<Octree> OctreeUPtr;
+    typedef OctreePointCloudOccupancyColored<PointT> Octree;
+    typedef std::unique_ptr<Octree> OctreeUPtr;
 
-  OctreeUPtr octree_;
+    OctreeUPtr octree_;
 
-  int cloud_count_;
-  double resolution_;
+    int cloud_count_;
+    double resolution_;
 
 };
 

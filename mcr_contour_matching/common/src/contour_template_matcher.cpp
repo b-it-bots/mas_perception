@@ -24,7 +24,8 @@ double ContourTemplateMatcher::match(const std::vector<pcl::PCLPointCloud2::Ptr>
     double min_sum = std::numeric_limits<double>::max();
     int min_index = -1;
 
-    for (int i = 0; i < contours.size(); i++) {
+    for (int i = 0; i < contours.size(); i++)
+    {
         pcl::PointCloud<pcl::PointXYZ>::Ptr projected(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointCloud<pcl::PointXYZ>::Ptr xyz_contour(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::fromPCLPointCloud2(*(contours.at(i)), *xyz_contour);
@@ -38,17 +39,20 @@ double ContourTemplateMatcher::match(const std::vector<pcl::PCLPointCloud2::Ptr>
         kdtree.setInputCloud(projected);
 
         // for each point in the template, find the closest point in the contour
-        for (int j = 0; j < template_transformed->points.size(); j++) {
+        for (int j = 0; j < template_transformed->points.size(); j++)
+        {
             std::vector<int> pointIdxNKNSearch(1);
             std::vector<float> pointNKNSquaredDistance(1);
 
-            if (kdtree.nearestKSearch(template_transformed->points.at(j), 1, pointIdxNKNSearch, pointNKNSquaredDistance) > 0) {
+            if (kdtree.nearestKSearch(template_transformed->points.at(j), 1, pointIdxNKNSearch, pointNKNSquaredDistance) > 0)
+            {
                 sum_of_distances += pointNKNSquaredDistance.at(0);
             }
         }
 
         // find the contour with the minimum sum of distances
-        if (sum_of_distances < min_sum) {
+        if (sum_of_distances < min_sum)
+        {
             min_sum = sum_of_distances;
             min_index = i;
         }

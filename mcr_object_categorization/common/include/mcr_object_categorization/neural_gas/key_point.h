@@ -45,8 +45,8 @@ public:
     void set_b(double param_b);
     void set_c(double param_c);
     void add_feature(int index, double value);
-    void set_clusterLabel( int param_clusterLabel);
-    void setAssignedToRegion( int assignedToRegion );
+    void set_clusterLabel(int param_clusterLabel);
+    void setAssignedToRegion(int assignedToRegion);
     int getAssignedToRegion();
 
     std::vector<double> &get_siftData()

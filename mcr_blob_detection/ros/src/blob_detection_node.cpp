@@ -10,7 +10,7 @@ BlobDetectionNode::BlobDetectionNode(ros::NodeHandle &nh) : node_handler_(nh), i
     image_sub_ = image_transporter_.subscribe("input_image", 1, &BlobDetectionNode::imageCallback, this);
     run_state_ = INIT;
     start_blob_detection_ = false;
-    image_sub_status_ = false;  
+    image_sub_status_ = false;
 }
 
 BlobDetectionNode::~BlobDetectionNode()
@@ -30,10 +30,13 @@ void BlobDetectionNode::dynamicReconfigCallback(mcr_blob_detection::BlobDetectio
 
 void BlobDetectionNode::eventCallback(const std_msgs::String &event_command)
 {
-    if (event_command.data == "e_start") {
+    if (event_command.data == "e_start")
+    {
         start_blob_detection_ = true;
         ROS_INFO("2D Blob Detection ENABLED");
-    } else if (event_command.data == "e_stop") {
+    }
+    else if (event_command.data == "e_stop")
+    {
         start_blob_detection_ = false;
         ROS_INFO("2D Blob Detection DISABLED");
     }
@@ -47,24 +50,26 @@ void BlobDetectionNode::imageCallback(const sensor_msgs::ImageConstPtr &img_msg)
 
 void BlobDetectionNode::states()
 {
-    switch (run_state_) {
-        case INIT:
-            initState();
-            break;
-        case IDLE:
-            idleState();
-            break;
-        case RUNNING:
-            runState();
-            break;
-        default:
-            initState();
+    switch (run_state_)
+    {
+    case INIT:
+        initState();
+        break;
+    case IDLE:
+        idleState();
+        break;
+    case RUNNING:
+        runState();
+        break;
+    default:
+        initState();
     }
 }
 
 void BlobDetectionNode::initState()
 {
-    if (image_sub_status_) {
+    if (image_sub_status_)
+    {
         run_state_ = IDLE;
         image_sub_status_ = false;
     }
@@ -72,9 +77,12 @@ void BlobDetectionNode::initState()
 
 void BlobDetectionNode::idleState()
 {
-    if (start_blob_detection_) {
+    if (start_blob_detection_)
+    {
         run_state_ = RUNNING;
-    } else {
+    }
+    else
+    {
         run_state_ = INIT;
     }
 }
@@ -86,28 +94,38 @@ void BlobDetectionNode::runState()
 }
 
 void BlobDetectionNode::detectBlobs()
-{ 
+{
 
     IplImage ipl_img_tmp;
     cv_bridge::CvImagePtr cv_img_tmp;
 
-    try {
+    try
+    {
         cv_img_tmp = cv_bridge::toCvCopy(image_message_, sensor_msgs::image_encodings::BGR8);
         ipl_img_tmp = cv_img_tmp->image;
         cv_image_ = &ipl_img_tmp;
-    } catch (cv_bridge::Exception &e) {
+    }
+    catch (cv_bridge::Exception &e)
+    {
         ROS_ERROR("Could not convert from '%s' to 'rgb8'.", image_message_->encoding.c_str());
     }
 
     blob_detection_status_ = bd_.detectBlobs(cv_image_, debug_image_, blobs_);
 
-    if (blob_detection_status_ == 1) {
+    if (blob_detection_status_ == 1)
+    {
         event_out_msg_.data = "e_blobs_detected";
-    } else if (blob_detection_status_ == -1) {
+    }
+    else if (blob_detection_status_ == -1)
+    {
         event_out_msg_.data = "e_no_blobs_detected";
-    } else if (blob_detection_status_ == -2) {
+    }
+    else if (blob_detection_status_ == -2)
+    {
         event_out_msg_.data = "e_error";
-    } else {
+    }
+    else
+    {
         event_out_msg_.data = "e_error";
     }
 
@@ -115,7 +133,8 @@ void BlobDetectionNode::detectBlobs()
 
     blob_list_.blobs.clear();
 
-    for (int i=0; i < blobs_.size(); i++){
+    for (int i = 0; i < blobs_.size(); i++)
+    {
 
         geometry_msgs::Pose2D pose;
 
@@ -131,7 +150,8 @@ void BlobDetectionNode::detectBlobs()
 
     blob_pub_.publish(blob_list_);
 
-    if (debug_mode_) {
+    if (debug_mode_)
+    {
         cv_bridge::CvImage cv_img_tmp;
         cv::Mat mat_image(&debug_image_);
         cv_img_tmp.encoding = sensor_msgs::image_encodings::BGR8;
@@ -152,7 +172,8 @@ int main(int argc, char **argv)
     nh.param<int>("loop_rate", loop_rate, 30);
     ros::Rate rate(loop_rate);
 
-    while (ros::ok()) {
+    while (ros::ok())
+    {
         ros::spinOnce();
         bd.states();
         rate.sleep();

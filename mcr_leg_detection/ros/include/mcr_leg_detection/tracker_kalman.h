@@ -1,13 +1,13 @@
 /*********************************************************************
 * Software License Agreement (BSD License)
-* 
+*
 *  Copyright (c) 2008, Willow Garage, Inc.
 *  All rights reserved.
-* 
+*
 *  Redistribution and use in source and binary forms, with or without
 *  modification, are permitted provided that the following conditions
 *  are met:
-* 
+*
 *   * Redistributions of source code must retain the above copyright
 *     notice, this list of conditions and the following disclaimer.
 *   * Redistributions in binary form must reproduce the above
@@ -17,7 +17,7 @@
 *   * Neither the name of the Willow Garage nor the names of its
 *     contributors may be used to endorse or promote products derived
 *     from this software without specific prior written permission.
-* 
+*
 *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -58,53 +58,59 @@ namespace estimation
 class TrackerKalman: public Tracker
 {
 public:
-  /// constructor
-  TrackerKalman(const std::string& name, const BFL::StatePosVel& sysnoise);
+    /// constructor
+    TrackerKalman(const std::string& name, const BFL::StatePosVel& sysnoise);
 
-  /// destructor
-  virtual ~TrackerKalman();
+    /// destructor
+    virtual ~TrackerKalman();
 
-  /// initialize tracker
-  virtual void initialize(const BFL::StatePosVel& mu, const BFL::StatePosVel& sigma, const double time);
+    /// initialize tracker
+    virtual void initialize(const BFL::StatePosVel& mu, const BFL::StatePosVel& sigma, const double time);
 
-  /// return if tracker was initialized
-  virtual bool isInitialized() const {return tracker_initialized_;};
+    /// return if tracker was initialized
+    virtual bool isInitialized() const
+    {
+        return tracker_initialized_;
+    };
 
-  /// return measure for tracker quality: 0=bad 1=good
-  virtual double getQuality() const {return quality_;};
+    /// return measure for tracker quality: 0=bad 1=good
+    virtual double getQuality() const
+    {
+        return quality_;
+    };
 
-  /// return the lifetime of the tracker
-  virtual double getLifetime() const;
+    /// return the lifetime of the tracker
+    virtual double getLifetime() const;
 
-  /// return the time of the tracker
-  virtual double getTime() const;
+    /// return the time of the tracker
+    virtual double getTime() const;
 
-  /// update tracker
-  virtual bool updatePrediction(const double time);
-  virtual bool updateCorrection(const tf::Vector3& meas, 
-				const MatrixWrapper::SymmetricMatrix& cov);
+    /// update tracker
+    virtual bool updatePrediction(const double time);
+    virtual bool updateCorrection(const tf::Vector3& meas,
+                                  const MatrixWrapper::SymmetricMatrix& cov);
 
-  /// get filter posterior
-  virtual void getEstimate(BFL::StatePosVel& est) const;
-  virtual void getEstimate(mcr_leg_detection::PositionMeasurement& est) const;
+    /// get filter posterior
+    virtual void getEstimate(BFL::StatePosVel& est) const;
+    virtual void getEstimate(mcr_leg_detection::PositionMeasurement& est) const;
 
 
 private:
-  // pdf / model / filter
-  BFL::Gaussian                                           prior_;
-  BFL::ExtendedKalmanFilter*                              filter_;
-  BFL::LinearAnalyticConditionalGaussian*                 sys_pdf_;
-  BFL::LinearAnalyticSystemModelGaussianUncertainty*      sys_model_;
-  BFL::LinearAnalyticConditionalGaussian*                 meas_pdf_;
-  BFL::LinearAnalyticMeasurementModelGaussianUncertainty* meas_model_;
-  MatrixWrapper::Matrix                                   sys_matrix_;
-  MatrixWrapper::SymmetricMatrix                          sys_sigma_;
+    // pdf / model / filter
+    BFL::Gaussian                                           prior_;
+    BFL::ExtendedKalmanFilter*                              filter_;
+    BFL::LinearAnalyticConditionalGaussian*                 sys_pdf_;
+    BFL::LinearAnalyticSystemModelGaussianUncertainty*      sys_model_;
+    BFL::LinearAnalyticConditionalGaussian*                 meas_pdf_;
+    BFL::LinearAnalyticMeasurementModelGaussianUncertainty* meas_model_;
+    MatrixWrapper::Matrix                                   sys_matrix_;
+    MatrixWrapper::SymmetricMatrix                          sys_sigma_;
 
-  double calculateQuality();
+    double calculateQuality();
 
-  // vars
-  bool tracker_initialized_;
-  double init_time_, filter_time_, quality_;
+    // vars
+    bool tracker_initialized_;
+    double init_time_, filter_time_, quality_;
 
 
 }; // class

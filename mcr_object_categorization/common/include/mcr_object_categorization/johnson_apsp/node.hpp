@@ -32,14 +32,14 @@ using namespace std;
 class node
 {
 protected:
-	list<edge*> edges;
-	int id;
+    list<edge*> edges;
+    int id;
 public:
-	node(int id);
-	void add_edge(node* tgt, const double weight);
-	int get_id() const;
-	const std::list<edge*>* get_edges() const;
-	void print() const;
+    node(int id);
+    void add_edge(node* tgt, const double weight);
+    int get_id() const;
+    const std::list<edge*>* get_edges() const;
+    void print() const;
 };
 
 #endif /* NODE_HPP_ */

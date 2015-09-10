@@ -30,47 +30,47 @@
 
 class ObjectSelector
 {
-    public:
-        ObjectSelector();
-        virtual ~ObjectSelector();
+public:
+    ObjectSelector();
+    virtual ~ObjectSelector();
 
-        void update();
+    void update();
 
-        enum SelectionType {BY_NAME=0, RANDOM=1, CLOSEST=2};
-        enum States {INIT, IDLE, RUNNING};
+    enum SelectionType {BY_NAME = 0, RANDOM = 1, CLOSEST = 2};
+    enum States {INIT, IDLE, RUNNING};
 
-    private:
-        void objectNameCallback(const std_msgs::String::Ptr &msg);
-        void objectListCallback(const mcr_perception_msgs::ObjectList::Ptr &msg);
-        void eventCallback(const std_msgs::String::Ptr &msg);
+private:
+    void objectNameCallback(const std_msgs::String::Ptr &msg);
+    void objectListCallback(const mcr_perception_msgs::ObjectList::Ptr &msg);
+    void eventCallback(const std_msgs::String::Ptr &msg);
 
-        bool selectObjectByName(mcr_perception_msgs::Object &selected_object);
-        bool selectRandomObject(mcr_perception_msgs::Object &selected_object);
-        bool selectClosestObject(mcr_perception_msgs::Object &selected_object);
+    bool selectObjectByName(mcr_perception_msgs::Object &selected_object);
+    bool selectRandomObject(mcr_perception_msgs::Object &selected_object);
+    bool selectClosestObject(mcr_perception_msgs::Object &selected_object);
 
-    private:
-        ros::NodeHandle nh_;
+private:
+    ros::NodeHandle nh_;
 
-        States current_state_;
+    States current_state_;
 
-        ros::Subscriber sub_object_name_;
-        ros::Subscriber sub_object_list_;
-        ros::Subscriber sub_event_in_;
+    ros::Subscriber sub_object_name_;
+    ros::Subscriber sub_object_list_;
+    ros::Subscriber sub_event_in_;
 
-        ros::Publisher pub_event_out_;
-        ros::Publisher pub_object_;
-        ros::Publisher pub_object_pose_;
+    ros::Publisher pub_event_out_;
+    ros::Publisher pub_object_;
+    ros::Publisher pub_object_pose_;
 
-        std_msgs::String object_name_;
-        bool object_name_received_;
+    std_msgs::String object_name_;
+    bool object_name_received_;
 
-        mcr_perception_msgs::ObjectList::Ptr object_list_;
-        bool object_list_received_;
+    mcr_perception_msgs::ObjectList::Ptr object_list_;
+    bool object_list_received_;
 
-        std_msgs::String event_in_;
-        bool event_in_received_;
+    std_msgs::String event_in_;
+    bool event_in_received_;
 
-        SelectionType object_selection_type_;
+    SelectionType object_selection_type_;
 
 };
 #endif
