@@ -1,4 +1,4 @@
-/*********************************************************** 
+/***********************************************************
 *  --- OpenSURF ---                                       *
 *  This library is distributed under the GNU GPL. Please   *
 *  use the contact form at http://www.chrisevansdev.com    *
@@ -18,23 +18,24 @@
 
 #include <vector>
 
-class Surf {
-  
-  public:
-    
+class Surf
+{
+
+public:
+
     //! Standard Constructor (img is an integral image)
     Surf(IplImage *img, std::vector<Ipoint> &ipts);
 
     //! Describe all features in the supplied vector
     void getDescriptors(bool bUpright = false);
-  
-  private:
-    
+
+private:
+
     //---------------- Private Functions -----------------//
 
     //! Assign the current Ipoint an orientation
     void getOrientation();
-    
+
     //! Get the descriptor. See Agrawal ECCV 08
     void getDescriptor(bool bUpright = false);
 

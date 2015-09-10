@@ -1,4 +1,4 @@
-/*  
+/*
  * Created on: Mar 18, 2011
  * Author: Christian Mueller
  */
@@ -20,23 +20,23 @@
 class CPca
 {
 private:
-	std::vector<std::vector<double> > inputFeatureVectors;
+    std::vector<std::vector<double> > inputFeatureVectors;
 
-	CvMat* featureVector;
-	CvMat* avgVector;
-	CvMat* eigenVectors;
-	CvMat* eigenValues;
+    CvMat* featureVector;
+    CvMat* avgVector;
+    CvMat* eigenVectors;
+    CvMat* eigenValues;
 
-	std::vector<std::vector<double> >eigenVectorsVec;
-	std::vector<double> eigenValuesVec;
+    std::vector<std::vector<double> >eigenVectorsVec;
+    std::vector<double> eigenValuesVec;
 
 
-	unsigned int numDim;
+    unsigned int numDim;
 
 public:
-	CPca(){};
-	void init(std::vector<std::vector<double> > &featureVectors, unsigned int &numDim);
-	void computePca(std::vector<std::vector<double> > &eigenVectors, std::vector<double> &eigenValues);
-	~CPca();
+    CPca() {};
+    void init(std::vector<std::vector<double> > &featureVectors, unsigned int &numDim);
+    void computePca(std::vector<std::vector<double> > &eigenVectors, std::vector<double> &eigenValues);
+    ~CPca();
 };
 #endif

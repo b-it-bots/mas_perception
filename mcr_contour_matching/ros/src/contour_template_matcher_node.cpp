@@ -14,7 +14,8 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(frame_rate);
 
-    while (ros::ok()) {
+    while (ros::ok())
+    {
         contour_template_matcher_ros_.update();
 
         loop_rate.sleep();

@@ -26,58 +26,67 @@
 class CObjectPseudoCategorizationGeometric
 {
 public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 private:
-	CLogger *logger;
+    CLogger *logger;
 protected:
-	CToolBoxROS toolBox;
-	CObjectGeometricService objectGeometricService;
-	int geometricSrvEstimationType;
-	bool geometricSrvAddNormalEstimation;
+    CToolBoxROS toolBox;
+    CObjectGeometricService objectGeometricService;
+    int geometricSrvEstimationType;
+    bool geometricSrvAddNormalEstimation;
 
-	//GeometricShapeReconstructionParameters
-	int estimationType;
-	float ng_consistDist;
-	float ng_errorAdd;
-	float ng_nodeAddInterval; // ng_errorAdd == -1
-	float ng_maxEdgeAge;
-	float ng_modelAccuracy;
-	float ng_errorNewNodeDecrease;
-	float ng_errorGeneralDecrease;
-	float ng_nearestNeighborWeight; //move the nearest node to target
-	float ng_nNeighborWeight; //move other neigbors to
-	//////////////////////////////////////////
+    //GeometricShapeReconstructionParameters
+    int estimationType;
+    float ng_consistDist;
+    float ng_errorAdd;
+    float ng_nodeAddInterval; // ng_errorAdd == -1
+    float ng_maxEdgeAge;
+    float ng_modelAccuracy;
+    float ng_errorNewNodeDecrease;
+    float ng_errorGeneralDecrease;
+    float ng_nearestNeighborWeight; //move the nearest node to target
+    float ng_nNeighborWeight; //move other neigbors to
+    //////////////////////////////////////////
 
-	std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds;
-	std::vector<int> objectLabels;
-	std::vector<std::string> objectNames;
-	bool isModelLoaded;
-	bool doTrainEnNoisement;
-	bool doTrainScalePyramid;
-	int numCategories;
-	std::string homePath;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds;
+    std::vector<int> objectLabels;
+    std::vector<std::string> objectNames;
+    bool isModelLoaded;
+    bool doTrainEnNoisement;
+    bool doTrainScalePyramid;
+    int numCategories;
+    std::string homePath;
 
-	float addEnNoisement;
+    float addEnNoisement;
 public:
-	CObjectPseudoCategorizationGeometric();
-	void inputObjectPointCloud(pcl::PointCloud<pcl::PointXYZ> objectPointCloud, int label);
-	void inputObjectPointClouds(std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds, std::vector<int> labels, std::vector<std::string> objectNames);
-	void inputObjectPointClouds(std::string dataBasePath,int maxNumObjectPerClass,bool concat=false);
+    CObjectPseudoCategorizationGeometric();
+    void inputObjectPointCloud(pcl::PointCloud<pcl::PointXYZ> objectPointCloud, int label);
+    void inputObjectPointClouds(std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds, std::vector<int> labels, std::vector<std::string> objectNames);
+    void inputObjectPointClouds(std::string dataBasePath, int maxNumObjectPerClass, bool concat = false);
 
-	void loadModel();
-	void initGeometricShapeReconstructionParameters();
+    void loadModel();
+    void initGeometricShapeReconstructionParameters();
 
-	void trainPseudoCategories();
-	std::pair<int, double> queryPseudoCategories(pcl::PointCloud<pcl::PointXYZ> queryPointCloud,std::map<int, std::pair<int, double> > &getCurrentTreeReponses);
-	std::vector<std::pair<int, double> >queryPseudoCategoriesEnNoised(pcl::PointCloud<pcl::PointXYZ> queryPointCloud,std::vector<std::map<int, std::pair<int, double> > > &getCurrentTreeReponses);
+    void trainPseudoCategories();
+    std::pair<int, double> queryPseudoCategories(pcl::PointCloud<pcl::PointXYZ> queryPointCloud, std::map<int, std::pair<int, double> > &getCurrentTreeReponses);
+    std::vector<std::pair<int, double> >queryPseudoCategoriesEnNoised(pcl::PointCloud<pcl::PointXYZ> queryPointCloud, std::vector<std::map<int, std::pair<int, double> > > &getCurrentTreeReponses);
 
-	int getNumCategories(){ return numCategories;}
-	void setHomePath(std::string homePath);
+    int getNumCategories()
+    {
+        return numCategories;
+    }
+    void setHomePath(std::string homePath);
 
-	void augmentObjectPointCloudsWithEnNoisement();
-	void augmentObjectPointCloudsWithScalePyramid();
-	void setTrainEnNoisement(bool doTrainnNoisement){ this->doTrainEnNoisement = doTrainEnNoisement;}
-	void setTrainScalePyramid(bool doTrainScalePyramid){ this->doTrainScalePyramid = doTrainScalePyramid;}
+    void augmentObjectPointCloudsWithEnNoisement();
+    void augmentObjectPointCloudsWithScalePyramid();
+    void setTrainEnNoisement(bool doTrainnNoisement)
+    {
+        this->doTrainEnNoisement = doTrainEnNoisement;
+    }
+    void setTrainScalePyramid(bool doTrainScalePyramid)
+    {
+        this->doTrainScalePyramid = doTrainScalePyramid;
+    }
 };
 
 #endif

@@ -53,7 +53,7 @@ TEST(BodyDetection3D, integrationTest)
     ros::Publisher pub_event = nh_ptr->advertise<std_msgs::String> ("event_out", 1, true);
     ros::Publisher pub_pointcloud = nh_ptr->advertise<sensor_msgs::PointCloud2> ("input_pointcloud", 1);
     ros::Subscriber sub_person_msg = nh_ptr->subscribe < mcr_perception_msgs::PersonList > ("people_positions", 1,
-            peopleDetectionCallback);
+                                     peopleDetectionCallback);
 
     // fill map
     point.x = 1.41975;

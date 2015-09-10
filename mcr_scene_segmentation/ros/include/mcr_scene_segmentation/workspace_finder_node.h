@@ -47,41 +47,41 @@ using namespace mcr::visualization;
  */
 class WorkspaceFinderNode
 {
-    public:
-        WorkspaceFinderNode();
-        virtual ~WorkspaceFinderNode();
+public:
+    WorkspaceFinderNode();
+    virtual ~WorkspaceFinderNode();
 
-        void update();
-
-
-    private:
-        void eventInCallback(const std_msgs::String &msg);
-        void synchronizedCallback(const geometry_msgs::PolygonStamped::ConstPtr &polygon_msg,
-                                  const pcl_msgs::ModelCoefficients::ConstPtr &coefficients_msg);
+    void update();
 
 
-    private:
-        ros::NodeHandle nh;
+private:
+    void eventInCallback(const std_msgs::String &msg);
+    void synchronizedCallback(const geometry_msgs::PolygonStamped::ConstPtr &polygon_msg,
+                              const pcl_msgs::ModelCoefficients::ConstPtr &coefficients_msg);
 
-        ros::Subscriber sub_event_in_;
 
-        message_filters::Subscriber<geometry_msgs::PolygonStamped> sub_polygon_;
-        message_filters::Subscriber<pcl_msgs::ModelCoefficients> sub_coefficients_;
+private:
+    ros::NodeHandle nh;
 
-        ros::Publisher pub_event_out_;
-        ros::Publisher pub_polygon_;
+    ros::Subscriber sub_event_in_;
 
-        boost::shared_ptr<message_filters::Synchronizer<PlanarPolygonSyncPolicy> > sync_input_;
+    message_filters::Subscriber<geometry_msgs::PolygonStamped> sub_polygon_;
+    message_filters::Subscriber<pcl_msgs::ModelCoefficients> sub_coefficients_;
 
-        bool trigger_workspace_finder_;
-        bool run_workspace_finder_;
+    ros::Publisher pub_event_out_;
+    ros::Publisher pub_polygon_;
 
-        bool sync_message_received_;
+    boost::shared_ptr<message_filters::Synchronizer<PlanarPolygonSyncPolicy> > sync_input_;
 
-        PlanarPolygonVisualizer polygon_visualizer_;
+    bool trigger_workspace_finder_;
+    bool run_workspace_finder_;
 
-        geometry_msgs::PolygonStamped::ConstPtr polygon_msg_;
-        pcl_msgs::ModelCoefficients::ConstPtr coefficients_msg_;
+    bool sync_message_received_;
+
+    PlanarPolygonVisualizer polygon_visualizer_;
+
+    geometry_msgs::PolygonStamped::ConstPtr polygon_msg_;
+    pcl_msgs::ModelCoefficients::ConstPtr coefficients_msg_;
 
 };
 #endif

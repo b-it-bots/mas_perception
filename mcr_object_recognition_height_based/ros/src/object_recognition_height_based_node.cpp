@@ -7,7 +7,7 @@
 #define DO_CANDIDATION 1
 #define SHOW_OBJECTS 1
 #define SHOW_PLANES 1
-#define EIGEN_DONT_VECTORIZE 
+#define EIGEN_DONT_VECTORIZE
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT
 
 #include <pcl/point_types.h>
@@ -89,447 +89,447 @@ std::map<std::string, double> known_objects;
 
 void publishVisualizationMarker(const mcr_perception_msgs::ObjectList &object_list)
 {
-	visualization_msgs::MarkerArray marker_array;
+    visualization_msgs::MarkerArray marker_array;
 
-	// convert person msgs into markers for rviz visualization
-	for(unsigned int i=0, j=0; i < object_list.objects.size(); ++i)
-	{
-		visualization_msgs::Marker marker_text;
-		visualization_msgs::Marker marker_shape;
+    // convert person msgs into markers for rviz visualization
+    for (unsigned int i = 0, j = 0; i < object_list.objects.size(); ++i)
+    {
+        visualization_msgs::Marker marker_text;
+        visualization_msgs::Marker marker_shape;
 
-		marker_shape.header.frame_id = marker_text.header.frame_id = object_list.objects[i].pose.header.frame_id;
-		marker_shape.header.stamp = marker_text.header.stamp = ros::Time::now();
-		marker_shape.ns = "object recognition - poses";
-		marker_text.ns = "object recognition - labels";
-		marker_shape.action = marker_text.action = visualization_msgs::Marker::ADD;
+        marker_shape.header.frame_id = marker_text.header.frame_id = object_list.objects[i].pose.header.frame_id;
+        marker_shape.header.stamp = marker_text.header.stamp = ros::Time::now();
+        marker_shape.ns = "object recognition - poses";
+        marker_text.ns = "object recognition - labels";
+        marker_shape.action = marker_text.action = visualization_msgs::Marker::ADD;
 
-		marker_shape.id = ++j;
-		marker_text.id = ++j;
+        marker_shape.id = ++j;
+        marker_text.id = ++j;
 
-		marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-		marker_shape.type = visualization_msgs::Marker::SPHERE;
+        marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        marker_shape.type = visualization_msgs::Marker::SPHERE;
 
-		marker_shape.pose.position = marker_text.pose.position = object_list.objects[i].pose.pose.position;
-		marker_shape.pose.orientation = marker_text.pose.orientation = object_list.objects[i].pose.pose.orientation;
+        marker_shape.pose.position = marker_text.pose.position = object_list.objects[i].pose.pose.position;
+        marker_shape.pose.orientation = marker_text.pose.orientation = object_list.objects[i].pose.pose.orientation;
 
-		marker_text.text = object_list.objects[i].name;
+        marker_text.text = object_list.objects[i].name;
 
-		marker_shape.scale.x = 0.05;
-		marker_shape.scale.y = 0.05;
-		marker_shape.scale.z = 0.05;
-		marker_shape.color.r = 1.0;
-		marker_shape.color.g = 0.0;
-		marker_shape.color.b = 0.0;
-		marker_shape.color.a = 0.5;;
+        marker_shape.scale.x = 0.05;
+        marker_shape.scale.y = 0.05;
+        marker_shape.scale.z = 0.05;
+        marker_shape.color.r = 1.0;
+        marker_shape.color.g = 0.0;
+        marker_shape.color.b = 0.0;
+        marker_shape.color.a = 0.5;;
 
-		marker_text.scale.x = 0.05;
-		marker_text.scale.y = 0.05;
-		marker_text.scale.z = 0.05;
-		marker_text.color.r = 1.0;
-		marker_text.color.g = 1.0;
-		marker_text.color.b = 1.0;
-		marker_text.color.a = 1.0;
+        marker_text.scale.x = 0.05;
+        marker_text.scale.y = 0.05;
+        marker_text.scale.z = 0.05;
+        marker_text.color.r = 1.0;
+        marker_text.color.g = 1.0;
+        marker_text.color.b = 1.0;
+        marker_text.color.a = 1.0;
 
-		marker_shape.lifetime = marker_text.lifetime = ros::Duration(1);
+        marker_shape.lifetime = marker_text.lifetime = ros::Duration(1);
 
-		marker_array.markers.push_back(marker_shape);
-		marker_array.markers.push_back(marker_text);
-	}
+        marker_array.markers.push_back(marker_shape);
+        marker_array.markers.push_back(marker_text);
+    }
 
-	if(marker_array.markers.size() > 0)
-		pub_marker.publish(marker_array);
+    if (marker_array.markers.size() > 0)
+        pub_marker.publish(marker_array);
 }
 
 int findBestObject(std::vector<geometry_msgs::Point> clusteredObjectsCentroidsMsg, std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal> > clusteredObjects)
 {
 
-	int bestCandidateIdx = 0;
-	if (clusteredObjectsCentroidsMsg.size() > 0 && clusteredObjects.size() > 0)
-	{
-		std::vector<int> candidatesIdx;
-		for (unsigned int i = 0; i < clusteredObjects.size(); ++i)
-		{
-			if (clusteredObjects[i].points.size() > MIN_POINTS_FOR_BEST_OBJECT_CANDIDATE)
-			{
-				candidatesIdx.push_back(i);
-			}
-		}
+    int bestCandidateIdx = 0;
+    if (clusteredObjectsCentroidsMsg.size() > 0 && clusteredObjects.size() > 0)
+    {
+        std::vector<int> candidatesIdx;
+        for (unsigned int i = 0; i < clusteredObjects.size(); ++i)
+        {
+            if (clusteredObjects[i].points.size() > MIN_POINTS_FOR_BEST_OBJECT_CANDIDATE)
+            {
+                candidatesIdx.push_back(i);
+            }
+        }
 
-		if (candidatesIdx.size() > 0)
-		{
-			double minDist = 99999;
-			bestCandidateIdx = candidatesIdx[0];
-			for (unsigned int i = 0; i < candidatesIdx.size(); ++i)
-			{
-				double dist = sqrt(
-				        pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].x, 2) + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].y, 2)
-				                + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].z, 2));
-				if (dist < minDist)
-				{
-					bestCandidateIdx = candidatesIdx[i];
-					minDist = dist;
-				}
+        if (candidatesIdx.size() > 0)
+        {
+            double minDist = 99999;
+            bestCandidateIdx = candidatesIdx[0];
+            for (unsigned int i = 0; i < candidatesIdx.size(); ++i)
+            {
+                double dist = sqrt(
+                                  pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].x, 2) + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].y, 2)
+                                  + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].z, 2));
+                if (dist < minDist)
+                {
+                    bestCandidateIdx = candidatesIdx[i];
+                    minDist = dist;
+                }
 
-			}
-		}
-	}
-	return bestCandidateIdx;
+            }
+        }
+    }
+    return bestCandidateIdx;
 }
 
 int findBestObject2(std::vector<geometry_msgs::Point> clusteredObjectsCentroidsMsg, std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal> > clusteredObjects)
 {
 
-	int bestCandidateIdx = 0;
-	if (clusteredObjectsCentroidsMsg.size() > 0 && clusteredObjects.size() > 0)
-	{
-		std::vector<int> candidatesIdx;
-		for (unsigned int i = 0; i < clusteredObjects.size(); ++i)
-		{
-			if (clusteredObjects[i].points.size() > MIN_POINTS_FOR_BEST_OBJECT_CANDIDATE)
-			{
-				candidatesIdx.push_back(i);
-			}
-		}
+    int bestCandidateIdx = 0;
+    if (clusteredObjectsCentroidsMsg.size() > 0 && clusteredObjects.size() > 0)
+    {
+        std::vector<int> candidatesIdx;
+        for (unsigned int i = 0; i < clusteredObjects.size(); ++i)
+        {
+            if (clusteredObjects[i].points.size() > MIN_POINTS_FOR_BEST_OBJECT_CANDIDATE)
+            {
+                candidatesIdx.push_back(i);
+            }
+        }
 
-		if (candidatesIdx.size() > 0)
-		{
-			double minDistToGrasp = MIN_DIST_TO_GRASP;
-			bestCandidateIdx = candidatesIdx[0];
-			unsigned int maxPointCloudSize = 0;
-			for (unsigned int i = 0; i < candidatesIdx.size(); ++i)
-			{
-				double dist = sqrt(
-				        pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].x, 2) + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].y, 2)
-				                + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].z, 2));
-				if (dist < minDistToGrasp && clusteredObjects[candidatesIdx[i]].points.size() > maxPointCloudSize)
-				{
-					bestCandidateIdx = candidatesIdx[i];
-					maxPointCloudSize = clusteredObjects[candidatesIdx[i]].points.size();
-				}
+        if (candidatesIdx.size() > 0)
+        {
+            double minDistToGrasp = MIN_DIST_TO_GRASP;
+            bestCandidateIdx = candidatesIdx[0];
+            unsigned int maxPointCloudSize = 0;
+            for (unsigned int i = 0; i < candidatesIdx.size(); ++i)
+            {
+                double dist = sqrt(
+                                  pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].x, 2) + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].y, 2)
+                                  + pow(clusteredObjectsCentroidsMsg[candidatesIdx[i]].z, 2));
+                if (dist < minDistToGrasp && clusteredObjects[candidatesIdx[i]].points.size() > maxPointCloudSize)
+                {
+                    bestCandidateIdx = candidatesIdx[i];
+                    maxPointCloudSize = clusteredObjects[candidatesIdx[i]].points.size();
+                }
 
-			}
-		}
-	}
-	return bestCandidateIdx;
+            }
+        }
+    }
+    return bestCandidateIdx;
 }
 
 //TEST OBJECT DETECTION
 void objectCandidateExtractionCallback(const sensor_msgs::PointCloud2::ConstPtr& point_cloud_msg)
 {
-	ROS_DEBUG("objectCandidateExtractionCallback started...");
-	std::vector<sensor_msgs::PointCloud2> clusteredObjectsMsg;
-	std::vector<geometry_msgs::Point> clusteredObjectsCentroidsMsg;
-	sensor_msgs::PointCloud2 pointsCloudMsg;
-	int bestCandidateIdx = 0;
+    ROS_DEBUG("objectCandidateExtractionCallback started...");
+    std::vector<sensor_msgs::PointCloud2> clusteredObjectsMsg;
+    std::vector<geometry_msgs::Point> clusteredObjectsCentroidsMsg;
+    sensor_msgs::PointCloud2 pointsCloudMsg;
+    int bestCandidateIdx = 0;
 
-	if (point_cloud_msg->width <= 0 && point_cloud_msg->height <= 0)
-	{
-		ROS_DEBUG("pointCloud Msg empty");
-		return;
-	}
+    if (point_cloud_msg->width <= 0 && point_cloud_msg->height <= 0)
+    {
+        ROS_DEBUG("pointCloud Msg empty");
+        return;
+    }
 
-	ros::Time start, finish;
-	start = ros::Time::now();
+    ros::Time start, finish;
+    start = ros::Time::now();
 
-	std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal> > clusteredObjects;
-	std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal> > clusteredPlanes;
-	pcl::PointCloud < pcl::PointXYZRGBNormal > planar_point_cloud;
-	pcl::PointCloud < pcl::PointXYZRGB > point_cloud;
-	pcl::PointCloud < pcl::PointXYZRGBNormal > point_cloud_RGB;
-	pcl::PointCloud < pcl::PointXYZRGBNormal > point_cloud_RGB2;
-	pcl::PointCloud < pcl::PointXYZRGB > augmentPointCloudCopy;
-	std::vector<StructPlanarSurface*> hierarchyPlanes;
-	sensor_msgs::PointCloud2 pointCloud2MsgTransformed;
+    std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal> > clusteredObjects;
+    std::vector<pcl::PointCloud<pcl::PointXYZRGBNormal> > clusteredPlanes;
+    pcl::PointCloud < pcl::PointXYZRGBNormal > planar_point_cloud;
+    pcl::PointCloud < pcl::PointXYZRGB > point_cloud;
+    pcl::PointCloud < pcl::PointXYZRGBNormal > point_cloud_RGB;
+    pcl::PointCloud < pcl::PointXYZRGBNormal > point_cloud_RGB2;
+    pcl::PointCloud < pcl::PointXYZRGB > augmentPointCloudCopy;
+    std::vector<StructPlanarSurface*> hierarchyPlanes;
+    sensor_msgs::PointCloud2 pointCloud2MsgTransformed;
 
-	std::string fromFrame = std::string(point_cloud_msg->header.frame_id);
-	ROS_DEBUG("pointCloud tf transform... ");
+    std::string fromFrame = std::string(point_cloud_msg->header.frame_id);
+    ROS_DEBUG("pointCloud tf transform... ");
 
-	if (!toolBox.transformPointCloud(*listenerKinectRGBToKinect, fromFrame, toFrame, *point_cloud_msg, pointCloud2MsgTransformed, 2))
-	{
-		ROS_DEBUG("pointCloud tf transform...failed");
-		counter = 0;
-		return;
-	}
-	ROS_DEBUG("pointCloud tf transform...done");
-	pcl::fromROSMsg(pointCloud2MsgTransformed, point_cloud);
+    if (!toolBox.transformPointCloud(*listenerKinectRGBToKinect, fromFrame, toFrame, *point_cloud_msg, pointCloud2MsgTransformed, 2))
+    {
+        ROS_DEBUG("pointCloud tf transform...failed");
+        counter = 0;
+        return;
+    }
+    ROS_DEBUG("pointCloud tf transform...done");
+    pcl::fromROSMsg(pointCloud2MsgTransformed, point_cloud);
 
-	if (point_cloud.points.size() <= 0)
-	{
-		ROS_DEBUG("pointCloud empty ");
-		return;
-	}
+    if (point_cloud.points.size() <= 0)
+    {
+        ROS_DEBUG("pointCloud empty ");
+        return;
+    }
 
-	if (counter == 0)
-	{
-		augmentPointCloud = point_cloud;
-		augmentPointCloud.header.frame_id = point_cloud.header.frame_id;
-		//augmentPointCloud.header.stamp=ros::Time::now();
-		ROS_DEBUG("augment pointCloud = %d points", (int) augmentPointCloud.size());
-		//		kinectTiltDegree += KINECT_ANGLE_STEP;
-	}
-	else if (max_augment == (counter - 1))
-	{
+    if (counter == 0)
+    {
+        augmentPointCloud = point_cloud;
+        augmentPointCloud.header.frame_id = point_cloud.header.frame_id;
+        //augmentPointCloud.header.stamp=ros::Time::now();
+        ROS_DEBUG("augment pointCloud = %d points", (int) augmentPointCloud.size());
+        //      kinectTiltDegree += KINECT_ANGLE_STEP;
+    }
+    else if (max_augment == (counter - 1))
+    {
 
-		//	kinectTiltDegree = KINECT_ANGLE_INIT;
-		//setKinectTilt(dynamicReconfigureClientKinectTilt,kinectTiltDegree);
-		ROS_DEBUG("extract object candidates");
+        //  kinectTiltDegree = KINECT_ANGLE_INIT;
+        //setKinectTilt(dynamicReconfigureClientKinectTilt,kinectTiltDegree);
+        ROS_DEBUG("extract object candidates");
 
-		augmentPointCloud = toolBox.filterDistance(augmentPointCloud, X_DISTANCE_MIN, X_DISTANCE_MAX, "x");
-		augmentPointCloud = toolBox.filterDistance(augmentPointCloud, Y_DISTANCE_MIN, Y_DISTANCE_MAX, "y");
-		augmentPointCloud = toolBox.filterDistance(augmentPointCloud, Z_DISTANCE_MIN, Z_DISTANCE_MAX, "z");
+        augmentPointCloud = toolBox.filterDistance(augmentPointCloud, X_DISTANCE_MIN, X_DISTANCE_MAX, "x");
+        augmentPointCloud = toolBox.filterDistance(augmentPointCloud, Y_DISTANCE_MIN, Y_DISTANCE_MAX, "y");
+        augmentPointCloud = toolBox.filterDistance(augmentPointCloud, Z_DISTANCE_MIN, Z_DISTANCE_MAX, "z");
 
-		//toolBox.subsampling(augmentPointCloud, 0.004); //0.01
-		toolBox.subsampling(augmentPointCloud, 0.008);  //0.01
+        //toolBox.subsampling(augmentPointCloud, 0.004); //0.01
+        toolBox.subsampling(augmentPointCloud, 0.008);  //0.01
 
-		augmentPointCloudCopy = augmentPointCloud;
+        augmentPointCloudCopy = augmentPointCloud;
 
-		if (augmentPointCloudCopy.points.size() == 0)
-		{
-			ROS_DEBUG("point cloud empty after filtering");
-			counter = 0;
-			return;
-		}
+        if (augmentPointCloudCopy.points.size() == 0)
+        {
+            ROS_DEBUG("point cloud empty after filtering");
+            counter = 0;
+            return;
+        }
 
-		ROS_DEBUG("Point cloud size: %lu", augmentPointCloudCopy.points.size());
+        ROS_DEBUG("Point cloud size: %lu", augmentPointCloudCopy.points.size());
 
-		objectCandidateExtractor->extractObjectCandidates(augmentPointCloudCopy, planar_point_cloud, hierarchyPlanes);
+        objectCandidateExtractor->extractObjectCandidates(augmentPointCloudCopy, planar_point_cloud, hierarchyPlanes);
 
-		if (DO_CANDIDATION || SHOW_OBJECTS || SHOW_PLANES)
-		{
-			mcr_perception_msgs::ObjectList outList;
+        if (DO_CANDIDATION || SHOW_OBJECTS || SHOW_PLANES)
+        {
+            mcr_perception_msgs::ObjectList outList;
 
-			if (hierarchyPlanes.size() <= 0)
-				ROS_WARN("no plane detected");
+            if (hierarchyPlanes.size() <= 0)
+                ROS_WARN("no plane detected");
 
-			unsigned int obj_count = 0;
-			for (unsigned int iterPlanes = 0; iterPlanes < hierarchyPlanes.size(); iterPlanes++)
-			{
-				for (unsigned int iterObject = 0; iterObject < hierarchyPlanes[iterPlanes]->clusteredObjects.size(); iterObject++, obj_count++)
-				{
-					if (DO_CANDIDATION || SHOW_OBJECTS)
-					{
-						pcl::PointCloud < pcl::PointXYZRGBNormal > current_obj = hierarchyPlanes[iterPlanes]->clusteredObjects[iterObject];
-						clusteredObjects.push_back(current_obj);
+            unsigned int obj_count = 0;
+            for (unsigned int iterPlanes = 0; iterPlanes < hierarchyPlanes.size(); iterPlanes++)
+            {
+                for (unsigned int iterObject = 0; iterObject < hierarchyPlanes[iterPlanes]->clusteredObjects.size(); iterObject++, obj_count++)
+                {
+                    if (DO_CANDIDATION || SHOW_OBJECTS)
+                    {
+                        pcl::PointCloud < pcl::PointXYZRGBNormal > current_obj = hierarchyPlanes[iterPlanes]->clusteredObjects[iterObject];
+                        clusteredObjects.push_back(current_obj);
 
-						//std::cout << "-----------SIZE:" << current_obj.points.size() << std::endl;
+                        //std::cout << "-----------SIZE:" << current_obj.points.size() << std::endl;
 
-						double min_x, max_x, min_y, max_y, min_z, max_z;
-						MinMax::determineMinMax3D(clusteredObjects[iterObject], min_x, max_x, min_y, max_y, min_z, max_z);
+                        double min_x, max_x, min_y, max_y, min_z, max_z;
+                        MinMax::determineMinMax3D(clusteredObjects[iterObject], min_x, max_x, min_y, max_y, min_z, max_z);
 
-						//std::cout << "obj " << iterObject << " HEIGHT: " << fabs((min_z - max_z)) << std::endl;
+                        //std::cout << "obj " << iterObject << " HEIGHT: " << fabs((min_z - max_z)) << std::endl;
 
-						std::map<std::string, double>::iterator end = known_objects.end();
-						std::string closest_name = "";
-						double closest_height = DBL_MAX;
-						for (std::map<std::string, double>::const_iterator it = known_objects.begin(); it != end; ++it)
-						{
-							if (fabs(fabs((min_z - max_z)) - it->second) < 0.015)
-							{
-								closest_name = it->first;
-								closest_height = it->second;
-							}
-						}
+                        std::map<std::string, double>::iterator end = known_objects.end();
+                        std::string closest_name = "";
+                        double closest_height = DBL_MAX;
+                        for (std::map<std::string, double>::const_iterator it = known_objects.begin(); it != end; ++it)
+                        {
+                            if (fabs(fabs((min_z - max_z)) - it->second) < 0.015)
+                            {
+                                closest_name = it->first;
+                                closest_height = it->second;
+                            }
+                        }
 
-						if (closest_name.length() > 0)
-						{
-							//std::cout << "closest: " << closest_name << " height: " << closest_height << std::endl;
+                        if (closest_name.length() > 0)
+                        {
+                            //std::cout << "closest: " << closest_name << " height: " << closest_height << std::endl;
 
-							mcr_perception_msgs::Object out;  // Our output msg
+                            mcr_perception_msgs::Object out;  // Our output msg
 
-							pcl_conversions::fromPCL(clusteredObjects[iterObject].header, out.pose.header);
+                            pcl_conversions::fromPCL(clusteredObjects[iterObject].header, out.pose.header);
 
-							out.name = closest_name;
+                            out.name = closest_name;
 
-							out.pose.pose.orientation.x = 0;
-							out.pose.pose.orientation.y = 0;
-							out.pose.pose.orientation.z = 0;
-							out.pose.pose.orientation.w = 0;
+                            out.pose.pose.orientation.x = 0;
+                            out.pose.pose.orientation.y = 0;
+                            out.pose.pose.orientation.z = 0;
+                            out.pose.pose.orientation.w = 0;
 
-							pcl::PointXYZ centroid = toolBox.pointCloudCentroid(clusteredObjects[iterObject]);
-							out.pose.pose.position.x = centroid.x;
-							out.pose.pose.position.y = centroid.y;
-							out.pose.pose.position.z = centroid.z;
+                            pcl::PointXYZ centroid = toolBox.pointCloudCentroid(clusteredObjects[iterObject]);
+                            out.pose.pose.position.x = centroid.x;
+                            out.pose.pose.position.y = centroid.y;
+                            out.pose.pose.position.z = centroid.z;
 
-							pcl::toROSMsg(clusteredObjects[iterObject], pointsCloudMsg);
-							out.pointcloud = pointsCloudMsg;
+                            pcl::toROSMsg(clusteredObjects[iterObject], pointsCloudMsg);
+                            out.pointcloud = pointsCloudMsg;
 
-							outList.objects.push_back(out);
-							ROS_INFO_STREAM(
-							        " Found object: " << out.name << " with height: " << fabs(min_z - max_z) << " (closest height: " << closest_height << ")");
-						}
-						else
-						{
-							ROS_INFO_STREAM("unkown object with height: " << fabs(min_z - max_z));
-						}
+                            outList.objects.push_back(out);
+                            ROS_INFO_STREAM(
+                                " Found object: " << out.name << " with height: " << fabs(min_z - max_z) << " (closest height: " << closest_height << ")");
+                        }
+                        else
+                        {
+                            ROS_INFO_STREAM("unkown object with height: " << fabs(min_z - max_z));
+                        }
 
-					}
+                    }
 
-					if (DO_CANDIDATION)
-					{
-						pcl::toROSMsg(clusteredObjects.back(), pointsCloudMsg);
-						pointsCloudMsg.header.frame_id = pointsCloudMsg.header.frame_id;
-						pointsCloudMsg.header.stamp = ros::Time::now();
-						clusteredObjectsMsg.push_back(pointsCloudMsg);
+                    if (DO_CANDIDATION)
+                    {
+                        pcl::toROSMsg(clusteredObjects.back(), pointsCloudMsg);
+                        pointsCloudMsg.header.frame_id = pointsCloudMsg.header.frame_id;
+                        pointsCloudMsg.header.stamp = ros::Time::now();
+                        clusteredObjectsMsg.push_back(pointsCloudMsg);
 
-						pcl::PointXYZ centroid = toolBox.pointCloudCentroid(clusteredObjects.back());
-						geometry_msgs::Point pointMsg;
-						pointMsg.x = centroid.x;
-						pointMsg.y = centroid.y;
-						pointMsg.z = centroid.z;
-						clusteredObjectsCentroidsMsg.push_back(pointMsg);
-					}
+                        pcl::PointXYZ centroid = toolBox.pointCloudCentroid(clusteredObjects.back());
+                        geometry_msgs::Point pointMsg;
+                        pointMsg.x = centroid.x;
+                        pointMsg.y = centroid.y;
+                        pointMsg.z = centroid.z;
+                        clusteredObjectsCentroidsMsg.push_back(pointMsg);
+                    }
 
-				}
-				if (SHOW_PLANES)
-					clusteredPlanes.push_back(hierarchyPlanes[iterPlanes]->pointCloud);
-			}
+                }
+                if (SHOW_PLANES)
+                    clusteredPlanes.push_back(hierarchyPlanes[iterPlanes]->pointCloud);
+            }
 
-			if (obj_count <= 0)
-				ROS_WARN("no objects extracted");
+            if (obj_count <= 0)
+                ROS_WARN("no objects extracted");
 
-			pmd_pub5.publish(outList);
-			publishVisualizationMarker(outList);
-		}
+            pmd_pub5.publish(outList);
+            publishVisualizationMarker(outList);
+        }
 
-		if (DO_CANDIDATION)
-		{
-			bestCandidateIdx = findBestObject(clusteredObjectsCentroidsMsg, clusteredObjects);
-			finalClusteredObjectsMsg = clusteredObjectsMsg;
-			finalClusteredObjectsCenroidsMsg = clusteredObjectsCentroidsMsg;
-			finalBestObjectsCentroidMsg = bestCandidateIdx;
+        if (DO_CANDIDATION)
+        {
+            bestCandidateIdx = findBestObject(clusteredObjectsCentroidsMsg, clusteredObjects);
+            finalClusteredObjectsMsg = clusteredObjectsMsg;
+            finalClusteredObjectsCenroidsMsg = clusteredObjectsCentroidsMsg;
+            finalBestObjectsCentroidMsg = bestCandidateIdx;
 
-			mcr_perception_msgs::ObjectList pointcloud_3d_msg;
+            mcr_perception_msgs::ObjectList pointcloud_3d_msg;
 
-			for (size_t i = 0; i < clusteredObjectsMsg.size(); ++i)
-			{
-				mcr_perception_msgs::Object obj;
-				obj.pointcloud = clusteredObjectsMsg[i];
+            for (size_t i = 0; i < clusteredObjectsMsg.size(); ++i)
+            {
+                mcr_perception_msgs::Object obj;
+                obj.pointcloud = clusteredObjectsMsg[i];
 
-				pointcloud_3d_msg.objects.push_back(obj);
-			}
+                pointcloud_3d_msg.objects.push_back(obj);
+            }
 
-			pmd_pub4.publish(pointcloud_3d_msg);
-		}
+            pmd_pub4.publish(pointcloud_3d_msg);
+        }
 
-		if (SHOW_OBJECTS)
-		{
-			toolBox.markClusteredPointCloud(clusteredObjects, point_cloud_RGB);
-			pcl::toROSMsg(point_cloud_RGB, pointsCloudMsg);
-			pointsCloudMsg.header.frame_id = point_cloud.header.frame_id;
-			pointsCloudMsg.header.stamp = ros::Time::now();
-			pmd_pub1.publish(pointsCloudMsg);
-		}
+        if (SHOW_OBJECTS)
+        {
+            toolBox.markClusteredPointCloud(clusteredObjects, point_cloud_RGB);
+            pcl::toROSMsg(point_cloud_RGB, pointsCloudMsg);
+            pointsCloudMsg.header.frame_id = point_cloud.header.frame_id;
+            pointsCloudMsg.header.stamp = ros::Time::now();
+            pmd_pub1.publish(pointsCloudMsg);
+        }
 
-		if (SHOW_PLANES)
-		{
-			toolBox.markClusteredPointCloud(clusteredPlanes, point_cloud_RGB2);
-			pcl::toROSMsg(point_cloud_RGB2, pointsCloudMsg);
-			pointsCloudMsg.header.frame_id = point_cloud.header.frame_id;
-			pointsCloudMsg.header.stamp = ros::Time::now();
-			pmd_pub2.publish(pointsCloudMsg);
+        if (SHOW_PLANES)
+        {
+            toolBox.markClusteredPointCloud(clusteredPlanes, point_cloud_RGB2);
+            pcl::toROSMsg(point_cloud_RGB2, pointsCloudMsg);
+            pointsCloudMsg.header.frame_id = point_cloud.header.frame_id;
+            pointsCloudMsg.header.stamp = ros::Time::now();
+            pmd_pub2.publish(pointsCloudMsg);
 
-		}
-		counter = -1;
+        }
+        counter = -1;
 
-	}
-	else
-	{
-		augmentPointCloud.header.frame_id = point_cloud.header.frame_id;
-		augmentPointCloud += point_cloud;
-		ROS_DEBUG("augment pointCloud = %d points", (int) augmentPointCloud.size());
-	}
+    }
+    else
+    {
+        augmentPointCloud.header.frame_id = point_cloud.header.frame_id;
+        augmentPointCloud += point_cloud;
+        ROS_DEBUG("augment pointCloud = %d points", (int) augmentPointCloud.size());
+    }
 
-	++counter;
-	finish = ros::Time::now();
+    ++counter;
+    finish = ros::Time::now();
 
-	ROS_DEBUG("[objectCandidateExtractionCallback] Execution time =  %lfsec", (finish.toSec() - start.toSec()));
+    ROS_DEBUG("[objectCandidateExtractionCallback] Execution time =  %lfsec", (finish.toSec() - start.toSec()));
 }
 
 /*Service getKinect_objectCandidateList*/
 bool getKinectObjectCandidates3D(mcr_perception_msgs::GetObjectList::Request &req, mcr_perception_msgs::GetObjectList::Response &res)
 {
-	for (size_t i = 0; i < finalClusteredObjectsMsg.size(); ++i)
-	{
-		mcr_perception_msgs::Object obj;
+    for (size_t i = 0; i < finalClusteredObjectsMsg.size(); ++i)
+    {
+        mcr_perception_msgs::Object obj;
 
-		obj.pointcloud = finalClusteredObjectsMsg[i];
-		obj.pose.pose.position.x = finalClusteredObjectsCenroidsMsg[i].x;
-		obj.pose.pose.position.y = finalClusteredObjectsCenroidsMsg[i].y;
-		obj.pose.pose.position.z = finalClusteredObjectsCenroidsMsg[i].z;
+        obj.pointcloud = finalClusteredObjectsMsg[i];
+        obj.pose.pose.position.x = finalClusteredObjectsCenroidsMsg[i].x;
+        obj.pose.pose.position.y = finalClusteredObjectsCenroidsMsg[i].y;
+        obj.pose.pose.position.z = finalClusteredObjectsCenroidsMsg[i].z;
 
-		res.objects.push_back(obj);
-	}
+        res.objects.push_back(obj);
+    }
 
-	//res.bestPointCloudCentroidIndex = finalBestObjectsCentroidMsg;
-	finalClusteredObjectsMsg.clear();
-	finalClusteredObjectsCenroidsMsg.clear();
+    //res.bestPointCloudCentroidIndex = finalBestObjectsCentroidMsg;
+    finalClusteredObjectsMsg.clear();
+    finalClusteredObjectsCenroidsMsg.clear();
 
-	return true;
+    return true;
 }
 
 bool start(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 {
-	sub = g_nh_ptr->subscribe(kinectTopicToSubscribe, 1, objectCandidateExtractionCallback);
+    sub = g_nh_ptr->subscribe(kinectTopicToSubscribe, 1, objectCandidateExtractionCallback);
 
-	ROS_INFO("object recognition height based ENABLED");
-	return true;
+    ROS_INFO("object recognition height based ENABLED");
+    return true;
 }
 
 bool stop(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 {
-	sub.shutdown();
-	ROS_INFO("object recognition height based DISABLED");
-	return true;
+    sub.shutdown();
+    ROS_INFO("object recognition height based DISABLED");
+    return true;
 }
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "object_recognition_height_based");
+    ros::init(argc, argv, "object_recognition_height_based");
 
-	ros::NodeHandle n("~");
-	g_nh_ptr = &n;
+    ros::NodeHandle n("~");
+    g_nh_ptr = &n;
 
-	ros::ServiceServer srvGetKinectObjectCandidates;
+    ros::ServiceServer srvGetKinectObjectCandidates;
 
-	listenerKinectRGBToKinect = new tf::TransformListener();
-	objectCandidateExtractor = new CObjectCandidateExtraction(n, SPHERICAL_DISTANCE);
+    listenerKinectRGBToKinect = new tf::TransformListener();
+    objectCandidateExtractor = new CObjectCandidateExtraction(n, SPHERICAL_DISTANCE);
 
-	pmd_pub1 = n.advertise < sensor_msgs::PointCloud2 > ("objects_cloud", 1);
-	pmd_pub2 = n.advertise < sensor_msgs::PointCloud2 > ("planes_cloud", 1);
-	pmd_pub4 = n.advertise < mcr_perception_msgs::ObjectList > ("detected_objects", 1);
-	pmd_pub5 = n.advertise < mcr_perception_msgs::ObjectList > ("recognized_objects", 1);
-	pub_marker = n.advertise<visualization_msgs::MarkerArray>("visualization_marker", 1);
+    pmd_pub1 = n.advertise < sensor_msgs::PointCloud2 > ("objects_cloud", 1);
+    pmd_pub2 = n.advertise < sensor_msgs::PointCloud2 > ("planes_cloud", 1);
+    pmd_pub4 = n.advertise < mcr_perception_msgs::ObjectList > ("detected_objects", 1);
+    pmd_pub5 = n.advertise < mcr_perception_msgs::ObjectList > ("recognized_objects", 1);
+    pub_marker = n.advertise<visualization_msgs::MarkerArray>("visualization_marker", 1);
 
-	ros::ServiceServer srv_start = n.advertiseService("start", start);
-	ros::ServiceServer srv_stop = n.advertiseService("stop", stop);
+    ros::ServiceServer srv_start = n.advertiseService("start", start);
+    ros::ServiceServer srv_stop = n.advertiseService("stop", stop);
 
-	srvGetKinectObjectCandidates = n.advertiseService("get_recognized_objects", getKinectObjectCandidates3D);
+    srvGetKinectObjectCandidates = n.advertiseService("get_recognized_objects", getKinectObjectCandidates3D);
 
-	//ros::Subscriber sub = n.subscribe(kinectTopicToSubscribe, 1, objectCandidateExtractionCallback);
+    //ros::Subscriber sub = n.subscribe(kinectTopicToSubscribe, 1, objectCandidateExtractionCallback);
 
-	int num_objects = 0;
-	n.getParam("num_known_objects", num_objects);
-	ROS_INFO_STREAM("Number of known objects: " << num_objects);
+    int num_objects = 0;
+    n.getParam("num_known_objects", num_objects);
+    ROS_INFO_STREAM("Number of known objects: " << num_objects);
 
-	std::string obj_name;
-	double obj_height;
-	for (int i = 0; i < num_objects; ++i)
-	{
-		std::ostringstream name_field, height_field;
+    std::string obj_name;
+    double obj_height;
+    for (int i = 0; i < num_objects; ++i)
+    {
+        std::ostringstream name_field, height_field;
 
-		name_field << "obj_" << (i + 1) << "_name";
-		n.getParam(name_field.str(), obj_name);
+        name_field << "obj_" << (i + 1) << "_name";
+        n.getParam(name_field.str(), obj_name);
 
-		height_field << "obj_" << (i + 1) << "_height";
-		n.getParam(height_field.str(), obj_height);
+        height_field << "obj_" << (i + 1) << "_height";
+        n.getParam(height_field.str(), obj_height);
 
-		ROS_INFO_STREAM("     object name: " << obj_name << ", height: " << obj_height);
+        ROS_INFO_STREAM("     object name: " << obj_name << ", height: " << obj_height);
 
-		known_objects[obj_name] = obj_height;
-	}
+        known_objects[obj_name] = obj_height;
+    }
 
-	ros::spin();
+    ros::spin();
 
-	return 0;
+    return 0;
 }
 

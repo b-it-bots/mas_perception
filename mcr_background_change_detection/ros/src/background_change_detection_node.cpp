@@ -5,7 +5,7 @@ BackgroundChangeDetectionNode::BackgroundChangeDetectionNode(ros::NodeHandle &nh
     dynamic_reconfigre_server_.setCallback(boost::bind(&BackgroundChangeDetectionNode::dynamicReconfigCallback, this, _1, _2));
     event_sub_ = node_handler_.subscribe("event_in", 1, &BackgroundChangeDetectionNode::eventCallback, this);
     event_pub_ = node_handler_.advertise<std_msgs::String>("event_out", 1);
-    image_sub_ = image_transporter_.subscribe( "input_image", 1, &BackgroundChangeDetectionNode::imageCallback, this );
+    image_sub_ = image_transporter_.subscribe("input_image", 1, &BackgroundChangeDetectionNode::imageCallback, this);
     image_pub_ = image_transporter_.advertise("debug_image", 1);
     current_state_ = INIT;
     has_image_data_ = false;
@@ -20,8 +20,8 @@ BackgroundChangeDetectionNode::~BackgroundChangeDetectionNode()
 }
 
 
-void BackgroundChangeDetectionNode::dynamicReconfigCallback(mcr_background_change_detection::BackgroundChangeConfig &config, uint32_t level) 
-{ 
+void BackgroundChangeDetectionNode::dynamicReconfigCallback(mcr_background_change_detection::BackgroundChangeConfig &config, uint32_t level)
+{
     background_change_threshold_ = config.background_change_threshold;
     background_learning_rate_ = config.background_learning_rate;
     timeout_time_ = config.timeout_time;
@@ -43,59 +43,72 @@ void BackgroundChangeDetectionNode::imageCallback(const sensor_msgs::ImageConstP
 
 void BackgroundChangeDetectionNode::states()
 {
-    switch (current_state_) {
-        case INIT:
-            initState();
-            break;
-        case IDLE:
-            idleState();
-            break;
-        case RUNNING:
-            runState();
-            break;
-        default:
-            initState();
+    switch (current_state_)
+    {
+    case INIT:
+        initState();
+        break;
+    case IDLE:
+        idleState();
+        break;
+    case RUNNING:
+        runState();
+        break;
+    default:
+        initState();
     }
 }
 
 void BackgroundChangeDetectionNode::initState()
 {
-    if (event_in_msg_.data == "e_start") {
+    if (event_in_msg_.data == "e_start")
+    {
         current_state_ = IDLE;
         event_in_msg_.data = "";
         is_first_pass_ = true;
         start_time_ = ros::Time::now();
-    } else {
+    }
+    else
+    {
         current_state_ = INIT;
     }
 }
 
 void BackgroundChangeDetectionNode::idleState()
 {
-    if (event_in_msg_.data == "e_stop") {
+    if (event_in_msg_.data == "e_stop")
+    {
         current_state_ = INIT;
         event_in_msg_.data = "";
-    } else if(has_image_data_) {
+    }
+    else if (has_image_data_)
+    {
         current_state_ = RUNNING;
         has_image_data_ = false;
-    } else {
-            current_state_ = IDLE;
+    }
+    else
+    {
+        current_state_ = IDLE;
     }
 }
 
 void BackgroundChangeDetectionNode::runState()
 {
-    if(is_timeout_mode_ && ((ros::Time::now()-start_time_).toSec() > timeout_time_)) {
+    if (is_timeout_mode_ && ((ros::Time::now() - start_time_).toSec() > timeout_time_))
+    {
         event_out_msg_.data = "e_timeout";
         event_pub_.publish(event_out_msg_);
         current_state_ = INIT;
-    } else {
-        if (detectBackgroundChange()) {
+    }
+    else
+    {
+        if (detectBackgroundChange())
+        {
             event_out_msg_.data = "e_change";
             event_pub_.publish(event_out_msg_);
         }
         current_state_ = IDLE;
-    } 
+    }
 
     if (is_debug_mode_)
     {
@@ -108,19 +121,26 @@ void BackgroundChangeDetectionNode::runState()
 
 bool BackgroundChangeDetectionNode::detectBackgroundChange()
 {
-    try {
+    try
+    {
         cv_bridge::CvImagePtr cv_img_tmp = cv_bridge::toCvCopy(image_msg_, sensor_msgs::image_encodings::BGR8);
         cv::Mat current_frame = cv_img_tmp->image;
-        if(is_first_pass_){
+        if (is_first_pass_)
+        {
             bcd_.initializeBackgroundModel(current_frame);
             is_first_pass_ = false;
         }
-        if (bcd_.detectBackgroundChange(current_frame, debug_image_)) {
+        if (bcd_.detectBackgroundChange(current_frame, debug_image_))
+        {
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
-    } catch (cv_bridge::Exception &e) {
+    }
+    catch (cv_bridge::Exception &e)
+    {
         ROS_ERROR("Could not convert from '%s' to 'rgb8'.", image_msg_->encoding.c_str());
         return false;
     }
@@ -138,7 +158,8 @@ int main(int argc, char** argv)
     nh.param<int>("loop_rate", loop_rate, 30);
     ros::Rate rate(loop_rate);
 
-    while (ros::ok()) {
+    while (ros::ok())
+    {
         ros::spinOnce();
         bcd.states();
         rate.sleep();

@@ -30,201 +30,202 @@
 class ImageCartesianMapperNode
 {
 
-    public:
-        /**
-         * Constructor.
-         *
-         * @param nh Private node handle.
-         */
-        ImageCartesianMapperNode(ros::NodeHandle &nh);
+public:
+    /**
+     * Constructor.
+     *
+     * @param nh Private node handle.
+     */
+    ImageCartesianMapperNode(ros::NodeHandle &nh);
 
-        /**
-         * Destructor.
-         */
-        virtual ~ImageCartesianMapperNode();
-        
-        /**
-         * Call back for event_in topic to decide the current state of the node.
-         *
-         * @param event_command The event string.
-         */
-        void eventCallback(const std_msgs::String &event_command);
+    /**
+     * Destructor.
+     */
+    virtual ~ImageCartesianMapperNode();
 
-        /**
-         * Call back for the image pixel 2D pose which needs to be transformed.
-         *
-         * @param pose Image pixel 2D position.
-         */
-        void poseCallback(const geometry_msgs::Pose2D::ConstPtr &pose);
-        
-        /**
-         * Handles the current state of the node based on the events and data availability.
-         */
-        void states();
+    /**
+     * Call back for event_in topic to decide the current state of the node.
+     *
+     * @param event_command The event string.
+     */
+    void eventCallback(const std_msgs::String &event_command);
 
-        /**
-         * Wait until event e_start is received and then switch to IDLE state.
-         */
-        void initState();
+    /**
+     * Call back for the image pixel 2D pose which needs to be transformed.
+     *
+     * @param pose Image pixel 2D position.
+     */
+    void poseCallback(const geometry_msgs::Pose2D::ConstPtr &pose);
 
-        /*
-         * Wait until data (pixel pose and camera info) is available and then switch to RUNNING state.
-         * If event e_stop is sent then switch to INIT state.
-         */
-        void idleState();
+    /**
+     * Handles the current state of the node based on the events and data availability.
+     */
+    void states();
 
-        /*
-         * Process the data as per the functionality and publish the corresponding event in the event_out topic.
-         * If event e_stop is sent then switch to INIT state if not switch to IDLE state.
-         */
-        void runState();
+    /**
+     * Wait until event e_start is received and then switch to IDLE state.
+     */
+    void initState();
 
-        /*
-         * Converts the image pixel to metrical units in cartesian space based on the camera internal matrix.
-         */
-        bool cameraOpticalToCameraMetrical();
+    /*
+     * Wait until data (pixel pose and camera info) is available and then switch to RUNNING state.
+     * If event e_stop is sent then switch to INIT state.
+     */
+    void idleState();
 
-        /*
-         * Transform the cartesian pose from camera frame into the required frame specified in the ros param.
-         */
-        bool cameraMetricalToCartesian();
+    /*
+     * Process the data as per the functionality and publish the corresponding event in the event_out topic.
+     * If event e_stop is sent then switch to INIT state if not switch to IDLE state.
+     */
+    void runState();
 
-    private:
+    /*
+     * Converts the image pixel to metrical units in cartesian space based on the camera internal matrix.
+     */
+    bool cameraOpticalToCameraMetrical();
 
-        /**
-         * An enum to handle the current state of the node 
-         */
-        enum States {
-            INIT, /**< INIT state while waiting for start event */
-            IDLE, /**< IDLE state while waiting for the data. */
-            RUNNING /**< RUNNING state while processing the data. */
-        };
+    /*
+     * Transform the cartesian pose from camera frame into the required frame specified in the ros param.
+     */
+    bool cameraMetricalToCartesian();
 
-    private:
-        /**
-         * ROS Node handler for the node.
-         */
-        ros::NodeHandle node_handler_;
-        
-        /**
-         * ROS subscriber for the event_in topic
-         */
-        ros::Subscriber event_sub_;
+private:
 
-        /**
-         * ROS subscriber for the pose topic to receive image pixel pose in 2D
-         */
-        ros::Subscriber pose_sub_;
+    /**
+     * An enum to handle the current state of the node
+     */
+    enum States
+    {
+        INIT, /**< INIT state while waiting for start event */
+        IDLE, /**< IDLE state while waiting for the data. */
+        RUNNING /**< RUNNING state while processing the data. */
+    };
 
-        /**
-         * ROS publisher to publish the event out message in event_out topic
-         */
-        ros::Publisher event_pub_;
+private:
+    /**
+     * ROS Node handler for the node.
+     */
+    ros::NodeHandle node_handler_;
 
-        /**
-         * ROS publisher to publish the calculated cartesian pose in cartesian_pose topic 
-         */
-        ros::Publisher cartesian_pub_;
+    /**
+     * ROS subscriber for the event_in topic
+     */
+    ros::Subscriber event_sub_;
 
-        /**
-         * Represents the pose data availability in pose topic to receive image pixel pose in 2D
-         */
-        bool has_pose_data_;
+    /**
+     * ROS subscriber for the pose topic to receive image pixel pose in 2D
+     */
+    ros::Subscriber pose_sub_;
 
-        /**
-         * Stores the event message sent in the event_in topic
-         */
-        std_msgs::String event_in_msg_;
+    /**
+     * ROS publisher to publish the event out message in event_out topic
+     */
+    ros::Publisher event_pub_;
 
-        /**
-         * Represents if image filter node is enabled
-         */
-        bool is_image_filter_enabled_;
+    /**
+     * ROS publisher to publish the calculated cartesian pose in cartesian_pose topic
+     */
+    ros::Publisher cartesian_pub_;
 
-        /**
-         * Represents if image cropping is enabled through image filter node
-         */
-        bool is_image_crop_enabled_;
+    /**
+     * Represents the pose data availability in pose topic to receive image pixel pose in 2D
+     */
+    bool has_pose_data_;
 
-        /**
-         * Stores the Pose2D message sent in pose topic
-         */
-        geometry_msgs::Pose2D pose_2d_;
+    /**
+     * Stores the event message sent in the event_in topic
+     */
+    std_msgs::String event_in_msg_;
 
-        /**
-         * Stores the cartesian pose with respect to camera frame
-         */
-        geometry_msgs::PoseStamped camera_optical_pose_;
+    /**
+     * Represents if image filter node is enabled
+     */
+    bool is_image_filter_enabled_;
 
-        /**
-         * Stores the cartesian pose with respect to the required frame as specified by the param
-         */
-        geometry_msgs::PoseStamped cartesian_pose_;
+    /**
+     * Represents if image cropping is enabled through image filter node
+     */
+    bool is_image_crop_enabled_;
 
-        /**
-         * Stores the current state of the node
-         */
-        States current_state_;
+    /**
+     * Stores the Pose2D message sent in pose topic
+     */
+    geometry_msgs::Pose2D pose_2d_;
 
-        /**
-         * Object to TransformLister class handle frame transformations
-         */
-        tf::TransformListener listener_;
+    /**
+     * Stores the cartesian pose with respect to camera frame
+     */
+    geometry_msgs::PoseStamped camera_optical_pose_;
 
-        /**
-         * Stores the target frame to which transformation has to be made
-         */
-        std::string target_frame_;
+    /**
+     * Stores the cartesian pose with respect to the required frame as specified by the param
+     */
+    geometry_msgs::PoseStamped cartesian_pose_;
 
-        /**
-         * Stores the source frame from which the transformation has to be made
-         */
-        std::string source_frame_;
+    /**
+     * Stores the current state of the node
+     */
+    States current_state_;
 
-        /**
-         * Camera Intrincsic Matrix stored in a vector list
-         */
-        std::vector<double> camera_intrinsic_list_;
+    /**
+     * Object to TransformLister class handle frame transformations
+     */
+    tf::TransformListener listener_;
 
-        /**
-         * Stores the pixel pose in camera coordinates
-         */
-        Eigen::Vector3f camera_coordinates_;
+    /**
+     * Stores the target frame to which transformation has to be made
+     */
+    std::string target_frame_;
 
-        /**
-         * Stores the camera intrinsic matrix
-         */
-        Eigen::Matrix3f camera_intrinsic_matrix_;
+    /**
+     * Stores the source frame from which the transformation has to be made
+     */
+    std::string source_frame_;
 
-        /**
-         * Stores the cartesian pose in camera frame
-         */
-        Eigen::Vector3f camera_metrical_coordinates_;
-        
-        /**
-         * Stores the event out messaged to be published in event_out topic
-         */
-        std_msgs::String event_out_msg_;
+    /**
+     * Camera Intrincsic Matrix stored in a vector list
+     */
+    std::vector<double> camera_intrinsic_list_;
 
-        /**
-         * Image width as provided in the realsense camera driver
-         */
-        double image_width_;
+    /**
+     * Stores the pixel pose in camera coordinates
+     */
+    Eigen::Vector3f camera_coordinates_;
 
-        /**
-         * Image height as provided in the realsense camera driver
-         */
-        double image_height_;
+    /**
+     * Stores the camera intrinsic matrix
+     */
+    Eigen::Matrix3f camera_intrinsic_matrix_;
 
-        /**
-         * Crop factor top as provided in the image filter param
-         */
-        double crop_factor_top_;
+    /**
+     * Stores the cartesian pose in camera frame
+     */
+    Eigen::Vector3f camera_metrical_coordinates_;
 
-        /**
-         * Crop factor left as provided in the image filter param
-         */
-        double crop_factor_left_;
+    /**
+     * Stores the event out messaged to be published in event_out topic
+     */
+    std_msgs::String event_out_msg_;
+
+    /**
+     * Image width as provided in the realsense camera driver
+     */
+    double image_width_;
+
+    /**
+     * Image height as provided in the realsense camera driver
+     */
+    double image_height_;
+
+    /**
+     * Crop factor top as provided in the image filter param
+     */
+    double crop_factor_top_;
+
+    /**
+     * Crop factor left as provided in the image filter param
+     */
+    double crop_factor_left_;
 
 };
 

@@ -47,15 +47,16 @@ std::vector<std::vector<cv::Point> > ContourFinder::find2DContours(const cv::Mat
 
     // filter the contours so we keep only those in the bottom half of the image
     // TODO: move this to another component
-    for (int i = 0; i < contours.size(); i++) {
+    for (int i = 0; i < contours.size(); i++)
+    {
         cv::Point2f circle_center;
         float radius;
 
         cv::minEnclosingCircle((cv::Mat)contours[i], circle_center, radius);
 
         //if (circle_center.y > canny_output.rows / 2) {
-            filtered_contours.push_back(contours.at(i));
-      //  }
+        filtered_contours.push_back(contours.at(i));
+        //  }
     }
 
     return filtered_contours;
@@ -69,14 +70,17 @@ std::vector<pcl::PCLPointCloud2::Ptr> ContourFinder::get3DContours(const std::ve
     // loop through points in the 2D contour and find their 3D positions in the given pointcloud
     std::vector<pcl::PCLPointCloud2::Ptr> pcl_contours;
 
-    for (size_t i = 0; i < contours.size(); i++) {
+    for (size_t i = 0; i < contours.size(); i++)
+    {
         pcl::PCLPointCloud2::Ptr pcl_contour(new pcl::PCLPointCloud2);
         pcl::PointCloud<pcl::PointXYZ>::Ptr xyz_contour(new pcl::PointCloud<pcl::PointXYZ>);
 
-        for (size_t j = 0; j < contours[i].size(); j++) {
+        for (size_t j = 0; j < contours[i].size(); j++)
+        {
             pcl::PointXYZ pcl_point = xyz_input_cloud->at(contours[i][j].x, contours[i][j].y);
 
-            if ((!pcl_isnan(pcl_point.x)) && (!pcl_isnan(pcl_point.y)) && (!pcl_isnan(pcl_point.z))) {
+            if ((!pcl_isnan(pcl_point.x)) && (!pcl_isnan(pcl_point.y)) && (!pcl_isnan(pcl_point.z)))
+            {
                 xyz_contour->points.push_back(pcl_point);
             }
         }
@@ -84,7 +88,8 @@ std::vector<pcl::PCLPointCloud2::Ptr> ContourFinder::get3DContours(const std::ve
         // remove outliers in the pointcloud. this ensures the points are roughly on the same plane
         xyz_contour->header = xyz_input_cloud->header;
 
-        if (xyz_contour->points.size() > 0) {
+        if (xyz_contour->points.size() > 0)
+        {
             pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
             sor.setInputCloud(xyz_contour);
             sor.setMeanK(50);

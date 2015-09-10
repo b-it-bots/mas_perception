@@ -27,12 +27,12 @@ using namespace std;
 
 node::node(int id)
 {
-	this->id = id;
+    this->id = id;
 }
 
 int node::get_id() const
 {
-	return id;
+    return id;
 }
 
 /*
@@ -40,23 +40,23 @@ int node::get_id() const
  */
 const std::list<edge*>* node::get_edges() const
 {
-	return &edges;
+    return &edges;
 }
 
 void node::add_edge(node* tgt, const double weight)
 {
-	//cout << " Add egde  to node "<< tgt->get_id()<<"\n";
-	edges.push_back(new edge(this, tgt, weight));
+    //cout << " Add egde  to node "<< tgt->get_id()<<"\n";
+    edges.push_back(new edge(this, tgt, weight));
 }
 
 void node::print() const
 {
-	cout << id << ":";
-	list<edge*>::const_iterator i;
-	for(i = edges.begin(); i != edges.end(); ++i)
-	{
-		cout << " ";
-		(*i)->print();
-	}
-	cout << "\n";
+    cout << id << ":";
+    list<edge*>::const_iterator i;
+    for (i = edges.begin(); i != edges.end(); ++i)
+    {
+        cout << " ";
+        (*i)->print();
+    }
+    cout << "\n";
 }

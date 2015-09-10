@@ -32,7 +32,8 @@ ContourFinderROS::~ContourFinderROS()
 
 void ContourFinderROS::update()
 {
-    if (pointcloud_msg_received_) {
+    if (pointcloud_msg_received_)
+    {
         findContours();
         pointcloud_msg_received_ = false;
     }
@@ -48,7 +49,8 @@ void ContourFinderROS::pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &m
 
 void ContourFinderROS::eventInCallback(const std_msgs::String &msg)
 {
-    if (msg.data == "e_trigger") {
+    if (msg.data == "e_trigger")
+    {
         sub_pointcloud_ = nh_.subscribe("input/pointcloud", 1, &ContourFinderROS::pointcloudCallback, this);
         ROS_INFO("Subscribed to pointcloud");
     }
@@ -87,7 +89,8 @@ void ContourFinderROS::findContours()
 
     mcr_perception_msgs::PointCloud2List ros_contours;
 
-    for (size_t i = 0; i < pcl_contours.size(); i++) {
+    for (size_t i = 0; i < pcl_contours.size(); i++)
+    {
         sensor_msgs::PointCloud2 ros_pointcloud;
         ros_pointcloud.header = pointcloud_msg_->header;
         // Convert to ROS data type
@@ -98,7 +101,8 @@ void ContourFinderROS::findContours()
     // Publish the contours
     pub_contour_pointclouds_.publish(ros_contours);
 
-    if (publish_debug_image_) {
+    if (publish_debug_image_)
+    {
         cv_bridge::CvImage debug_image_msg;
         debug_image_msg.encoding = sensor_msgs::image_encodings::MONO8;
         debug_image_msg.image = debug_image;
@@ -106,7 +110,8 @@ void ContourFinderROS::findContours()
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr contours_combined(new pcl::PointCloud<pcl::PointXYZ>);
 
-        for (size_t i = 0; i < pcl_contours.size(); i++) {
+        for (size_t i = 0; i < pcl_contours.size(); i++)
+        {
             pcl::PointCloud<pcl::PointXYZ>::Ptr xyz_contour(new pcl::PointCloud<pcl::PointXYZ>);
             pcl::fromPCLPointCloud2(*(pcl_contours[i]), *xyz_contour);
             if (i == 0)

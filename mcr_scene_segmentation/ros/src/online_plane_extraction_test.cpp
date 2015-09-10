@@ -16,32 +16,32 @@ class TestNode : public OnlineTestBase
 
 public:
 
-  TestNode()
-  {
-    ros::NodeHandle nh;
-    marker_publisher_ = nh.advertise<visualization_msgs::MarkerArray>("planes", 1);
-  }
+    TestNode()
+    {
+        ros::NodeHandle nh;
+        marker_publisher_ = nh.advertise<visualization_msgs::MarkerArray>("planes", 1);
+    }
 
 protected:
 
-  void process()
-  {
-    if (!cloud_) return;
-
-    PlanarPolygonVector planar_polygons;
-    rpe_.plane_extraction_ptr->setInputCloud(cloud_);
-    MEASURE_RUNTIME(rpe_.plane_extraction_ptr->extract(planar_polygons), "Plane extraction");
-
-    for (size_t i = 0; i < planar_polygons.size(); i++)
+    void process()
     {
-      const auto& c = planar_polygons[i].getCoefficients();
-      ROS_INFO(" [%02zu] %.3f %.3f %.3f :: %.3f", i, c(0), c(1), c(2), c(3));
-    }
+        if (!cloud_) return;
 
-    visualization_msgs::MarkerArray ma;
-    buildPolygonMarkerArray(planar_polygons, ma);
-    marker_publisher_.publish(ma);
-  }
+        PlanarPolygonVector planar_polygons;
+        rpe_.plane_extraction_ptr->setInputCloud(cloud_);
+        MEASURE_RUNTIME(rpe_.plane_extraction_ptr->extract(planar_polygons), "Plane extraction");
+
+        for (size_t i = 0; i < planar_polygons.size(); i++)
+        {
+            const auto& c = planar_polygons[i].getCoefficients();
+            ROS_INFO(" [%02zu] %.3f %.3f %.3f :: %.3f", i, c(0), c(1), c(2), c(3));
+        }
+
+        visualization_msgs::MarkerArray ma;
+        buildPolygonMarkerArray(planar_polygons, ma);
+        marker_publisher_.publish(ma);
+    }
 
 private:
 
@@ -51,22 +51,22 @@ private:
 };
 
 
-int main (int argc, char** argv)
+int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "plane_extraction");
+    ros::init(argc, argv, "plane_extraction");
 
-  if (argc != 1 && argc != 3)
-  {
-    ROS_ERROR("Usage: %s [min_z max_z]", argv[0]);
-    return 1;
-  }
+    if (argc != 1 && argc != 3)
+    {
+        ROS_ERROR("Usage: %s [min_z max_z]", argv[0]);
+        return 1;
+    }
 
-  TestNode tn;
+    TestNode tn;
 
-  if (argc == 3)
-    tn.setupPassThroughFilter(argv[1], argv[2]);
+    if (argc == 3)
+        tn.setupPassThroughFilter(argv[1], argv[2]);
 
-  ros::spin();
+    ros::spin();
 
-  return 0;
+    return 0;
 }

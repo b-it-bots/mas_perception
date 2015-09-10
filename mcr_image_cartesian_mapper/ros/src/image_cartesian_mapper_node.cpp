@@ -20,12 +20,13 @@ ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_h
     node_handler_.param<bool>("is_image_filter_enabled", is_image_filter_enabled_, false);
     node_handler_.param<bool>("crop_image", is_image_crop_enabled_, false);
 
-    if (is_image_filter_enabled_ && is_image_crop_enabled_) {
+    if (is_image_filter_enabled_ && is_image_crop_enabled_)
+    {
         node_handler_.param<double>("image_width", image_width_, 640);
         node_handler_.param<double>("image_height", image_height_, 480);
         node_handler_.param<double>("crop_factor_top", crop_factor_top_, false);
-        node_handler_.param<double>("crop_factor_left", crop_factor_left_, false); 
-   }
+        node_handler_.param<double>("crop_factor_left", crop_factor_left_, false);
+    }
 
     current_state_ = INIT;
     has_pose_data_ = false;
@@ -36,7 +37,7 @@ ImageCartesianMapperNode::~ImageCartesianMapperNode()
     event_sub_.shutdown();
     pose_sub_.shutdown();
     cartesian_pub_.shutdown();
-    event_pub_.shutdown();  
+    event_pub_.shutdown();
 }
 
 
@@ -53,51 +54,63 @@ void ImageCartesianMapperNode::poseCallback(const geometry_msgs::Pose2D::ConstPt
 
 void ImageCartesianMapperNode::states()
 {
-    switch (current_state_) {
-        case INIT:
-            initState();
-            break;
-        case IDLE:
-            idleState();
-            break;
-        case RUNNING:
-            runState();
-            break;
-        default:
-            initState();
+    switch (current_state_)
+    {
+    case INIT:
+        initState();
+        break;
+    case IDLE:
+        idleState();
+        break;
+    case RUNNING:
+        runState();
+        break;
+    default:
+        initState();
     }
 }
 
 void ImageCartesianMapperNode::initState()
 {
-    if (event_in_msg_.data == "e_start") {
+    if (event_in_msg_.data == "e_start")
+    {
         current_state_ = IDLE;
         event_in_msg_.data == "";
         has_pose_data_ = false;
-    } else {
+    }
+    else
+    {
         current_state_ = INIT;
     }
 }
 
 void ImageCartesianMapperNode::idleState()
 {
-    if (event_in_msg_.data == "e_stop") {
+    if (event_in_msg_.data == "e_stop")
+    {
         current_state_ = INIT;
         event_in_msg_.data == "";
-    } else if (has_pose_data_) {
+    }
+    else if (has_pose_data_)
+    {
         current_state_ = RUNNING;
         has_pose_data_ = false;
-    } else {
-            current_state_ = IDLE;
+    }
+    else
+    {
+        current_state_ = IDLE;
     }
 }
 
 void ImageCartesianMapperNode::runState()
 {
-    if (cameraOpticalToCameraMetrical() && cameraMetricalToCartesian()) {
+    if (cameraOpticalToCameraMetrical() && cameraMetricalToCartesian())
+    {
         cartesian_pub_.publish(cartesian_pose_);
-        event_out_msg_.data = "e_done";    
-    } else {
+        event_out_msg_.data = "e_done";
+    }
+    else
+    {
         event_out_msg_.data = "e_error";
     }
     event_pub_.publish(event_out_msg_);
@@ -107,27 +120,30 @@ void ImageCartesianMapperNode::runState()
 
 bool ImageCartesianMapperNode::cameraOpticalToCameraMetrical()
 {
-    if (is_image_filter_enabled_ && is_image_crop_enabled_) {
+    if (is_image_filter_enabled_ && is_image_crop_enabled_)
+    {
         camera_coordinates_ << pose_2d_.x + image_width_*crop_factor_left_, pose_2d_.y + image_height_*crop_factor_top_, 1;
-    } else {
+    }
+    else
+    {
         camera_coordinates_ << pose_2d_.x, pose_2d_.y, 1;
     }
-    
 
-    camera_intrinsic_matrix_ << camera_intrinsic_list_[0], camera_intrinsic_list_[1], camera_intrinsic_list_[2], 
-                                camera_intrinsic_list_[3], camera_intrinsic_list_[4], camera_intrinsic_list_[5], 
-                                camera_intrinsic_list_[6], camera_intrinsic_list_[7], camera_intrinsic_list_[8];
 
-    camera_metrical_coordinates_ = camera_intrinsic_matrix_.inverse()*camera_coordinates_;
+    camera_intrinsic_matrix_ << camera_intrinsic_list_[0], camera_intrinsic_list_[1], camera_intrinsic_list_[2],
+                             camera_intrinsic_list_[3], camera_intrinsic_list_[4], camera_intrinsic_list_[5],
+                             camera_intrinsic_list_[6], camera_intrinsic_list_[7], camera_intrinsic_list_[8];
+
+    camera_metrical_coordinates_ = camera_intrinsic_matrix_.inverse() * camera_coordinates_;
 
     geometry_msgs::Pose pose;
     geometry_msgs::Point point;
     geometry_msgs::Quaternion quaternion;
 
-    point.x = camera_metrical_coordinates_(0,0);
-    point.y = camera_metrical_coordinates_(1,0);
-    point.z = camera_metrical_coordinates_(2,0);
-    quaternion = tf::createQuaternionMsgFromYaw(pose_2d_.theta*M_PI/180);
+    point.x = camera_metrical_coordinates_(0, 0);
+    point.y = camera_metrical_coordinates_(1, 0);
+    point.z = camera_metrical_coordinates_(2, 0);
+    quaternion = tf::createQuaternionMsgFromYaw(pose_2d_.theta * M_PI / 180);
     pose.position = point;
     pose.orientation = quaternion;
 
@@ -141,13 +157,15 @@ bool ImageCartesianMapperNode::cameraOpticalToCameraMetrical()
 
 bool ImageCartesianMapperNode::cameraMetricalToCartesian()
 {
-    try{
+    try
+    {
         listener_.waitForTransform(target_frame_, camera_optical_pose_.header.frame_id, camera_optical_pose_.header.stamp, ros::Duration(3.0));
         listener_.transformPose(target_frame_, camera_optical_pose_, cartesian_pose_);
         return true;
     }
-    catch (tf::TransformException ex) {
-        ROS_ERROR("%s",ex.what());
+    catch (tf::TransformException ex)
+    {
+        ROS_ERROR("%s", ex.what());
         return false;
     }
 }
@@ -162,8 +180,9 @@ int main(int argc, char **argv)
     int loop_rate = 30;
     nh.param<int>("loop_rate", loop_rate, 30);
     ros::Rate rate(loop_rate);
-    
-    while (ros::ok()) {
+
+    while (ros::ok())
+    {
         ros::spinOnce();
         icm.states();
         rate.sleep();

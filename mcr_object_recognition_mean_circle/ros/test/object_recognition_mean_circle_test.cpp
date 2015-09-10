@@ -40,7 +40,8 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
     int total_count = 0;
     int correct_count = 0;
 
-    for (size_t i = 0; i < object_list.size(); i++) {
+    for (size_t i = 0; i < object_list.size(); i++)
+    {
         std::string object_name = object_list.at(i);
         std::string full_path = default_dataset_path;
         full_path.append(object_name);
@@ -49,14 +50,17 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
 
         bfs::directory_iterator end_iter;
 
-        if (bfs::exists(p)) {
-            for (bfs::directory_iterator obj_dir_it(p); obj_dir_it != end_iter; ++obj_dir_it) {
+        if (bfs::exists(p))
+        {
+            for (bfs::directory_iterator obj_dir_it(p); obj_dir_it != end_iter; ++obj_dir_it)
+            {
 
                 mcr_perception_msgs::RecognizeObject::Request obj_rec_srv_req;
 
                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr full_cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 
-                if (pcl::io::loadPCDFile<pcl::PointXYZRGB> (obj_dir_it->path().string(), *full_cloud) == -1) {
+                if (pcl::io::loadPCDFile<pcl::PointXYZRGB> (obj_dir_it->path().string(), *full_cloud) == -1)
+                {
                     continue;
                 }
 
@@ -66,10 +70,12 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
 
                 mcr_perception_msgs::RecognizeObject::Response res;
 
-                if (ros::service::call("/mcr_perception/object_recognizer/recognize_object", obj_rec_srv_req, res)) {
+                if (ros::service::call("/mcr_perception/object_recognizer/recognize_object", obj_rec_srv_req, res))
+                {
                     total_count++;
 
-                    if (object_name.compare(res.name) == 0) {
+                    if (object_name.compare(res.name) == 0)
+                    {
                         correct_count++;
                     }
                 }

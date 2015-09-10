@@ -28,40 +28,40 @@
 
 int main(int argc, char** argv)
 {
-//	if(argc < 2)
-//	{
-//		cout << "USAGE: " << argv[0] << " <INPUT_FILE>" << endl;
-//		return -1;
-//	}
+//  if(argc < 2)
+//  {
+//      cout << "USAGE: " << argv[0] << " <INPUT_FILE>" << endl;
+//      return -1;
+//  }
 
-	//apsp_graph bla = apsp_graph(argv[1]);
+    //apsp_graph bla = apsp_graph(argv[1]);
 
-	apsp_graph bla;
+    apsp_graph bla;
 
-	node *n1 = bla.add_node(1);
-	node *n2 = bla.add_node(2);
-	node *n3 = bla.add_node(3);
-	node *n4 = bla.add_node(4);
-	bla.add_undirectedEdge(n1->get_id(), n2->get_id(),110.4);
-	bla.add_undirectedEdge(n1->get_id(), n3->get_id(),150.12);
-	bla.add_undirectedEdge(n2->get_id(), n3->get_id(),150.41);
-	bla.add_undirectedEdge(n4->get_id(), n1->get_id(),91.23);
+    node *n1 = bla.add_node(1);
+    node *n2 = bla.add_node(2);
+    node *n3 = bla.add_node(3);
+    node *n4 = bla.add_node(4);
+    bla.add_undirectedEdge(n1->get_id(), n2->get_id(), 110.4);
+    bla.add_undirectedEdge(n1->get_id(), n3->get_id(), 150.12);
+    bla.add_undirectedEdge(n2->get_id(), n3->get_id(), 150.41);
+    bla.add_undirectedEdge(n4->get_id(), n1->get_id(), 91.23);
 
-//	n1->print();
-//	n2->print();
-//	n3->print();
+//  n1->print();
+//  n2->print();
+//  n3->print();
 
-	bla.apspJohnson();
-
-
+    bla.apspJohnson();
 
 
-//	if (bla.apspJohnson())
-		bla.print_matrix();
-		bla.print_matrix("out.txt");
-//	else
-//		cout << "negative-cycles" << endl;
 
-	return 0;
+
+//  if (bla.apspJohnson())
+    bla.print_matrix();
+    bla.print_matrix("out.txt");
+//  else
+//      cout << "negative-cycles" << endl;
+
+    return 0;
 }
 

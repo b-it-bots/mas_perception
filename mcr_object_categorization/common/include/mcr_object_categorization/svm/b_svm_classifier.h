@@ -1,8 +1,8 @@
- /*
- *  Created on: Mar 18, 2011
- *      Author: Christian Mueller
- * 
- */
+/*
+*  Created on: Mar 18, 2011
+*      Author: Christian Mueller
+*
+*/
 
 
 #ifndef __CBSVMClassifier_H__
@@ -46,62 +46,65 @@ class CBSvmClassifier
 
 private:
 
-	friend class boost::serialization::access;
+    friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & svmModels;
-		ar & svmError;
-		ar & svmAccuracy;
-		ar & numClassifier;
-		ar & homePath;
-	}
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & svmModels;
+        ar & svmError;
+        ar & svmAccuracy;
+        ar & numClassifier;
+        ar & homePath;
+    }
 
 
 
-	CLogger *logger;
-	//id, svm
-	std::map<int, CSvmClassifier> svms;
+    CLogger *logger;
+    //id, svm
+    std::map<int, CSvmClassifier> svms;
 
-	//label,acc
-	std::map<int, std::map<int, double> >svmAccuracy;
+    //label,acc
+    std::map<int, std::map<int, double> >svmAccuracy;
 
-	//id, error of Testset
-	std::map<int, double> svmError;
-	unsigned int numClassifier;
+    //id, error of Testset
+    std::map<int, double> svmError;
+    unsigned int numClassifier;
 
-	//entireSet
-	//label(1/0),featurevector
-	std::map<int, std::vector<std::vector<double> > > trainSet;
-	std::map<int, std::vector<std::vector<double> > > testSet;
-	std::map<int,std::string> svmModels; //filenames w/o homepath!!!
+    //entireSet
+    //label(1/0),featurevector
+    std::map<int, std::vector<std::vector<double> > > trainSet;
+    std::map<int, std::vector<std::vector<double> > > testSet;
+    std::map<int, std::string> svmModels; //filenames w/o homepath!!!
 
-	std::vector<std::vector<double> > createBootstrap(std::vector<std::vector<double> > &featureVectors, unsigned int numberVec);
-	std::vector<std::vector<double> > createOneVsAllset(int label, std::map<int, std::vector<std::vector<double> > > &featureVectors);
-	int signFnct( double value);
+    std::vector<std::vector<double> > createBootstrap(std::vector<std::vector<double> > &featureVectors, unsigned int numberVec);
+    std::vector<std::vector<double> > createOneVsAllset(int label, std::map<int, std::vector<std::vector<double> > > &featureVectors);
+    int signFnct(double value);
 
-	std::string homePath;
-	boost::mt19937 rng;
-	std::string id;
+    std::string homePath;
+    boost::mt19937 rng;
+    std::string id;
 public:
-	CBSvmClassifier();
+    CBSvmClassifier();
 
-	void setId(std::string id);
-	void setHomePath(std::string homePath);
-	void setTrainSet(std::map<int, std::vector<std::vector<double> > > trainSet);
-	void setTestSet(std::map<int, std::vector<std::vector<double> > > testSet);
+    void setId(std::string id);
+    void setHomePath(std::string homePath);
+    void setTrainSet(std::map<int, std::vector<std::vector<double> > > trainSet);
+    void setTestSet(std::map<int, std::vector<std::vector<double> > > testSet);
 
-	void loadModel();
-	void saveModel();
+    void loadModel();
+    void saveModel();
 
-	void setNumClassifier(unsigned int numClassifier);
+    void setNumClassifier(unsigned int numClassifier);
 
-	double train(std::map<int,std::vector<int> > &missClassified);
-	char predict(std::vector<double> query, double &confidence, bool isLabeled=false);
-	double verifyModel(std::map<int,std::vector<int> > &missClassified);
-	std::map<int, double> verifyWeakLearnerModel(CSvmClassifier &weakLearner);
-	unsigned int getNumClassifers(){return this->numClassifier;}
+    double train(std::map<int, std::vector<int> > &missClassified);
+    char predict(std::vector<double> query, double &confidence, bool isLabeled = false);
+    double verifyModel(std::map<int, std::vector<int> > &missClassified);
+    std::map<int, double> verifyWeakLearnerModel(CSvmClassifier &weakLearner);
+    unsigned int getNumClassifers()
+    {
+        return this->numClassifier;
+    }
 };
 
 BOOST_CLASS_VERSION(CBSvmClassifier, 1)

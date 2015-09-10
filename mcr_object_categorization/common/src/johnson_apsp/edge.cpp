@@ -26,24 +26,24 @@ using namespace std;
 
 edge::edge(node* src, node* tgt, const double weight)
 {
-	this->src = src;
-	this->tgt = tgt;
-	this->weight = weight;
+    this->src = src;
+    this->tgt = tgt;
+    this->weight = weight;
 }
 
 double edge::get_weight() const
 {
-	return weight;
+    return weight;
 }
 
 void edge::set_weight(double weight)
 {
-	this->weight = weight;
+    this->weight = weight;
 }
 
 node* edge::get_tgt() const
 {
-	return tgt;
+    return tgt;
 }
 
 node *edge::get_src() const
@@ -53,5 +53,5 @@ node *edge::get_src() const
 
 void edge::print() const
 {
-	cout << tgt->get_id() << "w" << weight;
+    cout << tgt->get_id() << "w" << weight;
 }

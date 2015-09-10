@@ -61,16 +61,19 @@ void ObjectSelector::eventCallback(const std_msgs::String::Ptr &msg)
 
 bool ObjectSelector::selectObjectByName(mcr_perception_msgs::Object &selected_object)
 {
-    if (!object_name_received_) {
+    if (!object_name_received_)
+    {
         return false;
     }
 
     std_msgs::String event_out;
     std::vector<mcr_perception_msgs::Object>::iterator iter;
 
-    for (iter = object_list_->objects.begin(); iter != object_list_->objects.end(); ++iter) {
+    for (iter = object_list_->objects.begin(); iter != object_list_->objects.end(); ++iter)
+    {
         // selected object is erased from list
-        if (object_name_.data == iter->name) {
+        if (object_name_.data == iter->name)
+        {
             selected_object = *iter;
             object_list_->objects.erase(iter);
 
@@ -103,18 +106,20 @@ bool ObjectSelector::selectClosestObject(mcr_perception_msgs::Object &selected_o
     std::vector<mcr_perception_msgs::Object>::iterator closest_object;
 
     // find closest object
-    for (iter = object_list_->objects.begin(); iter != object_list_->objects.end(); ++iter) {
+    for (iter = object_list_->objects.begin(); iter != object_list_->objects.end(); ++iter)
+    {
         // calculate Euclidean distance based on x, y, z
         current_object_distance = sqrt(pow(iter->pose.pose.position.x, 2) + pow(iter->pose.pose.position.y, 2) + pow(iter->pose.pose.position.z, 2));
 
-        if (fabs(current_object_distance) < closest_distance) {
+        if (fabs(current_object_distance) < closest_distance)
+        {
             closest_distance = fabs(current_object_distance);
             closest_object = iter;
         }
     }
 
     // "return" selected object
-    selected_object = *closest_object; 
+    selected_object = *closest_object;
 
     // remove selected object from list
     object_list_->objects.erase(closest_object);
@@ -130,7 +135,8 @@ void ObjectSelector::update()
     std_msgs::String event_out;
 
     // check for received events change state accordingly
-    if (event_in_received_) {
+    if (event_in_received_)
+    {
         if (event_in_.data == "e_trigger")
             current_state_ = IDLE;
 
@@ -139,11 +145,12 @@ void ObjectSelector::update()
     }
 
     // only continue if state is IDLE or RUNNING
-    if(current_state_ == INIT)
+    if (current_state_ == INIT)
         return;
 
     // no list received
-    if (!object_list_received_) {
+    if (!object_list_received_)
+    {
         event_out.data = "e_no_object_list";
         pub_event_out_.publish(event_out);
 
@@ -152,7 +159,8 @@ void ObjectSelector::update()
     }
 
     // list is currently empty (i.e. all objects have been selected previously)
-    if (object_list_->objects.empty()) {
+    if (object_list_->objects.empty())
+    {
         event_out.data = "e_no_objects";
         pub_event_out_.publish(event_out);
 
@@ -167,7 +175,8 @@ void ObjectSelector::update()
     else if (object_selection_type_ == CLOSEST)
         object_selected = selectClosestObject(object);
 
-    if (object_selected) {
+    if (object_selected)
+    {
         pub_object_.publish(object);
         pub_object_pose_.publish(object.pose);
 
@@ -191,7 +200,8 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(frame_rate);
 
-    while (ros::ok()) {
+    while (ros::ok())
+    {
         object_selector.update();
         loop_rate.sleep();
         ros::spinOnce();

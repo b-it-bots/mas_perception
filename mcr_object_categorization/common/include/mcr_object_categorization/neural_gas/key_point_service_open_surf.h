@@ -21,14 +21,15 @@
 #define WINDOW_LIVE_IMAGE "Live Image Capture"
 using namespace std;
 
-class CKeyPointService_OpenSurf {
+class CKeyPointService_OpenSurf
+{
 
 public:
-	CKeyPointService_OpenSurf();
-	void extractedKeyPoints(string fileName, char label,
-			std::vector<CKeyPoint> &keyPoints);
-	void readKeyPointsOpenSurf(IpVec ipts, int keyPointDim, std::vector<
-			CKeyPoint> &keyPoints);
+    CKeyPointService_OpenSurf();
+    void extractedKeyPoints(string fileName, char label,
+                            std::vector<CKeyPoint> &keyPoints);
+    void readKeyPointsOpenSurf(IpVec ipts, int keyPointDim, std::vector <
+                               CKeyPoint > &keyPoints);
 };
 
 #endif

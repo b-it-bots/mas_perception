@@ -49,7 +49,7 @@ void PCAPoseEstimatorRos::estimatePose()
     pcl_conversions::toPCL(*pointcloud_msg_, *pcl_input_cloud);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr xyz_input_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::fromPCLPointCloud2 (*pcl_input_cloud, *xyz_input_cloud);
+    pcl::fromPCLPointCloud2(*pcl_input_cloud, *xyz_input_cloud);
 
     Eigen::Vector4f centroid;
     pcl::compute3DCentroid(*xyz_input_cloud, centroid);
@@ -65,8 +65,8 @@ void PCAPoseEstimatorRos::estimatePose()
     eigen_vectors.col(2) = eigen_vectors.col(0).cross(eigen_vectors.col(1));
 
     Eigen::Matrix4f eigen_vector_transform(Eigen::Matrix4f::Identity());
-    eigen_vector_transform.block<3,3>(0,0) = eigen_vectors.transpose();
-    eigen_vector_transform.block<3,1>(0,3) = -(eigen_vector_transform.block<3,3>(0,0) * centroid.head<3>());
+    eigen_vector_transform.block<3, 3>(0, 0) = eigen_vectors.transpose();
+    eigen_vector_transform.block<3, 1>(0, 3) = -(eigen_vector_transform.block<3, 3>(0, 0) * centroid.head<3>());
 
     // transform cloud to eigenvector space
     pcl::PointCloud<pcl::PointXYZ> transformed_cloud;

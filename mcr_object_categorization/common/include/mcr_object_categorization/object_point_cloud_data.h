@@ -1,4 +1,4 @@
-/*  
+/*
  * Created on: Mar 18, 2011
  * Author: Christian Mueller
  */
@@ -22,25 +22,25 @@
 
 struct SObjectPointCloudData
 {
-	std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds;
-	std::vector<int> objectLabels;
-	std::vector<std::string> objectNames;
-	//label, number of examples
-	std::map<int, int> numExamples;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>, Eigen::aligned_allocator<pcl::PointCloud<pcl::PointXYZ> > > objectPointClouds;
+    std::vector<int> objectLabels;
+    std::vector<std::string> objectNames;
+    //label, number of examples
+    std::map<int, int> numExamples;
 
-	//label, feature vector
-	std::map<int, std::vector<std::vector<double> > > extractedFeatureVectors;
+    //label, feature vector
+    std::map<int, std::vector<std::vector<double> > > extractedFeatureVectors;
 
 
-	template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			//ar & objectPointClouds;
-			ar & objectLabels;
-			ar & objectNames;
-			ar & numExamples;
-			ar & extractedFeatureVectors;
-		}
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        //ar & objectPointClouds;
+        ar & objectLabels;
+        ar & objectNames;
+        ar & numExamples;
+        ar & extractedFeatureVectors;
+    }
 };
 
 BOOST_CLASS_VERSION(SObjectPointCloudData, 1)

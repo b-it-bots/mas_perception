@@ -28,63 +28,63 @@ typedef message_filters::sync_policies::ExactTime<sensor_msgs::PointCloud2, mcr_
  */
 class CavityMessageBuilderROS
 {
-    public:
-        /**
-         * Constructor
-         * Initializes synced subscriber and Cavity publisher
-         *
-         */
-        CavityMessageBuilderROS();
+public:
+    /**
+     * Constructor
+     * Initializes synced subscriber and Cavity publisher
+     *
+     */
+    CavityMessageBuilderROS();
 
-        /**
-         * Destructor
-         */
-        virtual ~CavityMessageBuilderROS();
-
-
-    private:
-        /**
-         * Copy constructor.
-         */
-        CavityMessageBuilderROS(const CavityMessageBuilderROS &other);
-
-        /**
-         * Copy assignment operator.
-         */
-        CavityMessageBuilderROS &operator=(CavityMessageBuilderROS other);
-
-        /**
-         * Callback for pointcloud, matching error and pose
-         * Constructs Cavity message and publishes it
-         */
-        void synchronizedCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg, const mcr_perception_msgs::MatchingErrorStamped::ConstPtr &matching_error_msg, const geometry_msgs::PoseStamped::ConstPtr &pose_msg);
+    /**
+     * Destructor
+     */
+    virtual ~CavityMessageBuilderROS();
 
 
-    private:
-        /**
-         * Cavity message publisher
-         */
-        ros::Publisher pub_cavity_;
+private:
+    /**
+     * Copy constructor.
+     */
+    CavityMessageBuilderROS(const CavityMessageBuilderROS &other);
 
-        /**
-         * PointCloud Subscriber
-         */
-        message_filters::Subscriber<sensor_msgs::PointCloud2> sub_pointcloud_;
+    /**
+     * Copy assignment operator.
+     */
+    CavityMessageBuilderROS &operator=(CavityMessageBuilderROS other);
 
-        /**
-         * MatchingError Subscriber
-         */
-        message_filters::Subscriber<mcr_perception_msgs::MatchingErrorStamped> sub_matching_error_;
+    /**
+     * Callback for pointcloud, matching error and pose
+     * Constructs Cavity message and publishes it
+     */
+    void synchronizedCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg, const mcr_perception_msgs::MatchingErrorStamped::ConstPtr &matching_error_msg, const geometry_msgs::PoseStamped::ConstPtr &pose_msg);
 
-        /**
-         * Pose Subscriber
-         */
-        message_filters::Subscriber<geometry_msgs::PoseStamped> sub_pose_;
 
-        /**
-         * Synchronized subscriber
-         */
-        boost::shared_ptr<message_filters::Synchronizer<CavitySyncPolicy> > sync_input_;
+private:
+    /**
+     * Cavity message publisher
+     */
+    ros::Publisher pub_cavity_;
+
+    /**
+     * PointCloud Subscriber
+     */
+    message_filters::Subscriber<sensor_msgs::PointCloud2> sub_pointcloud_;
+
+    /**
+     * MatchingError Subscriber
+     */
+    message_filters::Subscriber<mcr_perception_msgs::MatchingErrorStamped> sub_matching_error_;
+
+    /**
+     * Pose Subscriber
+     */
+    message_filters::Subscriber<geometry_msgs::PoseStamped> sub_pose_;
+
+    /**
+     * Synchronized subscriber
+     */
+    boost::shared_ptr<message_filters::Synchronizer<CavitySyncPolicy> > sync_input_;
 };
 
 #endif
