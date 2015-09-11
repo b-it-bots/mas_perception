@@ -49,10 +49,8 @@ private:
     image_transport::Subscriber image_sub_;
     image_transport::ImageTransport image_transporter_;
     image_transport::Publisher image_pub_;
-    IplImage *cv_image_;
     bool image_sub_status_;
     sensor_msgs::ImageConstPtr image_message_;
-    IplImage debug_image_;
     bool debug_mode_;
     bool start_blob_detection_;
     BlobDetection bd_;
