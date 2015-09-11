@@ -4,11 +4,10 @@ PACKAGE = 'mcr_perception_tools'
 NODE = 'collect_object_pointclouds'
 DATA_PACKAGE = 'mds_pointclouds'
 
-import roslib
-roslib.load_manifest(PACKAGE)
 import sys
 from os.path import join
 import os.path
+import roslib
 
 # Import helper states for user input and counting
 sys.path.append(join(roslib.packages.get_pkg_dir('mcr_object_recognition_bounding_box'), 'common', 'src'))
