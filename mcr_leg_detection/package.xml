@@ -15,7 +15,6 @@
   <buildtool_depend>catkin</buildtool_depend>
   
   <build_depend>bfl</build_depend>
-  <build_depend>bullet</build_depend>
   <build_depend>dynamic_reconfigure</build_depend> 
   <build_depend>geometry_msgs</build_depend>
   <build_depend>laser_geometry</build_depend>
