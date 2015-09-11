@@ -14,7 +14,7 @@ class BlobDetection
     public:
         BlobDetection();
         virtual ~BlobDetection();
-        int detectBlobs(IplImage *input_image, IplImage &debug_image, vector<vector<double> > &blobs);
+        int detectBlobs(const Mat &mat_input_image, Mat &debug_image, vector<vector<double> > &blobs);
         void updateDynamicVariables(bool debug_mode, int min_blob_area, int max_blob_area);
 
     private:

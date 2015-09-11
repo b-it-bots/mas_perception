@@ -11,27 +11,56 @@ BlobDetection::~BlobDetection()
 
 }
 
-int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vector<vector<double> > &blobs)
+int BlobDetection::detectBlobs(const Mat &mat_input_image, Mat &debug_image, vector<vector<double> > &blobs)
 {
     double pose_x = 0.0;
     double pose_y = 0.0;
     double pose_theta = 0.0;
     double blob_area = 0.0;
 
-    if (!input_image) {
+    Mat gray_image;
+    cvtColor(mat_input_image, gray_image, CV_BGR2GRAY);
+
+    Mat gray_blurred;
+    bilateralFilter(gray_image,gray_blurred, 8, 5, 4);
+
+    Canny(gray_blurred, gray_blurred, 10, 100, 3);
+
+    Mat gray_filter;
+    adaptiveThreshold(gray_blurred, gray_filter, 255,
+              //CV_ADAPTIVE_THRESH_GAUSSIAN_C,
+              CV_ADAPTIVE_THRESH_MEAN_C,
+              CV_THRESH_BINARY, 9, 9);
+    
+    bitwise_not(gray_filter, gray_filter);
+
+    Mat gray_dilate;
+    Mat kernel = getStructuringElement(MORPH_RECT,Size(25,25),Point(-1,-1));
+    dilate(gray_filter, gray_dilate, kernel);
+
+    erode(gray_dilate,gray_dilate,kernel);
+
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    findContours( gray_dilate, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+    // Draw contours
+    Mat drawing = Mat::zeros( gray_dilate.size(), CV_8UC3 );
+    for( int i = 0; i< contours.size(); i++ )
+    {
+    drawContours( drawing, contours, i, cv::Scalar(255,255,255),CV_FILLED);
+    }
+
+    IplImage input_image = drawing;
+
+    if (!&input_image) {
         return -2; // Image not found
     }
 
-    blob_image_ = cvCreateImage(cvGetSize(input_image), IPL_DEPTH_8U, 3);
-    gray_image_ = cvCreateImage(cvGetSize(input_image), IPL_DEPTH_8U, 1);
+    blob_image_ = cvCreateImage(cvGetSize(&input_image), IPL_DEPTH_8U, 3);
+    gray_image_ = cvCreateImage(cvGetSize(&input_image), IPL_DEPTH_8U, 1);
 
-    cvCvtColor(input_image, gray_image_, CV_BGR2GRAY);
-
-    // Uncomment the below required pre processing components as required
-    //cvSmooth(gray_image_, gray_image_, CV_GAUSSIAN, 11, 11);
-    //cvEqualizeHist(gray_image_, gray_image_);
-    cvAdaptiveThreshold(gray_image_, gray_image_, 255, CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY_INV, 15, 0);
-    //cvThreshold(gray_image_, gray_image_, 0, 255, CV_THRESH_BINARY_INV | CV_THRESH_OTSU );
+    cvCvtColor(&input_image, gray_image_, CV_BGR2GRAY);
 
     blobs_ = CBlobResult(gray_image_, NULL, 0);
     blobs_.Filter(blobs_, B_EXCLUDE, CBlobGetArea(), B_LESS, min_blob_area_);
@@ -61,14 +90,13 @@ int BlobDetection::detectBlobs(IplImage *input_image, IplImage &debug_image, vec
             blobs[x][3] = blob_area;
             if (debug_mode_) {
                 temp_blob.FillBlob(blob_image_, CV_RGB(0, 255, 0));
-                debug_image = *cvCloneImage(blob_image_);
-                cvWaitKey(1);
+                Mat mat_img(blob_image_);
+                mat_img.copyTo(debug_image);
             }
         }
 
         cvSetZero(gray_image_);
         cvSetZero(blob_image_);
-        cvSetZero(input_image);
         cvReleaseImage(&gray_image_);
         cvReleaseImage(&blob_image_);
 

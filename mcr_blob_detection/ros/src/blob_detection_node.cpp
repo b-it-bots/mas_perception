@@ -88,21 +88,32 @@ void BlobDetectionNode::runState()
 void BlobDetectionNode::detectBlobs()
 { 
 
-    IplImage ipl_img_tmp;
-    cv_bridge::CvImagePtr cv_img_tmp;
+    cv_bridge::CvImagePtr cv_img_tmp_ptr;
+    cv::Mat debug_image;
 
     try {
-        cv_img_tmp = cv_bridge::toCvCopy(image_message_, sensor_msgs::image_encodings::BGR8);
-        ipl_img_tmp = cv_img_tmp->image;
-        cv_image_ = &ipl_img_tmp;
+        cv_img_tmp_ptr = cv_bridge::toCvCopy(image_message_, sensor_msgs::image_encodings::BGR8);
     } catch (cv_bridge::Exception &e) {
         ROS_ERROR("Could not convert from '%s' to 'rgb8'.", image_message_->encoding.c_str());
     }
 
-    blob_detection_status_ = bd_.detectBlobs(cv_image_, debug_image_, blobs_);
+    blobs_.clear();
+    blob_detection_status_ = bd_.detectBlobs(cv_img_tmp_ptr->image, debug_image, blobs_);
 
     if (blob_detection_status_ == 1) {
         event_out_msg_.data = "e_blobs_detected";
+        
+        blob_list_.blobs.clear();
+        for (int i=0; i < blobs_.size(); i++){
+            geometry_msgs::Pose2D pose;
+            pose.x = blobs_.at(i).at(0);
+            pose.y = blobs_.at(i).at(1);
+            pose.theta= blobs_.at(i).at(2);
+            blob_.blob_pose = pose;
+            blob_.blob_area = blobs_.at(i).at(3);
+            blob_list_.blobs.push_back(blob_);
+        }
+        blob_pub_.publish(blob_list_);
     } else if (blob_detection_status_ == -1) {
         event_out_msg_.data = "e_no_blobs_detected";
     } else if (blob_detection_status_ == -2) {
@@ -113,29 +124,10 @@ void BlobDetectionNode::detectBlobs()
 
     event_pub_.publish(event_out_msg_);
 
-    blob_list_.blobs.clear();
-
-    for (int i=0; i < blobs_.size(); i++){
-
-        geometry_msgs::Pose2D pose;
-
-        pose.x = blobs_.at(i).at(0);
-        pose.y = blobs_.at(i).at(1);
-        pose.theta = blobs_.at(i).at(2);
-
-        blob_.blob_pose = pose;
-        blob_.blob_area = blobs_.at(i).at(3);
-        blob_list_.blobs.push_back(blob_);
-
-    }
-
-    blob_pub_.publish(blob_list_);
-
     if (debug_mode_) {
         cv_bridge::CvImage cv_img_tmp;
-        cv::Mat mat_image(&debug_image_);
         cv_img_tmp.encoding = sensor_msgs::image_encodings::BGR8;
-        cv_img_tmp.image = mat_image;
+        cv_img_tmp.image = debug_image;
         image_pub_.publish(cv_img_tmp.toImageMsg());
     }
 
