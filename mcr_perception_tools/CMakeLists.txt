@@ -5,8 +5,13 @@ find_package(PCL 1.7 REQUIRED)
 
 find_package(catkin REQUIRED
   COMPONENTS
+    mcr_object_detection
+    mcr_object_recognition_bounding_box
     roscpp
     sensor_msgs
+    smach
+    smach_ros
+    std_msgs
 )
 
 catkin_package()
