@@ -15,11 +15,12 @@ import std_msgs.msg
 import geometry_msgs.msg
 
 
-"""
-This class publishes an object list with positions, orientations and names defined as parameters
-It also broadcasts TFs for the objects and visualization labels of the object names
-"""
 class ObjectDetectorMockup(object):
+    """
+    This class publishes an object list with positions, orientations and names defined as parameters
+    It also broadcasts TFs for the objects and visualization labels of the object names
+    """
+
     def __init__(self):
         self.object_list_pub = rospy.Publisher('~object_list', ObjectList)
         self.event_out_pub = rospy.Publisher('~event_out', std_msgs.msg.String)
@@ -106,9 +107,10 @@ class ObjectDetectorMockup(object):
         for i, obj in enumerate(object_list.objects):
             p = obj.pose.pose.position
             q = obj.pose.pose.orientation
-            self.tf_broadcaster.sendTransform((p.x, p.y, p.z), (q.x, q.y, q.z,q.w),
-                                  rospy.Time.now(), 'object_%i' % i,
-                                  obj.pose.header.frame_id)
+            self.tf_broadcaster.sendTransform(
+                (p.x, p.y, p.z), (q.x, q.y, q.z, q.w),
+                rospy.Time.now(), 'object_%i' % i, obj.pose.header.frame_id
+            )
 
 if __name__ == '__main__':
     rospy.init_node(NODE)
