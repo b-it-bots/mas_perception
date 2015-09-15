@@ -6,8 +6,8 @@
 
 		<remap from="find_cluster_bounding_box" to="/find_cluster_bounding_box" />
 		
-    <param name="camera_topic" type="string" value="/tower_cam3d/depth_registered/points" />
-		<param name="camera_frame" type="string" value="/tower_cam3d_rgb_optical_frame" />
+    <param name="camera_topic" type="string" value="/arm_cam3d/depth_registered/points" />
+		<param name="camera_frame" type="string" value="/arm_cam3d_rgb_optical_frame" />
 		
 		<param name="extract_obj_in_rgb_img" type="bool" value="false" />
 		<param name="min_x" type="double" value="0.25" />

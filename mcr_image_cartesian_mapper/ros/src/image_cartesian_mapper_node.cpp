@@ -16,7 +16,7 @@ ImageCartesianMapperNode::ImageCartesianMapperNode(ros::NodeHandle &nh) : node_h
 
     node_handler_.getParam("camera_matrix/data", camera_intrinsic_list_);
     node_handler_.param<std::string>("target_frame", target_frame_, "base_link");
-    node_handler_.param<std::string>("source_frame", source_frame_, "tower_cam3d_rgb_optical_frame");
+    node_handler_.param<std::string>("source_frame", source_frame_, "arm_cam3d_rgb_optical_frame");
     node_handler_.param<bool>("is_image_filter_enabled", is_image_filter_enabled_, false);
     node_handler_.param<bool>("crop_image", is_image_crop_enabled_, false);
 

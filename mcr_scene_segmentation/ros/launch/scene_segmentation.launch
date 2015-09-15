@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="input_pointcloud_topic" default="/tower_cam3d/depth_registered/points" />
-  <arg name="camera_frame" default="tower_cam3d_rgb_optical_frame" />
+  <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
+  <arg name="camera_frame" default="arm_cam3d_rgb_optical_frame" />
  
 
   <!-- This launch file brings up the complete scene segmentation pipeline with reasonable (for @Work) parameters. -->

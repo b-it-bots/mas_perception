@@ -6,7 +6,7 @@
 
     <group ns="mcr_perception">
         <node pkg="mcr_contour_matching" type="contour_finder" name="contour_finder" output="screen" respawn="false">
-            <remap from="~input/pointcloud" to="/tower_cam3d/depth_registered/points" />
+            <remap from="~input/pointcloud" to="/arm_cam3d/depth_registered/points" />
             <param name="frame_rate" type="int" value="1" />
         </node>
 
