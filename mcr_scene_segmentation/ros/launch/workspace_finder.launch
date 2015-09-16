@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="manager" default="workspace_finder_manager" />
-  <arg name="input_pointcloud_topic" default="/tower_cam3d/depth_registered/points" />
+  <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
 
   <group ns="mcr_perception">
 

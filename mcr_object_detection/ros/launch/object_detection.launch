@@ -2,7 +2,7 @@
 <launch>
 
   <arg name="workspace_finder_config_file" default="PASS THE CONFIGFILE NAME AS ARGUMENT" />
-  <arg name="input_pointcloud_topic" default="/tower_cam3d/depth_registered/points" />
+  <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
 
   <!-- This launch file brings up the nodes from mcr_scene_segmentation that are needed for object detection and the object detector itself.
        The parameters have been adjusted to work well with @Work scenarios. -->
