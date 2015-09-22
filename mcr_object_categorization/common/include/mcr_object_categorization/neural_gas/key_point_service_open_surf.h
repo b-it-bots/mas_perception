@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
-#include <cv.h>
+#include <opencv/cv.h>
 #include <ctime>
 
 //OpenSurf
