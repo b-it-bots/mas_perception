@@ -24,8 +24,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include <cv.h>
-#include <highgui.h>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 #include <ros/ros.h>
 #include <ros/publisher.h>

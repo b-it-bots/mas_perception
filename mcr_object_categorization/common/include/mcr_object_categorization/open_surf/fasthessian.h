@@ -12,7 +12,7 @@
 #ifndef FASTHESSIAN_H
 #define FASTHESSIAN_H
 
-#include <cv.h>
+#include <opencv/cv.h>
 #include "ipoint.h"
 
 #include <vector>

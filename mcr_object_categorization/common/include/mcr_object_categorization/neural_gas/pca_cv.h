@@ -11,7 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
-#include <cv.h>
+#include <opencv/cv.h>
 
 class CPcaCv
 {

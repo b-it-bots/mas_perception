@@ -6,8 +6,8 @@
 #ifndef _CNGC_H__
 #define _CNGC_H__
 
-#include <cv.h>
-#include <highgui.h>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 #include "neural_gas/neural_gas.h"
 #include "johnson_apsp/apsp_graph.hpp"

@@ -12,8 +12,8 @@
 #ifndef SURFLIB_H
 #define SURFLIB_H
 
-#include <cv.h>
-#include <highgui.h>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 #include "integral.h"
 #include "fasthessian.h"

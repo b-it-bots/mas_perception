@@ -17,7 +17,7 @@
 #include <climits>
 #include <malloc.h>
 
-#include <cv.h>
+#include <opencv/cv.h>
 #include <boost/thread/thread.hpp>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud.h>
