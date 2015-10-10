@@ -88,6 +88,9 @@ if __name__ == '__main__':
                         'this many successful calls to the object detection '
                         'service'), default=1)
     args = parser.parse_args()
+
+    cloud_topic = rospy.get_param("input_pointcloud_topic")
+
     sm = StateMachine(['succeeded', 'aborted', 'preempted'])
     with sm:
         StateMachine.add('CONFIRM_OBJECT_AND_DATASET',
@@ -95,7 +98,7 @@ if __name__ == '__main__':
                          transitions={'yes': 'SUBSCRIBE_TO_POINTCLOUD',
                                       'no': 'aborted'})
         StateMachine.add('SUBSCRIBE_TO_POINTCLOUD',
-                         mcr_object_detection.topic_states.PointCloudSubscription(True, "/tower_cam3d/depth_registered/points"),
+                         mcr_object_detection.topic_states.PointCloudSubscription(True, cloud_topic),
                          transitions={'done': 'FIND_WORKSPACE'})
         StateMachine.add('FIND_WORKSPACE',
                          mcr_object_detection.topic_states.FindWorkspace(),
