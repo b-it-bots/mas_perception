@@ -23,6 +23,7 @@
 
   <run_depend>mcr_object_recognition_bounding_box</run_depend>
   <run_depend>mcr_object_detection</run_depend>
+  <run_depend>mcr_scene_segmentation</run_depend>
   <run_depend>smach</run_depend>
   <run_depend>smach_ros</run_depend>
 
