@@ -13,7 +13,7 @@ from color import colors
 class LabelVisualizer:
 
     def __init__(self, topic_name, color, check_subscribers=True):
-        self.marker_pub = rospy.Publisher(topic_name, MarkerArray)
+        self.marker_pub = rospy.Publisher(topic_name, MarkerArray, queue_size=1)
         self.check_subs = check_subscribers
         self.color = colors[color].to_msg()
 

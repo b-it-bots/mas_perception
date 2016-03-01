@@ -238,8 +238,8 @@ if __name__ == '__main__':
             else:
                 event_out_pub.publish("e_failed")
 
-    object_list_pub = rospy.Publisher('~object_list', ObjectList)
+    object_list_pub = rospy.Publisher('~object_list', ObjectList, queue_size=1)
     event_in_sub = rospy.Subscriber('~event_in', std_msgs.msg.String, event_in_cb)
-    event_out_pub = rospy.Publisher('~event_out', std_msgs.msg.String)
+    event_out_pub = rospy.Publisher('~event_out', std_msgs.msg.String, queue_size=1)
     rospy.loginfo('Started [detect_objects] node.')
     rospy.spin()

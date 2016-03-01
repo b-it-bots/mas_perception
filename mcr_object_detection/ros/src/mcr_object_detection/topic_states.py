@@ -58,7 +58,7 @@ class PointCloudSubscription(smach.State):
                        outcomes=['done'])
         self.subscribe = subscribe
         self.cloud_topic = cloud_topic
-        self.mux_topic_pub = rospy.Publisher('/mcr_perception/mux_pointcloud/select', std_msgs.msg.String)
+        self.mux_topic_pub = rospy.Publisher('/mcr_perception/mux_pointcloud/select', std_msgs.msg.String, queue_size=1)
 
     def execute(self, ud):
         if self.subscribe:
