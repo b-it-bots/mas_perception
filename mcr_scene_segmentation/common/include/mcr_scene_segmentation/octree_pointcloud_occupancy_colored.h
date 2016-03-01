@@ -9,13 +9,13 @@
 using namespace pcl::octree;
 
 template<typename PointT = pcl::PointXYZRGB, typename LeafContainerT = OctreeContainerPointIndex, typename BranchContainerT = OctreeContainerEmpty>
-class OctreePointCloudOccupancyColored : public OctreePointCloud<PointT, LeafContainerT, BranchContainerT, OctreeBase<LeafContainerT, BranchContainerT>>
+class OctreePointCloudOccupancyColored : public OctreePointCloud<PointT, LeafContainerT, BranchContainerT, OctreeBase<LeafContainerT, BranchContainerT> >
 {
 
 public:
 
     OctreePointCloudOccupancyColored(const double resolution)
-        : OctreePointCloud<PointT, LeafContainerT, BranchContainerT, OctreeBase<LeafContainerT, BranchContainerT>>(resolution)
+        : OctreePointCloud<PointT, LeafContainerT, BranchContainerT, OctreeBase<LeafContainerT, BranchContainerT> >(resolution)
     {
     }
 

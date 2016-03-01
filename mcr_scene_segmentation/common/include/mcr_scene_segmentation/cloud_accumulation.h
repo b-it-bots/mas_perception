@@ -13,7 +13,7 @@ class CloudAccumulation
 
 public:
 
-    typedef std::unique_ptr<CloudAccumulation> UPtr;
+    typedef std::auto_ptr<CloudAccumulation> UPtr;
 
     explicit CloudAccumulation(double resolution = 0.0025);
 
@@ -31,7 +31,7 @@ public:
 private:
 
     typedef OctreePointCloudOccupancyColored<PointT> Octree;
-    typedef std::unique_ptr<Octree> OctreeUPtr;
+    typedef std::auto_ptr<Octree> OctreeUPtr;
 
     OctreeUPtr octree_;
 

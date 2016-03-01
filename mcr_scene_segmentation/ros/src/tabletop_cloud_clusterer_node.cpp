@@ -78,8 +78,9 @@ private:
         std::vector<PointCloud::Ptr> clusters;
         size_t rejected_count = 0;
         size_t distance_rejected_count = 0;
-for (const pcl::PointIndices & cluster_indices : clusters_indices)
+        for (size_t i = 0; i < clusters_indices.size(); i++)
         {
+            const pcl::PointIndices& cluster_indices = clusters_indices[i];
             PointCloud::Ptr cluster(new PointCloud);
             pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
             if (getClusterCentroidHeight(*cluster, polygon) < object_min_height_)
@@ -156,7 +157,7 @@ private:
         pn.param("cluster_tolerance", cluster_tolerance, 0.01);
         pn.param("min_cluster_size", min_cluster_size, 25);
         pn.param("max_cluster_size", max_cluster_size, 5000);
-        ece_.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT>>());
+        ece_.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT> >());
         ece_.setClusterTolerance(cluster_tolerance);
         ece_.setMinClusterSize(min_cluster_size);
         ece_.setMaxClusterSize(max_cluster_size);
