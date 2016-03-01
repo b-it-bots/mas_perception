@@ -180,7 +180,7 @@ def fit_circle(pointcloud, dim1, dim2):
     
     # populate the histogram
     for bin_number in bin_numbers:
-        histogram[bin_number] += 1
+        histogram[int(bin_number)] += 1
     
     # if there are points in any of the bins calculate radial density
     # otherwise return 0 for all features (radius, errors, radial density)
