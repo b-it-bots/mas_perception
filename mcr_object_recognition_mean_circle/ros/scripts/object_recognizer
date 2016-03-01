@@ -18,6 +18,8 @@ from mcr_object_recognition_mean_circle.features import calculate_feature_vector
 from mcr_perception_msgs.srv import RecognizeObject
 from mcr_perception_msgs.srv import RecognizeObjectResponse
 
+import sensor_msgs.point_cloud2
+
 
 def load_classifier(classifier_name):
     cfg_folder = join(roslib.packages.get_pkg_dir(PACKAGE), 'common', 'config')
@@ -25,14 +27,12 @@ def load_classifier(classifier_name):
                                     join(cfg_folder, classifier_name, 'label_encoder.pkl'))
 
 def convert_to_xyzrgb(pc):
-    fields = np.fromstring(pc.data,dtype='float32').reshape(pc.height,pc.width,pc.point_step/4)
-    xyz = fields[:,:,0:3]
-    xyz = np.squeeze(xyz)
-    
-    rgb = fields[:,:,4]
-    rgb = np.squeeze(rgb)
-    rgb = rgb[:,np.newaxis]
-    xyzrgb = np.hstack((xyz, rgb))
+    # Generator for x,y,z,rgb fields from pointcloud
+    xyzrgb_gen = sensor_msgs.point_cloud2.read_points(pc, skip_nans=True, field_names=("x", "y", "z", "rgb"))
+
+    # convert generator to list of lists then numpy array
+    xyzrgb = [list(elem) for elem in list(xyzrgb_tuple_list)]
+    xyzrgb = np.array(xyzrgb)
 
     return xyzrgb
 
