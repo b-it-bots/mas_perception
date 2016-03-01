@@ -6,7 +6,6 @@ find_package(catkin REQUIRED
     dynamic_reconfigure
     mcr_perception_msgs
     message_filters
-    polyclipping
     roscpp
     rospy
     tf
@@ -33,7 +32,6 @@ catkin_package(
   CATKIN_DEPENDS
     dynamic_reconfigure
     mcr_perception_msgs
-    polyclipping
     visualization_msgs
   CFG_EXTRAS
     export_config.cmake
@@ -54,7 +52,6 @@ add_definitions(-fpermissive)
 add_library(scene_segmentation
   common/src/plane_extraction.cpp
   common/src/cloud_accumulation.cpp
-  common/src/polyclipping.cpp
 )
 add_dependencies(scene_segmentation 
   ${catkin_EXPORTED_TARGETS}
