@@ -13,7 +13,6 @@
   
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>message_filters</build_depend>
   <build_depend>libpcl-all-dev</build_depend>
@@ -22,7 +21,6 @@
   <build_depend>tf</build_depend>
   <build_depend>visualization_msgs</build_depend>
 
-  <run_depend>dynamic_reconfigure</run_depend>
   <run_depend>mcr_perception_msgs</run_depend>
   <run_depend>nodelet</run_depend>
   <run_depend>topic_tools</run_depend>
