@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-
-  <node pkg="mcr_face_recognition_opencv" type="face_recognition_node" name="mcr_face_recognition" output="screen" />
-
-</launch>
