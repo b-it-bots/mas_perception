@@ -36,8 +36,7 @@
 #include <visualization_msgs/Marker.h>
 #include <tf/transform_broadcaster.h>
 
-#include <mcr_tabletop_segmentation/toolbox_ros.h>
-
+#include "toolbox_ros.h"
 #include "pca.h"
 
 #define DEG_TO_RAD(val) (val * (M_PI/180))

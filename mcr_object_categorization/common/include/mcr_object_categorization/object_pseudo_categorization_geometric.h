@@ -15,8 +15,7 @@
 #include <string>
 #include <limits>
 
-#include <mcr_tabletop_segmentation/toolbox_ros.h>
-
+#include "toolbox_ros.h"
 #include "logger.h"
 #include "object_geometric_service.h"
 

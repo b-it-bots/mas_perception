@@ -20,8 +20,7 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 
-#include <mcr_tabletop_segmentation/toolbox_ros.h>
-
+#include "toolbox_ros.h"
 #include "kde.h"
 #include "object_decomposition.h"
 #include "geometric_features.h"

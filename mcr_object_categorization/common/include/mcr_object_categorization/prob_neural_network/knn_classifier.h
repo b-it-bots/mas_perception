@@ -19,7 +19,7 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include <mcr_tabletop_segmentation/toolbox_ros.h>
+#include "toolbox_ros.h"
 
 #include "object_description.h"
 #include "object_decomposition.h"

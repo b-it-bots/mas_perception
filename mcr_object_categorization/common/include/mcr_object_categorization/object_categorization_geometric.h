@@ -29,7 +29,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include <mcr_tabletop_segmentation/toolbox_ros.h>
+#include "toolbox_ros.h"
 
 #include "logger.h"
 #include "object_point_cloud_data.h"

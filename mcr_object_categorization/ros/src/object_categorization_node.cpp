@@ -45,8 +45,7 @@
 #include <mcr_perception_msgs/ObjectList.h>
 #include <mcr_perception_msgs/GetObjectList.h>
 
-#include <mcr_tabletop_segmentation/toolbox_ros.h>
-
+#include "toolbox_ros.h"
 #include "object_categorization_geometric.h"
 #include "file_settings.h"
 

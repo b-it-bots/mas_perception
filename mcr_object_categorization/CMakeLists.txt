@@ -5,7 +5,6 @@ find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs
     mcr_perception_msgs
-    mcr_tabletop_segmentation
     roscpp
     sensor_msgs
     std_srvs
@@ -28,7 +27,6 @@ catkin_package(
   CATKIN_DEPENDS
     geometry_msgs
     mcr_perception_msgs
-    mcr_tabletop_segmentation
     sensor_msgs
     std_srvs
     visualization_msgs
@@ -36,6 +34,7 @@ catkin_package(
 
 include_directories(
   common/include/${PROJECT_NAME}
+  ros/include/${PROJECT_NAME}
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}

@@ -14,7 +14,6 @@
 
   <build_depend>geometry_msgs</build_depend>
   <build_depend>mcr_perception_msgs</build_depend>
-  <build_depend>mcr_tabletop_segmentation</build_depend>
   <build_depend>libpcl-all-dev</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>

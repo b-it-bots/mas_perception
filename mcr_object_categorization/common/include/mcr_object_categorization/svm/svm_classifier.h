@@ -14,7 +14,7 @@
 #include <limits>
 #include <fstream>
 
-#include <mcr_tabletop_segmentation/toolbox_ros.h>
+#include <toolbox_ros.h>
 
 #include <libsvm/svm.h>
 
