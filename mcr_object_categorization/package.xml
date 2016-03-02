@@ -23,7 +23,6 @@
   
   <run_depend>geometry_msgs</run_depend>
   <run_depend>mcr_perception_msgs</run_depend>
-  <run_depend>mcr_tabletop_segmentation</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_srvs</run_depend>
   <run_depend>visualization_msgs</run_depend>
