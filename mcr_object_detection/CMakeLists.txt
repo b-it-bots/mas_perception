@@ -3,6 +3,7 @@ project(mcr_object_detection)
 
 find_package(catkin REQUIRED
   COMPONENTS
+    roslint
     mcr_scene_segmentation
 )
 
@@ -17,6 +18,8 @@ catkin_package(
     smach_ros
     tf
 )
+
+roslint_python()
 
 ### TESTS
 if(CATKIN_ENABLE_TESTING)
