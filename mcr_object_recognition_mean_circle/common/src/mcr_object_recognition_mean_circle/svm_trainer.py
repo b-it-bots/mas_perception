@@ -6,6 +6,7 @@ import sklearn
 from mcr_object_recognition_mean_circle.features import calculate_feature_vector
 from mcr_object_recognition_mean_circle.svm_classifier import SVMObjectClassifier
 
+
 class SVMTrainer:
 
     def __init__(self, data_folder):
@@ -21,10 +22,10 @@ class SVMTrainer:
         else:
             objects_to_train = objects
 
-        print "Training classifer for objects: " , objects_to_train
+        print "Training classifer for objects: ", objects_to_train
 
         n = 0
-        feature_pool = np.empty([0,0])
+        feature_pool = np.empty([0, 0])
         label_pool = []
         for obj in objects_to_train:
             files = np.array(glob.glob(self.data_folder + '/' + obj + '/*'))
@@ -45,7 +46,7 @@ class SVMTrainer:
 
         label_encoder = sklearn.preprocessing.LabelEncoder()
         label_encoder.fit(label_pool)
-        encoded_labels = label_encoder.transform(label_pool)[:,np.newaxis]
+        encoded_labels = label_encoder.transform(label_pool)[:, np.newaxis]
         encoded_labels = np.squeeze(encoded_labels.T)
 
         classifier = sklearn.svm.SVC(kernel='rbf', probability=True)
@@ -56,11 +57,10 @@ class SVMTrainer:
     def parse_pcd(self, input_file, enable_color=False):
         file_data = np.genfromtxt(input_file, dtype=np.float64, skip_header=11, delimiter=' ')
         n_points, n_dims = file_data.shape
-        if enable_color == True:
-            color_table = np.float64(file_data[:,3])[np.newaxis].T
-            point_cloud = np.hstack([file_data[:,0:3], np.float64(color_table)])
+        if enable_color is True:
+            color_table = np.float64(file_data[:, 3])[np.newaxis].T
+            point_cloud = np.hstack([file_data[:, 0:3], np.float64(color_table)])
         else:
-            point_cloud = file_data[:,0:3]
+            point_cloud = file_data[:, 0:3]
 
         return point_cloud
-

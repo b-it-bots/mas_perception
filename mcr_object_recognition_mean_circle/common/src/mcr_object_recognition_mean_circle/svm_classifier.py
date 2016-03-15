@@ -3,6 +3,7 @@
 import cPickle as pickle
 import numpy as np
 
+
 class SVMObjectClassifier:
     """
     Defines an SVM classifier with the mean and standard deviation of
@@ -28,7 +29,7 @@ class SVMObjectClassifier:
         max_index = np.argmax(probabilities)
         cls = self.classifier.classes_[max_index]
         return self.label_encoder.inverse_transform(cls), probabilities[max_index]
-    
+
     @classmethod
     def load(cls, classifier_name, label_encoder_name):
         with open(classifier_name, 'rb') as f:
