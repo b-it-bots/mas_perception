@@ -31,7 +31,7 @@ def convert_to_xyzrgb(pc):
     xyzrgb_gen = sensor_msgs.point_cloud2.read_points(pc, skip_nans=True, field_names=("x", "y", "z", "rgb"))
 
     # convert generator to list of lists then numpy array
-    xyzrgb = [list(elem) for elem in list(xyzrgb_tuple_list)]
+    xyzrgb = [list(elem) for elem in list(xyzrgb_gen)]
     xyzrgb = np.array(xyzrgb)
 
     return xyzrgb

@@ -16,7 +16,7 @@ class FindWorkspace(smach.State):
         self.event_pub = rospy.Publisher('/mcr_perception/workspace_finder/event_in', std_msgs.msg.String, queue_size=1)
         self.event_sub = rospy.Subscriber('/mcr_perception/workspace_finder/event_out',
                                           std_msgs.msg.String, self.e_callback)
-        self.polygon_sub = rospy.Subscriber('/mcr_perception/workspace_finder/polygon'
+        self.polygon_sub = rospy.Subscriber('/mcr_perception/workspace_finder/polygon',
                                             mcr_perception_msgs.msg.PlanarPolygon, self.poly_callback)
 
     def e_callback(self, event):

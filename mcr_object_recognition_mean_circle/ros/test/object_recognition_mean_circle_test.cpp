@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Bonn-Rhein-Sieg University:
+ * Copyright 2016 Bonn-Rhein-Sieg University
  *
  * Author: Santosh Thoduka
  *
