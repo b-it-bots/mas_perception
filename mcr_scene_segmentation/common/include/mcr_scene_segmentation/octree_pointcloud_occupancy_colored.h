@@ -1,25 +1,37 @@
-#ifndef OCTREE_POINTCLOUD_OCCUPANCY_COLORED_H
-#define OCTREE_POINTCLOUD_OCCUPANCY_COLORED_H
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_OCTREE_POINTCLOUD_OCCUPANCY_COLORED_H
+#define MCR_SCENE_SEGMENTATION_OCTREE_POINTCLOUD_OCCUPANCY_COLORED_H
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/octree/octree_pointcloud.h>
 #include <pcl/octree/octree_base.h>
 
-using namespace pcl::octree;
+using pcl::octree::OctreePointCloud;
+using pcl::octree::OctreeContainerPointIndex;
+using pcl::octree::OctreeContainerEmpty;
+using pcl::octree::OctreeBase;
+using pcl::octree::OctreeKey;
 
-template<typename PointT = pcl::PointXYZRGB, typename LeafContainerT = OctreeContainerPointIndex, typename BranchContainerT = OctreeContainerEmpty>
-class OctreePointCloudOccupancyColored : public OctreePointCloud<PointT, LeafContainerT, BranchContainerT, OctreeBase<LeafContainerT, BranchContainerT> >
+
+template<typename PointT = pcl::PointXYZRGB, typename LeafContainerT = OctreeContainerPointIndex,
+         typename BranchContainerT = OctreeContainerEmpty>
+class OctreePointCloudOccupancyColored : public OctreePointCloud<PointT, LeafContainerT, BranchContainerT,
+                                                                 OctreeBase<LeafContainerT, BranchContainerT> >
 {
-
 public:
-
-    OctreePointCloudOccupancyColored(const double resolution)
-        : OctreePointCloud<PointT, LeafContainerT, BranchContainerT, OctreeBase<LeafContainerT, BranchContainerT> >(resolution)
+    explicit OctreePointCloudOccupancyColored(const double resolution)
+        : OctreePointCloud<PointT, LeafContainerT, BranchContainerT,
+                           OctreeBase<LeafContainerT, BranchContainerT> >(resolution)
     {
     }
 
-    virtual ~OctreePointCloudOccupancyColored() { };
+    virtual ~OctreePointCloudOccupancyColored() { }
 
     void setOccupiedVoxelAtPoint(const PointT& point)
     {
@@ -55,8 +67,6 @@ public:
             points[i].rgba = color;
         }
     }
-
 };
-
-#endif /* OCTREE_POINTCLOUD_OCCUPANCY_COLORED_H */
+#endif  // MCR_SCENE_SEGMENTATION_OCTREE_POINTCLOUD_OCCUPANCY_COLORED_H
 

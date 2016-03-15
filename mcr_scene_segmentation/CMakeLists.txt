@@ -6,6 +6,7 @@ find_package(catkin REQUIRED
     mcr_perception_msgs
     message_filters
     roscpp
+    roslint
     rospy
     tf
     visualization_msgs
@@ -45,7 +46,7 @@ add_definitions(-fpermissive)
 add_library(scene_segmentation
   common/src/cloud_accumulation.cpp
 )
-add_dependencies(scene_segmentation 
+add_dependencies(scene_segmentation
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(scene_segmentation
@@ -99,6 +100,8 @@ target_link_libraries(bounding_box_maker
   bounding_box 
 )
 
+roslint_python()
+roslint_cpp()
 
 ### TESTS
 if(CATKIN_ENABLE_TESTING)

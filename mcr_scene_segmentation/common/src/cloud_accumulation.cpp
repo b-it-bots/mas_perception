@@ -1,3 +1,10 @@
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+
 #include <pcl/octree/octree_impl.h>
 
 #include "mcr_scene_segmentation/cloud_accumulation.h"

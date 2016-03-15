@@ -1,5 +1,11 @@
-#ifndef COLOR_H
-#define COLOR_H
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_COLOR_H
+#define MCR_SCENE_SEGMENTATION_COLOR_H
 
 #include <pcl/point_types.h>
 #include <std_msgs/ColorRGBA.h>
@@ -12,7 +18,6 @@ namespace visualization
 
 struct Color
 {
-
     uint8_t r;
     uint8_t g;
     uint8_t b;
@@ -36,7 +41,7 @@ struct Color
         GAINSBORO,
     };
 
-    Color(Name name)
+    explicit Color(Name name)
     {
         switch (name)
         {
@@ -94,12 +99,10 @@ struct Color
         color.a = 1.0;
         return color;
     }
-
 };
 
-}
+}  // namespace visualization
 
-}
+}  // namespace mcr
 
-#endif /* COLOR_H */
-
+#endif  // MCR_SCENE_SEGMENTATION_COLOR_H

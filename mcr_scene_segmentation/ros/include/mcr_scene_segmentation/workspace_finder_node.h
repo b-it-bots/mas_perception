@@ -1,5 +1,11 @@
-#ifndef WORKSPACE_FINDER_NODE_H_
-#define WORKSPACE_FINDER_NODE_H_
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Santosh Thoduka
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_WORKSPACE_FINDER_NODE_H
+#define MCR_SCENE_SEGMENTATION_WORKSPACE_FINDER_NODE_H
 
 #include <ros/ros.h>
 #include <mcr_scene_segmentation/aliases.h>
@@ -13,9 +19,11 @@
 #include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/subscriber.h>
 
-typedef message_filters::sync_policies::ExactTime<geometry_msgs::PolygonStamped, pcl_msgs::ModelCoefficients> PlanarPolygonSyncPolicy;
+typedef message_filters::sync_policies::ExactTime<geometry_msgs::PolygonStamped,
+                                                  pcl_msgs::ModelCoefficients> PlanarPolygonSyncPolicy;
 
-using namespace mcr::visualization;
+using mcr::visualization::PlanarPolygonVisualizer;
+using mcr::visualization::Color;
 
 /**
  * This node subscribes to a PolygonStamped and ModelCoefficients message and publishes a
@@ -53,12 +61,10 @@ public:
 
     void update();
 
-
 private:
     void eventInCallback(const std_msgs::String &msg);
     void synchronizedCallback(const geometry_msgs::PolygonStamped::ConstPtr &polygon_msg,
                               const pcl_msgs::ModelCoefficients::ConstPtr &coefficients_msg);
-
 
 private:
     ros::NodeHandle nh;
@@ -82,6 +88,5 @@ private:
 
     geometry_msgs::PolygonStamped::ConstPtr polygon_msg_;
     pcl_msgs::ModelCoefficients::ConstPtr coefficients_msg_;
-
 };
-#endif
+#endif  // MCR_SCENE_SEGMENTATION_WORKSPACE_FINDER_NODE_H
