@@ -1,3 +1,11 @@
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+#include <string>
+
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <tf/transform_listener.h>
@@ -37,13 +45,12 @@
   */
 class TabletopCloudAccumulatorNode
 {
-
 public:
-
     TabletopCloudAccumulatorNode()
     {
         ros::NodeHandle nh("~");
-        accumulate_service_ = nh.advertiseService("accumulate_tabletop_cloud", &TabletopCloudAccumulatorNode::accumulateCallback, this);
+        accumulate_service_ = nh.advertiseService("accumulate_tabletop_cloud",
+                                                  &TabletopCloudAccumulatorNode::accumulateCallback, this);
         accumulated_cloud_publisher_ = nh.advertise<sensor_msgs::PointCloud2>("accumulated_cloud", 1);
         tf_listener_ = new tf::TransformListener();
         ROS_INFO("Service [accumulate_tabletop_cloud] started.");
@@ -55,8 +62,8 @@ public:
     }
 
 private:
-
-    bool accumulateCallback(mcr_perception_msgs::AccumulateTabletopCloud::Request& request, mcr_perception_msgs::AccumulateTabletopCloud::Response& response)
+    bool accumulateCallback(mcr_perception_msgs::AccumulateTabletopCloud::Request& request,
+                            mcr_perception_msgs::AccumulateTabletopCloud::Response& response)
     {
         ROS_INFO("Received [accumulate_tabletop_cloud] request.");
         updateConfiguration();
@@ -69,8 +76,10 @@ private:
             nh.param<std::string>("camera_frame", camera_frame, "/arm_cam3d_rgb_optical_frame");
             tf::StampedTransform transform;
 
-            tf_listener_->waitForTransform(request.polygon.header.frame_id, camera_frame, request.polygon.header.stamp, ros::Duration(1.0));
-            tf_listener_->lookupTransform(request.polygon.header.frame_id, camera_frame, request.polygon.header.stamp, transform);
+            tf_listener_->waitForTransform(request.polygon.header.frame_id, camera_frame,
+                                           request.polygon.header.stamp, ros::Duration(1.0));
+            tf_listener_->lookupTransform(request.polygon.header.frame_id, camera_frame,
+                                          request.polygon.header.stamp, transform);
             eppd_.setViewPoint(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
         }
         catch (std::exception &e)
@@ -86,11 +95,13 @@ private:
         eppd_.setInputPlanarHull(polygon_cloud);
         ca_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
 
-        ros::Subscriber subscriber = nh.subscribe("input_pointcloud", 1, &TabletopCloudAccumulatorNode::cloudCallback, this);
+        ros::Subscriber subscriber = nh.subscribe("input_pointcloud", 1,
+                                                  &TabletopCloudAccumulatorNode::cloudCallback, this);
 
         // Wait some time while data is being accumulated.
         ros::Time start = ros::Time::now();
-        while (ca_->getCloudCount() < accumulate_clouds_ && ros::Time::now() < start + ros::Duration(accumulation_timeout_) && ros::ok())
+        while (ca_->getCloudCount() < accumulate_clouds_ &&
+               ros::Time::now() < start + ros::Duration(accumulation_timeout_) && ros::ok())
         {
             ros::spinOnce();
         }
@@ -165,7 +176,6 @@ private:
     double octree_resolution_;
 
     tf::TransformListener *tf_listener_;
-
 };
 
 int main(int argc, char** argv)
@@ -175,4 +185,3 @@ int main(int argc, char** argv)
     ros::spin();
     return 0;
 }
-

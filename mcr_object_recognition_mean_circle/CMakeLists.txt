@@ -7,8 +7,9 @@ find_package(catkin REQUIRED
   COMPONENTS
     mcr_scene_segmentation
     mcr_perception_msgs
-    roscpp
     pcl_ros
+    roscpp
+    roslint
 )
 
 catkin_python_setup()
@@ -40,6 +41,9 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
 )
 
+
+roslint_python()
+roslint_cpp()
 
 ### TESTS
 if(CATKIN_ENABLE_TESTING)

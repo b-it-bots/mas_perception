@@ -1,11 +1,17 @@
-#ifndef CONVERSIONS_H
-#define CONVERSIONS_H
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_CONVERSIONS_H
+#define MCR_SCENE_SEGMENTATION_CONVERSIONS_H
 
 #include <mcr_perception_msgs/PlanarPolygon.h>
 #include <mcr_perception_msgs/BoundingBox.h>
 
-#include "mcr_scene_segmentation/aliases.h"
-#include "mcr_scene_segmentation/bounding_box.h"
+#include <mcr_scene_segmentation/aliases.h>
+#include <mcr_scene_segmentation/bounding_box.h>
 
 /** Convert from PCL PlanarPolygon to ROS message. */
 void convertPlanarPolygon(const PlanarPolygon& polygon, mcr_perception_msgs::PlanarPolygon& polygon_msg)
@@ -84,5 +90,5 @@ for (const auto & vertex : bounding_box.getVertices())
     }
 }
 
-#endif /* CONVERSIONS_H */
+#endif  // MCR_SCENE_SEGMENTATION_CONVERSIONS_H
 

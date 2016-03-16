@@ -1,15 +1,20 @@
-#ifndef BOUNDING_BOX_H_
-#define BOUNDING_BOX_H_
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_BOUNDING_BOX_H
+#define MCR_SCENE_SEGMENTATION_BOUNDING_BOX_H
 
+#include <vector>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include "aliases.h"
+#include <mcr_scene_segmentation/aliases.h>
 
 class BoundingBox
 {
-
 public:
-
     typedef Eigen::Vector3f Point;
     typedef std::vector<Point, Eigen::aligned_allocator<Point> > Points;
 
@@ -46,11 +51,9 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-
     Point center_;
     Points vertices_;
     Eigen::Vector3f dimensions_;
-
 };
 
-#endif
+#endif  // MCR_SCENE_SEGMENTATION_BOUNDING_BOX_H

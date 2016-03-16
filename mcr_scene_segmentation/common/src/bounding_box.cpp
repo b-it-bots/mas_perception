@@ -1,7 +1,16 @@
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+
 #include <pcl/common/transforms.h>
 #include <opencv/cv.h>
 
 #include <mcr_scene_segmentation/bounding_box.h>
+#include <limits>
+#include <algorithm>
 
 BoundingBox BoundingBox::create(const PointCloud::ConstPtr& cloud,
                                 const Eigen::Vector3f& normal)

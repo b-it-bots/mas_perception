@@ -1,4 +1,12 @@
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
 #include <boost/make_shared.hpp>
+#include <limits>
+#include <vector>
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -16,7 +24,7 @@
 #include "mcr_scene_segmentation/aliases.h"
 #include "mcr_scene_segmentation/impl/helpers.hpp"
 
-using namespace mcr::visualization;
+using mcr::visualization::ClusteredPointCloudVisualizer;
 
 /** This node provides a service to break a pointcloud into clusters.
   *
@@ -42,20 +50,19 @@ using namespace mcr::visualization;
   */
 class TabletopCloudClustererNode
 {
-
 public:
-
     TabletopCloudClustererNode()
         : cluster_visualizer_("tabletop_clusters")
     {
         ros::NodeHandle nh("~");
-        cluster_server_ = nh.advertiseService("cluster_tabletop_cloud", &TabletopCloudClustererNode::clusterCallback, this);
+        cluster_server_ = nh.advertiseService("cluster_tabletop_cloud",
+                                              &TabletopCloudClustererNode::clusterCallback, this);
         ROS_INFO("Service [cluster_tabletop_cloud] started.");
     }
 
 private:
-
-    bool clusterCallback(mcr_perception_msgs::ClusterTabletopCloud::Request& request, mcr_perception_msgs::ClusterTabletopCloud::Response& response)
+    bool clusterCallback(mcr_perception_msgs::ClusterTabletopCloud::Request& request,
+                         mcr_perception_msgs::ClusterTabletopCloud::Response& response)
     {
         ROS_INFO("Received [cluster_tabletop_cloud] request.");
         updateConfiguration();
@@ -78,8 +85,9 @@ private:
         std::vector<PointCloud::Ptr> clusters;
         size_t rejected_count = 0;
         size_t distance_rejected_count = 0;
-for (const pcl::PointIndices & cluster_indices : clusters_indices)
+        for (size_t i = 0; i < clusters_indices.size(); i++)
         {
+            const pcl::PointIndices& cluster_indices = clusters_indices[i];
             PointCloud::Ptr cluster(new PointCloud);
             pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
             if (getClusterCentroidHeight(*cluster, polygon) < object_min_height_)
@@ -97,7 +105,8 @@ for (const pcl::PointIndices & cluster_indices : clusters_indices)
             response.clusters.push_back(ros_cluster);
             clusters.push_back(cluster);
         }
-        ROS_INFO("Found %zu clusters, but rejected %zu due to low height and %zu due to distance to polygon", clusters_indices.size(), rejected_count, distance_rejected_count);
+        ROS_INFO("Found %zu clusters, but rejected %zu due to low height and %zu due to distance to polygon",
+                 clusters_indices.size(), rejected_count, distance_rejected_count);
 
         cluster_visualizer_.publish<PointT>(clusters, request.cloud.header.frame_id);
 
@@ -105,7 +114,6 @@ for (const pcl::PointIndices & cluster_indices : clusters_indices)
     }
 
 private:
-
     static double getClusterCentroidHeight(const PointCloud& cluster, const PlanarPolygon& polygon)
     {
         Eigen::Vector4f centroid;
@@ -156,7 +164,7 @@ private:
         pn.param("cluster_tolerance", cluster_tolerance, 0.01);
         pn.param("min_cluster_size", min_cluster_size, 25);
         pn.param("max_cluster_size", max_cluster_size, 5000);
-        ece_.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT>>());
+        ece_.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT> >());
         ece_.setClusterTolerance(cluster_tolerance);
         ece_.setMinClusterSize(min_cluster_size);
         ece_.setMaxClusterSize(max_cluster_size);
@@ -183,7 +191,6 @@ private:
     double min_distance_to_polygon_;
 
     ClusteredPointCloudVisualizer cluster_visualizer_;
-
 };
 
 int main(int argc, char** argv)
@@ -193,4 +200,3 @@ int main(int argc, char** argv)
     ros::spin();
     return 0;
 }
-

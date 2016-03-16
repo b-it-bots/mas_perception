@@ -48,11 +48,10 @@ void PlanarPolygonVisualizer::buildPolygonMarker(const typename pcl::PointCloud<
 
     for (size_t i = 1; i < points.size(); i++)
     {
-        const auto& point = points[i];
         geometry_msgs::Point pt;
-        pt.x = point.x;
-        pt.y = point.y;
-        pt.z = point.z;
+        pt.x = points[i].x;
+        pt.y = points[i].y;
+        pt.z = points[i].z;
         marker.points.push_back(pt);
         marker.points.push_back(pt);
     }

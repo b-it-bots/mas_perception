@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
-PACKAGE = 'mcr_object_recognition_mean_circle'
-DATA_PACKAGE = 'mds_pointclouds'
 
 import roslib
-roslib.load_manifest(PACKAGE)
 import sys
 import os.path
 import argparse
+from mcr_object_recognition_mean_circle.svm_trainer import SVMTrainer
 
 sys.path.append(os.path.join(roslib.packages.get_pkg_dir(PACKAGE), 'common', 'src'))
-from mcr_object_recognition_mean_circle.svm_trainer import SVMTrainer
+
+PACKAGE = 'mcr_object_recognition_mean_circle'
+DATA_PACKAGE = 'mds_pointclouds'
 
 #  ./train_classifier.py --dataset objects_daylight --objects F20_20_G S40_40_G --output <name of classifier>
 #  ./train_classifier.py --dataset objects_daylight --output <name of classifier>

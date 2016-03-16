@@ -3,11 +3,10 @@ project(mcr_scene_segmentation)
 
 find_package(catkin REQUIRED
   COMPONENTS
-    dynamic_reconfigure
     mcr_perception_msgs
     message_filters
-    polyclipping
     roscpp
+    roslint
     rospy
     tf
     visualization_msgs
@@ -18,11 +17,6 @@ find_package(OpenCV REQUIRED)
 
 catkin_python_setup()
 
-generate_dynamic_reconfigure_options(
-  ros/config/PlaneExtraction.cfg
-)
-
-
 catkin_package(
   INCLUDE_DIRS
     ros/include
@@ -31,9 +25,7 @@ catkin_package(
     scene_segmentation
     bounding_box
   CATKIN_DEPENDS
-    dynamic_reconfigure
     mcr_perception_msgs
-    polyclipping
     visualization_msgs
   CFG_EXTRAS
     export_config.cmake
@@ -47,26 +39,14 @@ include_directories(
   ${VTK_INCLUDE_DIRS}
 )
 
-#...: gnu++0x
-if(CMAKE_COMPILER_IS_GNUCXX)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if(GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
-        add_definitions(-std=gnu++0x)
-    else()
-        message(SEND_ERROR "You need GCC version 4.6 or greater to compile this package.")
-    endif()
-endif()
-
 add_definitions(-fpermissive)
 
 
 ### LIBRARIES ####################################################
 add_library(scene_segmentation
-  common/src/plane_extraction.cpp
   common/src/cloud_accumulation.cpp
-  common/src/polyclipping.cpp
 )
-add_dependencies(scene_segmentation 
+add_dependencies(scene_segmentation
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(scene_segmentation
@@ -120,27 +100,8 @@ target_link_libraries(bounding_box_maker
   bounding_box 
 )
 
-add_executable(offline_plane_extraction_test
-  ros/src/offline_plane_extraction_test.cpp
-)
-add_dependencies(offline_plane_extraction_test 
-  ${catkin_EXPORT_TARGETS}
-  ${PROJECT_NAME}_gencfg
-)
-target_link_libraries(offline_plane_extraction_test
-  ${catkin_LIBRARIES}
-  ${VTK_LIBRARIES}
-  scene_segmentation
-)
-
-add_executable(online_plane_extraction_test
-  ros/src/online_plane_extraction_test.cpp
-)
-target_link_libraries(online_plane_extraction_test
-  ${catkin_LIBRARIES}
-  scene_segmentation
-)
-
+roslint_python()
+roslint_cpp()
 
 ### TESTS
 if(CATKIN_ENABLE_TESTING)

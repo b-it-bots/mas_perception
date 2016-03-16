@@ -1,3 +1,10 @@
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <ros/topic.h>
@@ -12,7 +19,8 @@
 #include "mcr_scene_segmentation/impl/helpers.hpp"
 #include "mcr_scene_segmentation/bounding_box.h"
 
-using namespace mcr::visualization;
+using mcr::visualization::BoundingBoxVisualizer;
+using mcr::visualization::Color;
 
 /** This node provides a service to create bounding boxes around point clouds.
   *
@@ -32,20 +40,19 @@ using namespace mcr::visualization;
   */
 class BoundingBoxMakerNode
 {
-
 public:
-
     BoundingBoxMakerNode()
-        : bounding_box_visualizer_("bounding_boxes", Color::SEA_GREEN)
+        : bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN))
     {
         ros::NodeHandle nh("~");
-        make_bounding_box_server_ = nh.advertiseService("make_bounding_boxes", &BoundingBoxMakerNode::makeBoundingBoxesCallback, this);
+        make_bounding_box_server_ = nh.advertiseService("make_bounding_boxes",
+                                                        &BoundingBoxMakerNode::makeBoundingBoxesCallback, this);
         ROS_INFO("Started [make_bounding_boxes] service.");
     }
 
 private:
-
-    bool makeBoundingBoxesCallback(mcr_perception_msgs::MakeBoundingBoxes::Request& request, mcr_perception_msgs::MakeBoundingBoxes::Response& response)
+    bool makeBoundingBoxesCallback(mcr_perception_msgs::MakeBoundingBoxes::Request& request,
+                                   mcr_perception_msgs::MakeBoundingBoxes::Response& response)
     {
         ROS_INFO("Received [make_bounding_boxes] request.");
         const Eigen::Vector3f normal(request.axis.x, request.axis.y, request.axis.z);
@@ -67,7 +74,6 @@ private:
     ros::ServiceServer make_bounding_box_server_;
 
     BoundingBoxVisualizer bounding_box_visualizer_;
-
 };
 
 int main(int argc, char** argv)

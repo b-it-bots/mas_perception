@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-from sklearn.externals import joblib
+import cPickle as pickle
 import numpy as np
+
 
 class SVMObjectClassifier:
     """
@@ -16,8 +17,10 @@ class SVMObjectClassifier:
         self.std = std
 
     def save(self, classifier_name, label_encoder_name):
-        joblib.dump(self.classifier, classifier_name)
-        joblib.dump([self.label_encoder, self.mean, self.std], label_encoder_name)
+        with open(classifier_name, 'wb') as f:
+            pickle.dump(self.classifier, f, protocol=pickle.HIGHEST_PROTOCOL)
+        with open(label_encoder_name, 'wb') as f:
+            pickle.dump([self.label_encoder, self.mean, self.std], f, protocol=pickle.HIGHEST_PROTOCOL)
 
     def classify(self, feature_vector):
         feature_vector -= np.array(self.mean)
@@ -26,9 +29,11 @@ class SVMObjectClassifier:
         max_index = np.argmax(probabilities)
         cls = self.classifier.classes_[max_index]
         return self.label_encoder.inverse_transform(cls), probabilities[max_index]
-    
+
     @classmethod
     def load(cls, classifier_name, label_encoder_name):
-        classifier = joblib.load(classifier_name)
-        [label_encoder, mean, std] = joblib.load(label_encoder_name)
+        with open(classifier_name, 'rb') as f:
+            classifier = pickle.load(f)
+        with open(label_encoder_name, 'rb') as f:
+            [label_encoder, mean, std] = pickle.load(f)
         return SVMObjectClassifier(classifier, label_encoder, mean, std)

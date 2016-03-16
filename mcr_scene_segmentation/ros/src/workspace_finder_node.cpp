@@ -1,9 +1,15 @@
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Santosh Thoduka
+ *
+ */
 #include <mcr_scene_segmentation/workspace_finder_node.h>
 #include <mcr_scene_segmentation/impl/helpers.hpp>
 
 WorkspaceFinderNode::WorkspaceFinderNode()
     : nh("~"), trigger_workspace_finder_(false), run_workspace_finder_(false), sync_message_received_(false),
-      polygon_visualizer_("workspace_polygon", Color::SALMON)
+      polygon_visualizer_("workspace_polygon", Color(Color::SALMON))
 {
     pub_event_out_ = nh.advertise<std_msgs::String>("event_out", 1);
     pub_polygon_ = nh.advertise<mcr_perception_msgs::PlanarPolygon>("polygon", 1);

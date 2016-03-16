@@ -99,6 +99,7 @@
          model_type: 16
          copy_all_data: false
          copy_all_fields: true
+         approximate_sync: true
        </rosparam>
        <remap from="~input"   to="/mcr_perception/passthrough_x/output" />
        <remap from="~indices" to="/mcr_perception/planar_segmentation/inliers" />

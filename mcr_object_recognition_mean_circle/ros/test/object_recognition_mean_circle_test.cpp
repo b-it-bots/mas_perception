@@ -1,3 +1,9 @@
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Santosh Thoduka
+ *
+ */
 #include <gtest/gtest.h>
 
 #include <ros/ros.h>
@@ -5,6 +11,7 @@
 #include <mcr_perception_msgs/RecognizeObject.h>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
@@ -54,7 +61,6 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
         {
             for (bfs::directory_iterator obj_dir_it(p); obj_dir_it != end_iter; ++obj_dir_it)
             {
-
                 mcr_perception_msgs::RecognizeObject::Request obj_rec_srv_req;
 
                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr full_cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
@@ -83,7 +89,7 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
         }
     }
 
-    double prediction_rate = (double)(correct_count) / total_count;
+    double prediction_rate = static_cast<double>(correct_count) / total_count;
     std::cout << prediction_rate << std::endl;
     ASSERT_TRUE(prediction_rate > desired_recog_rate);
 }

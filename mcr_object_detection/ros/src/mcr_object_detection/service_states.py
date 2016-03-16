@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-PACKAGE = 'mcr_object_detection'
-
 import roslib
-roslib.load_manifest(PACKAGE)
 import rospy
 
 from smach import cb_interface, State

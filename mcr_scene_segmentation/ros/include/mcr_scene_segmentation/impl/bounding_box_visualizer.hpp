@@ -37,9 +37,10 @@ void BoundingBoxVisualizer::publish(const std::vector<mcr_perception_msgs::Bound
     lines.color = color_;
     lines.ns = "bounding_boxes";
     lines.id = 1;
-for (const auto & box : boxes)
+
+    for (size_t i = 0; i < boxes.size(); i++)
     {
-        const auto& pt = box.vertices;
+        const std::vector<geometry_msgs::Point>& pt = boxes[i].vertices;
         lines.points.push_back(pt[0]);
         lines.points.push_back(pt[1]);
         lines.points.push_back(pt[0]);

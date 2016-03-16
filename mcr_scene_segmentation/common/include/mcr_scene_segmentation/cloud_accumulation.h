@@ -1,19 +1,23 @@
-#ifndef CLOUD_ACCUMULATION_H
-#define CLOUD_ACCUMULATION_H
+/*
+ * Copyright 2016 Bonn-Rhein-Sieg University
+ *
+ * Author: Sergey Alexandrov
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_CLOUD_ACCUMULATION_H
+#define MCR_SCENE_SEGMENTATION_CLOUD_ACCUMULATION_H
 
 #include <pcl/octree/octree_pointcloud_occupancy.h>
 
-#include "aliases.h"
-#include "octree_pointcloud_occupancy_colored.h"
+#include <mcr_scene_segmentation/aliases.h>
+#include <mcr_scene_segmentation/octree_pointcloud_occupancy_colored.h>
 
 /** This class accumulates input point clouds in the occupancy octree with a
   * given spatial resolution. */
 class CloudAccumulation
 {
-
 public:
-
-    typedef std::unique_ptr<CloudAccumulation> UPtr;
+    typedef std::auto_ptr<CloudAccumulation> UPtr;
 
     explicit CloudAccumulation(double resolution = 0.0025);
 
@@ -29,16 +33,13 @@ public:
     void reset();
 
 private:
-
     typedef OctreePointCloudOccupancyColored<PointT> Octree;
-    typedef std::unique_ptr<Octree> OctreeUPtr;
+    typedef std::auto_ptr<Octree> OctreeUPtr;
 
     OctreeUPtr octree_;
 
     int cloud_count_;
     double resolution_;
-
 };
 
-#endif /* CLOUD_ACCUMULATION_H */
-
+#endif  // MCR_SCENE_SEGMENTATION_CLOUD_ACCUMULATION_H
