@@ -11,6 +11,10 @@ WorkspaceFinderNode::WorkspaceFinderNode()
     : nh("~"), trigger_workspace_finder_(false), run_workspace_finder_(false), sync_message_received_(false),
       polygon_visualizer_("workspace_polygon", Color(Color::SALMON))
 {
+    double message_age;
+    nh.param<double>("message_age_threshold", message_age, 1.0);
+    message_age_threshold_ = ros::Duration(message_age);
+
     pub_event_out_ = nh.advertise<std_msgs::String>("event_out", 1);
     pub_polygon_ = nh.advertise<mcr_perception_msgs::PlanarPolygon>("polygon", 1);
 
@@ -30,6 +34,7 @@ WorkspaceFinderNode::~WorkspaceFinderNode()
 
 void WorkspaceFinderNode::eventInCallback(const std_msgs::String &msg)
 {
+    sync_message_received_ = false;
     if (msg.data == "e_trigger")
     {
         trigger_workspace_finder_ = true;
@@ -48,6 +53,10 @@ void WorkspaceFinderNode::eventInCallback(const std_msgs::String &msg)
 void WorkspaceFinderNode::synchronizedCallback(const geometry_msgs::PolygonStamped::ConstPtr &polygon_msg,
         const pcl_msgs::ModelCoefficients::ConstPtr &coefficients_msg)
 {
+    if ((ros::Time::now() - polygon_msg->header.stamp) > message_age_threshold_)
+    {
+        return;
+    }
     polygon_msg_ = polygon_msg;
     coefficients_msg_ = coefficients_msg;
     sync_message_received_ = true;
