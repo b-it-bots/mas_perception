@@ -83,6 +83,11 @@ private:
     bool run_workspace_finder_;
 
     bool sync_message_received_;
+    /*
+     * maximum allowed time difference (in seconds) between synchronized message
+     * and current ros::Time
+     */
+    ros::Duration message_age_threshold_;
 
     PlanarPolygonVisualizer polygon_visualizer_;
 
