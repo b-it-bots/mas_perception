@@ -10,6 +10,7 @@
 
   <include file="$(find mcr_scene_segmentation)/ros/launch/workspace_finder.launch">
     <arg name="input_pointcloud_topic" value="$(arg input_pointcloud_topic)" />
+    <arg name="workspace_finder_config_file" value="$(arg workspace_finder_config_file)" />
   </include>
 
   <group ns="mcr_perception">
