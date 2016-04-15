@@ -75,7 +75,7 @@ class SavePointCloud(State):
 
             rospy.sleep(0.01)
 
-class MakeWorkspaceCurrent(State):
+class SetPolygonTimestamp(State):
     def __init__(self):
         State.__init__(self,
                        outcomes=['succeeded'],
@@ -116,10 +116,10 @@ if __name__ == '__main__':
                                       'aborted': 'FIND_WORKSPACE'})
         StateMachine.add('CONFIRM_WORKSPACE',
                          ConfirmState('Is the detected workspace correct?'),
-                         transitions={'yes': 'MAKE_WORKSPACE_CURRENT',
+                         transitions={'yes': 'SET_POLYGON_TIMESTAMP',
                                       'no': 'FIND_WORKSPACE'})
-        StateMachine.add('MAKE_WORKSPACE_CURRENT',
-                         MakeWorkspaceCurrent(),
+        StateMachine.add('SET_POLYGON_TIMESTAMP',
+                         SetPolygonTimestamp(),
                          transitions={'succeeded':'ACCUMULATE_CLOUD'})
         StateMachine.add('ACCUMULATE_CLOUD',
                          mcr_object_detection.service_states.accumulate_tabletop_cloud,
@@ -132,7 +132,7 @@ if __name__ == '__main__':
                                         len(userdata.clusters) == 1,
                                         input_keys=['clusters']),
                          transitions={'true': 'COUNTER',
-                                      'false': 'MAKE_WORKSPACE_CURRENT'})
+                                      'false': 'SET_POLYGON_TIMESTAMP'})
 
         StateMachine.add('COUNTER',
                          CounterState(int(args.confirm_every)),
@@ -141,10 +141,10 @@ if __name__ == '__main__':
         StateMachine.add('CONFIRM_OBJECT',
                          ConfirmState('Is the detected object correct?'),
                          transitions={'yes': 'SAVE_CLUSTER',
-                                      'no': 'MAKE_WORKSPACE_CURRENT'})
+                                      'no': 'SET_POLYGON_TIMESTAMP'})
         StateMachine.add('SAVE_CLUSTER',
                          SavePointCloud(args.object_id, args.dataset),
-                         transitions={'saved': 'MAKE_WORKSPACE_CURRENT',
+                         transitions={'saved': 'SET_POLYGON_TIMESTAMP',
                                       'failed': 'UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT'})
         StateMachine.add('UNSUBSCRIBE_FROM_POINTCLOUD_AND_ABORT',
                          mcr_object_detection.topic_states.PointCloudSubscription(False),
