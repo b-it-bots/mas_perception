@@ -1,13 +1,9 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="workspace_finder_config_file" default="$(find mcr_scene_segmentation)/ros/config/workspace_constraints.yaml" />
   <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
   <arg name="camera_frame" default="arm_cam3d_rgb_optical_frame" />
  
-
-  <!-- This launch file brings up the complete scene segmentation pipeline with reasonable (for @Work) parameters. -->
-
-  <arg name="workspace_finder_config_file" default="PASS THE CONFIGFILE NAME AS ARGUMENT" />
-
   <include file="$(find mcr_scene_segmentation)/ros/launch/workspace_finder.launch">
     <arg name="input_pointcloud_topic" value="$(arg input_pointcloud_topic)" />
     <arg name="workspace_finder_config_file" value="$(arg workspace_finder_config_file)" />
