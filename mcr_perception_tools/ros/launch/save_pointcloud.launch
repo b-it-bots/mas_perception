@@ -8,6 +8,6 @@
          ascii: Points and RGB are stored as floats in ascii. RGB is one packed floating point number
          binary: uncompressed binary file with point cloud data
          compressed: compressed version of binary -->
-    <param name="file_type" type="string" value="ascii" />
+    <param name="file_type" type="string" value="binary" />
   </node>
 </launch>
