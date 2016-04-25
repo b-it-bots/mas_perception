@@ -2,6 +2,7 @@
 <launch>
 
   <arg name="workspace_finder_config_file" default="$(find mcr_scene_segmentation)/ros/config/workspace_constraints.yaml" />
+  <arg name="object_constraints_config_file" default="$(find mcr_scene_segmentation)/ros/config/object_constraints.yaml" />
   <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
   <arg name="camera_frame" default="arm_cam3d_rgb_optical_frame" />
   <arg name="target_frame" default="/base_link" />
@@ -11,6 +12,7 @@
 
   <include file="$(find mcr_scene_segmentation)/ros/launch/scene_segmentation.launch" >
     <arg name="workspace_finder_config_file" value="$(arg workspace_finder_config_file)" />
+    <arg name="object_constraints_config_file" value="$(arg object_constraints_config_file)" />
     <arg name="input_pointcloud_topic" value="$(arg input_pointcloud_topic)" />
     <arg name="camera_frame" default="$(arg camera_frame)" />
   </include>
