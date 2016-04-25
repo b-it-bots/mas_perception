@@ -57,7 +57,7 @@ target_link_libraries(scene_segmentation
 add_library(bounding_box
   common/src/bounding_box.cpp
 )
-add_dependencies(bounding_box 
+add_dependencies(bounding_box
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(bounding_box
@@ -68,7 +68,7 @@ target_link_libraries(bounding_box
 add_executable(workspace_finder
   ros/src/workspace_finder_node.cpp
 )
-add_dependencies(workspace_finder 
+add_dependencies(workspace_finder
   ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg
 )
 target_link_libraries(workspace_finder
@@ -97,7 +97,7 @@ add_executable(bounding_box_maker
 target_link_libraries(bounding_box_maker
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
-  bounding_box 
+  bounding_box
 )
 
 roslint_python()
@@ -106,7 +106,8 @@ roslint_cpp()
 ### TESTS
 if(CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(ros/launch workspace_finder_config_file:=${CMAKE_CURRENT_SOURCE_DIR}/ros/config/workspace_constraints.yaml)
+  roslaunch_add_file_check(ros/launch "workspace_finder_config_file:=${CMAKE_CURRENT_SOURCE_DIR}/ros/config/workspace_constraints.yaml
+                                       object_constraints_config_file:=${CMAKE_CURRENT_SOURCE_DIR}/ros/config/object_constraints.yaml")
 endif()
 
 ### INSTALLS
@@ -120,6 +121,10 @@ install(DIRECTORY ros/include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
+)
+
+install(DIRECTORY ros/config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config
 )
 
 install(DIRECTORY ros/launch/
