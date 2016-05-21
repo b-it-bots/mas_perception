@@ -52,7 +52,6 @@ class SVMTrainer:
         encoded_labels = label_encoder.transform(label_pool)[:, np.newaxis]
         encoded_labels = np.squeeze(encoded_labels.T)
 
-        #classifier = sklearn.svm.SVC(kernel='linear', probability=True)
         classifier = sklearn.ensemble.RandomForestClassifier(n_estimators=10)
         classifier.fit(feature_pool, encoded_labels)
 
