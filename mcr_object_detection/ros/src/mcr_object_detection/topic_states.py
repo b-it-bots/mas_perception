@@ -31,7 +31,7 @@ class FindWorkspace(smach.State):
 
         self.event_pub.publish("e_trigger")
 
-        timeout = rospy.Duration.from_sec(10.0)  # wait max of 10.0 seconds
+        timeout = rospy.Duration.from_sec(3.0)  # wait max of 3.0 seconds
         start_time = rospy.Time.now()
 
         while (True):
