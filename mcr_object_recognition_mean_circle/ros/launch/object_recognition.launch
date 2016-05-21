@@ -5,8 +5,8 @@
   <arg name="object_constraints_config_file" default="$(find mcr_scene_segmentation)/ros/config/object_constraints.yaml" />
   <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
   <arg name="camera_frame" default="arm_cam3d_rgb_optical_frame" />
-  <arg name="target_frame" default="base_link" />
-  <arg name="classifier" default="realsense_640_atwork" />
+  <arg name="target_frame" default="odom" />
+  <arg name="classifier" default="magdeburg-2016" />
   
 
   <!-- This launch file starts all the nodes that are needed to perform object recognition.
@@ -19,12 +19,12 @@
     <arg name="object_constraints_config_file" value="$(arg object_constraints_config_file)" />
     <arg name="input_pointcloud_topic" value="$(arg input_pointcloud_topic)" />
     <arg name="camera_frame" default="$(arg camera_frame)" />
+    <arg name="target_frame" default="$(arg target_frame)" />
   </include>
 
   <node pkg="mcr_object_recognition_mean_circle" type="object_recognizer" name="object_recognizer"
           output="screen" ns="mcr_perception">
     <param name="classifier" value="$(arg classifier)" type="str" />
-          
   </node>
 
 </launch>
