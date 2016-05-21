@@ -18,7 +18,7 @@
       <remap from="~input/polygon" to="/mcr_perception/convex_hull/output_polygon" />
       <remap from="~input/coefficients" to="/mcr_perception/planar_segmentation/model" />
       <remap from="~workspace_polygon" to="/visualization_marker" />
-      <param name="message_age_threshold" value="1.0" type="double"/>
+      <param name="message_age_threshold" value="2.0" type="double"/>
     </node>
 
     <node pkg="mcr_scene_segmentation" type="tabletop_cloud_accumulator" name="tabletop_cloud_accumulator" output="screen">
