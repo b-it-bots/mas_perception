@@ -21,6 +21,7 @@
   <run_depend>tf</run_depend>
 
   <build_depend>mcr_scene_segmentation</build_depend>
+  <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>roslint</build_depend>
 
   <test_depend>roslaunch</test_depend>
