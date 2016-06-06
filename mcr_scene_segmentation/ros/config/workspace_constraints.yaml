@@ -7,7 +7,7 @@ transform:
 voxel_filter:
     leaf_size: 0.02
     filter_field_name: z
-    filter_limit_min: -0.05
+    filter_limit_min: -0.15
     filter_limit_max: 0.2
 passthrough_x:
     filter_field_name: x
@@ -19,7 +19,7 @@ normal_estimation:
     spatial_locator: 0
 planar_segmentation:
     model_type: 16
-    distance_threshold: 0.03
+    distance_threshold: 0.01
     max_iterations: 1000
     method_type: 0
     eps_angle: 0.09
@@ -32,7 +32,7 @@ project_plane_inliers:
     copy_all_fields: true
     approximate_sync: true
 statistical_outlier_removal:
-    stddev: 0.2
+    stddev: 5.0
     mean_k: 30
 
 # model types for planar_segmentation

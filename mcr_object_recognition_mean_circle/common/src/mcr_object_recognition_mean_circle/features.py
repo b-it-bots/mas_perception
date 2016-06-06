@@ -56,7 +56,7 @@ def normalize_pointcloud(pointcloud):
 
     # rotate the pointcloud
     if pointcloud.shape[1] > 3:  # if colour is part of the pointcloud
-        normalized_pointcloud = np.hstack([R.dot(pointcloud_xyz.T).T, pointcloud[:, 3][np.newaxis].T])
+        normalized_pointcloud = np.hstack([R.dot(pointcloud_xyz.T).T, pointcloud[:, 3:]])
     else:
         normalized_pointcloud = R.dot(pointcloud_xyz.T).T
 
@@ -87,36 +87,40 @@ def calculate_centre_of_gravity_offset(pointcloud):
 
 def calculate_mean_colour(pointcloud):
     """
-    Returns mean of colour (represented as a 32bit floating point)
+    Returns mean H, S and V components of colour
 
     :param pointcloud:  The input pointcloud
     :type pointcloud:   numpy.array
 
-    :return:            mean colour
-    :rtype:             float
+    :return:            mean H, S and V components of colour
+    :rtype:             numpy.array
 
     """
     # fourth column of the array is colour represented as a 32bit float
-    mean = np.mean(pointcloud[:, 3])
+    mean_h = np.mean(pointcloud[:, 3])
+    mean_s = np.mean(pointcloud[:, 4])
+    mean_v = np.mean(pointcloud[:, 5])
 
-    return mean
+    return np.array([mean_h, mean_s, mean_v])
 
 
 def calculate_median_colour(pointcloud):
     """
-    Returns median of colour (represented as a 32bit floating point)
+    Returns median H, S and V components of colour
 
     :param pointcloud:  the input pointcloud
     :type pointcloud:   numpy.array
 
-    :return:            median colour
-    :rtype:             float
+    :return:            median H, S and V components colour
+    :rtype:             numpy.array
 
     """
     # fourth column of the array is colour represented as a 32bit float
-    median = np.median(pointcloud[:, 3])
+    median_h = np.median(pointcloud[:, 3])
+    median_s = np.median(pointcloud[:, 4])
+    median_v = np.median(pointcloud[:, 5])
 
-    return median
+    return np.array([median_h, median_s, median_v])
 
 
 def calculate_bounding_box(pointcloud):

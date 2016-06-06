@@ -3,8 +3,11 @@
 import glob
 import numpy as np
 import sklearn
+import sklearn.ensemble
+import pcl
 from mcr_object_recognition_mean_circle.features import calculate_feature_vector
 from mcr_object_recognition_mean_circle.svm_classifier import SVMObjectClassifier
+import colorsys
 
 
 class SVMTrainer:
@@ -49,17 +52,18 @@ class SVMTrainer:
         encoded_labels = label_encoder.transform(label_pool)[:, np.newaxis]
         encoded_labels = np.squeeze(encoded_labels.T)
 
-        classifier = sklearn.svm.SVC(kernel='rbf', probability=True)
+        classifier = sklearn.ensemble.RandomForestClassifier(n_estimators=10)
         classifier.fit(feature_pool, encoded_labels)
 
         return SVMObjectClassifier(classifier, label_encoder, mean, std)
 
     def parse_pcd(self, input_file, enable_color=False):
-        file_data = np.genfromtxt(input_file, dtype=np.float64, skip_header=11, delimiter=' ')
+        file_data = pcl.load(input_file).to_array()
         n_points, n_dims = file_data.shape
         if enable_color is True:
-            color_table = np.float64(file_data[:, 3])[np.newaxis].T
-            point_cloud = np.hstack([file_data[:, 0:3], np.float64(color_table)])
+            color_table = np.float64(file_data[:, 3:])
+            color_table = np.array([list(colorsys.rgb_to_hsv(i[0]/255.0, i[1]/255.0, i[2]/255.0)) for i in color_table])
+            point_cloud = np.hstack([file_data[:, 0:3], color_table])
         else:
             point_cloud = file_data[:, 0:3]
 
