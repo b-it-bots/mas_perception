@@ -5,6 +5,9 @@ find_package(catkin REQUIRED
   COMPONENTS
     mcr_perception_msgs
     message_filters
+    nodelet
+    pcl_ros
+    pluginlib
     roscpp
     roslint
     rospy
@@ -45,6 +48,7 @@ add_definitions(-fpermissive)
 ### LIBRARIES ####################################################
 add_library(scene_segmentation
   common/src/cloud_accumulation.cpp
+  ros/src/extract_polygonal_prism_data.cpp
 )
 add_dependencies(scene_segmentation
   ${catkin_EXPORTED_TARGETS}
@@ -154,3 +158,8 @@ install(TARGETS tabletop_cloud_clusterer
 install(TARGETS tabletop_cloud_accumulator
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(FILES nodelet_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+

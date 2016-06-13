@@ -1,0 +1,7 @@
+<library path="lib/libscene_segmentation">
+  <class name="mcr_scene_segmentation/ExtractPolygonalPrismData" type="mcr_scene_segmentation::ExtractPolygonalPrismData" base_class_type="nodelet::Nodelet">
+    <description>
+        nodelet plugin that extracts a prism above a given polygon
+    </description>
+  </class>
+</library>

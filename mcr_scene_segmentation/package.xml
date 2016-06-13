@@ -13,9 +13,12 @@
   
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>libpcl-all-dev</build_depend>
   <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>message_filters</build_depend>
-  <build_depend>libpcl-all-dev</build_depend>
+  <build_depend>nodelet</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>pluginlib</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>roslint</build_depend>
   <build_depend>rospy</build_depend>
@@ -28,5 +31,9 @@
   <run_depend>visualization_msgs</run_depend>
 
   <test_depend>roslaunch</test_depend>
+
+  <export>
+    <nodelet plugin="${prefix}/nodelet_plugins.xml" />
+  </export>
 
 </package>
