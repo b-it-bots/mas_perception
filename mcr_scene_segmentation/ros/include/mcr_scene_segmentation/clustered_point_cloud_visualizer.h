@@ -25,12 +25,16 @@ namespace visualization
 class ClusteredPointCloudVisualizer
 {
 public:
+    ClusteredPointCloudVisualizer(const boost::shared_ptr<ros::NodeHandle> &nh, const std::string& topic_name,
+                                  bool check_subscribers = true);
+
     ClusteredPointCloudVisualizer(const std::string& topic_name,
                                   bool check_subscribers = true);
 
     template<typename PointT>
     void publish(const std::vector<typename pcl::PointCloud<PointT>::Ptr>& clusters,
                  const std::string& frame_id);
+    int getNumSubscribers();
 
 private:
     ros::Publisher cloud_publisher_;

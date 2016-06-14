@@ -15,6 +15,17 @@ namespace mcr
 namespace visualization
 {
 
+ClusteredPointCloudVisualizer::ClusteredPointCloudVisualizer(const boost::shared_ptr<ros::NodeHandle> &nh,
+    const std::string& topic_name, bool check_subscribers)
+    : check_subscribers_(check_subscribers)
+{
+    cloud_publisher_ = nh->advertise<sensor_msgs::PointCloud2>(topic_name, 1);
+    for (size_t i = 0; i < COLORS_NUM; ++i)
+    {
+        COLORS[i] = 1.0 * rand() / RAND_MAX;
+    }
+}
+
 ClusteredPointCloudVisualizer::ClusteredPointCloudVisualizer(const std::string& topic_name, bool check_subscribers)
     : check_subscribers_(check_subscribers)
 {
@@ -24,6 +35,11 @@ ClusteredPointCloudVisualizer::ClusteredPointCloudVisualizer(const std::string& 
     {
         COLORS[i] = 1.0 * rand() / RAND_MAX;
     }
+}
+
+int ClusteredPointCloudVisualizer::getNumSubscribers()
+{
+    return cloud_publisher_.getNumSubscribers();
 }
 
 template<typename PointT>
