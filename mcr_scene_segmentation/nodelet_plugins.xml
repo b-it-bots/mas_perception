@@ -4,4 +4,9 @@
         nodelet plugin that extracts a prism above a given polygon
     </description>
   </class>
+  <class name="mcr_scene_segmentation/PlanarEuclideanClusterExtraction" type="mcr_scene_segmentation::PlanarEuclideanClusterExtraction" base_class_type="nodelet::Nodelet">
+    <description>
+        nodelet plugin wrapper for pcl::EuclideanClusterExtraction with additional constraints on height and distance from polygon
+    </description>
+  </class>
 </library>

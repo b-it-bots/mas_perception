@@ -3,6 +3,7 @@ project(mcr_scene_segmentation)
 
 find_package(catkin REQUIRED
   COMPONENTS
+    dynamic_reconfigure
     mcr_perception_msgs
     message_filters
     nodelet
@@ -14,11 +15,15 @@ find_package(catkin REQUIRED
     tf
     visualization_msgs
 )
-find_package(PCL 1.6 REQUIRED)
+find_package(PCL 1.7 REQUIRED)
 find_package(VTK REQUIRED)
 find_package(OpenCV REQUIRED)
 
 catkin_python_setup()
+
+generate_dynamic_reconfigure_options(
+  ros/config/PlanarEuclideanClusterExtraction.cfg
+)
 
 catkin_package(
   INCLUDE_DIRS
@@ -49,8 +54,10 @@ add_definitions(-fpermissive)
 add_library(scene_segmentation
   common/src/cloud_accumulation.cpp
   ros/src/extract_polygonal_prism_data.cpp
+  ros/src/planar_euclidean_cluster_extraction.cpp
 )
 add_dependencies(scene_segmentation
+  ${PROJECT_NAME}_gencpp
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(scene_segmentation
