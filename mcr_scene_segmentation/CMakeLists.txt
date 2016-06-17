@@ -55,7 +55,10 @@ add_library(scene_segmentation
   common/src/cloud_accumulation.cpp
   ros/src/extract_polygonal_prism_data.cpp
   ros/src/planar_euclidean_cluster_extraction.cpp
+  ros/src/bounding_box_maker.cpp
+  common/src/bounding_box.cpp
 )
+
 add_dependencies(scene_segmentation
   ${PROJECT_NAME}_gencpp
   ${catkin_EXPORTED_TARGETS}
@@ -63,6 +66,7 @@ add_dependencies(scene_segmentation
 target_link_libraries(scene_segmentation
   ${PCL_LIBRARIES}
   ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 add_library(bounding_box

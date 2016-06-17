@@ -9,4 +9,9 @@
         nodelet plugin wrapper for pcl::EuclideanClusterExtraction with additional constraints on height and distance from polygon
     </description>
   </class>
+  <class name="mcr_scene_segmentation/BoundingBoxMaker" type="mcr_scene_segmentation::BoundingBoxMaker" base_class_type="nodelet::Nodelet">
+    <description>
+        nodelet plugin that creates bounding boxes and poses for a list of pointclouds
+    </description>
+  </class>
 </library>

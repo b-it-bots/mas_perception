@@ -24,6 +24,10 @@ namespace visualization
 class BoundingBoxVisualizer
 {
 public:
+    BoundingBoxVisualizer(ros::NodeHandle *nh, const std::string& topic_name,
+                          Color color,
+                          bool check_subscribers = true);
+
     BoundingBoxVisualizer(const std::string& topic_name,
                           Color color,
                           bool check_subscribers = true);
@@ -31,6 +35,8 @@ public:
     void publish(const mcr_perception_msgs::BoundingBox& box, const std::string& frame_id);
 
     void publish(const std::vector<mcr_perception_msgs::BoundingBox>& boxes, const std::string& frame_id);
+
+    int getNumSubscribers();
 
 private:
     ros::Publisher marker_publisher_;
