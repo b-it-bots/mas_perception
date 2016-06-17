@@ -13,7 +13,10 @@
   
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>cv_bridge</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>image_geometry</build_depend>
+  <build_depend>image_transport</build_depend>
   <build_depend>libpcl-all-dev</build_depend>
   <build_depend>mcr_perception_msgs</build_depend>
   <build_depend>message_filters</build_depend>

@@ -3,7 +3,10 @@ project(mcr_scene_segmentation)
 
 find_package(catkin REQUIRED
   COMPONENTS
+    cv_bridge
     dynamic_reconfigure
+    image_geometry
+    image_transport
     mcr_perception_msgs
     message_filters
     nodelet
@@ -57,6 +60,7 @@ add_library(scene_segmentation
   ros/src/planar_euclidean_cluster_extraction.cpp
   ros/src/bounding_box_maker.cpp
   common/src/bounding_box.cpp
+  ros/src/image_roi_extraction.cpp
 )
 
 add_dependencies(scene_segmentation

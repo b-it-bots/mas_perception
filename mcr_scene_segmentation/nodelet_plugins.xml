@@ -14,4 +14,9 @@
         nodelet plugin that creates bounding boxes and poses for a list of pointclouds
     </description>
   </class>
+  <class name="mcr_scene_segmentation/ImageROIExtraction" type="mcr_scene_segmentation::ImageROIExtraction" base_class_type="nodelet::Nodelet">
+    <description>
+        nodelet plugin that extracts regions of interest from an image based on 3D bounding boxes
+    </description>
+  </class>
 </library>
