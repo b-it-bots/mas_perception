@@ -19,6 +19,7 @@ add_message_files(
     Cavity.msg
     Face.msg
     FaceList.msg
+    ImageList.msg
     LaserScanSegment.msg
     LaserScanSegmentList.msg
     MatchingErrorStamped.msg
