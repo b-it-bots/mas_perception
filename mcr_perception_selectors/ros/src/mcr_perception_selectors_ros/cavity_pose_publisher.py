@@ -3,8 +3,19 @@
 """
 This module contains a component that monitors stores the poses of the
 cavities and publishes the pose of cavity in which the object can be 
-put in on request.
+put in, on trigger.
 
+**Input(s):**
+  * cavity: cavity message for the identified cavities.
+  * object_name: Name of the object for which the cavity pose id needed.
+  * event : To trigger the run state of the node. (it assumes that teh object pose
+    is already published.)
+
+**Output(s):**
+  * `cavity_pose`: The pose of the cavity.
+
+**Relevant parameter(s):**
+  * loop_rate : Loop rate of the node.
 """
 
 import rospy
@@ -17,7 +28,7 @@ __author__ = 'padmaja'
 
 class CavityPosePublisher(object):
     """
-    Monitors if two poses are within a specified tolerance.
+    Publishes the pose of the cavity in which the requested object can be dropped.
 
     """
     def __init__(self):
