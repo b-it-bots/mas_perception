@@ -12,6 +12,7 @@ find_package(catkin REQUIRED
 catkin_package(
   CATKIN_DEPENDS
     mcr_perception_msgs
+    rospy
 )
 
 include_directories(
