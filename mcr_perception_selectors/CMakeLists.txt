@@ -23,6 +23,7 @@ include_directories(
 ### EXECUTABLES ###############################################
 add_executable(object_selector
   ros/src/object_selector.cpp
+  ros/scripts/cavity_pose_publisher_node
 )
 
 add_dependencies(object_selector
