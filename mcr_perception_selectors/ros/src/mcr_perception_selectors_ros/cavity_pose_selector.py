@@ -91,6 +91,7 @@ class CavityPoseSelector(object):
         Obtains the first pose.
 
         """
+        rospy.loginfo("Cavity received: {0}".format(msg.name))
         self.cavity_msg_array.append(msg)
 
     def object_name_cb(self, msg):
@@ -98,6 +99,7 @@ class CavityPoseSelector(object):
         Obtains an event for the component.
 
         """
+        rospy.loginfo("Object received: {0}".format(msg.data))
         self.object_name = msg.data
 
     def init_state(self):
@@ -108,7 +110,7 @@ class CavityPoseSelector(object):
         :rtype: str
 
         """
-        if len(self.cavity_msg_array)>0:
+        if self.event == 'e_start':
             return 'IDLE'
         else:
             return 'INIT'
@@ -121,7 +123,7 @@ class CavityPoseSelector(object):
         :rtype: str
 
         """
-        if self.event == 'e_start' :
+        if len(self.cavity_msg_array)>0 :
             return 'RUNNING'
         elif self.event == 'e_stop':
             self.object_name = None
@@ -140,7 +142,6 @@ class CavityPoseSelector(object):
         """
         if self.event == 'e_stop':
             self.object_name = None
-            self.event = None
             return 'INIT'
         else:
             if self.object_name is not None:
@@ -150,6 +151,7 @@ class CavityPoseSelector(object):
                     [np.where(self.objects == self.object_name)[0][0]]
                     for idx, cavity in enumerate(self.cavity_msg_array):
                         if cavity.name == cavity_name:
+                            rospy.loginfo("Cavity Recognized: {0}".format(cavity_name))
                             self.cavity_pose_pub.publish(cavity.pose)
                             found_cavity = True
                             self.publish_event_out('e_success')
@@ -157,9 +159,7 @@ class CavityPoseSelector(object):
                 if not found_cavity:
                     self.publish_event_out('e_failure')
                 self.object_name = None
-                self.event = None
-                return 'IDLE'
-                    
+                return 'IDLE'    
             return 'RUNNING'
 
     def publish_event_out(self, data):
