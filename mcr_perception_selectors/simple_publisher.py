@@ -6,7 +6,7 @@ import std_msgs.msg
 import numpy as np
 
 def talker():
-    pub = rospy.Publisher('/mcr_perception/cavity_pose_publisher/cavity',\
+    pub = rospy.Publisher('/mcr_perception/cavity_pose_selector/cavity',\
      mpm.Cavity, queue_size=10, latch=True)
     rospy.init_node('simple_publisher', anonymous=True)
     rate = rospy.Rate(10) # 10hz

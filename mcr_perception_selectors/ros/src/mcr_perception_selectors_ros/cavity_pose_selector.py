@@ -27,7 +27,7 @@ import numpy as np
 __author__ = 'padmaja'
 
 
-class CavityPosePublisher(object):
+class CavityPoseSelector(object):
     """
     Publishes the pose of the cavity in which the requested object can be dropped.
 
@@ -169,6 +169,6 @@ class CavityPosePublisher(object):
 
 
 def main():
-    rospy.init_node('cavity_pose_publisher', anonymous=True)
-    cavity_pose_publisher = CavityPosePublisher()
-    cavity_pose_publisher.start()
+    rospy.init_node('cavity_pose_selector', anonymous=True)
+    cavity_pose_selector = CavityPoseSelector()
+    cavity_pose_selector.start()

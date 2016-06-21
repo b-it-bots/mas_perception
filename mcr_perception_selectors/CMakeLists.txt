@@ -9,6 +9,7 @@ find_package(catkin REQUIRED
     mcr_perception_msgs
 )
 
+catkin_python_setup()
 catkin_package(
   CATKIN_DEPENDS
     mcr_perception_msgs
@@ -23,7 +24,7 @@ include_directories(
 ### EXECUTABLES ###############################################
 add_executable(object_selector
   ros/src/object_selector.cpp
-  ros/scripts/cavity_pose_publisher_node
+  ros/scripts/cavity_pose_selector_node
 )
 
 add_dependencies(object_selector
