@@ -22,6 +22,7 @@ import rospy
 import mcr_perception_msgs.msg as mpm
 import geometry_msgs.msg
 import std_msgs.msg
+import numpy as np
 
 __author__ = 'padmaja'
 
@@ -38,16 +39,26 @@ class CavityPosePublisher(object):
         self.object_name = None
 
         # node cycle rate (in hz)
-        self.loop_rate = rospy.Rate(rospy.get_param('~loop_rate', 10))
+        self.loop_rate = rospy.Rate(rospy.get_param('~loop_rate', 10.0))
 
         #publishers
         self.cavity_pose_pub = rospy.Publisher("~cavity_pose", geometry_msgs.msg.PoseStamped,\
-            queue_size=10)
+            queue_size=1)
+        self.event_out_pub = rospy.Publisher("~event_out", std_msgs.msg.String,\
+            queue_size=1)
+
 
         # subscribers
         rospy.Subscriber("~event_in", std_msgs.msg.String, self.event_in_cb)
         rospy.Subscriber("~cavity", mpm.Cavity, self.cavity_cb)
         rospy.Subscriber("~object_name", std_msgs.msg.String, self.object_name_cb)
+
+        self.cavity_object_dict ={'F20_20_B':'F20_20', 'F20_20_G': 'F20_20', \
+        'S40_40_B': 'S40_40','S40_40_G': 'S40_40', 'M20_100': 'M20_100',\
+         'M20': 'M20', 'M30': 'M30','R20': 'R20','DISTANCE_TUBE': 'R20'}
+
+        self.cavities = np.array(self.cavity_object_dict.values())
+        self.objects  =  np.array(self.cavity_object_dict.keys())
 
     def start(self):
         """
@@ -133,14 +144,29 @@ class CavityPosePublisher(object):
             return 'INIT'
         else:
             if self.object_name is not None:
+                found_cavity = False  
+                if ( np.where(self.objects == self.object_name))[0]>0:
+                    cavity_name = self.cavities\
+                    [np.where(self.objects == self.object_name)[0][0]]
+                    for idx, cavity in enumerate(self.cavity_msg_array):
+                        if cavity.name == cavity_name:
+                            self.cavity_pose_pub.publish(cavity.pose)
+                            found_cavity = True
+                            self.publish_event_out('e_success')
+                            break
+                if not found_cavity:
+                    self.publish_event_out('e_failure')
+                self.object_name = None
                 self.event = None
-                for idx, cavity in enumerate(self.cavity_msg_array):
-                    if cavity.object_name == self.object_name:
-                        self.cavity_pose_pub.publish(cavity.pose)
-                        self.object_name = None
-                        break
                 return 'IDLE'
+                    
             return 'RUNNING'
+
+    def publish_event_out(self, data):
+        e_out = std_msgs.msg.String()
+        e_out.data = data
+        self.event_out_pub.publish(e_out)
+
 
 def main():
     rospy.init_node('cavity_pose_publisher', anonymous=True)

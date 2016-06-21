@@ -2,7 +2,8 @@
 <launch>
 <group ns="mcr_perception">
     <node pkg="mcr_perception_selectors" type="cavity_pose_publisher_node" name="cavity_pose_publisher" output="screen">
-    <param name="loop_rate" type="double" value="10"/>
+    <!--rosparam command="load" file="$(find mcr_perception_selectors)/ros/config/cavity_object_dict.yaml"/-->
+    <param name="loop_rate" type="double" value="10.0"/>
      </node>
      </group>
 </launch>
