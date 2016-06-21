@@ -23,7 +23,7 @@ def talker():
     while not rospy.is_shutdown():
         if i ==0:
             pub.publish(msg)
-        if i ==20:
+        if i ==30:
             pub.publish(msg2)
         i = i+1
         rate.sleep()

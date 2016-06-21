@@ -58,7 +58,6 @@ class CavityPosePublisher(object):
         state = 'INIT'
 
         while not rospy.is_shutdown():
-
             if state == 'INIT':
                 state = self.init_state()
             elif state == 'IDLE':
@@ -98,7 +97,7 @@ class CavityPosePublisher(object):
         :rtype: str
 
         """
-        if self.object_name is not None:
+        if len(self.cavity_msg_array)>0:
             return 'IDLE'
         else:
             return 'INIT'
@@ -133,12 +132,15 @@ class CavityPosePublisher(object):
             self.event = None
             return 'INIT'
         else:
-            self.event = None
-            for idx, cavity in enumerate(self.cavity_msg_array):
-                if cavity.object_name == self.object_name:
-                    self.cavity_pose_pub.publish(cavity.pose)
-                    break
-            return 'IDLE'
+            if self.object_name is not None:
+                self.event = None
+                for idx, cavity in enumerate(self.cavity_msg_array):
+                    if cavity.object_name == self.object_name:
+                        self.cavity_pose_pub.publish(cavity.pose)
+                        self.object_name = None
+                        break
+                return 'IDLE'
+            return 'RUNNING'
 
 def main():
     rospy.init_node('cavity_pose_publisher', anonymous=True)
