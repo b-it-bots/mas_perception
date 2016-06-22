@@ -7,6 +7,7 @@ find_package(catkin REQUIRED
     geometry_msgs
     std_msgs
     mcr_perception_msgs
+    roslint
 )
 
 catkin_python_setup()
@@ -43,6 +44,9 @@ if(CATKIN_ENABLE_TESTING)
   roslaunch_add_file_check(ros/launch)
 endif()
 
+roslint_python()
+
+roslint_add_test()
 
 ### INSTALLS
 install(TARGETS object_selector

@@ -2,8 +2,7 @@
 # -*- encoding: utf-8 -*-
 """
 This module contains a component that monitors stores the poses of the
-cavities and publishes the pose of cavity in which the object can be 
-put in, on trigger.
+cavities and publishes the pose of cavity in which the object can be put in, on trigger.
 
 **Input(s):**
   * cavity: cavity message for the identified cavities.
@@ -41,12 +40,11 @@ class CavityPoseSelector(object):
         # node cycle rate (in hz)
         self.loop_rate = rospy.Rate(rospy.get_param('~loop_rate', 10.0))
 
-        #publishers
-        self.cavity_pose_pub = rospy.Publisher("~cavity_pose", geometry_msgs.msg.PoseStamped,\
-            queue_size=1)
-        self.event_out_pub = rospy.Publisher("~event_out", std_msgs.msg.String,\
-            queue_size=1)
-
+        # publishers
+        self.cavity_pose_pub = rospy.Publisher(
+            "~cavity_pose", geometry_msgs.msg.PoseStamped, queue_size=1)
+        self.event_out_pub = rospy.Publisher(
+            "~event_out", std_msgs.msg.String, queue_size=1)
 
         # subscribers
         rospy.Subscriber("~event_in", std_msgs.msg.String, self.event_in_cb)
@@ -116,8 +114,8 @@ class CavityPoseSelector(object):
         :rtype: str
 
         """
-        if len(self.cavity_msg_array) > 0 :
-            return 'RUNNING' 
+        if len(self.cavity_msg_array) > 0:
+            return 'RUNNING'
         elif self.event == 'e_stop':
             self.object_name = None
             self.event = None
@@ -138,8 +136,8 @@ class CavityPoseSelector(object):
             return 'INIT'
         else:
             if self.object_name is not None:
-                found_cavity = False  
-                cavity_name = rospy.get_param('~' +self.object_name.data, None)
+                found_cavity = False
+                cavity_name = rospy.get_param('~' + self.object_name.data, None)
                 if cavity_name:
                     for idx, cavity in enumerate(self.cavity_msg_array):
                         if cavity.name == cavity_name:
@@ -151,7 +149,7 @@ class CavityPoseSelector(object):
                 if not found_cavity:
                     self.publish_event_out('e_failure')
                 self.object_name = None
-                return 'IDLE'    
+                return 'IDLE'
             return 'RUNNING'
 
     def publish_event_out(self, data):
