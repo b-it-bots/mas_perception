@@ -53,13 +53,6 @@ class CavityPoseSelector(object):
         rospy.Subscriber("~cavity", mpm.Cavity, self.cavity_cb)
         rospy.Subscriber("~object_name", std_msgs.msg.String, self.object_name_cb)
 
-        self.cavity_object_dict ={'F20_20_B':'F20_20', 'F20_20_G': 'F20_20', \
-        'S40_40_B': 'S40_40','S40_40_G': 'S40_40', 'M20_100': 'M20_100',\
-         'M20': 'M20', 'M30': 'M30','R20': 'R20','DISTANCE_TUBE': 'R20'}
-
-        self.cavities = np.array(self.cavity_object_dict.values())
-        self.objects  =  np.array(self.cavity_object_dict.keys())
-
     def start(self):
         """
         Starts the component.
@@ -100,7 +93,7 @@ class CavityPoseSelector(object):
 
         """
         rospy.loginfo("Object received: {0}".format(msg.data))
-        self.object_name = msg.data
+        self.object_name = msg
 
     def init_state(self):
         """
@@ -123,8 +116,8 @@ class CavityPoseSelector(object):
         :rtype: str
 
         """
-        if len(self.cavity_msg_array)>0 :
-            return 'RUNNING'
+        if len(self.cavity_msg_array) > 0 :
+            return 'RUNNING' 
         elif self.event == 'e_stop':
             self.object_name = None
             self.event = None
@@ -146,12 +139,11 @@ class CavityPoseSelector(object):
         else:
             if self.object_name is not None:
                 found_cavity = False  
-                if ( np.where(self.objects == self.object_name))[0]>0:
-                    cavity_name = self.cavities\
-                    [np.where(self.objects == self.object_name)[0][0]]
+                cavity_name = rospy.get_param('~' +self.object_name.data, None)
+                if cavity_name:
                     for idx, cavity in enumerate(self.cavity_msg_array):
                         if cavity.name == cavity_name:
-                            rospy.loginfo("Cavity Recognized: {0}".format(cavity_name))
+                            rospy.loginfo("Cavity selected: {0}".format(cavity_name))
                             self.cavity_pose_pub.publish(cavity.pose)
                             found_cavity = True
                             self.publish_event_out('e_success')
