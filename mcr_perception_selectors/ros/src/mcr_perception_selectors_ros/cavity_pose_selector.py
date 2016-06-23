@@ -92,6 +92,7 @@ class CavityPoseSelector(object):
         """
         rospy.loginfo("Object received: {0}".format(msg.data))
         self.object_name = msg
+        self.old_object_name = msg
 
     def init_state(self):
         """
@@ -118,6 +119,7 @@ class CavityPoseSelector(object):
             return 'RUNNING'
         elif self.event == 'e_stop':
             self.object_name = None
+            self.old_object_name = None
             self.event = None
             return 'INIT'
         else:
@@ -133,29 +135,32 @@ class CavityPoseSelector(object):
         """
         if self.event == 'e_stop':
             self.object_name = None
+            self.old_object_name = None
             return 'INIT'
+        elif self.event == 'e_trigger':
+            self.object_name = self.old_object_name
+            self.publish_event_out()
+            self.event = None
+            return 'RUNNING'
         else:
-            if self.object_name is not None:
-                found_cavity = False
-                cavity_name = rospy.get_param('~' + self.object_name.data, None)
-                if cavity_name:
-                    for idx, cavity in enumerate(self.cavity_msg_array):
-                        if cavity.name == cavity_name:
-                            rospy.loginfo("Cavity selected: {0}".format(cavity_name))
-                            self.cavity_pose_pub.publish(cavity.pose)
-                            found_cavity = True
-                            self.publish_event_out('e_success')
-                            break
-                if not found_cavity:
-                    self.publish_event_out('e_failure')
-                self.object_name = None
-                return 'IDLE'
+            self.publish_event_out()
             return 'RUNNING'
 
-    def publish_event_out(self, data):
-        e_out = std_msgs.msg.String()
-        e_out.data = data
-        self.event_out_pub.publish(e_out)
+    def publish_event_out(self):
+        if self.object_name is not None:
+            found_cavity = 'e_failure'
+            cavity_name = rospy.get_param('~' + self.object_name.data, None)
+            if cavity_name:
+                for idx, cavity in enumerate(self.cavity_msg_array):
+                    if cavity.name == cavity_name:
+                        rospy.loginfo("Cavity selected: {0}".format(cavity_name))
+                        self.cavity_pose_pub.publish(cavity.pose)
+                        found_cavity = 'e_success'
+                        break
+            self.object_name = None
+            e_out = std_msgs.msg.String()
+            e_out.data = found_cavity
+            self.event_out_pub.publish(e_out)
 
 
 def main():
