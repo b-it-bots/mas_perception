@@ -7,11 +7,15 @@ find_package(catkin REQUIRED
     geometry_msgs
     std_msgs
     mcr_perception_msgs
+    roslint
 )
+
+catkin_python_setup()
 
 catkin_package(
   CATKIN_DEPENDS
     mcr_perception_msgs
+    rospy
 )
 
 include_directories(
@@ -22,6 +26,7 @@ include_directories(
 ### EXECUTABLES ###############################################
 add_executable(object_selector
   ros/src/object_selector.cpp
+  ros/scripts/cavity_pose_selector_node
 )
 
 add_dependencies(object_selector
@@ -39,6 +44,9 @@ if(CATKIN_ENABLE_TESTING)
   roslaunch_add_file_check(ros/launch)
 endif()
 
+roslint_python()
+
+roslint_add_test()
 
 ### INSTALLS
 install(TARGETS object_selector
