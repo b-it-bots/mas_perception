@@ -60,6 +60,7 @@ private:
     ros::Publisher pub_event_out_;
     ros::Publisher pub_object_;
     ros::Publisher pub_object_pose_;
+    ros::Publisher pub_object_name_;
 
     std_msgs::String object_name_;
     bool object_name_received_;
