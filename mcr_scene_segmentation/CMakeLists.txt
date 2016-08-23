@@ -125,8 +125,7 @@ roslint_cpp()
 ### TESTS
 if(CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(ros/launch "workspace_finder_config_file:=${CMAKE_CURRENT_SOURCE_DIR}/ros/config/workspace_constraints.yaml
-                                       object_constraints_config_file:=${CMAKE_CURRENT_SOURCE_DIR}/ros/config/object_constraints.yaml")
+  roslaunch_add_file_check(ros/launch)
 endif()
 
 ### INSTALLS
