@@ -11,6 +11,7 @@
 ObjectListMerger::ObjectListMerger() : nh_("~"), event_in_received_(false), accepting_object_lists_(false)
 {
     nh_.param<double>("distance_threshold", distance_threshold_, 0.02);
+    nh_.param<bool>("use_average_pose", use_average_pose_, false);
     pub_object_list_ = nh_.advertise<mcr_perception_msgs::ObjectList>("output_object_list", 1);
     pub_event_out_ = nh_.advertise<std_msgs::String>("event_out", 1);
 
@@ -69,9 +70,17 @@ void ObjectListMerger::mergeList(const mcr_perception_msgs::ObjectList::Ptr &new
             if (distance < distance_threshold_)
             {
                 ROS_INFO_STREAM("New object " << new_object.name << " is close to " << old_object.name);
+                // if object names are the same, and use_average_pose is set
+                // just change the pose
+                if (use_average_pose_ && old_object.name == new_object.name)
+                {
+                    ROS_INFO_STREAM("Updating pose of " << old_object.name);
+                    old_object.pose.pose.position.x = (old_object.pose.pose.position.x + new_object.pose.pose.position.x) / 2;
+                    old_object.pose.pose.position.y = (old_object.pose.pose.position.y + new_object.pose.pose.position.y) / 2;
+                }
                 // if classification of new object has higher probabliity
                 // use the new classification
-                if (new_object.probability > old_object.probability)
+                else if (new_object.probability > old_object.probability)
                 {
                     ROS_INFO_STREAM("Replacing "
                                      << old_object.name << " with " << new_object.name);

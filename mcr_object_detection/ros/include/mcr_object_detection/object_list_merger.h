@@ -63,6 +63,9 @@ class ObjectListMerger
         mcr_perception_msgs::ObjectList merged_object_list_;
 
         double distance_threshold_;
+        // if two objects within the distance_threshold have the same name,
+        // update the pose to be the average pose (in x,y only)
+        bool use_average_pose_;
 };
 
 #endif  // MCR_OBJECT_DETECTION_OBJECT_LIST_MERGER_H
