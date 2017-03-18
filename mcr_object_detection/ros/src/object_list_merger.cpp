@@ -75,8 +75,10 @@ void ObjectListMerger::mergeList(const mcr_perception_msgs::ObjectList::Ptr &new
                 if (use_average_pose_ && old_object.name == new_object.name)
                 {
                     ROS_INFO_STREAM("Updating pose of " << old_object.name);
-                    old_object.pose.pose.position.x = (old_object.pose.pose.position.x + new_object.pose.pose.position.x) / 2;
-                    old_object.pose.pose.position.y = (old_object.pose.pose.position.y + new_object.pose.pose.position.y) / 2;
+                    old_object.pose.pose.position.x =
+                        (old_object.pose.pose.position.x + new_object.pose.pose.position.x) / 2;
+                    old_object.pose.pose.position.y =
+                        (old_object.pose.pose.position.y + new_object.pose.pose.position.y) / 2;
                 }
                 // if classification of new object has higher probabliity
                 // use the new classification
