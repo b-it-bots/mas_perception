@@ -6,7 +6,7 @@
   <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
   <arg name="camera_frame" default="arm_cam3d_rgb_optical_frame" />
   <arg name="target_frame" default="odom" />
-  <arg name="classifier" default="magdeburg-2016" />
+  <arg name="classifier" default="erl_2016" />
   
 
   <!-- This launch file starts all the nodes that are needed to perform object recognition.
