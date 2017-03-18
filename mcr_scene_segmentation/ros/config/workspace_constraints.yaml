@@ -12,7 +12,7 @@ voxel_filter:
 passthrough_x:
     filter_field_name: x
     filter_limit_min: 0.0
-    filter_limit_max: 1.0
+    filter_limit_max: 0.8
 normal_estimation:
     k_search: 0
     radius_search: 0.03

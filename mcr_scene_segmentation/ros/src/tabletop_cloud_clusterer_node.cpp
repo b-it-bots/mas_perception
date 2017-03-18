@@ -85,28 +85,45 @@ private:
         std::vector<PointCloud::Ptr> clusters;
         size_t rejected_count = 0;
         size_t distance_rejected_count = 0;
+        size_t size_rejected_count = 0;
         for (size_t i = 0; i < clusters_indices.size(); i++)
         {
             const pcl::PointIndices& cluster_indices = clusters_indices[i];
             PointCloud::Ptr cluster(new PointCloud);
             pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
-            if (getClusterCentroidHeight(*cluster, polygon) < object_min_height_)
+
+            PointT min_point;
+            PointT max_point;
+            pcl::getMinMax3D(*cluster, min_point, max_point);
+
+            // min height of centroid, max height of bottom of object
+            if (getClusterCentroidHeight(*cluster, polygon) < object_min_height_ || getPointHeight(min_point, polygon) > object_max_height_)
             {
                 rejected_count++;
                 continue;
             }
+            // distance to polygon
             if (getClusterCentroidDistanceToPolygon(*cluster, polygon) < min_distance_to_polygon_)
             {
                 distance_rejected_count++;
                 continue;
             }
+            // max length
+            if (std::abs(max_point.x - min_point.x) > max_length_ ||
+                std::abs(max_point.y - min_point.y) > max_length_ ||
+                std::abs(max_point.z - min_point.z) > max_length_)
+            {
+                size_rejected_count++;
+                continue;
+            }
+
             sensor_msgs::PointCloud2 ros_cluster;
             pcl::toROSMsg(*cluster, ros_cluster);
             response.clusters.push_back(ros_cluster);
             clusters.push_back(cluster);
         }
-        ROS_INFO("Found %zu clusters, but rejected %zu due to low height and %zu due to distance to polygon",
-                 clusters_indices.size(), rejected_count, distance_rejected_count);
+        ROS_INFO("Found %zu clusters, but rejected %zu due to low/high height and %zu due to distance to polygon and %zu due to length",
+                 clusters_indices.size(), rejected_count, distance_rejected_count, size_rejected_count);
 
         cluster_visualizer_.publish<PointT>(clusters, request.cloud.header.frame_id);
 
@@ -120,6 +137,15 @@ private:
         pcl::compute3DCentroid(cluster, centroid);
         centroid[3] = 1;
         return centroid.dot(polygon.getCoefficients());
+    }
+    static double getPointHeight(const PointT &p, const PlanarPolygon& polygon)
+    {
+        Eigen::Vector4f point;
+        point[0] = p.x;
+        point[1] = p.y;
+        point[2] = p.z;
+        point[3] = 1;
+        return point.dot(polygon.getCoefficients());
     }
 
     /**
@@ -180,6 +206,8 @@ private:
         // Other settings
         pn.param("object_min_height", object_min_height_, 0.011);
         pn.param("min_distance_to_polygon", min_distance_to_polygon_, 0.05);
+        pn.param("object_max_height", object_max_height_, 0.02);
+        pn.param("max_length", max_length_, 0.1);
     }
 
     ros::ServiceServer cluster_server_;
@@ -189,6 +217,8 @@ private:
 
     double object_min_height_;
     double min_distance_to_polygon_;
+    double max_length_;
+    double object_max_height_;
 
     ClusteredPointCloudVisualizer cluster_visualizer_;
 };
