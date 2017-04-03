@@ -56,6 +56,7 @@ add_definitions(-fpermissive)
 ### LIBRARIES ####################################################
 add_library(scene_segmentation
   common/src/cloud_accumulation.cpp
+  ros/src/cloud_accumulator.cpp
   ros/src/extract_polygonal_prism_data.cpp
   ros/src/planar_euclidean_cluster_extraction.cpp
   ros/src/bounding_box_maker.cpp
@@ -95,6 +96,7 @@ target_link_libraries(workspace_finder
   scene_segmentation
 )
 
+### EXECUTABLES ###############################################
 add_executable(tabletop_cloud_accumulator
   ros/src/tabletop_cloud_accumulator_node.cpp
 )

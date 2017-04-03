@@ -1,4 +1,9 @@
 <library path="lib/libscene_segmentation">
+  <class name="mcr_scene_segmentation/CloudAccumulatorNode" type="mcr_scene_segmentation::CloudAccumulatorNode" base_class_type="nodelet::Nodelet">
+    <description>
+        nodelet plugin that uses an octree to combine multiple clouds into one cloud
+    </description>
+  </class>
   <class name="mcr_scene_segmentation/ExtractPolygonalPrismData" type="mcr_scene_segmentation::ExtractPolygonalPrismData" base_class_type="nodelet::Nodelet">
     <description>
         nodelet plugin that extracts a prism above a given polygon

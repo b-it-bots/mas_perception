@@ -5,6 +5,7 @@
   <arg name="object_constraints_config_file" default="$(find mcr_scene_segmentation)/ros/config/object_constraints.yaml" />
   <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
   <arg name="camera_frame" default="arm_cam3d_rgb_optical_frame" />
+  <arg name="use_cloud_accumulator" default="false" />
   <arg name="target_frame" default="odom" />
   <arg name="classifier" default="erl_2016" />
   
@@ -18,6 +19,7 @@
     <arg name="workspace_finder_config_file" value="$(arg workspace_finder_config_file)" />
     <arg name="object_constraints_config_file" value="$(arg object_constraints_config_file)" />
     <arg name="input_pointcloud_topic" value="$(arg input_pointcloud_topic)" />
+    <arg name="use_cloud_accumulator" value="$(arg use_cloud_accumulator)" />
     <arg name="camera_frame" default="$(arg camera_frame)" />
     <arg name="target_frame" default="$(arg target_frame)" />
   </include>
