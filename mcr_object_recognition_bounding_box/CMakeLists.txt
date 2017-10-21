@@ -3,7 +3,7 @@ project(mcr_object_recognition_bounding_box)
 
 find_package(PCL 1.6 REQUIRED)
 
-find_package(catkin REQUIRED 
+find_package(catkin REQUIRED
   COMPONENTS
     mcr_scene_segmentation
     mcr_perception_msgs
@@ -63,6 +63,8 @@ endif()
 ### INSTALLS
 install(PROGRAMS
   ros/scripts/object_recognizer
+  ros/tools/collect_training_data
+  ros/tools/train_classification_network
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

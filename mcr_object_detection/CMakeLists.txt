@@ -49,6 +49,7 @@ endif()
 
 install(PROGRAMS
   ros/scripts/object_detector
+  ros/mockup/object_detector_mockup
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

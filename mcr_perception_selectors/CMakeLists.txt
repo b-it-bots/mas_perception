@@ -61,3 +61,8 @@ install(DIRECTORY ros/include/${PROJECT_NAME}/
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
+
+install(PROGRAMS
+  ros/scripts/cavity_pose_selector_node
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/ros/scripts
+)

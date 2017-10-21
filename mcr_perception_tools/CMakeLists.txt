@@ -52,10 +52,16 @@ install(DIRECTORY ros/include/${PROJECT_NAME}/
    FILES_MATCHING PATTERN "*.h"
 )
 
+# roslint does not detect the scripts being installed...
 install(DIRECTORY ros/scripts/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/scripts
 )
 
 install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
+)
+
+install(PROGRAMS
+  ros/scripts/collect_object_pointclouds
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/ros/scripts
 )
