@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_background_change_detection)
 
-find_package(catkin REQUIRED 
+find_package(catkin REQUIRED
   COMPONENTS
     dynamic_reconfigure
     image_transport
@@ -17,15 +17,15 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  INCLUDE_DIRS 
+  INCLUDE_DIRS
     ros/include
     common/include
   LIBRARIES
     background_change_detection
-  CATKIN_DEPENDS 
-    dynamic_reconfigure 
-    image_transport 
-    roscpp 
+  CATKIN_DEPENDS
+    dynamic_reconfigure
+    image_transport
+    roscpp
     sensor_msgs
     cv_bridge
   DEPENDS
@@ -51,11 +51,11 @@ target_link_libraries(background_change_detection
   ${OpenCV_LIBRARIES}
 )
 
-add_executable(background_change_detection_node 
+add_executable(background_change_detection_node
   ros/src/background_change_detection_node.cpp
 )
 
-add_dependencies(background_change_detection_node 
+add_dependencies(background_change_detection_node
   ${catkin_EXPORTED_TARGETS}
   ${PROJECT_NAME}_gencfg
 )
@@ -68,7 +68,7 @@ target_link_libraries(background_change_detection_node
 
 install(
   TARGETS
-    background_change_detection 
+    background_change_detection
     background_change_detection_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -89,7 +89,8 @@ install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
-install(DIRECTORY ros/config
+install(PROGRAMS
+  ros/config/BackgroundChange.cfg
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config
 )
 

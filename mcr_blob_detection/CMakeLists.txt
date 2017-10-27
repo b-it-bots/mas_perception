@@ -88,6 +88,7 @@ install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
-install(DIRECTORY ros/config
+install(PROGRAMS
+  ros/config/BlobDetection.cfg
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config
 )

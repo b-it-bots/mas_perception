@@ -102,3 +102,7 @@ install(DIRECTORY ros/launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
+install(PROGRAMS
+  ros/config/ContourFinder.cfg
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

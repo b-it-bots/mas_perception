@@ -5,7 +5,7 @@ find_package(catkin REQUIRED
   COMPONENTS
     dynamic_reconfigure
     mcr_algorithms
-    mcr_perception_msgs 
+    mcr_perception_msgs
     pcl_ros
     roscpp
     roslint
@@ -35,7 +35,7 @@ catkin_package(
 include_directories(
   common/include
   ${catkin_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}  
+  ${PCL_INCLUDE_DIRS}
 )
 
 add_library(mcr_body_detection_3d
@@ -49,7 +49,7 @@ add_executable(body_detection_3d_node
   ros/src/body_detection_3d_node.cpp
 )
 add_dependencies(body_detection_3d_node
-  ${PROJECT_NAME}_gencfg 
+  ${PROJECT_NAME}_gencfg
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(body_detection_3d_node
@@ -103,6 +103,8 @@ install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
-install(DIRECTORY common/config
+install(PROGRAMS
+  common/config/body_detection_model.mdl
+  ros/config/BodyDetection3D.cfg
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/config
 )

@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_people_tracking)
 
-find_package(catkin REQUIRED 
-  COMPONENTS 
+find_package(catkin REQUIRED
+  COMPONENTS
     dynamic_reconfigure
-    mcr_algorithms 
+    mcr_algorithms
     mcr_perception_msgs
-    pcl_ros    
-    roscpp     
-    tf     
+    pcl_ros
+    roscpp
+    tf
     visualization_msgs
 )
 
@@ -21,7 +21,7 @@ generate_dynamic_reconfigure_options(
 )
 
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
     dynamic_reconfigure
     mcr_algorithms
     mcr_perception_msgs
@@ -34,7 +34,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(waist_tracking_node  
+add_executable(waist_tracking_node
   ros/src/waist_tracking_node.cpp
   common/src/particle_filter.cpp
 )
@@ -42,8 +42,8 @@ add_dependencies(waist_tracking_node ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TA
 
 target_link_libraries(waist_tracking_node
   ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}   
-  ${PCL_LIBRARIES}   
+  ${OpenCV_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 
 
@@ -62,4 +62,9 @@ install(DIRECTORY ros/launch/
 
 install(TARGETS waist_tracking_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(PROGRAMS
+  ros/config/WaistTracking.cfg
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

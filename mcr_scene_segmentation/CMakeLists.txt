@@ -179,3 +179,8 @@ install(FILES nodelet_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
+
+install(PROGRAMS
+  ros/config/PlanarEuclideanClusterExtraction.cfg
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

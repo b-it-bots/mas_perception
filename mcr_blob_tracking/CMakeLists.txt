@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_blob_tracking)
 
-find_package(catkin REQUIRED 
+find_package(catkin REQUIRED
   COMPONENTS
     cv_bridge
     dynamic_reconfigure
@@ -24,7 +24,7 @@ catkin_package(
     ros/include
   CATKIN_DEPENDS
     cv_bridge
-    dynamic_reconfigure  
+    dynamic_reconfigure
     geometry_msgs
     image_transport
     roscpp
@@ -70,7 +70,8 @@ install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
-install(DIRECTORY ros/config
+install(PROGRAMS
+  ros/config/BlobTracking.cfg
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config
 )
 

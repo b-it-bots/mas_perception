@@ -60,7 +60,7 @@ link_directories(
 )
 
 
-add_executable(leg_detection_node 
+add_executable(leg_detection_node
   ros/src/leg_detection_node.cpp
   ros/src/laser_processor.cpp
   ros/src/calc_leg_features.cpp
@@ -68,7 +68,7 @@ add_executable(leg_detection_node
 )
 add_dependencies(leg_detection_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_gencpp ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(leg_detection_node 
+target_link_libraries(leg_detection_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${BFL_LIBRARIES}
@@ -86,7 +86,7 @@ endif()
 ### INSTALLS
 install(
   TARGETS
-    leg_detection_node 
+    leg_detection_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -94,6 +94,7 @@ install(DIRECTORY ros/launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/launch
 )
 
-install(DIRECTORY ros/config
+install(PROGRAMS
+  ros/config/LegDetection.cfg
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/ros/config
 )
