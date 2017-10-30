@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_image_cartesian_mapper)
 
-find_package(catkin REQUIRED 
+find_package(catkin REQUIRED
   COMPONENTS
     cmake_modules
     cv_bridge
@@ -13,10 +13,10 @@ find_package(catkin REQUIRED
     tf
 )
 
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
     cv_bridge
     image_transport
     geometry_msgs
@@ -25,13 +25,13 @@ catkin_package(
     std_msgs
     tf
   DEPENDS
-    Eigen
+    EIGEN3
 )
 
 include_directories(
   ros/include
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 add_executable(image_cartesian_mapper_node
@@ -44,7 +44,7 @@ add_dependencies(image_cartesian_mapper_node
 
 target_link_libraries(image_cartesian_mapper_node
   ${catkin_LIBRARIES}
-  ${Eigen_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
 )
 
 install(TARGETS image_cartesian_mapper_node

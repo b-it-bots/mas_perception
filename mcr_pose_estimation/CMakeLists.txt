@@ -10,7 +10,7 @@ find_package(catkin REQUIRED
 )
 
 find_package(PCL 1.7 REQUIRED)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package()
 
