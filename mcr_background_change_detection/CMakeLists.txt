@@ -10,7 +10,7 @@ find_package(catkin REQUIRED
     cv_bridge
 )
 
-find_package(OpenCV 2.3 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 generate_dynamic_reconfigure_options(
   ros/config/BackgroundChange.cfg

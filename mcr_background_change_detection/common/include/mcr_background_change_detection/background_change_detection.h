@@ -2,6 +2,10 @@
 #define BACKGROUNDCHANGEDETECTION_H_
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/video/background_segm.hpp>
+#include "opencv2/bgsegm.hpp"
+
+using namespace cv;
 
 class BackgroundChangeDetection
 {
@@ -13,7 +17,7 @@ public:
     void updateDynamicVariables(bool debug_mode, double background_change_threshold, double background_learning_rate);
 
 private:
-    cv::BackgroundSubtractorMOG bsmog_;
+    Ptr<BackgroundSubtractor> bsmog_;
     bool is_debug_mode_;
     double background_change_threshold_;
     double background_learning_rate_;
