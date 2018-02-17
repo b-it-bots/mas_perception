@@ -121,7 +121,7 @@ public:
         object_id = "";
         time_ = loc.stamp_;
         meas_time_ = loc.stamp_;
-
+	
         try
         {
             tfl_.transformPoint(fixed_frame, loc, loc);
@@ -223,7 +223,7 @@ public:
     TransformListener tfl_;
     ScanMask mask_;
     int mask_count_;
-    CvRTrees forest;
+    cv::Ptr<cv::ml::RTrees> forest;
     float connected_thresh_;
     int feat_count_;
     char save_[100];
@@ -249,10 +249,12 @@ public:
           laser_sub_(nh_, "scan", 10),
           laser_notifier_(laser_sub_, tfl_, fixed_frame, 10)
     {
+        forest = cv::ml::RTrees::create();
+	
         if (g_argc > 1)
         {
-            forest.load(g_argv[1]);
-            feat_count_ = forest.get_active_var_mask()->cols;
+            forest->load(g_argv[1]);
+            feat_count_ = forest->getActiveVarCount();
             printf("Loaded forest with %d features: %s\n", feat_count_, g_argv[1]);
         }
         else
@@ -357,7 +359,7 @@ public:
             for (int k = 0; k < feat_count_; k++)
                 tmp_mat->data.fl[k] = (float)(f[k]);
 
-            if (forest.predict(tmp_mat) > 0)
+            if (forest->predict(cv::InputArray(*tmp_mat)) > 0)
             {
                 candidates.push_back(*i);
             }
