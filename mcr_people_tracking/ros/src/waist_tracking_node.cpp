@@ -21,12 +21,11 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/transforms.h>
 #include <pcl/io/pcd_io.h>
-#include <opencv/cv.h>
 #include <dynamic_reconfigure/server.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include <opencv/cvaux.h>
-#include <opencv/highgui.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <mcr_perception_msgs/PersonList.h>
 #include <mcr_perception_msgs/Person.h>
@@ -389,7 +388,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
                 }
 
                 // calculate the histogram for the detected person
-                cv::Mat mat_roi_segment_bgr(ipl_roi_segment);
+                cv::Mat mat_roi_segment_bgr = cv::cvarrToMat(ipl_roi_segment);
                 cv::Mat mat_roi_segment_hsv;
 
                 cv::cvtColor(mat_roi_segment_bgr, mat_roi_segment_hsv, CV_BGR2HSV);
