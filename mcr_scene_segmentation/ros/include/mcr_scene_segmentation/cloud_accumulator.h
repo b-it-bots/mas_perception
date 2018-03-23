@@ -8,7 +8,6 @@
 #ifndef MCR_SCENE_SEGMENTATION_CLOUD_ACCUMULATOR_H
 #define MCR_SCENE_SEGMENTATION_CLOUD_ACCUMULATOR_H
 
-#include <string>
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
@@ -49,7 +48,7 @@ class CloudAccumulatorNode : public nodelet::Nodelet
         // if true cloud accumulation is stopped with event (e_stop)
         // if false, cloud accumulation is stopped when clouds_to_accumulate_ are accumulated
         bool event_based_termination_;
-        // maximum clouds
+        // maximum clouds 
         int clouds_to_accumulate_;
         int current_cloud_count_;
 
@@ -57,9 +56,9 @@ class CloudAccumulatorNode : public nodelet::Nodelet
 
         bool add_to_octree_;
         bool publish_accumulated_cloud_;
+
 };
 
-PLUGINLIB_DECLARE_CLASS(mcr_scene_segmentation,
-    CloudAccumulatorNode, mcr_scene_segmentation::CloudAccumulatorNode, nodelet::Nodelet);
-}  // namespace mcr_scene_segmentation
-#endif  // MCR_SCENE_SEGMENTATION_CLOUD_ACCUMULATOR_H
+PLUGINLIB_DECLARE_CLASS(mcr_scene_segmentation, CloudAccumulatorNode, mcr_scene_segmentation::CloudAccumulatorNode, nodelet::Nodelet);
+}
+#endif /* MCR_SCENE_SEGMENTATION_CLOUD_ACCUMULATOR_H */

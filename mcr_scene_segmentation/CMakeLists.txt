@@ -26,6 +26,7 @@ catkin_python_setup()
 
 generate_dynamic_reconfigure_options(
   ros/config/PlanarEuclideanClusterExtraction.cfg
+  ros/config/SceneSegmentation.cfg
 )
 
 catkin_package(
@@ -62,6 +63,7 @@ add_library(scene_segmentation
   ros/src/bounding_box_maker.cpp
   common/src/bounding_box.cpp
   ros/src/image_roi_extraction.cpp
+  common/src/scene_segmentation.cpp
 )
 
 add_dependencies(scene_segmentation
@@ -97,6 +99,17 @@ target_link_libraries(workspace_finder
 )
 
 ### EXECUTABLES ###############################################
+add_executable(scene_segmentation_node
+  ros/src/scene_segmentation_node.cpp
+)
+add_dependencies(scene_segmentation_node
+  ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg
+)
+target_link_libraries(scene_segmentation_node
+  ${catkin_LIBRARIES}
+  scene_segmentation
+)
+
 add_executable(tabletop_cloud_accumulator
   ros/src/tabletop_cloud_accumulator_node.cpp
 )
@@ -179,8 +192,3 @@ install(FILES nodelet_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-
-install(PROGRAMS
-  ros/config/PlanarEuclideanClusterExtraction.cfg
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)

@@ -21,10 +21,8 @@
 
 using mcr_scene_segmentation::CloudAccumulatorNode;
 
-CloudAccumulatorNode::CloudAccumulatorNode() :
-    octree_resolution_(0.05), event_based_termination_(true),
-    clouds_to_accumulate_(1), current_cloud_count_(0),
-    publish_period_(0.1), add_to_octree_(false), publish_accumulated_cloud_(false)
+CloudAccumulatorNode::CloudAccumulatorNode() : octree_resolution_(0.05), event_based_termination_(true),
+                                               clouds_to_accumulate_(1), current_cloud_count_(0), publish_period_(0.1), add_to_octree_(false), publish_accumulated_cloud_(false)
 {
 }
 
@@ -56,33 +54,34 @@ void CloudAccumulatorNode::onInit()
 void CloudAccumulatorNode::eventCallback(const std_msgs::String::ConstPtr &msg)
 {
     std_msgs::String event_out;
-    if (msg->data == "e_start")
+    if(msg->data == "e_start")
     {
-        sub_input_cloud_ = nh_.subscribe("input", 1, &CloudAccumulatorNode::pointcloudCallback, this);
-        event_out.data = "e_started";
-    }
-    else if (msg->data == "e_add_cloud_start")
+		sub_input_cloud_ = nh_.subscribe("input", 1, &CloudAccumulatorNode::pointcloudCallback, this);
+		//timer_.start();
+		event_out.data = "e_started";
+	}
+    else if(msg->data == "e_add_cloud_start")
     {
         add_to_octree_ = true;
         // Not needed so that not to affect the action server
         return;
     }
-    else if (msg->data == "e_add_cloud_stop")
+    else if(msg->data == "e_add_cloud_stop")
     {
         add_to_octree_ = false;
         event_out.data = "e_add_cloud_stopped";
     }
-    else if (msg->data == "e_start_publish")
+    else if(msg->data == "e_start_publish")
     {
         timer_.start();
         event_out.data = "e_started_publish";
     }
-    else if (msg->data == "e_stop_publish")
+    else if(msg->data == "e_stop_publish")
     {
         timer_.stop();
         event_out.data = "e_stopped_publish";
     }
-    else if (msg->data == "e_publish")
+    else if(msg->data == "e_publish")
     {
         if (cloud_accumulation_->getCloudCount() > 0)
         {
@@ -104,18 +103,18 @@ void CloudAccumulatorNode::eventCallback(const std_msgs::String::ConstPtr &msg)
         cloud_accumulation_->reset();
         event_out.data = "e_reset";
     }
-    else if (msg->data == "e_stop")
+    else if(msg->data == "e_stop")
     {
         cloud_accumulation_->reset();
-        sub_input_cloud_.shutdown();
-        timer_.stop();
-        event_out.data = "e_stopped";
-    }
+		sub_input_cloud_.shutdown();
+		timer_.stop();
+		event_out.data = "e_stopped";
+	}
     else
     {
         return;
     }
-    pub_event_out_.publish(event_out);
+	pub_event_out_.publish(event_out);
 }
 
 void CloudAccumulatorNode::pointcloudCallback(const sensor_msgs::PointCloud2::ConstPtr &msg)
@@ -124,42 +123,46 @@ void CloudAccumulatorNode::pointcloudCallback(const sensor_msgs::PointCloud2::Co
     pcl::PCLPointCloud2 pc2;
     pcl_conversions::toPCL(*msg, pc2);
     pcl::fromPCLPointCloud2(pc2, *cloud);
-
+	
     frame_id_ = msg->header.frame_id;
-
+    
     if (add_to_octree_)
     {
         cloud_accumulation_->addCloud(cloud);
         current_cloud_count_++;
     }
-
+    
     if (!event_based_termination_ && add_to_octree_)
     {
-        if (current_cloud_count_ >= clouds_to_accumulate_)
-        {
-            std_msgs::String event_out;
-
-            current_cloud_count_ = 0;
-            add_to_octree_ = false;
-            event_out.data = "e_add_cloud_stopped";
-            pub_event_out_.publish(event_out);
-        }
-    }
+		if (current_cloud_count_ >= clouds_to_accumulate_)
+		{
+			std_msgs::String event_out;
+			
+			current_cloud_count_ = 0;
+			add_to_octree_ = false;
+			event_out.data = "e_add_cloud_stopped";
+			pub_event_out_.publish(event_out);
+			//NODELET_INFO("Added cloud and terminatd");
+		}
+	}
 }
 
 void CloudAccumulatorNode::timerCallback()
 {
     if (cloud_accumulation_->getCloudCount() > 0 && pub_accumulated_cloud_.getNumSubscribers() > 0)
     {
-        sensor_msgs::PointCloud2 ros_cloud;
-        PointCloud cloud;
-        cloud.header.frame_id = frame_id_;
-        cloud_accumulation_->getAccumulatedCloud(cloud);
+        //if (publish_accumulated_cloud_)
+        {
+            sensor_msgs::PointCloud2 ros_cloud;
+            PointCloud cloud;
+            cloud.header.frame_id = frame_id_;
+            cloud_accumulation_->getAccumulatedCloud(cloud);
 
-        pcl::PCLPointCloud2 pc2;
-        pcl::toPCLPointCloud2(cloud, pc2);
-        pcl_conversions::fromPCL(pc2, ros_cloud);
-        ros_cloud.header.stamp = ros::Time::now();
-        pub_accumulated_cloud_.publish(ros_cloud);
+            pcl::PCLPointCloud2 pc2;
+            pcl::toPCLPointCloud2(cloud, pc2);
+            pcl_conversions::fromPCL(pc2, ros_cloud);
+            ros_cloud.header.stamp = ros::Time::now();
+            pub_accumulated_cloud_.publish(ros_cloud);
+        }
     }
 }

@@ -97,8 +97,7 @@ private:
             pcl::getMinMax3D(*cluster, min_point, max_point);
 
             // min height of centroid, max height of bottom of object
-            if (getClusterCentroidHeight(*cluster, polygon) < object_min_height_
-                || getPointHeight(min_point, polygon) > object_max_height_)
+            if (getClusterCentroidHeight(*cluster, polygon) < object_min_height_ || getPointHeight(min_point, polygon) > object_max_height_)
             {
                 rejected_count++;
                 continue;
@@ -123,8 +122,7 @@ private:
             response.clusters.push_back(ros_cluster);
             clusters.push_back(cluster);
         }
-        ROS_INFO("Found %zu clusters, but rejected %zu due to low/high height and"
-                  " %zu due to distance to polygon and %zu due to length",
+        ROS_INFO("Found %zu clusters, but rejected %zu due to low/high height and %zu due to distance to polygon and %zu due to length",
                  clusters_indices.size(), rejected_count, distance_rejected_count, size_rejected_count);
 
         cluster_visualizer_.publish<PointT>(clusters, request.cloud.header.frame_id);

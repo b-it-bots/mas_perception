@@ -6,9 +6,16 @@
   <group ns="mcr_perception">
 
     <rosparam file="$(arg workspace_finder_config_file)" command="load"/>
+    <!--<node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager"/>-->
+
+    <!--<node pkg="nodelet" type="nodelet" name="mux_pointcloud"
+        args="load mcr_topic_tools/TopicMux $(arg manager) mux:=mux_pointcloud /mcr_perception/depth_registered/points /empty_topic $(arg input_pointcloud_topic)" output="screen">
+      <param name="lazy" type="bool" value="true" />
+    </node>-->
 
     <node pkg="nodelet" type="nodelet" name="transform"
           args="load pcl/PassThrough $(arg manager)">
+     <!-- <remap from="~input" to="/mcr_perception/depth_registered/points" /> -->     
        <remap from="~input" to="$(arg input_pointcloud_topic)" />
     </node>
 
