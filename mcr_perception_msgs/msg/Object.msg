@@ -25,5 +25,3 @@ sensor_msgs/PointCloud2 pointcloud
 # The bounding box of the object
 mcr_perception_msgs/BoundingBox bounding_box
 
-# The surface that the object was found on
-mcr_perception_msgs/Plane related_surface

@@ -7,6 +7,9 @@ geometry_msgs/PoseStamped pose
 geometry_msgs/PointStamped plane_point
 geometry_msgs/Vector3Stamped normal
 
+# Objects associated with plane
+mcr_perception_msgs/ObjectList object_list
+
 # These values give you the observed extents of the plane, along x and y,
 # in the plane's own coordinate system (above)
 # there is no guarantee that the origin of the plane coordinate system is

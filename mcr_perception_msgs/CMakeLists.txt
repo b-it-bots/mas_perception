@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_perception_msgs)
 
-find_package(catkin REQUIRED 
+find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs
     message_generation
@@ -28,6 +28,7 @@ add_message_files(
     Person.msg
     PersonList.msg
     Plane.msg
+    PlaneList.msg
     PlanarPolygon.msg
     PointCloud2List.msg
     Blob.msg
@@ -57,11 +58,11 @@ generate_messages(
   DEPENDENCIES
     geometry_msgs
     sensor_msgs
-    std_msgs  
+    std_msgs
 )
 
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
     geometry_msgs
     message_runtime
     sensor_msgs
@@ -95,7 +96,7 @@ endif()
 ### INSTALLS
 install(
   TARGETS
-    object_msg_visualizer_node 
+    object_msg_visualizer_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
