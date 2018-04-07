@@ -3,6 +3,9 @@
 # z axis normal to the plane
 geometry_msgs/PoseStamped pose
 
+# plane name
+string name
+
 # Point + normal vector of the plane
 geometry_msgs/PointStamped plane_point
 geometry_msgs/Vector3Stamped normal
