@@ -10,7 +10,7 @@ SceneSegmentation::~SceneSegmentation()
 {
 }
 
-PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes)
+PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height)
 {
     PointCloud::Ptr filtered(new PointCloud);
     PointCloud::Ptr plane(new PointCloud);
@@ -58,6 +58,16 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
     // not sure if this is necessary
     hull->points.push_back(hull->points.front());
     hull->width += 1;
+    double z = 0.0;
+    for (int i = 0; i < hull->points.size(); i++)
+    {
+        z += hull->points[i].z;
+    }
+    if (hull->points.size() > 0)
+    {
+        z /= hull->points.size();
+    }
+    workspace_height = z;
 
     extract_polygonal_prism.setInputPlanarHull(hull);
     extract_polygonal_prism.setInputCloud(cloud);

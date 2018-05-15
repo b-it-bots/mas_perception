@@ -4,6 +4,7 @@
 #include <pcl/point_types.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/common/centroid.h>
+#include "pcl_ros/transforms.h"
 
 #include <mcr_perception_msgs/BoundingBox.h>
 #include <mcr_perception_msgs/BoundingBoxList.h>
@@ -15,6 +16,9 @@
 #include <Eigen/Dense>
 
 #include "pcl_ros/point_cloud.h"
+#include <pcl_ros/transforms.h>
+
+#include <std_msgs/Float64.h>
 
 SceneSegmentationNode::SceneSegmentationNode(): nh_("~"), bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN)),
                                                           cluster_visualizer_("tabletop_clusters"), label_visualizer_("labels", mcr::visualization::Color(mcr::visualization::Color::TEAL)),
@@ -24,6 +28,7 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"), bounding_box_visualize
     pub_object_list_ = nh_.advertise<mcr_perception_msgs::ObjectList>("object_list", 1);
     sub_event_in_ = nh_.subscribe("event_in", 1, &SceneSegmentationNode::eventCallback, this);
     pub_event_out_ = nh_.advertise<std_msgs::String>("event_out", 1);
+    pub_workspace_height_ = nh_.advertise<std_msgs::Float64>("workspace_height", 1);
 
     dynamic_reconfigure::Server<mcr_scene_segmentation::SceneSegmentationConfig>::CallbackType f =
                             boost::bind(&SceneSegmentationNode::config_callback, this, _1, _2);
@@ -45,18 +50,39 @@ SceneSegmentationNode::~SceneSegmentationNode()
 }
 
 
-void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::ConstPtr &msg)
+void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg)
 {
     if (add_to_octree_)
     {
+        std::string target_frame_id;
+        //Default frame_id is base_link
+        nh_.param<std::string>("target_frame_id", target_frame_id, "base_link");
+        sensor_msgs::PointCloud2 msg_transformed;
+        msg_transformed.header.frame_id = target_frame_id;
+        try
+        {
+
+            ros::Time common_time;
+            transform_listener_.getLatestCommonTime(target_frame_id, msg->header.frame_id, common_time, NULL);
+            msg->header.stamp = common_time;
+            transform_listener_.waitForTransform(target_frame_id, msg->header.frame_id, ros::Time::now(), ros::Duration(1.0));
+            pcl_ros::transformPointCloud(target_frame_id, *msg, msg_transformed, transform_listener_);
+        }
+        catch (tf::TransformException &ex)
+        {
+            ROS_WARN("PCL transform error: %s", ex.what());
+            ros::Duration(1.0).sleep();
+            return;
+        } 
+
         PointCloud::Ptr cloud(new PointCloud);
         pcl::PCLPointCloud2 pc2;
-        pcl_conversions::toPCL(*msg, pc2);
+        pcl_conversions::toPCL(msg_transformed, pc2);
         pcl::fromPCLPointCloud2(pc2, *cloud);
 
         cloud_accumulation_->addCloud(cloud);
 
-        frame_id_ = msg->header.frame_id;
+        frame_id_ = msg_transformed.header.frame_id;
 
 		std_msgs::String event_out;
         add_to_octree_ = false;
@@ -74,7 +100,11 @@ void SceneSegmentationNode::segment()
 
     std::vector<PointCloud::Ptr> clusters;
     std::vector<BoundingBox> boxes;
-    PointCloud::Ptr debug = scene_segmentation_.segment_scene(cloud, clusters, boxes);
+    double workspace_height;
+    PointCloud::Ptr debug = scene_segmentation_.segment_scene(cloud, clusters, boxes, workspace_height);
+    std_msgs::Float64 workspace_height_msg;
+    workspace_height_msg.data = workspace_height;
+    pub_workspace_height_.publish(workspace_height_msg);
     pub_debug_.publish(*debug);
 
     mcr_perception_msgs::BoundingBoxList bounding_boxes;
@@ -191,12 +221,13 @@ geometry_msgs::PoseStamped SceneSegmentationNode::getPose(const BoundingBox &box
     Eigen::Quaternion<float> q(m);
     q.normalize();
 
+    double workspace_height = (vertices[0](2) + vertices[1](2) + vertices[2](2) + vertices[3](2)) / 4.0;
 
     Eigen::Vector3f centroid = box.getCenter();
     geometry_msgs::PoseStamped pose;
     pose.pose.position.x = centroid(0);
-    pose.pose.position.y = centroid(1);
-    pose.pose.position.z = centroid(2);
+    pose.pose.position.y = centroid(1) ;
+    pose.pose.position.z = workspace_height + object_height_above_workspace_;
     pose.pose.orientation.x = q.x();
     pose.pose.orientation.y = q.y();
     pose.pose.orientation.z = q.z();
@@ -226,6 +257,7 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
     else if(msg->data == "e_segment")
     {
         segment();
+        cloud_accumulation_->reset();
         event_out.data = "e_done";
     }
     else if (msg->data == "e_reset")
@@ -236,6 +268,7 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
     else if(msg->data == "e_stop")
     {
 		sub_cloud_.shutdown();
+        cloud_accumulation_->reset();
 		event_out.data = "e_stopped";
 	}
     else
@@ -255,6 +288,7 @@ void SceneSegmentationNode::config_callback(mcr_scene_segmentation::SceneSegment
     scene_segmentation_.setPrismParams(config.prism_min_height, config.prism_max_height);
     scene_segmentation_.setOutlierParams(config.outlier_radius_search, config.outlier_min_neighbors);
     scene_segmentation_.setClusterParams(config.cluster_tolerance, config.cluster_min_size, config.cluster_max_size, config.cluster_min_height, config.cluster_max_height, config.cluster_max_length, config.cluster_min_distance_to_polygon);
+    object_height_above_workspace_ = config.object_height_above_workspace;
 }
 
 int main(int argc, char** argv)

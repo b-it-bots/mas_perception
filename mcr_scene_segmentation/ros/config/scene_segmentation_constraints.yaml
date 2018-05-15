@@ -30,3 +30,4 @@ scene_segmentation:
     cluster_max_length: 0.25
     cluster_min_distance_to_polygon: 0.04 # it was 0.03 before
     octree_resolution: 0.0025
+    object_height_above_workspace: 0.028

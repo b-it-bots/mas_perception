@@ -35,7 +35,7 @@ public:
     SceneSegmentation();
     virtual ~SceneSegmentation();
 
-    PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes);
+    PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height);
 
     void setVoxelGridParams(double leaf_size, const std::string &field_name, double limit_min, double limit_max);
     void setPassthroughParams(const std::string &field_name, double limit_min, double limit_max);

@@ -27,6 +27,7 @@ class SceneSegmentationNode
         ros::Publisher pub_boxes_;
         ros::Publisher pub_object_list_;
         ros::Publisher pub_event_out_;
+        ros::Publisher pub_workspace_height_;
 
         ros::Subscriber sub_cloud_;
         ros::Subscriber sub_event_in_;
@@ -49,8 +50,10 @@ class SceneSegmentationNode
         int object_id_;
         double octree_resolution_;
 
+        double object_height_above_workspace_;
+
     private:
-        void pointcloudCallback(const sensor_msgs::PointCloud2::ConstPtr &msg);
+        void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
         void eventCallback(const std_msgs::String::ConstPtr &msg);
         void config_callback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level);
         void segment();
