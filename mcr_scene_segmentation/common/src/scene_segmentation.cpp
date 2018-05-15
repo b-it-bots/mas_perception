@@ -1,4 +1,12 @@
+/*
+ * Copyright 2018 Bonn-Rhein-Sieg University
+ *
+ * Author: Mohammad Wasil, Santosh Thoduka
+ *
+ */
 #include <mcr_scene_segmentation/scene_segmentation.h>
+#include <string>
+#include <vector>
 
 SceneSegmentation::SceneSegmentation()
 {
@@ -10,7 +18,8 @@ SceneSegmentation::~SceneSegmentation()
 {
 }
 
-PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height)
+PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &cloud,
+        std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height)
 {
     PointCloud::Ptr filtered(new PointCloud);
     PointCloud::Ptr plane(new PointCloud);
@@ -92,7 +101,8 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
     return filtered;
 }
 
-void SceneSegmentation::setVoxelGridParams(double leaf_size, const std::string &filter_field, double limit_min, double limit_max)
+void SceneSegmentation::setVoxelGridParams(double leaf_size, const std::string &filter_field,
+        double limit_min, double limit_max)
 {
     voxel_grid.setLeafSize(leaf_size, leaf_size, leaf_size);
     voxel_grid.setFilterFieldName(filter_field);
@@ -109,7 +119,8 @@ void SceneSegmentation::setNormalParams(double radius_search)
 {
     normal_estimation.setRadiusSearch(radius_search);
 }
-void SceneSegmentation::setSACParams(int max_iterations, double distance_threshold, bool optimize_coefficients, double eps_angle, double normal_distance_weight)
+void SceneSegmentation::setSACParams(int max_iterations, double distance_threshold,
+        bool optimize_coefficients, double eps_angle, double normal_distance_weight)
 {
     sac.setMaxIterations(max_iterations);
     sac.setDistanceThreshold(distance_threshold);
@@ -127,7 +138,9 @@ void SceneSegmentation::setOutlierParams(double radius_search, int min_neighbors
     radius_outlier.setRadiusSearch(radius_search);
     radius_outlier.setMinNeighborsInRadius(min_neighbors);
 }
-void SceneSegmentation::setClusterParams(double cluster_tolerance, int cluster_min_size, int cluster_max_size, double cluster_min_height, double cluster_max_height, double max_length, double cluster_min_distance_to_polygon)
+void SceneSegmentation::setClusterParams(double cluster_tolerance, int cluster_min_size,
+        int cluster_max_size, double cluster_min_height, double cluster_max_height,
+        double max_length, double cluster_min_distance_to_polygon)
 {
     cluster_extraction.setClusterTolerance(cluster_tolerance);
     cluster_extraction.setMinClusterSize(cluster_min_size);

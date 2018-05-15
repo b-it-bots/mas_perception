@@ -1,5 +1,11 @@
-#ifndef SCENE_SEGMENTATION_H
-#define SCENE_SEGMENTATION_H
+/*
+ * Copyright 2018 Bonn-Rhein-Sieg University
+ *
+ * Author: Mohammad Wasil, Santosh Thoduka
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_H
+#define MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_H
 
 #include <mcr_scene_segmentation/aliases.h>
 #include <mcr_scene_segmentation/bounding_box.h>
@@ -17,6 +23,7 @@
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
 #include <pcl/ModelCoefficients.h>
+#include <string>
 
 class SceneSegmentation
 {
@@ -35,16 +42,20 @@ public:
     SceneSegmentation();
     virtual ~SceneSegmentation();
 
-    PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height);
+    PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters,
+            std::vector<BoundingBox> &boxes, double &workspace_height);
 
     void setVoxelGridParams(double leaf_size, const std::string &field_name, double limit_min, double limit_max);
     void setPassthroughParams(const std::string &field_name, double limit_min, double limit_max);
     void setNormalParams(double radius_search);
-    void setSACParams(int max_iterations, double distance_threshold, bool optimize_coefficients, double eps_angle, double normal_distance_weight);
+    void setSACParams(int max_iterations, double distance_threshold, bool optimize_coefficients,
+                      double eps_angle, double normal_distance_weight);
 
     void setPrismParams(double min_height, double max_height);
     void setOutlierParams(double radius_search, int min_neighbors);
-    void setClusterParams(double cluster_tolerance, int cluster_min_size, int cluster_max_size, double cluster_min_height, double cluster_max_height,  double max_length, double cluster_min_distance_to_polygon);
+    void setClusterParams(double cluster_tolerance, int cluster_min_size, int cluster_max_size,
+                          double cluster_min_height, double cluster_max_height,  double max_length,
+                          double cluster_min_distance_to_polygon);
 };
 
-#endif /* SCENE_SEGMENTATION_H */
+#endif  // MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_H

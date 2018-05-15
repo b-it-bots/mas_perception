@@ -1,9 +1,4 @@
 # reasonable parameters to find planes of @Work workspaces
-transform:
-    filter_field_name: z
-    filter_limit_min: -0.1
-    filter_limit_max: 2.0
-    output_frame: /base_link
 scene_segmentation:
     voxel_leaf_size: 0.02
     voxel_filter_field_name: z
@@ -28,6 +23,6 @@ scene_segmentation:
     cluster_min_height: 0.011
     cluster_max_height: 0.09
     cluster_max_length: 0.25
-    cluster_min_distance_to_polygon: 0.04 # it was 0.03 before
+    cluster_min_distance_to_polygon: 0.04
     octree_resolution: 0.0025
     object_height_above_workspace: 0.028

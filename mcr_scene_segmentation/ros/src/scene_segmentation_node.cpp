@@ -1,10 +1,16 @@
+/*
+ * Copyright 2018 Bonn-Rhein-Sieg University
+ *
+ * Author: Mohammad Wasil, Santosh Thoduka
+ *
+ */
 #include <mcr_scene_segmentation/scene_segmentation.h>
 #include <mcr_scene_segmentation/scene_segmentation_node.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_types.h>
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/common/centroid.h>
-#include "pcl_ros/transforms.h"
+#include <pcl_ros/transforms.h>
 
 #include <mcr_perception_msgs/BoundingBox.h>
 #include <mcr_perception_msgs/BoundingBoxList.h>
@@ -16,13 +22,17 @@
 #include <Eigen/Dense>
 
 #include "pcl_ros/point_cloud.h"
-#include <pcl_ros/transforms.h>
 
 #include <std_msgs/Float64.h>
 
-SceneSegmentationNode::SceneSegmentationNode(): nh_("~"), bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN)),
-                                                          cluster_visualizer_("tabletop_clusters"), label_visualizer_("labels", mcr::visualization::Color(mcr::visualization::Color::TEAL)),
-                                                          add_to_octree_(false), object_id_(0)
+#include <vector>
+#include <string>
+
+SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
+    bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN)),
+    cluster_visualizer_("tabletop_clusters"),
+    label_visualizer_("labels", mcr::visualization::Color(mcr::visualization::Color::TEAL)),
+    add_to_octree_(false), object_id_(0)
 {
     pub_debug_ = nh_.advertise<sensor_msgs::PointCloud2>("output", 1);
     pub_object_list_ = nh_.advertise<mcr_perception_msgs::ObjectList>("object_list", 1);
@@ -34,7 +44,8 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"), bounding_box_visualize
                             boost::bind(&SceneSegmentationNode::config_callback, this, _1, _2);
     server_.setCallback(f);
 
-    recognize_service = nh_.serviceClient<mcr_perception_msgs::RecognizeObject>("/mcr_perception/object_recognizer/recognize_object");
+    recognize_service = nh_.serviceClient<mcr_perception_msgs::RecognizeObject>
+                            ("/mcr_perception/object_recognizer/recognize_object");
     recognize_service.waitForExistence(ros::Duration(5));
     if (!recognize_service.exists())
     {
@@ -55,17 +66,17 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
     if (add_to_octree_)
     {
         std::string target_frame_id;
-        //Default frame_id is base_link
+        // Default frame_id is base_link
         nh_.param<std::string>("target_frame_id", target_frame_id, "base_link");
         sensor_msgs::PointCloud2 msg_transformed;
         msg_transformed.header.frame_id = target_frame_id;
         try
         {
-
             ros::Time common_time;
             transform_listener_.getLatestCommonTime(target_frame_id, msg->header.frame_id, common_time, NULL);
             msg->header.stamp = common_time;
-            transform_listener_.waitForTransform(target_frame_id, msg->header.frame_id, ros::Time::now(), ros::Duration(1.0));
+            transform_listener_.waitForTransform(target_frame_id, msg->header.frame_id,
+                                                 ros::Time::now(), ros::Duration(1.0));
             pcl_ros::transformPointCloud(target_frame_id, *msg, msg_transformed, transform_listener_);
         }
         catch (tf::TransformException &ex)
@@ -73,7 +84,7 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
             ROS_WARN("PCL transform error: %s", ex.what());
             ros::Duration(1.0).sleep();
             return;
-        } 
+        }
 
         PointCloud::Ptr cloud(new PointCloud);
         pcl::PCLPointCloud2 pc2;
@@ -84,12 +95,11 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
 
         frame_id_ = msg_transformed.header.frame_id;
 
-		std_msgs::String event_out;
+        std_msgs::String event_out;
         add_to_octree_ = false;
         event_out.data = "e_add_cloud_stopped";
         pub_event_out_.publish(event_out);
     }
-
 }
 
 void SceneSegmentationNode::segment()
@@ -226,7 +236,7 @@ geometry_msgs::PoseStamped SceneSegmentationNode::getPose(const BoundingBox &box
     Eigen::Vector3f centroid = box.getCenter();
     geometry_msgs::PoseStamped pose;
     pose.pose.position.x = centroid(0);
-    pose.pose.position.y = centroid(1) ;
+    pose.pose.position.y = centroid(1);
     pose.pose.position.z = workspace_height + object_height_above_workspace_;
     pose.pose.orientation.x = q.x();
     pose.pose.orientation.y = q.y();
@@ -238,23 +248,23 @@ geometry_msgs::PoseStamped SceneSegmentationNode::getPose(const BoundingBox &box
 void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
 {
     std_msgs::String event_out;
-    if(msg->data == "e_start")
+    if (msg->data == "e_start")
     {
         sub_cloud_ = nh_.subscribe("input", 1, &SceneSegmentationNode::pointcloudCallback, this);
-		event_out.data = "e_started";
-	}
-    else if(msg->data == "e_add_cloud_start")
+        event_out.data = "e_started";
+    }
+    else if (msg->data == "e_add_cloud_start")
     {
         add_to_octree_ = true;
         // Not needed so that not to affect the action server
         return;
     }
-    else if(msg->data == "e_add_cloud_stop")
+    else if (msg->data == "e_add_cloud_stop")
     {
         add_to_octree_ = false;
         event_out.data = "e_add_cloud_stopped";
     }
-    else if(msg->data == "e_segment")
+    else if (msg->data == "e_segment")
     {
         segment();
         cloud_accumulation_->reset();
@@ -265,29 +275,35 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
         cloud_accumulation_->reset();
         event_out.data = "e_reset";
     }
-    else if(msg->data == "e_stop")
+    else if (msg->data == "e_stop")
     {
-		sub_cloud_.shutdown();
+        sub_cloud_.shutdown();
         cloud_accumulation_->reset();
-		event_out.data = "e_stopped";
-	}
+        event_out.data = "e_stopped";
+    }
     else
     {
         return;
     }
-	pub_event_out_.publish(event_out);
-
+    pub_event_out_.publish(event_out);
 }
 
 void SceneSegmentationNode::config_callback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level)
 {
-    scene_segmentation_.setVoxelGridParams(config.voxel_leaf_size, config.voxel_filter_field_name, config.voxel_filter_limit_min, config.voxel_filter_limit_max);
-    scene_segmentation_.setPassthroughParams(config.passthrough_filter_field_name, config.passthrough_filter_limit_min, config.passthrough_filter_limit_max);
+    scene_segmentation_.setVoxelGridParams(config.voxel_leaf_size, config.voxel_filter_field_name,
+            config.voxel_filter_limit_min, config.voxel_filter_limit_max);
+    scene_segmentation_.setPassthroughParams(config.passthrough_filter_field_name,
+            config.passthrough_filter_limit_min,
+            config.passthrough_filter_limit_max);
     scene_segmentation_.setNormalParams(config.normal_radius_search);
-    scene_segmentation_.setSACParams(config.sac_max_iterations, config.sac_distance_threshold, config.sac_optimize_coefficients, config.sac_eps_angle, config.sac_normal_distance_weight);
+    scene_segmentation_.setSACParams(config.sac_max_iterations, config.sac_distance_threshold,
+            config.sac_optimize_coefficients, config.sac_eps_angle,
+            config.sac_normal_distance_weight);
     scene_segmentation_.setPrismParams(config.prism_min_height, config.prism_max_height);
     scene_segmentation_.setOutlierParams(config.outlier_radius_search, config.outlier_min_neighbors);
-    scene_segmentation_.setClusterParams(config.cluster_tolerance, config.cluster_min_size, config.cluster_max_size, config.cluster_min_height, config.cluster_max_height, config.cluster_max_length, config.cluster_min_distance_to_polygon);
+    scene_segmentation_.setClusterParams(config.cluster_tolerance, config.cluster_min_size, config.cluster_max_size,
+            config.cluster_min_height, config.cluster_max_height, config.cluster_max_length,
+            config.cluster_min_distance_to_polygon);
     object_height_above_workspace_ = config.object_height_above_workspace;
 }
 

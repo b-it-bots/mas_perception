@@ -1,5 +1,11 @@
-#ifndef SCENE_SEGMENTATION_NODE_H
-#define SCENE_SEGMENTATION_NODE_H
+/*
+ * Copyright 2018 Bonn-Rhein-Sieg University
+ *
+ * Author: Mohammad Wasil, Santosh Thoduka
+ *
+ */
+#ifndef MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_NODE_H
+#define MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_NODE_H
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
@@ -13,6 +19,7 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <mcr_scene_segmentation/SceneSegmentationConfig.h>
+#include <string>
 
 using mcr::visualization::BoundingBoxVisualizer;
 using mcr::visualization::ClusteredPointCloudVisualizer;
@@ -64,4 +71,4 @@ class SceneSegmentationNode
         virtual ~SceneSegmentationNode();
 };
 
-#endif /* SCENE_SEGMENTATION_NODE_H */
+#endif  // MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_NODE_H
