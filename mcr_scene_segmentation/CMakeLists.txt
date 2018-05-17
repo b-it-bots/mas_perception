@@ -50,7 +50,6 @@ add_library(scene_segmentation
 )
 
 add_dependencies(scene_segmentation
-  ${PROJECT_NAME}_gencpp
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(scene_segmentation
