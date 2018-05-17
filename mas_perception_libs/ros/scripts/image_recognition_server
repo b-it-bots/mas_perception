@@ -7,7 +7,7 @@ from mas_perception_libs import ImageClassifier
 
 
 class RecognizeImageService(object):
-    def __init__(self, classifer_class, model_dir):
+    def __init__(self, classifer_class, model_dir, service_name):
         if not issubclass(classifer_class, ImageClassifier):
             raise ValueError('classifer is not of ImageClassifier type')
 
@@ -16,7 +16,7 @@ class RecognizeImageService(object):
 
         # dictionary of classifiers - key is the model_path
         self._classifiers = {}
-        self._recog_service = rospy.Service('recognize_image', ImageRecognition, self.handle_recognize_image)
+        self._recog_service = rospy.Service(service_name, ImageRecognition, self.handle_recognize_image)
 
     def handle_recognize_image(self, req):
         print('\nnumber of images: ' + str(len(req.images)) + '\n')
@@ -37,6 +37,7 @@ class RecognizeImageService(object):
 
 if __name__ == '__main__':
     rospy.init_node('~image_recognition_server')
+    service_name = rospy.get_param('~service_name', '~recognize_image')
     model_directory = rospy.get_param('~model_directory', '')
     if not model_directory:
         from rospkg import ResourceNotFound, RosPack
@@ -50,5 +51,5 @@ if __name__ == '__main__':
     recog_module = rospy.get_param('~recognition_module', 'mas_perception_libs')
     recog_class_name = rospy.get_param('~recognition_class', 'ImageClassifierTest')
     recog_class = getattr(import_module(recog_module), recog_class_name)
-    RecognizeImageService(recog_class, model_directory)
+    RecognizeImageService(recog_class, model_directory, service_name)
     rospy.spin()

@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <launch>
+    <arg name="service_name" default="~recognize_image"/>
     <arg name="model_directory" default="$(find mas_perception_libs)/models"/>
     <arg name="recognition_module" default="mas_perception_libs"/>
     <arg name="recognition_class" default="ImageClassifierTest"/>
     <node pkg="mas_perception_libs" type="image_recognition_server" name="image_recognition_server" output="screen"
           ns="mas_perception">
+        <param name="service_name" type="string" value="$(arg service_name)" />
         <param name="model_directory" type="string" value="$(arg model_directory)" />
         <param name="recognition_module" type="string" value="$(arg recognition_module)" />
         <param name="recognition_class" type="string" value="$(arg recognition_class)" />
