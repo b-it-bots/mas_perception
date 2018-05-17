@@ -17,7 +17,7 @@
 #include <mcr_perception_msgs/ObjectList.h>
 #include <mcr_perception_msgs/RecognizeObject.h>
 #include "mcr_scene_segmentation/impl/helpers.hpp"
-#include "mcr_scene_segmentation/bounding_box.h"
+#include "mas_perception_libs/bounding_box.h"
 
 #include <Eigen/Dense>
 

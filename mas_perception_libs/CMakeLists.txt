@@ -40,7 +40,7 @@ catkin_package(
     ros/include
     common/include
   LIBRARIES
-    perception_libs
+    mas_perception_libs
   CATKIN_DEPENDS
     mcr_perception_msgs
 )
@@ -55,6 +55,17 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${PYTHON_INCLUDE_DIRS}
+)
+
+###################################
+# add mas_perception_libs library
+###################################
+add_library(mas_perception_libs
+  common/src/bounding_box.cpp
+)
+target_link_libraries(mas_perception_libs
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
 )
 
 ###################################
@@ -102,6 +113,10 @@ install(DIRECTORY ros/include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
+)
+
+install(TARGETS mas_perception_libs
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
 # python wrapper

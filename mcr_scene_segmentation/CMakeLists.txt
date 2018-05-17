@@ -6,6 +6,7 @@ find_package(catkin REQUIRED
     cv_bridge
     dynamic_reconfigure
     mcr_perception_msgs
+    mas_perception_libs
     pcl_ros
     roscpp
     roslint
@@ -45,7 +46,6 @@ add_definitions(-fpermissive)
 ### LIBRARIES ####################################################
 add_library(scene_segmentation
   common/src/cloud_accumulation.cpp
-  common/src/bounding_box.cpp
   common/src/scene_segmentation.cpp
 )
 
@@ -54,7 +54,6 @@ add_dependencies(scene_segmentation
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(scene_segmentation
-  ${PCL_LIBRARIES}
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )

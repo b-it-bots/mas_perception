@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+using mas_perception_libs::BoundingBox;
+
 SceneSegmentation::SceneSegmentation()
 {
     cluster_extraction.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT> >());
