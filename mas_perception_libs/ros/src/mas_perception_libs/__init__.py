@@ -1,4 +1,4 @@
-from bounding_box_wrapper import BoundingBox
+from bounding_box import BoundingBox
 from constants import Constant
 from keras_image_classifier import KerasImageClassifier
 from image_classifier import ImageClassifier, ImageClassifierTest

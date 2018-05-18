@@ -22,7 +22,6 @@ class ImageClassifier(object):
                 raise ValueError('Directory does not exist: ' + data_dir)
 
             self._classes = get_classes_in_data_dir(data_dir)
-        pass
 
     @property
     def classes(self):

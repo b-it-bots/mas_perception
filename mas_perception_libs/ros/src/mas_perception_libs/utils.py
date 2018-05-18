@@ -3,7 +3,7 @@ import glob
 import numpy as np
 import cv2
 import rospy
-from cv_bridge import CvBridge, CvBridgeError
+from cv_bridge import CvBridgeError
 
 
 def get_classes_in_data_dir(data_dir):
@@ -15,10 +15,10 @@ def get_classes_in_data_dir(data_dir):
     return classes
 
 
-def process_image_message(rgb_image, cv_bridge, target_size=None, func_preprocess_img=None):
+def process_image_message(image_msg, cv_bridge, target_size=None, func_preprocess_img=None):
     np_image = None
     try:
-        cv_image = cv_bridge.imgmsg_to_cv2(rgb_image, desired_encoding="passthrough")
+        cv_image = cv_bridge.imgmsg_to_cv2(image_msg, desired_encoding="passthrough")
         if target_size is not None:
             cv_image = cv2.resize(cv_image, target_size)
         np_image = np.asarray(cv_image)

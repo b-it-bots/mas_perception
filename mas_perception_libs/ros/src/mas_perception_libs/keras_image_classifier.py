@@ -1,5 +1,5 @@
 import numpy as np
-from cv_bridge import CvBridge, CvBridgeError
+from cv_bridge import CvBridge
 from utils import process_image_message
 from image_classifier import ImageClassifier
 
@@ -31,6 +31,7 @@ class KerasImageClassifier(ImageClassifier):
 
         # assume input shape is 3D with channel dimension to be 3
         self._target_size = tuple(i for i in self._model.input_shape if i != 3 and i is not None)
+
         # CvBridge for ROS image conversion
         self._cv_bridge = CvBridge()
 
