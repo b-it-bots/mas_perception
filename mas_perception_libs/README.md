@@ -11,7 +11,7 @@ Contains shared perception defintions in C++.
 Contains shared perception definitions in Python.
 
 ## Executables
-### `ros/scripts/image_recognition_server`
+### [`image_recognition_server`](ros/scripts/image_recognition_server)
 Server which uses an instance of `ImageClassifier` class (See
 [documentation](docs/python_package.md)) to classify images.
 
@@ -23,11 +23,36 @@ Parameters:
 * `recognition_class`: class name of the `ImageClassifier` instance
 (default: `'ImageClassifierTest'`)
 
-### `ros/scripts/object_detection_test_server`
+### [`object_detection_test_server`](ros/scripts/object_detection_test_server)
 Service of type `std_srvs/Empty` which generates empty `mcr_perception_msgs/PlaneList` for testing.
 
-### `ros/scripts/image_recognition_client_test`
-Script to test the `image_recognition_server`. Execute with `--help` or `-h` for available arguments.
+### [`image_recognition_client_test`](ros/scripts/image_recognition_client_test)
+Script to test the `image_recognition_server`.
+
+```
+usage: image_recognition_client_test [-h] --test-dir TEST_DIR --service-name
+                                     SERVICE_NAME [--num-samples NUM_SAMPLES]
+                                     [--preprocess-input-module PREPROCESS_INPUT_MODULE]
+                                     model_name
+
+Tool to test model with test images using KerasImageClassifier class.Assuming
+images to be of type jpg
+
+positional arguments:
+  model_name            Keras model to be tested
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --test-dir TEST_DIR, -t TEST_DIR
+                        directory with test images
+  --service-name SERVICE_NAME, -s SERVICE_NAME
+                        name of recognition service
+  --num-samples NUM_SAMPLES, -n NUM_SAMPLES
+                        number of samples to test, if left blank, take all
+                        samples.
+  --preprocess-input-module PREPROCESS_INPUT_MODULE, -p PREPROCESS_INPUT_MODULE
+                        module containing image preprocessing function.
+```
 
 Example execution:
 ```
@@ -35,7 +60,7 @@ image_recognition_client_test -s <service_name> -t <folder_with_test_images> <mo
 ```
 
 ## Launch Files
-### `image_recognition.launch`
+### [`image_recognition.launch`](ros/launch/image_recognition.launch)
 Launch the `image_recognition_server`. Arguments:
 * `service_name`: name of recognition service to advertise (default: `'~recognize_image'`).
 * `model_directory`: directory containing the trained classification model
@@ -57,6 +82,9 @@ Launch the `image_recognition_server`. Arguments:
 │   │       └── bounding_box.h
 │   └── src
 │       └── bounding_box.cpp
+├── docs
+│   ├── cpp_library.md
+│   └── python_package.md
 ├── models
 │   └── test_model.txt
 ├── package.xml

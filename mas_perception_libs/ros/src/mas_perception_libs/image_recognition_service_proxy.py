@@ -18,7 +18,7 @@ class ImageRecognitionServiceProxy(object):
         if preprocess_input_module:
             self._preprocess_input_func = getattr(import_module(preprocess_input_module), 'preprocess_input')
 
-    def recognize_images(self, image_messages, done_callback_func=None):
+    def classify_image_list(self, image_messages, done_callback_func=None):
         request = ImageRecognitionRequest()
         request.images = image_messages
         request.model_name = self._model_name
