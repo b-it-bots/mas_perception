@@ -9,28 +9,27 @@
 #include <stdexcept>
 
 #include <tf/transform_listener.h>
-#include <cv_bridge/cv_bridge.h>
 #include <mas_perception_libs/image_bounding_box.h>
 
 namespace mas_perception_libs
 {
 
-ImageBoundingBox::ImageBoundingBox(const sensor_msgs::ImageConstPtr &pImageMsgPtr,
-                                   const sensor_msgs::CameraInfoConstPtr &pCameraInfoPtr,
-                                   const mcr_perception_msgs::BoundingBoxList::ConstPtr &pBoundingBoxListPtr)
+ImageBoundingBox::ImageBoundingBox(const sensor_msgs::Image &pImageMsg,
+                                   const sensor_msgs::CameraInfo &pCameraInfo,
+                                   const mcr_perception_msgs::BoundingBoxList &pBoundingBoxList)
 {
-    if (pBoundingBoxListPtr->bounding_boxes.empty())
+    if (pBoundingBoxList.bounding_boxes.empty())
     {
         throw std::invalid_argument("bounding box list is empty");
     }
 
     // get camera model
-    mCameraModel.fromCameraInfo(pCameraInfoPtr);
+    mCameraModel.fromCameraInfo(pCameraInfo);
 
     // convert to CV image
     try
     {
-        mImagePtr = cv_bridge::toCvCopy(pImageMsgPtr, sensor_msgs::image_encodings::BGR8);
+        mImagePtr = cv_bridge::toCvCopy(pImageMsg, sensor_msgs::image_encodings::BGR8);
     }
     catch (cv_bridge::Exception &ex)
     {
@@ -40,12 +39,12 @@ ImageBoundingBox::ImageBoundingBox(const sensor_msgs::ImageConstPtr &pImageMsgPt
     }
 
     // wait for transform
-    std::string object_frame_id = pBoundingBoxListPtr->header.frame_id;
-    std::string image_frame_id = pImageMsgPtr->header.frame_id;
+    std::string object_frame_id = pBoundingBoxList.header.frame_id;
+    std::string image_frame_id = pImageMsg.header.frame_id;
     try
     {
         mTfListener.waitForTransform(object_frame_id, image_frame_id,
-                                    pImageMsgPtr->header.stamp, ros::Duration(1.0));
+                                    pImageMsg.header.stamp, ros::Duration(1.0));
     }
     catch (tf::TransformException &ex)
     {
@@ -54,7 +53,7 @@ ImageBoundingBox::ImageBoundingBox(const sensor_msgs::ImageConstPtr &pImageMsgPt
         throw std::runtime_error(message.str());
     }
 
-    for (const auto &boundingBox : pBoundingBoxListPtr->bounding_boxes)
+    for (const auto &boundingBox : pBoundingBoxList.bounding_boxes)
     {
         // transform vertices to image frame
         std::vector<cv::Point2f> imageVertices;
@@ -64,7 +63,7 @@ ImageBoundingBox::ImageBoundingBox(const sensor_msgs::ImageConstPtr &pImageMsgPt
             geometry_msgs::PointStamped transformedPoint;
             point.point = vertice;
             point.header.frame_id = object_frame_id;
-            point.header.stamp = pImageMsgPtr->header.stamp;
+            point.header.stamp = pImageMsg.header.stamp;
             try
             {
                 mTfListener.transformPoint(image_frame_id, point, transformedPoint);
@@ -88,14 +87,14 @@ ImageBoundingBox::ImageBoundingBox(const sensor_msgs::ImageConstPtr &pImageMsgPt
         cv_bridge::CvImage image_msg;
         image_msg.encoding = sensor_msgs::image_encodings::BGR8;
         image_msg.image = croppedImage;
-        image_msg.header = pImageMsgPtr->header;
+        image_msg.header = pImageMsg.header;
 
         mCroppedImageList.images.push_back(*image_msg.toImageMsg());
         mBoxVerticesVector.push_back(imageVertices);
     }
 }
 
-ImageBoundingBox::~ImageBoundingBox() {}
+ImageBoundingBox::~ImageBoundingBox() = default;
 
 cv::Mat
 cropImage(cv::Mat &image, std::vector<cv::Point2f> &vertices)

@@ -9,8 +9,8 @@
 
 #include <vector>
 #include <opencv2/opencv.hpp>
-
 #include <ros/ros.h>
+#include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
 #include <tf/transform_listener.h>
 #include <mcr_perception_msgs/BoundingBoxList.h>
@@ -22,8 +22,8 @@ namespace mas_perception_libs
 class ImageBoundingBox
 {
 public:
-    ImageBoundingBox(const sensor_msgs::ImageConstPtr &, const sensor_msgs::CameraInfoConstPtr &,
-                     const mcr_perception_msgs::BoundingBoxList::ConstPtr &);
+    ImageBoundingBox(const sensor_msgs::Image&, const sensor_msgs::CameraInfo&,
+                     const mcr_perception_msgs::BoundingBoxList&);
     ~ImageBoundingBox();
 
     const mcr_perception_msgs::ImageList& cropped_image_list() const { return mCroppedImageList; }

@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   roslint
   cv_bridge
+  image_geometry
   pcl_ros
   mcr_perception_msgs
   message_generation
@@ -73,8 +74,8 @@ target_link_libraries(mas_perception_libs
 # python wrapper for cpp libraries
 ###################################
 add_library(_cpp_wrapper SHARED
-  common/src/bounding_box.cpp
   ros/src/bounding_box_wrapper.cpp
+  ros/src/boost_python_module.cpp
 )
 # change output directory, so python can find the module, and set prefix to ""
 # to omit the default "lib".
@@ -83,6 +84,7 @@ set_target_properties(_cpp_wrapper PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_PYTHON_DESTINATION}
 )
 target_link_libraries(_cpp_wrapper
+  mas_perception_libs
   ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
   ${catkin_LIBRARIES}

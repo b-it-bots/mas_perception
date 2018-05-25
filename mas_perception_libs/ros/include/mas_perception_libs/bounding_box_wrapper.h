@@ -8,6 +8,8 @@
 #define MAS_PERCEPTION_LIBS_BOUNDING_BOX_WRAPPER_H
 
 #include <string>
+#include <geometry_msgs/PoseStamped.h>
+#include <mas_perception_libs/bounding_box.h>
 
 namespace mas_perception_libs
 {

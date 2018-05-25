@@ -1,6 +1,10 @@
 #ifndef MAS_PERCEPTION_LIBS_ROS_MESSAGE_SERIALIZATION_H
 #define MAS_PERCEPTION_LIBS_ROS_MESSAGE_SERIALIZATION_H
 
+#include <string>
+#include <boost/shared_array.hpp>
+#include <ros/serialization.h>
+
 namespace mas_perception_libs
 {
     template<typename M>

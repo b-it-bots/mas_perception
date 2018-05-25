@@ -110,11 +110,3 @@ namespace mas_perception_libs
         return to_python(boxMsg);
     }
 }  // namespace mas_perception_libs
-
-BOOST_PYTHON_MODULE(_cpp_wrapper)
-{
-    using mas_perception_libs::BoundingBoxWrapper;
-    bp::class_<BoundingBoxWrapper>("BoundingBoxWrapper", bp::init<std::string, bp::list&>())
-            .def("get_pose", &BoundingBoxWrapper::getPose)
-            .def("get_ros_message", &BoundingBoxWrapper::getRosMsg);
-}
