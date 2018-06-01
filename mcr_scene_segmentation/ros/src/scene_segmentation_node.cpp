@@ -112,6 +112,7 @@ void SceneSegmentationNode::segment()
     std::vector<BoundingBox> boxes;
     double workspace_height;
     PointCloud::Ptr debug = scene_segmentation_.segment_scene(cloud, clusters, boxes, workspace_height);
+    debug->header.frame_id = cloud->header.frame_id;
     std_msgs::Float64 workspace_height_msg;
     workspace_height_msg.data = workspace_height;
     pub_workspace_height_.publish(workspace_height_msg);
@@ -201,7 +202,7 @@ void SceneSegmentationNode::segment()
 
         //publish cluster, will be used for object_list_merger
         object_list.objects[i].pointcloud = ros_cloud;
-        
+
         poses.poses.push_back(object_list.objects[i].pose.pose);
         poses.header = object_list.objects[i].pose.header;
 
@@ -212,6 +213,23 @@ void SceneSegmentationNode::segment()
     bounding_box_visualizer_.publish(bounding_boxes.bounding_boxes, frame_id_);
     cluster_visualizer_.publish<PointT>(clusters, frame_id_);
     label_visualizer_.publish(labels, poses);
+}
+
+void SceneSegmentationNode::findPlane()
+{
+    PointCloud::Ptr cloud(new PointCloud);
+    cloud->header.frame_id = frame_id_;
+    cloud_accumulation_->getAccumulatedCloud(*cloud);
+
+    double workspace_height;
+    PointCloud::Ptr hull(new PointCloud);
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    PointCloud::Ptr debug = scene_segmentation_.findPlane(cloud, hull, coefficients, workspace_height);
+    debug->header.frame_id = cloud->header.frame_id;
+    std_msgs::Float64 workspace_height_msg;
+    workspace_height_msg.data = workspace_height;
+    pub_workspace_height_.publish(workspace_height_msg);
+    pub_debug_.publish(*debug);
 }
 
 geometry_msgs::PoseStamped SceneSegmentationNode::getPose(const BoundingBox &box)
@@ -267,6 +285,12 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
     {
         add_to_octree_ = false;
         event_out.data = "e_add_cloud_stopped";
+    }
+    else if (msg->data == "e_find_plane")
+    {
+        findPlane();
+        cloud_accumulation_->reset();
+        event_out.data = "e_done";
     }
     else if (msg->data == "e_segment")
     {
