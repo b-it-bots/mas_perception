@@ -198,6 +198,10 @@ void SceneSegmentationNode::segment()
         {
             object_list.objects[i].pose = pose;
         }
+
+        //publish cluster, will be used for object_list_merger
+        object_list.objects[i].pointcloud = ros_cloud;
+        
         poses.poses.push_back(object_list.objects[i].pose.pose);
         poses.header = object_list.objects[i].pose.header;
 
