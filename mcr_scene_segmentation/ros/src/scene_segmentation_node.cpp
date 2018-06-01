@@ -112,6 +112,7 @@ void SceneSegmentationNode::segment()
     std::vector<BoundingBox> boxes;
     double workspace_height;
     PointCloud::Ptr debug = scene_segmentation_.segment_scene(cloud, clusters, boxes, workspace_height);
+    debug->header.frame_id = cloud->header.frame_id;
     std_msgs::Float64 workspace_height_msg;
     workspace_height_msg.data = workspace_height;
     pub_workspace_height_.publish(workspace_height_msg);
@@ -224,6 +225,7 @@ void SceneSegmentationNode::findPlane()
     PointCloud::Ptr hull(new PointCloud);
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
     PointCloud::Ptr debug = scene_segmentation_.findPlane(cloud, hull, coefficients, workspace_height);
+    debug->header.frame_id = cloud->header.frame_id;
     std_msgs::Float64 workspace_height_msg;
     workspace_height_msg.data = workspace_height;
     pub_workspace_height_.publish(workspace_height_msg);
