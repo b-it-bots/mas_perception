@@ -1,8 +1,9 @@
 <launch>
 
-  <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
+  <arg name="input_pointcloud_topic" default="/camera/depth_registered/points" />
   <arg name="target_frame" default="base_link" />
   <arg name="scene_segmentation_config_file" default="$(find mcr_scene_segmentation)/ros/config/scene_segmentation_constraints.yaml" />
+
   <group ns="mcr_perception">
     <rosparam file="$(arg scene_segmentation_config_file)" command="load"/>
 
@@ -10,6 +11,12 @@
       <remap from="~input" to="$(arg input_pointcloud_topic)" />
       <remap from="~object_list" to="/mcr_perception/object_detector/object_list"/>
       <param name="target_frame_id" value="$(arg target_frame)" type="str" />
+      <!--enable dataset_collection for coleccting pcd train data (saved to /tmp/ folder). If is_classifier_required is set to true 
+          then the pcd name corressponds to the class given by classifier, otherwise just atwork_object_...pcd -->
+      <param name="is_classifier_required" value="true" />
+      <param name="dataset_collection" value="true" /> 
     </node>
   </group>
+
+
 </launch>
