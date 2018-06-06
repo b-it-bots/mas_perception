@@ -12,7 +12,6 @@ find_package(catkin REQUIRED
 
 catkin_package(
   CATKIN_DEPENDS
-    mcr_object_detection
     mcr_object_recognition_bounding_box
     smach
     smach_ros
