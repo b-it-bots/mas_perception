@@ -11,6 +11,7 @@
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/common/centroid.h>
 #include <pcl_ros/transforms.h>
+#include <pcl/io/pcd_io.h>
 
 #include <mcr_perception_msgs/BoundingBox.h>
 #include <mcr_perception_msgs/BoundingBoxList.h>
@@ -27,18 +28,22 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN)),
     cluster_visualizer_("tabletop_clusters"),
     label_visualizer_("labels", mcr::visualization::Color(mcr::visualization::Color::TEAL)),
-    add_to_octree_(false), object_id_(0)
+    add_to_octree_(false), object_id_(0), is_classifier_required_(false), dataset_collection_(false)
 {
     pub_debug_ = nh_.advertise<sensor_msgs::PointCloud2>("output", 1);
     pub_object_list_ = nh_.advertise<mcr_perception_msgs::ObjectList>("object_list", 1);
     sub_event_in_ = nh_.subscribe("event_in", 1, &SceneSegmentationNode::eventCallback, this);
     pub_event_out_ = nh_.advertise<std_msgs::String>("event_out", 1);
     pub_workspace_height_ = nh_.advertise<std_msgs::Float64>("workspace_height", 1);
+
+    pub_input_for_debug_ = nh_.advertise<std_msgs::String>("event_in", 1);
 
     dynamic_reconfigure::Server<mcr_scene_segmentation::SceneSegmentationConfig>::CallbackType f =
                             boost::bind(&SceneSegmentationNode::config_callback, this, _1, _2);
@@ -54,6 +59,9 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
 
     nh_.param("octree_resolution", octree_resolution_, 0.05);
     cloud_accumulation_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
+
+    nh_.param<bool>("dataset_collection", dataset_collection_, "false");
+    nh_.param<bool>("is_classifier_required", is_classifier_required_, "false");
 }
 
 SceneSegmentationNode::~SceneSegmentationNode()
@@ -63,7 +71,7 @@ SceneSegmentationNode::~SceneSegmentationNode()
 
 void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg)
 {
-    if (add_to_octree_)
+    if (add_to_octree_ || dataset_collection_)
     {
         std::string target_frame_id;
         // Default frame_id is base_link
@@ -99,7 +107,9 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
         add_to_octree_ = false;
         event_out.data = "e_add_cloud_stopped";
         pub_event_out_.publish(event_out);
+
     }
+  
 }
 
 void SceneSegmentationNode::segment()
@@ -121,7 +131,6 @@ void SceneSegmentationNode::segment()
     mcr_perception_msgs::BoundingBoxList bounding_boxes;
     mcr_perception_msgs::ObjectList object_list;
     geometry_msgs::PoseArray poses;
-
 
     bounding_boxes.bounding_boxes.resize(boxes.size());
     object_list.objects.resize(boxes.size());
@@ -166,7 +175,6 @@ void SceneSegmentationNode::segment()
         pose.header.stamp = now;
         pose.header.frame_id = frame_id_;
 
-
         std::string target_frame_id;
         if (nh_.hasParam("target_frame_id"))
         {
@@ -202,7 +210,7 @@ void SceneSegmentationNode::segment()
 
         //publish cluster, will be used for object_list_merger
         object_list.objects[i].pointcloud = ros_cloud;
-
+        
         poses.poses.push_back(object_list.objects[i].pose.pose);
         poses.header = object_list.objects[i].pose.header;
 
@@ -213,6 +221,36 @@ void SceneSegmentationNode::segment()
     bounding_box_visualizer_.publish(bounding_boxes.bounding_boxes, frame_id_);
     cluster_visualizer_.publish<PointT>(clusters, frame_id_);
     label_visualizer_.publish(labels, poses);
+
+    if (dataset_collection_)
+    {
+        if (is_classifier_required_)
+            for (int i=0; i<object_list.objects.size(); i++)
+            {
+                pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+                pcl::fromROSMsg(object_list.objects[i].pointcloud, *pointcloud);
+                std::stringstream filename; // stringstream used for the conversion
+                unsigned long int sec = time(NULL);
+                filename.str(""); //clearing the stringstream
+                filename <<"/tmp/" << object_list.objects[i].name << "_" << sec + i <<".pcd";//save .pcd to /tmp folder
+                ROS_INFO_STREAM("Saving pointcloud to " << "/tmp/" << object_list.objects[i].name << "_" << sec + i <<".pcd");
+                pcl::io::savePCDFileASCII (filename.str(), *pointcloud);
+            }
+        else
+        {
+            for (size_t i=0; i<clusters.size(); i++)
+            {
+                pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+                pcl::fromROSMsg(object_list.objects[i].pointcloud, *pointcloud);
+                std::stringstream filename; // stringstream used for the conversion
+                unsigned long int sec = time(NULL);
+                filename.str(""); //clearing the stringstream
+                filename <<"/tmp/" <<"atwork_object_" << sec + i <<".pcd";//save .pcd to /tmp folder
+                ROS_INFO_STREAM("Saving pointcloud to " << "/tmp/atwork_object_" << sec + i <<".pcd");
+                pcl::io::savePCDFileASCII (filename.str(), *pointcloud);
+            }
+        }
+    }
 }
 
 void SceneSegmentationNode::findPlane()
@@ -297,6 +335,11 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
         segment();
         cloud_accumulation_->reset();
         event_out.data = "e_done";
+    }
+    else if (msg->data == "e_collect_dataset")
+    {
+        segment();
+        cloud_accumulation_->reset();
     }
     else if (msg->data == "e_reset")
     {

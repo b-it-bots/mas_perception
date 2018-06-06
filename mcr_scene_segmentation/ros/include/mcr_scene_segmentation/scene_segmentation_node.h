@@ -35,6 +35,7 @@ class SceneSegmentationNode
         ros::Publisher pub_object_list_;
         ros::Publisher pub_event_out_;
         ros::Publisher pub_workspace_height_;
+        ros::Publisher pub_input_for_debug_;
 
         ros::Subscriber sub_cloud_;
         ros::Subscriber sub_event_in_;
@@ -58,6 +59,10 @@ class SceneSegmentationNode
         double octree_resolution_;
 
         double object_height_above_workspace_;
+
+        bool is_classifier_required_;
+
+        bool dataset_collection_;
 
     private:
         void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
