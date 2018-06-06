@@ -59,7 +59,9 @@ Dataset collection:
 ```
 Setting in launch file:
   * Set dataset_collection to true
-  * Set is_classifier_required to true if the corresponding object names needed for the pcd name (e.g. "/tmp/AXIS_1528290814.pcd"), otherwise e.g. "/tmp/atwork_object_1528288932.pcd". This needs mcr_object_recognition_mean_circle (roslaunch mcr_object_recognition_mean_circle object_recognition.launch 
+  * Set is_classifier_required to true if the corresponding object names needed for the pcd name <br/>
+  (e.g. "/tmp/AXIS_1528290814.pcd"), otherwise e.g. "/tmp/atwork_object_1528288932.pcd". <br/>
+  This needs mcr_object_recognition_mean_circle (roslaunch mcr_object_recognition_mean_circle object_recognition.launch 
 )
 
 How to:
