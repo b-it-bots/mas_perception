@@ -62,6 +62,11 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
 
     nh_.param<bool>("dataset_collection", dataset_collection_, "false");
     nh_.param<bool>("is_classifier_required", is_classifier_required_, "false");
+    nh_.param<bool>("debug_mode", debug_mode_, "false");
+    if (debug_mode_)
+    {
+        is_classifier_required_ = true;
+    }
 }
 
 SceneSegmentationNode::~SceneSegmentationNode()
@@ -71,7 +76,7 @@ SceneSegmentationNode::~SceneSegmentationNode()
 
 void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg)
 {
-    if (add_to_octree_ || dataset_collection_)
+    if (add_to_octree_)
     {
         std::string target_frame_id;
         // Default frame_id is base_link
@@ -108,6 +113,49 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
         event_out.data = "e_add_cloud_stopped";
         pub_event_out_.publish(event_out);
 
+    }
+
+    if (dataset_collection_)
+    {
+        ROS_INFO_STREAM("Dataset collecetion");
+        std::string target_frame_id;
+        // Default frame_id is base_link
+        nh_.param<std::string>("target_frame_id", target_frame_id, "base_link");
+        sensor_msgs::PointCloud2 msg_transformed;
+        msg_transformed.header.frame_id = target_frame_id;
+        try
+        {
+            ros::Time common_time;
+            transform_listener_.getLatestCommonTime(target_frame_id, msg->header.frame_id, common_time, NULL);
+            msg->header.stamp = common_time;
+            transform_listener_.waitForTransform(target_frame_id, msg->header.frame_id,
+                                                 ros::Time::now(), ros::Duration(1.0));
+            pcl_ros::transformPointCloud(target_frame_id, *msg, msg_transformed, transform_listener_);
+        }
+        catch (tf::TransformException &ex)
+        {
+            ROS_WARN("PCL transform error: %s", ex.what());
+            ros::Duration(1.0).sleep();
+            return;
+        }
+
+        PointCloud::Ptr cloud(new PointCloud);
+        pcl::PCLPointCloud2 pc2;
+        pcl_conversions::toPCL(msg_transformed, pc2);
+        pcl::fromPCLPointCloud2(pc2, *cloud);
+
+        cloud_accumulation_->addCloud(cloud);
+
+        frame_id_ = msg_transformed.header.frame_id;
+
+        segment();
+
+        dataset_collection_ = false;
+        cloud_accumulation_->reset();
+
+        std_msgs::String event_out;
+        event_out.data = "e_dataset_collected";
+        pub_event_out_.publish(event_out);
     }
   
 }
@@ -222,7 +270,7 @@ void SceneSegmentationNode::segment()
     cluster_visualizer_.publish<PointT>(clusters, frame_id_);
     label_visualizer_.publish(labels, poses);
 
-    if (dataset_collection_)
+    if (dataset_collection_ || debug_mode_)
     {
         if (is_classifier_required_)
             for (int i=0; i<object_list.objects.size(); i++)
@@ -338,8 +386,10 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
     }
     else if (msg->data == "e_collect_dataset")
     {
-        segment();
-        cloud_accumulation_->reset();
+        dataset_collection_ = true;
+        sub_cloud_ = nh_.subscribe("input", 1, &SceneSegmentationNode::pointcloudCallback, this);
+        event_out.data = "e_dataset_collected";
+        //sub_cloud_.shutdown();
     }
     else if (msg->data == "e_reset")
     {
