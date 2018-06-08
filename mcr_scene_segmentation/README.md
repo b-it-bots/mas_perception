@@ -65,10 +65,7 @@ Setting in launch file:
 )
 
 How to:
-rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String e_start
 
 rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String e_collect_dataset
-
-rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String e_reset
 
 ```
