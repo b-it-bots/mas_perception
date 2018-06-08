@@ -13,8 +13,9 @@
       <param name="target_frame_id" value="$(arg target_frame)" type="str" />
       <!--enable dataset_collection for coleccting pcd train data (saved to /tmp/ folder). If is_classifier_required is set to true 
           then the pcd name corressponds to the class given by classifier, otherwise just atwork_object_...pcd -->
-      <param name="is_classifier_required" value="true" />
-      <param name="dataset_collection" value="true" /> 
+      <param name="is_classifier_required" value="false" />
+      <param name="dataset_collection" value="false" />
+      <param name="debug_mode" value="true" /> 
     </node>
   </group>
 
