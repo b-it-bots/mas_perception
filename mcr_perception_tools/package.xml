@@ -17,12 +17,16 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
 
   <run_depend>mcr_object_recognition_bounding_box</run_depend>
   <run_depend>mcr_scene_segmentation</run_depend>
   <run_depend>smach</run_depend>
   <run_depend>smach_ros</run_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>image_transport</run_depend>
 
   <test_depend>roslaunch</test_depend>
 
