@@ -37,7 +37,7 @@ def main(arguments):
         except CvBridgeError as e:
             print('error converting "{0}" to ROS format: {1}'.format(filename, e.message))
 
-    results = service_proxy.recognize_images(image_messages)
+    results = service_proxy.classify_image_messages(image_messages)
     print(results)
 
 
