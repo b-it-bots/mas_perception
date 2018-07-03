@@ -43,7 +43,9 @@ public:
     virtual ~SceneSegmentation();
 
     PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters,
-            std::vector<mas_perception_libs::BoundingBox> &boxes, double &workspace_height);
+    std::vector<mas_perception_libs::BoundingBox> &boxes, double &workspace_height);
+    PointCloud::Ptr findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull,
+                              pcl::ModelCoefficients::Ptr &coefficients, double &workspace_height);
 
     void setVoxelGridParams(double leaf_size, const std::string &field_name, double limit_min, double limit_max);
     void setPassthroughParams(const std::string &field_name, double limit_min, double limit_max);

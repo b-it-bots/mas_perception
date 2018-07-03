@@ -28,6 +28,44 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
     PointCloud::Ptr hull(new PointCloud);
     pcl::PointIndices::Ptr segmented_cloud_inliers(new pcl::PointIndices);
     std::vector<pcl::PointIndices> clusters_indices;
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+
+    filtered = findPlane(cloud, hull, coefficients, workspace_height);
+
+    if (coefficients->values.size() == 0)
+    {
+        return  filtered;
+    }
+
+    extract_polygonal_prism.setInputPlanarHull(hull);
+    extract_polygonal_prism.setInputCloud(cloud);
+    extract_polygonal_prism.setViewPoint(0.0, 0.0, 2.0);
+    extract_polygonal_prism.segment(*segmented_cloud_inliers);
+
+    cluster_extraction.setInputCloud(cloud);
+    cluster_extraction.setIndices(segmented_cloud_inliers);
+
+    cluster_extraction.extract(clusters_indices);
+
+    const Eigen::Vector3f normal(coefficients->values[0], coefficients->values[1], coefficients->values[2]);
+    for (size_t i = 0; i < clusters_indices.size(); i++)
+    {
+        const pcl::PointIndices& cluster_indices = clusters_indices[i];
+        PointCloud::Ptr cluster(new PointCloud);
+        pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
+        clusters.push_back(cluster);
+        BoundingBox box = BoundingBox::create(cluster->points, normal);
+        boxes.push_back(box);
+    }
+    return filtered;
+}
+
+PointCloud::Ptr SceneSegmentation::findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull,
+                                pcl::ModelCoefficients::Ptr &coefficients, double &workspace_height)
+{
+    PointCloud::Ptr filtered(new PointCloud);
+    PointCloud::Ptr plane(new PointCloud);
+    pcl::PointIndices::Ptr segmented_cloud_inliers(new pcl::PointIndices);
 
     PointCloudN::Ptr normals(new PointCloudN);
 
@@ -40,7 +78,6 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
     normal_estimation.setInputCloud(filtered);
     normal_estimation.compute(*normals);
 
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
 
     sac.setModelType(pcl::SACMODEL_NORMAL_PARALLEL_PLANE);
@@ -80,26 +117,6 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
     }
     workspace_height = z;
 
-    extract_polygonal_prism.setInputPlanarHull(hull);
-    extract_polygonal_prism.setInputCloud(cloud);
-    extract_polygonal_prism.setViewPoint(0.0, 0.0, 2.0);
-    extract_polygonal_prism.segment(*segmented_cloud_inliers);
-
-    cluster_extraction.setInputCloud(cloud);
-    cluster_extraction.setIndices(segmented_cloud_inliers);
-
-    cluster_extraction.extract(clusters_indices);
-
-    const Eigen::Vector3f normal(coefficients->values[0], coefficients->values[1], coefficients->values[2]);
-    for (size_t i = 0; i < clusters_indices.size(); i++)
-    {
-        const pcl::PointIndices& cluster_indices = clusters_indices[i];
-        PointCloud::Ptr cluster(new PointCloud);
-        pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
-        clusters.push_back(cluster);
-        BoundingBox box = BoundingBox::create(cluster->points, normal);
-        boxes.push_back(box);
-    }
     return filtered;
 }
 

@@ -64,6 +64,7 @@ class SceneSegmentationNode
         void eventCallback(const std_msgs::String::ConstPtr &msg);
         void config_callback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level);
         void segment();
+        void findPlane();
         geometry_msgs::PoseStamped getPose(const mas_perception_libs::BoundingBox &box);
 
     public:
