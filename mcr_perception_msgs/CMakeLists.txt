@@ -47,6 +47,7 @@ add_service_files(
     GetFaceName.srv
     GetFacialExpression.srv
     GetNearestObject.srv
+    ImageRecognition.srv
     IsPersonInFront.srv
     MakeBoundingBoxes.srv
     PublishGoal.srv

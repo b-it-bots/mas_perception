@@ -16,11 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
-add_service_files(
-  FILES
-    ImageRecognition.srv
-)
-
 find_package(PCL 1.7 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS python)
 find_package(PythonLibs 2.7 REQUIRED)

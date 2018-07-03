@@ -1,6 +1,6 @@
 from importlib import import_module
 import rospy
-from mas_perception_libs.srv import ImageRecognition, ImageRecognitionRequest
+from mcr_perception_msgs.srv import ImageRecognition, ImageRecognitionRequest
 
 
 class ImageRecognitionServiceProxy(object):

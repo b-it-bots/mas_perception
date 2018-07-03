@@ -115,6 +115,4 @@ Launch the `image_recognition_server`. Arguments:
 │           ├── ros_message_serialization.py
 │           └── utils.py
 ├── setup.py
-└── srv
-    └── ImageRecognition.srv
 ```
