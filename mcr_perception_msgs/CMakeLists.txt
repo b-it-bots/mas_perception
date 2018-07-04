@@ -15,10 +15,12 @@ find_package(catkin REQUIRED
 add_message_files(
   FILES
     BoundingBox.msg
+    BoundingBox2D.msg
     BoundingBoxList.msg
     Cavity.msg
     Face.msg
     FaceList.msg
+    ImageDetection.msg
     ImageList.msg
     LaserScanSegment.msg
     LaserScanSegmentList.msg
@@ -41,6 +43,7 @@ add_service_files(
     AnalyzeCloudColor.srv
     BaseScanLinearRegression.srv
     ClusterTabletopCloud.srv
+    DetectImage.srv
     FindWorkspace.srv
     GetPersonList.srv
     GetObjectList.srv

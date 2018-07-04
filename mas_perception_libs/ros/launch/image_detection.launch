@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="service_name" default="~detect_image"/>
+    <arg name="class_annotations" default="$(find mas_perception_libs)/models/class_annotation_example.yml" />
+    <arg name="kwargs_file" default="$(find mas_perception_libs)/models/image_detector_test_kwargs.yml" />
+    <arg name="detection_module" default="mas_perception_libs" />
+    <arg name="detection_class" default="ImageDetectorTest" />
+
+    <node pkg="mas_perception_libs" type="image_detection_server" name="image_detection_server" output="screen"
+          ns="mas_perception">
+        <param name="service_name" type="string" value="$(arg service_name)" />
+        <param name="class_annotations" type="string" value="$(arg class_annotations)" />
+        <param name="kwargs_file" type="string" value="$(arg kwargs_file)" />
+        <param name="detection_module" type="string" value="$(arg detection_module)" />
+        <param name="detection_class" type="string" value="$(arg detection_class)" />
+    </node>
+</launch>
