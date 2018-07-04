@@ -1,7 +1,105 @@
 #!/usr/bin/env python2
+import os
+import cv2
+import yaml
+
 import rospy
+from cv_bridge import CvBridge, CvBridgeError
+from sensor_msgs.msg import Image as ImageMsg
+
+from mcr_perception_msgs.srv import DetectImage, DetectImageRequest
+from mas_perception_libs.utils import case_insensitive_glob
+from mas_perception_libs.visualization import BoundingBoxKey, visualize_boxes, bgr_dict_from_classes
+
+
+def main(image_dir, service_name, result_topic, class_annotation_file):
+    # glob image files
+    image_files = []
+    for file_type in ('*.jpg', '*.jpeg', '*.png', '*.bmp'):
+        image_files.extend(case_insensitive_glob(os.path.join(image_dir, file_type)))
+
+    # wait for service to come up
+    rospy.wait_for_service(service_name, timeout=5.0)
+    try:
+        detection_client = rospy.ServiceProxy(service_name, DetectImage)
+    except rospy.ServiceException as e:
+        rospy.logerr('failed to get proxy for service "{0}": {1}'.format(service_name, e.message))
+        raise
+
+    # create publisher for image result
+    result_pub = rospy.Publisher(result_topic, ImageMsg, queue_size=1)
+
+    # read classes and create color dictionary for them
+    with open(class_annotation_file, 'r') as infile:
+        classes = yaml.load(infile)
+    color_dict = bgr_dict_from_classes(classes.values())
+
+    # send requests and publish results
+    bridge = CvBridge()
+    for image_path in image_files:
+        # read and convert image to ROS message
+        img = cv2.imread(image_path)
+        try:
+            img_msg = bridge.cv2_to_imgmsg(img, 'bgr8')
+        except CvBridgeError as e:
+            rospy.logerr('failed to convert input from OpenCV image to ROS message: ' + e.message)
+            continue
+
+        # send request and get response
+        request = DetectImageRequest()
+        request.images.append(img_msg)
+        response = detection_client(request)
+
+        # draw boxes on original image
+        boxes = []
+        for detection in response.detections:
+            for i, class_name in enumerate(detection.classes):
+                bounding_box = {BoundingBoxKey.X_MIN: detection.bounding_boxes[i].x_min,
+                                BoundingBoxKey.Y_MIN: detection.bounding_boxes[i].y_min,
+                                BoundingBoxKey.X_MAX: detection.bounding_boxes[i].x_max,
+                                BoundingBoxKey.Y_MAX: detection.bounding_boxes[i].y_max}
+                label = '{}: {:.2f}'.format(class_name, detection.probabilities[i])
+                bounding_box[BoundingBoxKey.LABEL] = label
+                bounding_box[BoundingBoxKey.COLOR] = color_dict[class_name]
+                boxes.append(bounding_box)
+
+        box_image = visualize_boxes(img, boxes)
+
+        # convert result to message and publish
+        try:
+            result_msg = bridge.cv2_to_imgmsg(box_image, 'bgr8')
+        except CvBridgeError as e:
+            rospy.logerr('failed to convert result from OpenCV image to ROS message: ' + e.message)
+            continue
+
+        result_pub.publish(result_msg)
+
+        # sleep for 1 second
+        rospy.sleep(1.0)
 
 
 if __name__ == '__main__':
     rospy.init_node('~image_detection_client_test')
+
+    # get service name and result topic
+    service_name = rospy.get_param('~service_name', '~detect_image')
+    result_topic = rospy.get_param('~result_topic', '~result_image')
+
+    # read image directory
+    image_directory = rospy.get_param('~image_directory', None)
+    if not image_directory:
+        raise ValueError('image_directory not specified')
+    if not os.path.exists(image_directory):
+        raise ValueError('image_directory does not exist: ' + image_directory)
+
+    # get parameters for detector class
+    class_annotation_file = rospy.get_param('~class_annotations', None)
+    if class_annotation_file is None:
+        raise ValueError('"~class_annotations" not specified')
+    if not os.path.exists(class_annotation_file):
+        raise ValueError('"~class_annotations" file does not exist: ' + class_annotation_file)
+
+    # test detection server
+    main(image_directory, service_name, result_topic, class_annotation_file)
+
     rospy.spin()

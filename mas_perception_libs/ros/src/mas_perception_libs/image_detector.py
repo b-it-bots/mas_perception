@@ -107,7 +107,7 @@ class ImageDetectionService(object):
         self._recog_service = rospy.Service(service_name, DetectImage, self.handle_detect_images)
 
     def handle_detect_images(self, request):
-        predictions = self._detector.predict(request.images)
+        predictions = self._detector.detect(request.images)
         response = DetectImageResponse()
         for boxes in predictions:
             detection = ImageDetection()
