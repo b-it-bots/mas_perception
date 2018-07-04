@@ -22,8 +22,8 @@ class ImageDetector(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, **kwargs):
+        # load dictionary of classes
         self._classes = kwargs.get('classes', None)
-
         if self._classes is None:
             class_file = kwargs.get('class_file', None)
             if class_file is not None and os.path.exists(class_file):
@@ -33,7 +33,15 @@ class ImageDetector(object):
         if self._classes is None:
             raise ValueError("no valid 'class_file' or 'classes' parameter specified")
 
-        self.load_model(**kwargs)
+        # load kwargs file and call load_model()
+        model_kwargs_file = kwargs.get('model_kwargs_file', None)
+        if model_kwargs_file is not None and os.path.exists(model_kwargs_file):
+            with open(model_kwargs_file, 'r') as infile:
+                load_model_kwargs = yaml.load(infile)
+        else:
+            load_model_kwargs = {}
+
+        self.load_model(**load_model_kwargs)
 
     @property
     def classes(self):
@@ -96,14 +104,7 @@ class ImageDetectionService(object):
         if not issubclass(detection_class, ImageDetector):
             raise ValueError('detection class is not of ImageDetector type')
 
-        if kwargs_file is None:
-            kwargs = {}
-        else:
-            with open(kwargs_file, 'r') as infile:
-                kwargs = yaml.load(infile)
-
-        self._detector = detection_class(class_file=class_annotation_file, **kwargs)
-
+        self._detector = detection_class(class_file=class_annotation_file, model_kwargs_file=kwargs_file)
         self._recog_service = rospy.Service(service_name, DetectImage, self.handle_detect_images)
 
     def handle_detect_images(self, request):
