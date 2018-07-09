@@ -7,6 +7,8 @@ import numpy as np
 import rospy
 from mcr_perception_msgs.srv import DetectImage, DetectImageResponse
 from mcr_perception_msgs.msg import ImageDetection, BoundingBox2D
+from .detection_service_proxy import DetectionServiceProxy
+from .constants import Constant
 
 
 class ImageDetectionKey(Enum):
@@ -55,6 +57,23 @@ class ImageDetector(object):
     def detect(self, image_messages):
         pass
 
+    @staticmethod
+    def prediction_to_detection_msg(predicted_boxes):
+        detection_msg = ImageDetection()
+        for box in predicted_boxes:
+            # fill class and confidence
+            detection_msg.classes.append(box[ImageDetectionKey.CLASS])
+            detection_msg.probabilities.append(box[ImageDetectionKey.CONF])
+            # fill bounding box info
+            bbox_2d = BoundingBox2D()
+            bbox_2d.x_min = box[ImageDetectionKey.X_MIN]
+            bbox_2d.y_min = box[ImageDetectionKey.Y_MIN]
+            bbox_2d.x_max = box[ImageDetectionKey.X_MAX]
+            bbox_2d.y_max = box[ImageDetectionKey.Y_MAX]
+            detection_msg.bounding_boxes.append(bbox_2d)
+
+        return detection_msg
+
 
 class ImageDetectorTest(ImageDetector):
     def __init__(self, **kwargs):
@@ -100,30 +119,52 @@ class ImageDetectorTest(ImageDetector):
 
 
 class ImageDetectionService(object):
+    """
+    Interacts with ImageDetector class, only contain 2D bounding boxes
+    """
     def __init__(self, service_name, detection_class, class_annotation_file, kwargs_file):
         if not issubclass(detection_class, ImageDetector):
             raise ValueError('detection class is not of ImageDetector type')
 
         self._detector = detection_class(class_file=class_annotation_file, model_kwargs_file=kwargs_file)
-        self._recog_service = rospy.Service(service_name, DetectImage, self.handle_detect_images)
+        self._detection_service = rospy.Service(service_name, DetectImage, self.handle_detect_images)
 
     def handle_detect_images(self, request):
         predictions = self._detector.detect(request.images)
         response = DetectImageResponse()
         for boxes in predictions:
-            detection = ImageDetection()
-            for box in boxes:
-                # fill class and confidence
-                detection.classes.append(box[ImageDetectionKey.CLASS])
-                detection.probabilities.append(box[ImageDetectionKey.CONF])
-                # fill bounding box info
-                bbox_2d = BoundingBox2D()
-                bbox_2d.x_min = box[ImageDetectionKey.X_MIN]
-                bbox_2d.y_min = box[ImageDetectionKey.Y_MIN]
-                bbox_2d.x_max = box[ImageDetectionKey.X_MAX]
-                bbox_2d.y_max = box[ImageDetectionKey.Y_MAX]
-                detection.bounding_boxes.append(bbox_2d)
-
-            response.detections.append(detection)
+            detection_msg = ImageDetector.prediction_to_detection_msg(boxes)
+            response.detections.append(detection_msg)
 
         return response
+
+
+class ImageDetectionServiceProxy(DetectionServiceProxy):
+    """
+    Extends DetectionServiceProxy, use ImageDetector to detect objects in image, using XYZRGB point cloud, returns
+    a list of objects
+    """
+    def __init__(self, service_name, detection_class, class_annotation_file, kwargs_file, point_cloud_topic):
+        super(ImageDetectionServiceProxy, self).__init__(service_name, DetectImage)
+        if not issubclass(detection_class, ImageDetector):
+            raise ValueError('detection class is not of ImageDetector type')
+
+        self._detector = detection_class(class_file=class_annotation_file, model_kwargs_file=kwargs_file)
+        self._cloud_topic = point_cloud_topic
+
+    def _get_objects_and_planes_from_response(self, res):
+        # visualize detection result
+        # get image crops
+        # get cloud crops
+        # calculate pose
+        # fill some fake plane
+        # return plane_list
+        pass
+
+    def _get_segmentation_req(self):
+        # subscribe to point cloud topic
+        # wait until cloud is available/timeout
+        # extract image from cloud topic, create image message
+        # unsubscribe from topic
+        # return request with image message
+        pass

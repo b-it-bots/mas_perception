@@ -9,7 +9,7 @@ from sensor_msgs.msg import Image as ImageMsg
 
 from mcr_perception_msgs.srv import DetectImage, DetectImageRequest
 from mas_perception_libs.utils import case_insensitive_glob
-from mas_perception_libs.visualization import BoundingBoxKey, visualize_boxes, bgr_dict_from_classes
+from mas_perception_libs.visualization import BoundingBox2DKey, draw_labeled_boxes, bgr_dict_from_classes
 
 
 def main(image_dir, service_name, result_topic, class_annotation_file):
@@ -54,16 +54,16 @@ def main(image_dir, service_name, result_topic, class_annotation_file):
         boxes = []
         for detection in response.detections:
             for i, class_name in enumerate(detection.classes):
-                bounding_box = {BoundingBoxKey.X_MIN: detection.bounding_boxes[i].x_min,
-                                BoundingBoxKey.Y_MIN: detection.bounding_boxes[i].y_min,
-                                BoundingBoxKey.X_MAX: detection.bounding_boxes[i].x_max,
-                                BoundingBoxKey.Y_MAX: detection.bounding_boxes[i].y_max}
+                bounding_box = {BoundingBox2DKey.X_MIN: detection.bounding_boxes[i].x_min,
+                                BoundingBox2DKey.Y_MIN: detection.bounding_boxes[i].y_min,
+                                BoundingBox2DKey.X_MAX: detection.bounding_boxes[i].x_max,
+                                BoundingBox2DKey.Y_MAX: detection.bounding_boxes[i].y_max}
                 label = '{}: {:.2f}'.format(class_name, detection.probabilities[i])
-                bounding_box[BoundingBoxKey.LABEL] = label
-                bounding_box[BoundingBoxKey.COLOR] = color_dict[class_name]
+                bounding_box[BoundingBox2DKey.LABEL] = label
+                bounding_box[BoundingBox2DKey.COLOR] = color_dict[class_name]
                 boxes.append(bounding_box)
 
-        box_image = visualize_boxes(img, boxes)
+        box_image = draw_labeled_boxes(img, boxes)
 
         # convert result to message and publish
         try:

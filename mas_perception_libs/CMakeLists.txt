@@ -23,11 +23,6 @@ find_package(OpenCV REQUIRED)
 
 catkin_python_setup()
 
-generate_messages(
-  DEPENDENCIES
-    sensor_msgs
-)
-
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -57,7 +52,10 @@ include_directories(
 # add mas_perception_libs library
 ###################################
 add_library(mas_perception_libs
+  common/src/init_numpy_api.cpp
   common/src/bounding_box.cpp
+  common/src/bounding_box_2d.cpp
+  common/src/pyboost_cv3_converter.cpp
   ros/src/image_bounding_box.cpp
 )
 target_link_libraries(mas_perception_libs
