@@ -123,7 +123,7 @@ cropImage(cv::Mat &image, std::vector<cv::Point2f> &vertices)
         }
         if (roi_rectangle.y + roi_rectangle.height >= image.rows)
         {
-            roi_rectangle.height = image.cols - roi_rectangle.y - 1;
+            roi_rectangle.height = image.rows - roi_rectangle.y - 1;
         }
     }
 

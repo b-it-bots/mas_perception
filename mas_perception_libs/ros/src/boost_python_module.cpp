@@ -57,45 +57,55 @@ getCropsAndBoundingBoxes(std::string pSerialImageMsg, std::string pSerialCameraI
     return bp::make_tuple<std::string, bp::list>(serialImageList, boxVerticesList);
 }
 
+struct BoundingBox2DWrapper : BoundingBox2D
+{
+    // TODO(minhnh): expose color
+
+    BoundingBox2DWrapper(std::string label, bp::tuple color, bp::tuple pBox) : BoundingBox2DWrapper(label, pBox)
+    {
+        // extract color
+        if (bp::len(color) != 3)
+        {
+            throw std::invalid_argument("color is not a 3-tuple containing integers");
+        }
+        mColor = CV_RGB(static_cast<int>(bp::extract<double>(color[0])),
+                        static_cast<int>(bp::extract<double>(color[1])),
+                        static_cast<int>(bp::extract<double>(color[2])));
+    }
+
+    BoundingBox2DWrapper(std::string label, bp::tuple pBox) : BoundingBox2DWrapper(std::move(pBox))
+    {
+        mLabel = std::move(label);
+    }
+
+    explicit BoundingBox2DWrapper(bp::tuple pBox) : BoundingBox2D()
+    {
+        // extract box geometry
+        if (bp::len(pBox) != 4)
+        {
+            throw std::invalid_argument("expect box geometry to be list containing 4 doubles, ");
+        }
+        mX = static_cast<int>(bp::extract<double>(pBox[0]));
+        mY = static_cast<int>(bp::extract<double>(pBox[1]));
+        mWidth = static_cast<int>(bp::extract<double>(pBox[2]));
+        mHeight = static_cast<int>(bp::extract<double>(pBox[3]));
+        mCvRect = cv::Rect(mX, mY, mWidth, mHeight);
+    }
+};
+
 PyObject *
 drawLabeledBoxesWrapper(PyObject * pNdarrayImage, bp::list pBoxList, int pThickness, double pFontScale)
 {
     cv::Mat image = pbcvt::fromNDArrayToMat(pNdarrayImage);
-    std::vector<std::string> labels;
-    std::vector<cv::Scalar> colors;
-    std::vector<std::map<BoundingBox2DKey, double>> boxCoordsVect;
+    std::vector<BoundingBox2D> boundingBoxes;
     for (int i = 0; i < bp::len(pBoxList); i++)
     {
-        bp::dict boundingBox = bp::extract<bp::dict>(pBoxList[i]);
-
-        // extract labels
-        labels.push_back(bp::extract<std::string>(boundingBox[BoundingBox2DKey::LABEL]));
-
-        // extract colors
-        bp::tuple colorTuple = bp::extract<bp::tuple>(boundingBox[BoundingBox2DKey::COLOR]);
-        if (bp::len(colorTuple) != 3)
-        {
-            throw std::invalid_argument("expect colors to be 3-tuples containing integers");
-        }
-        cv::Scalar color = CV_RGB(bp::extract<int>(colorTuple[0]), bp::extract<int>(colorTuple[1]),
-                                  bp::extract<int>(colorTuple[2]));
-        colors.push_back(color);
-
-        // extract coordinates
-        std::map<BoundingBox2DKey, double> boxCoords;
-        int minX = bp::extract<double>(boundingBox[BoundingBox2DKey::X_MIN]);
-        int minY = bp::extract<double>(boundingBox[BoundingBox2DKey::Y_MIN]);
-        int maxX = bp::extract<double>(boundingBox[BoundingBox2DKey::X_MAX]);
-        int maxY = bp::extract<double>(boundingBox[BoundingBox2DKey::Y_MAX]);
-        boxCoords.insert(std::pair<BoundingBox2DKey, double>(BoundingBox2DKey::X_MIN, minX));
-        boxCoords.insert(std::pair<BoundingBox2DKey, double>(BoundingBox2DKey::Y_MIN, minY));
-        boxCoords.insert(std::pair<BoundingBox2DKey, double>(BoundingBox2DKey::X_MAX, maxX));
-        boxCoords.insert(std::pair<BoundingBox2DKey, double>(BoundingBox2DKey::Y_MAX, maxY));
-        boxCoordsVect.push_back(boxCoords);
+        BoundingBox2DWrapper boundingBox = bp::extract<BoundingBox2DWrapper>(pBoxList[i]);
+        boundingBoxes.push_back(boundingBox);
     }
 
     // draw boxes
-    drawLabeledBoxes(image, labels, colors, boxCoordsVect, pThickness, pFontScale);
+    drawLabeledBoxes(image, boundingBoxes, pThickness, pFontScale);
 
     // convert to Python object and return
     PyObject *ret = pbcvt::fromMatToNDArray(image);
@@ -111,17 +121,22 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     pbcvt::matFromNDArrayBoostConverter();
 
     using mas_perception_libs::BoundingBoxWrapper;
+    using mas_perception_libs::BoundingBox2DWrapper;
 
     bp::class_<BoundingBoxWrapper>("BoundingBoxWrapper", bp::init<std::string, bp::list&>())
             .def("get_pose", &BoundingBoxWrapper::getPose)
             .def("get_ros_message", &BoundingBoxWrapper::getRosMsg);
+
     bp::def("get_crops_and_bounding_boxes_wrapper", mas_perception_libs::getCropsAndBoundingBoxes);
+
+    bp::class_<BoundingBox2DWrapper>("BoundingBox2DWrapper", bp::init<bp::tuple&>())
+            .def(bp::init<std::string, bp::tuple&>())
+            .def(bp::init<std::string, bp::tuple&, bp::tuple&>())
+            .def_readwrite("x", &BoundingBox2DWrapper::mX)
+            .def_readwrite("y", &BoundingBox2DWrapper::mY)
+            .def_readwrite("width", &BoundingBox2DWrapper::mWidth)
+            .def_readwrite("height", &BoundingBox2DWrapper::mHeight)
+            .def_readwrite("label", &BoundingBox2DWrapper::mLabel);
+
     bp::def("_draw_labeled_boxes", mas_perception_libs::drawLabeledBoxesWrapper);
-    bp::enum_<mas_perception_libs::BoundingBox2DKey>("BoundingBox2DKey")
-            .value("LABEL", mas_perception_libs::BoundingBox2DKey::LABEL)
-            .value("COLOR", mas_perception_libs::BoundingBox2DKey::COLOR)
-            .value("X_MIN", mas_perception_libs::BoundingBox2DKey::X_MIN)
-            .value("Y_MIN", mas_perception_libs::BoundingBox2DKey::Y_MIN)
-            .value("X_MAX", mas_perception_libs::BoundingBox2DKey::X_MAX)
-            .value("Y_MAX", mas_perception_libs::BoundingBox2DKey::Y_MAX);
 }

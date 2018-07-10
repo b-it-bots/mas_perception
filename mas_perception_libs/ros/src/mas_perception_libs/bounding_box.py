@@ -4,7 +4,7 @@ from geometry_msgs.msg import PoseStamped
 from mcr_perception_msgs.msg import BoundingBox as BoundingBoxMsg
 from .ros_message_serialization import to_cpp, from_cpp
 
-from mas_perception_libs._cpp_wrapper import BoundingBoxWrapper
+from mas_perception_libs._cpp_wrapper import BoundingBoxWrapper, BoundingBox2DWrapper
 
 
 class BoundingBox(object):
@@ -24,3 +24,8 @@ class BoundingBox(object):
     def get_ros_message(self):
         serial_message = self._bounding_box.get_ros_message()
         return from_cpp(serial_message, BoundingBoxMsg)
+
+
+class BoundingBox2D(BoundingBox2DWrapper):
+    def get_box(self):
+        return self.x, self.y, self.width, self.height

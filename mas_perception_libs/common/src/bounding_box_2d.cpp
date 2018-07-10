@@ -15,43 +15,62 @@ namespace mas_perception_libs
 {
 
 void
-drawLabeledBoxes(cv::Mat &pImage, std::vector<std::string> pLabels, std::vector<cv::Scalar> pColors,
-                 std::vector<std::map<BoundingBox2DKey, double>> pBoxCoordsVect, int pThickness, double pFontScale)
+drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes, int pThickness, double pFontScale)
 {
-    if (pLabels.size() != pColors.size() || pColors.size() != pBoxCoordsVect.size())
-        throw std::invalid_argument("labels, colors and box coordinates vectors do not have the same size");
-
-    for (size_t i = 0; i < pLabels.size(); i++)
+    cv::Size imageSize = pImage.size();
+    for (auto &pBoundingBox : pBoundingBoxes)
     {
         // fit box to within image boundaries
-        int minX = static_cast<int>(pBoxCoordsVect[i][BoundingBox2DKey::X_MIN]);
-        if (minX < 0) minX = 0;
-
-        int minY = static_cast<int>(pBoxCoordsVect[i][BoundingBox2DKey::Y_MIN]);
-        if (minY < 0) minY = 0;
-
-        int maxX = static_cast<int>(pBoxCoordsVect[i][BoundingBox2DKey::X_MAX]);
-        if (maxX > pImage.cols) maxX = pImage.cols;
-
-        int maxY = static_cast<int>(pBoxCoordsVect[i][BoundingBox2DKey::Y_MAX]);
-        if (maxY > pImage.rows) maxY = pImage.rows;
+        cv::Rect boxRect = fitBoxToImage(imageSize, pBoundingBox.mCvRect);
 
         // fit label into within image boundaries
         int baseline = 0;
-        cv::Size textSize = cv::getTextSize(pLabels[i], cv::FONT_HERSHEY_PLAIN, pFontScale, pThickness, &baseline);
-        if (minY < textSize.height) minY = textSize.height;
+        cv::Size textSize = cv::getTextSize(pBoundingBox.mLabel, cv::FONT_HERSHEY_PLAIN,
+                pFontScale, pThickness, &baseline);
+        if (boxRect.y < textSize.height) boxRect.y = textSize.height;
 
         // draw box
-        cv::Point boxTopLeft(minX, minY);
-        cv::Point boxBottomRight(maxX, maxY);
-        cv::rectangle(pImage, boxTopLeft, boxBottomRight, pColors[i], pThickness);
+        cv::rectangle(pImage, boxRect, pBoundingBox.mColor, pThickness);
 
         // draw label with background
-        cv::Point textTopLeft = boxTopLeft - cv::Point(0, textSize.height);
-        cv::Point textBottomRight = boxTopLeft + cv::Point(textSize.width, baseline);
-        cv::rectangle(pImage, textTopLeft, textBottomRight, pColors[i], CV_FILLED);
-        cv::putText(pImage, pLabels[i], boxTopLeft, cv::FONT_HERSHEY_PLAIN, pFontScale, CV_RGB(255, 255, 555), 1);
+        cv::Point textTopLeft = cv::Point(boxRect.x, boxRect.y - textSize.height);
+        cv::Point textBottomRight = cv::Point(boxRect.x + textSize.width, boxRect.y + baseline);
+        cv::rectangle(pImage, textTopLeft, textBottomRight, pBoundingBox.mColor, CV_FILLED);
+        cv::putText(pImage, pBoundingBox.mLabel, cv::Point(boxRect.x, boxRect.y),
+                    cv::FONT_HERSHEY_PLAIN, pFontScale, CV_RGB(255, 255, 555), 1);
     }
+}
+
+cv::Rect
+fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset)
+{
+    if (pSizeOffset)
+    {
+        // if size offset is specified, expand bounding box by x offset pixels
+        pBox.x -= pSizeOffset;
+        pBox.y -= pSizeOffset;
+        pBox.width += 2 * pSizeOffset;
+        pBox.height += 2 * pSizeOffset;
+    }
+
+    // check if box is outside of image, should be efficient since vectorized
+    cv::Rect image_rect(0, 0, pImageSize.width, pImageSize.height);
+    if ((pBox & image_rect) == pBox)
+        return pBox;
+
+    if (pBox.x < 0)
+        pBox.x = 0;
+
+    if (pBox.y < 0)
+        pBox.y = 0;
+
+    if (pBox.x + pBox.width >= pImageSize.width)
+        pBox.width = pImageSize.width - pBox.x - 1;
+
+    if (pBox.y + pBox.height >= pImageSize.height)
+        pBox.height = pImageSize.height - pBox.y - 1;
+
+    return pBox;
 }
 
 }   // namespace mas_perception_libs

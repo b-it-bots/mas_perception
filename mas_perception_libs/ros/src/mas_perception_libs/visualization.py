@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-from mas_perception_libs._cpp_wrapper import BoundingBox2DKey, _draw_labeled_boxes
+from mas_perception_libs._cpp_wrapper import _draw_labeled_boxes
 
 
 def draw_labeled_boxes(image, boxes, thickness=2, font_scale=1.0, copy=True):

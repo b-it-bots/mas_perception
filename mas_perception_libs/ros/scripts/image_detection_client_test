@@ -8,8 +8,9 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image as ImageMsg
 
 from mcr_perception_msgs.srv import DetectImage, DetectImageRequest
+from mas_perception_libs import BoundingBox2D
 from mas_perception_libs.utils import case_insensitive_glob
-from mas_perception_libs.visualization import BoundingBox2DKey, draw_labeled_boxes, bgr_dict_from_classes
+from mas_perception_libs.visualization import draw_labeled_boxes, bgr_dict_from_classes
 
 
 def main(image_dir, service_name, result_topic, class_annotation_file):
@@ -54,13 +55,12 @@ def main(image_dir, service_name, result_topic, class_annotation_file):
         boxes = []
         for detection in response.detections:
             for i, class_name in enumerate(detection.classes):
-                bounding_box = {BoundingBox2DKey.X_MIN: detection.bounding_boxes[i].x_min,
-                                BoundingBox2DKey.Y_MIN: detection.bounding_boxes[i].y_min,
-                                BoundingBox2DKey.X_MAX: detection.bounding_boxes[i].x_max,
-                                BoundingBox2DKey.Y_MAX: detection.bounding_boxes[i].y_max}
+                box_geometry = (detection.bounding_boxes[i].x_min,
+                                detection.bounding_boxes[i].y_min,
+                                detection.bounding_boxes[i].x_max - detection.bounding_boxes[i].x_min,
+                                detection.bounding_boxes[i].y_max - detection.bounding_boxes[i].y_min)
                 label = '{}: {:.2f}'.format(class_name, detection.probabilities[i])
-                bounding_box[BoundingBox2DKey.LABEL] = label
-                bounding_box[BoundingBox2DKey.COLOR] = color_dict[class_name]
+                bounding_box = BoundingBox2D(label, color_dict[class_name], box_geometry)
                 boxes.append(bounding_box)
 
         box_image = draw_labeled_boxes(img, boxes)

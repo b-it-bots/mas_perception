@@ -10,27 +10,35 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <Python.h>
 #include <opencv/cv.h>
-#include <boost/python.hpp>
-
-namespace bp = boost::python;
 
 namespace mas_perception_libs
 {
-    enum BoundingBox2DKey
-    {
-        LABEL = 0,
-        COLOR,
-        X_MIN,
-        Y_MIN,
-        X_MAX,
-        Y_MAX
-    };
 
-    void
-    drawLabeledBoxes(cv::Mat &pImage, std::vector<std::string> pLabels, std::vector<cv::Scalar> pColors,
-                     std::vector<std::map<BoundingBox2DKey, double>> pBoxCoordsVect, int pThickness, double pFontScale);
+struct BoundingBox2D
+{
+    int mX;
+    int mY;
+    int mWidth;
+    int mHeight;
+    std::string mLabel;
+    cv::Scalar mColor;
+    cv::Rect mCvRect;
+
+    BoundingBox2D(int pX, int pY, int pWidth, int pHeight)
+        : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(""), mColor(CV_RGB(0, 0, 255)),
+          mCvRect(pX, pY, pWidth, pHeight)
+    { }
+
+    BoundingBox2D() : BoundingBox2D(0, 0, 0, 0)
+    { }
+};
+
+void
+drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes, int pThickness, double pFontScale);
+
+cv::Rect
+fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset = 0);
 
 }   // namespace mas_perception_libs
 
