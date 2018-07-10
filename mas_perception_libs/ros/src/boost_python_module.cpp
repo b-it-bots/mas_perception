@@ -83,13 +83,12 @@ struct BoundingBox2DWrapper : BoundingBox2D
         // extract box geometry
         if (bp::len(pBox) != 4)
         {
-            throw std::invalid_argument("expect box geometry to be list containing 4 doubles, ");
+            throw std::invalid_argument("box geometry is not a tuple containing 4 numerics");
         }
         mX = static_cast<int>(bp::extract<double>(pBox[0]));
         mY = static_cast<int>(bp::extract<double>(pBox[1]));
         mWidth = static_cast<int>(bp::extract<double>(pBox[2]));
         mHeight = static_cast<int>(bp::extract<double>(pBox[3]));
-        mCvRect = cv::Rect(mX, mY, mWidth, mHeight);
     }
 };
 
@@ -109,6 +108,30 @@ drawLabeledBoxesWrapper(PyObject * pNdarrayImage, bp::list pBoxList, int pThickn
 
     // convert to Python object and return
     PyObject *ret = pbcvt::fromMatToNDArray(image);
+    return ret;
+}
+
+BoundingBox2DWrapper
+fitBoxToImageWrapper(bp::tuple pImageSizeTuple, BoundingBox2DWrapper pBox, int pOffset)
+{
+    if (bp::len(pImageSizeTuple) != 2)
+    {
+        throw std::invalid_argument("image size is not a tuple containing 2 numerics");
+    }
+    int width = static_cast<int>(bp::extract<double>(pImageSizeTuple[0]));
+    int height = static_cast<int>(bp::extract<double>(pImageSizeTuple[1]));
+    cv::Size imageSize(width, height);
+    cv::Rect adjustedBox = fitBoxToImage(imageSize, pBox.getCvRect(), pOffset);
+    pBox.updateBox(adjustedBox);
+    return pBox;
+}
+
+PyObject *
+cropImageWrapper(PyObject * pNdarrayImage, BoundingBox2DWrapper pBox, int pOffset)
+{
+    cv::Mat image = pbcvt::fromNDArrayToMat(pNdarrayImage);
+    cv::Mat croppedImage = cropImage(image, pBox, pOffset);
+    PyObject *ret = pbcvt::fromMatToNDArray(croppedImage);
     return ret;
 }
 
@@ -139,4 +162,8 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
             .def_readwrite("label", &BoundingBox2DWrapper::mLabel);
 
     bp::def("_draw_labeled_boxes", mas_perception_libs::drawLabeledBoxesWrapper);
+
+    bp::def("_fit_box_to_image", mas_perception_libs::fitBoxToImageWrapper);
+
+    bp::def("_crop_image", mas_perception_libs::cropImageWrapper);
 }

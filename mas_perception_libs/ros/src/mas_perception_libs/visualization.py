@@ -1,15 +1,40 @@
 import numpy as np
 import cv2
 
-from mas_perception_libs._cpp_wrapper import _draw_labeled_boxes
+from mas_perception_libs._cpp_wrapper import _draw_labeled_boxes, _fit_box_to_image, _crop_image
+from .bounding_box import BoundingBox2DWrapper
 
 
 def draw_labeled_boxes(image, boxes, thickness=2, font_scale=1.0, copy=True):
+    if not isinstance(image, np.ndarray):
+        raise ValueError('image is not a numpy array')
+
     if copy:
         drawn_image = image.copy()
     else:
         drawn_image = image
+
     return _draw_labeled_boxes(drawn_image, boxes, thickness, font_scale)
+
+
+def fit_box_to_image(image_size, bounding_box, offset=0):
+    if not isinstance(image_size, tuple) or len(image_size) != 2:
+        raise ValueError('image size is not a tuple of length 2')
+
+    if not isinstance(bounding_box, BoundingBox2DWrapper):
+        raise ValueError('bounding box object is not of type mas_perception_libs.BoundingBox2D')
+
+    return _fit_box_to_image(image_size, bounding_box, offset)
+
+
+def crop_image(image, bounding_box, offset=0):
+    if not isinstance(image, np.ndarray):
+        raise ValueError('image is not a numpy array')
+
+    if not isinstance(bounding_box, BoundingBox2DWrapper):
+        raise ValueError('bounding box object is not of type mas_perception_libs.BoundingBox2D')
+
+    return _crop_image(image, bounding_box, offset)
 
 
 def bgr_dict_from_classes(classes):

@@ -23,15 +23,17 @@ struct BoundingBox2D
     int mHeight;
     std::string mLabel;
     cv::Scalar mColor;
-    cv::Rect mCvRect;
 
     BoundingBox2D(int pX, int pY, int pWidth, int pHeight)
-        : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(""), mColor(CV_RGB(0, 0, 255)),
-          mCvRect(pX, pY, pWidth, pHeight)
+        : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(""), mColor(CV_RGB(0, 0, 255))
     { }
 
     BoundingBox2D() : BoundingBox2D(0, 0, 0, 0)
     { }
+
+    void updateBox(cv::Rect);
+
+    cv::Rect getCvRect() { return cv::Rect(mX, mY, mWidth, mHeight); }
 };
 
 void
@@ -39,6 +41,15 @@ drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes, int
 
 cv::Rect
 fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset = 0);
+
+cv::Mat
+cropImage(cv::Mat &pImage, std::vector<cv::Point2f> &pVertices, int pOffset = 0, bool copy = true);
+
+cv::Mat
+cropImage(cv::Mat &pImage, BoundingBox2D &pBox, int pOffset = 0, bool copy = true);
+
+cv::Mat
+cropImage(cv::Mat &pImage, const cv::Rect &pRoiRect, int pOffset = 0, bool copy = true);
 
 }   // namespace mas_perception_libs
 

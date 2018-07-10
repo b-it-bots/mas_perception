@@ -15,13 +15,22 @@ namespace mas_perception_libs
 {
 
 void
+BoundingBox2D::updateBox(cv::Rect pNewRect)
+{
+    mX = pNewRect.x;
+    mY = pNewRect.y;
+    mWidth = pNewRect.width;
+    mHeight = pNewRect.height;
+}
+
+void
 drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes, int pThickness, double pFontScale)
 {
     cv::Size imageSize = pImage.size();
     for (auto &pBoundingBox : pBoundingBoxes)
     {
         // fit box to within image boundaries
-        cv::Rect boxRect = fitBoxToImage(imageSize, pBoundingBox.mCvRect);
+        cv::Rect boxRect = fitBoxToImage(imageSize, pBoundingBox.getCvRect());
 
         // fit label into within image boundaries
         int baseline = 0;
@@ -71,6 +80,34 @@ fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset)
         pBox.height = pImageSize.height - pBox.y - 1;
 
     return pBox;
+}
+
+
+cv::Mat
+cropImage(cv::Mat &pImage, BoundingBox2D &pBox, int pOffset, bool copy)
+{
+    return cropImage(pImage, pBox.getCvRect(), pOffset, copy);
+}
+
+cv::Mat
+cropImage(cv::Mat &pImage, std::vector<cv::Point2f> &pVertices, int pOffset, bool copy)
+{
+    cv::Rect roiRect = cv::boundingRect(cv::Mat(pVertices));
+    return cropImage(pImage, roiRect, pOffset, copy);
+}
+
+cv::Mat
+cropImage(cv::Mat &pImage, const cv::Rect &pRoiRect, int pOffset, bool copy)
+{
+    auto roiRect = fitBoxToImage(pImage.size(), pRoiRect, pOffset);
+    cv::Mat croppedImage(pImage, roiRect);
+    if (copy)
+    {
+        cv::Mat croppedCopy;
+        croppedImage.copyTo(croppedCopy);
+        return croppedCopy;
+    }
+    return croppedImage;
 }
 
 }   // namespace mas_perception_libs

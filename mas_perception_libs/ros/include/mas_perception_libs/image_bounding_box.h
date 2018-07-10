@@ -39,9 +39,6 @@ private:
     std::vector<std::vector<cv::Point2f>> mBoxVerticesVector;
 };
 
-cv::Mat
-cropImage(cv::Mat &image, std::vector<cv::Point2f> &vertices);
-
 }  // namespace mas_perception_libs
 
 #endif  // MAS_PERCEPTION_LIBS_IMAGE_BOUNDING_BOX_H_
