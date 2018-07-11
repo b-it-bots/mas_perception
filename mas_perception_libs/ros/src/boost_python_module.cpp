@@ -10,12 +10,14 @@
 #include <string>
 #include <boost/python.hpp>
 #include <numpy/arrayobject.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <mas_perception_libs/use_numpy.h>
 #include <mas_perception_libs/impl/pyboostcvconverter.hpp>
 #include <mas_perception_libs/impl/ros_message_serialization.hpp>
 #include <mas_perception_libs/bounding_box_wrapper.h>
 #include <mas_perception_libs/image_bounding_box.h>
 #include <mas_perception_libs/bounding_box_2d.h>
+#include <mas_perception_libs/point_cloud_utils.h>
 
 namespace bp = boost::python;
 using BoundingBox = mas_perception_libs::BoundingBox;
@@ -135,6 +137,36 @@ cropImageWrapper(PyObject * pNdarrayImage, BoundingBox2DWrapper pBox, int pOffse
     return ret;
 }
 
+PyObject *
+cloudMsgToCvImageWrapper(std::string pSerialCloud)
+{
+    // unserialize cloud message
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+
+    // get cv::Mat object and convert to ndarray object
+    cv::Mat image = cloudMsgToCvImage(cloudMsg);
+    PyObject *ret = pbcvt::fromMatToNDArray(image);
+
+    return ret;
+}
+
+std::string
+cloudMsgToImageMsgWrapper(std::string pSerialCloud)
+{
+    // unserialize cloud message
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+
+    // check for organized cloud and extract image message
+    if (cloudMsg.height <= 1)
+    {
+        throw std::invalid_argument("Input point cloud is not organized!");
+    }
+    sensor_msgs::Image imageMsg;
+    pcl::toROSMsg(cloudMsg, imageMsg);
+
+    return to_python(imageMsg);
+}
+
 }  // namespace mas_perception_libs
 
 BOOST_PYTHON_MODULE(_cpp_wrapper)
@@ -166,4 +198,8 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     bp::def("_fit_box_to_image", mas_perception_libs::fitBoxToImageWrapper);
 
     bp::def("_crop_image", mas_perception_libs::cropImageWrapper);
+
+    bp::def("_cloud_msg_to_cv_image", mas_perception_libs::cloudMsgToCvImageWrapper);
+
+    bp::def("_cloud_msg_to_image_msg", mas_perception_libs::cloudMsgToImageMsgWrapper);
 }

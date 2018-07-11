@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from cv_bridge import CvBridgeError
 
 from mas_perception_libs._cpp_wrapper import _draw_labeled_boxes, _fit_box_to_image, _crop_image
 from .bounding_box import BoundingBox2DWrapper
@@ -15,6 +16,22 @@ def draw_labeled_boxes(image, boxes, thickness=2, font_scale=1.0, copy=True):
         drawn_image = image
 
     return _draw_labeled_boxes(drawn_image, boxes, thickness, font_scale)
+
+
+def draw_labeled_boxes_img_msg(cv_bridge, img_msg, boxes, thickness=2, font_scale=1.0, copy=True):
+    try:
+        img = cv_bridge.imgmsg_to_cv2(img_msg, desired_encoding="passthrough")
+    except CvBridgeError as e:
+        raise RuntimeError('failed to convert from ROS message to CV image: ' + e.message)
+
+    drawn_image = draw_labeled_boxes(img, boxes, thickness, font_scale, copy)
+
+    try:
+        drawn_img_msg = cv_bridge.cv2_to_imgmsg(drawn_image, 'bgr8')
+    except CvBridgeError as e:
+        raise RuntimeError('failed to convert from CV image to ROS message: ' + e.message)
+
+    return drawn_img_msg
 
 
 def fit_box_to_image(image_size, bounding_box, offset=0):

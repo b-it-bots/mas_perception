@@ -1,23 +1,24 @@
 import os
-import yaml
 from abc import ABCMeta, abstractmethod
-from enum import Enum
-import numpy as np
 
+import numpy as np
 import rospy
+import yaml
+from enum import Enum
+from mcr_perception_msgs.msg import ImageDetection, BoundingBox2D as BoundingBox2DMsg
 from mcr_perception_msgs.srv import DetectImage, DetectImageResponse
-from mcr_perception_msgs.msg import ImageDetection, BoundingBox2D
+from .bounding_box import BoundingBox2D
+
 from .detection_service_proxy import DetectionServiceProxy
-from .constants import Constant
 
 
 class ImageDetectionKey(Enum):
-    CLASS = 'class'
-    CONF = 'confidence'
-    X_MIN = 'x_min'
-    X_MAX = 'x_max'
-    Y_MIN = 'y_min'
-    Y_MAX = 'y_max'
+    CLASS = 0
+    CONF = 1
+    X_MIN = 2
+    X_MAX = 3
+    Y_MIN = 4
+    Y_MAX = 5
 
 
 class ImageDetector(object):
@@ -65,7 +66,7 @@ class ImageDetector(object):
             detection_msg.classes.append(box[ImageDetectionKey.CLASS])
             detection_msg.probabilities.append(box[ImageDetectionKey.CONF])
             # fill bounding box info
-            bbox_2d = BoundingBox2D()
+            bbox_2d = BoundingBox2DMsg()
             bbox_2d.x_min = box[ImageDetectionKey.X_MIN]
             bbox_2d.y_min = box[ImageDetectionKey.Y_MIN]
             bbox_2d.x_max = box[ImageDetectionKey.X_MAX]
@@ -73,6 +74,24 @@ class ImageDetector(object):
             detection_msg.bounding_boxes.append(bbox_2d)
 
         return detection_msg
+
+    @staticmethod
+    def detection_msg_to_bounding_boxes(detection_msg, color_dict=None):
+        boxes = []
+        for i, class_name in enumerate(detection_msg.classes):
+            box_geometry = (detection_msg.bounding_boxes[i].x_min,
+                            detection_msg.bounding_boxes[i].y_min,
+                            detection_msg.bounding_boxes[i].x_max - detection_msg.bounding_boxes[i].x_min,
+                            detection_msg.bounding_boxes[i].y_max - detection_msg.bounding_boxes[i].y_min)
+            label = '{}: {:.2f}'.format(class_name, detection_msg.probabilities[i])
+            if color_dict is None:
+                color = (0, 0, 255)     # default color: blue
+            else:
+                color = color_dict[class_name]
+            bounding_box = BoundingBox2D(label, color, box_geometry)
+            boxes.append(bounding_box)
+
+        return boxes
 
 
 class ImageDetectorTest(ImageDetector):

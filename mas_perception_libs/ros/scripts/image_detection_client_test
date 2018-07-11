@@ -2,22 +2,115 @@
 import os
 import cv2
 import yaml
+from enum import Enum
 
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
-from sensor_msgs.msg import Image as ImageMsg
+from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 
 from mcr_perception_msgs.srv import DetectImage, DetectImageRequest
-from mas_perception_libs import BoundingBox2D
-from mas_perception_libs.utils import case_insensitive_glob
-from mas_perception_libs.visualization import draw_labeled_boxes, bgr_dict_from_classes
+from mas_perception_libs import BoundingBox2D, ImageDetector
+from mas_perception_libs.utils import case_insensitive_glob,cloud_msg_to_image_msg
+from mas_perception_libs.visualization import draw_labeled_boxes, draw_labeled_boxes_img_msg, bgr_dict_from_classes
 
 
-def main(image_dir, service_name, result_topic, class_annotation_file):
+class ImageSourceType(Enum):
+    CLOUD_TOPIC = 0
+    IMAGE_TOPIC = 1
+    IMAGE_DIR = 2
+    UNKNOWN = 3
+
+
+def request_single_image_detection(detection_client, img_msg):
+    # send request and get response
+    request = DetectImageRequest()
+    request.images.append(img_msg)
+    response = detection_client(request)
+
+    # draw boxes on original image
+    # each detection is for one image message, show there should be exactly 1 detection
+    if len(response.detections) == 0:
+        rospy.logerr('no detection for requested image')
+        return None
+
+    return response.detections[0]
+
+
+def handle_image_directory(image_dir, detection_client, result_pub, color_dict):
     # glob image files
     image_files = []
     for file_type in ('*.jpg', '*.jpeg', '*.png', '*.bmp'):
         image_files.extend(case_insensitive_glob(os.path.join(image_dir, file_type)))
+
+    # send requests and publish results
+    bridge = CvBridge()
+    for image_path in image_files:
+        # read and convert image to ROS message
+        img = cv2.imread(image_path)
+        try:
+            img_msg = bridge.cv2_to_imgmsg(img, 'bgr8')
+        except CvBridgeError as e:
+            rospy.logerr('failed to convert input from OpenCV image to ROS message: ' + e.message)
+            continue
+
+        # send request and get response
+        detection = request_single_image_detection(detection_client, img_msg)
+
+        if detection is None:
+            rospy.logerr('no detection for image: ' + image_path)
+            continue
+
+        boxes = ImageDetector.detection_msg_to_bounding_boxes(detection, color_dict)
+        box_image = draw_labeled_boxes(img, boxes)
+
+        # convert result to message and publish
+        try:
+            result_msg = bridge.cv2_to_imgmsg(box_image, 'bgr8')
+        except CvBridgeError as e:
+            rospy.logerr('failed to convert result from OpenCV image to ROS message: ' + e.message)
+            continue
+
+        result_pub.publish(result_msg)
+
+        # sleep for 1 second
+        rospy.sleep(1.0)
+
+
+class TopicHandler(object):
+    def __init__(self, detection_client, result_pub, color_dict):
+        self._detection_client = detection_client
+        self._result_pub = result_pub
+        self._color_dict = color_dict
+        self._cv_bridge = CvBridge()
+
+
+class CloudTopicHandler(TopicHandler):
+    def __init__(self, cloud_topic_name, detection_client, result_pub, color_dict):
+        super(CloudTopicHandler, self).__init__(detection_client, result_pub, color_dict)
+        self._cloud_sub = rospy.Subscriber(cloud_topic_name, PointCloud2, self._cloud_callback)
+
+    def _cloud_callback(self, cloud_msg):
+        img_msg = cloud_msg_to_image_msg(cloud_msg)
+        detection = request_single_image_detection(self._detection_client, img_msg)
+        boxes = ImageDetector.detection_msg_to_bounding_boxes(detection, self._color_dict)
+        drawn_img_msg = draw_labeled_boxes_img_msg(self._cv_bridge, img_msg, boxes)
+        self._result_pub.publish(drawn_img_msg)
+
+
+class ImageTopicHandler(TopicHandler):
+    def __init__(self, image_topic_name, detection_client, result_pub, color_dict):
+        super(ImageTopicHandler, self).__init__(detection_client, result_pub, color_dict)
+        self._image_sub = rospy.Subscriber(image_topic_name, ImageMsg, self._image_callback)
+
+    def _image_callback(self, image_msg):
+        detection = request_single_image_detection(self._detection_client, image_msg)
+        boxes = ImageDetector.detection_msg_to_bounding_boxes(detection, self._color_dict)
+        drawn_img_msg = draw_labeled_boxes_img_msg(self._cv_bridge, image_msg, boxes)
+        self._result_pub.publish(drawn_img_msg)
+
+
+def main(image_soure_type, image_source, service_name, result_topic, class_annotation_file):
+    rospy.loginfo('Image source: {0}: {1}'.format(image_soure_type, image_source))
 
     # wait for service to come up
     rospy.wait_for_service(service_name, timeout=5.0)
@@ -35,47 +128,15 @@ def main(image_dir, service_name, result_topic, class_annotation_file):
         classes = yaml.load(infile)
     color_dict = bgr_dict_from_classes(classes.values())
 
-    # send requests and publish results
-    bridge = CvBridge()
-    for image_path in image_files:
-        # read and convert image to ROS message
-        img = cv2.imread(image_path)
-        try:
-            img_msg = bridge.cv2_to_imgmsg(img, 'bgr8')
-        except CvBridgeError as e:
-            rospy.logerr('failed to convert input from OpenCV image to ROS message: ' + e.message)
-            continue
-
-        # send request and get response
-        request = DetectImageRequest()
-        request.images.append(img_msg)
-        response = detection_client(request)
-
-        # draw boxes on original image
-        boxes = []
-        for detection in response.detections:
-            for i, class_name in enumerate(detection.classes):
-                box_geometry = (detection.bounding_boxes[i].x_min,
-                                detection.bounding_boxes[i].y_min,
-                                detection.bounding_boxes[i].x_max - detection.bounding_boxes[i].x_min,
-                                detection.bounding_boxes[i].y_max - detection.bounding_boxes[i].y_min)
-                label = '{}: {:.2f}'.format(class_name, detection.probabilities[i])
-                bounding_box = BoundingBox2D(label, color_dict[class_name], box_geometry)
-                boxes.append(bounding_box)
-
-        box_image = draw_labeled_boxes(img, boxes)
-
-        # convert result to message and publish
-        try:
-            result_msg = bridge.cv2_to_imgmsg(box_image, 'bgr8')
-        except CvBridgeError as e:
-            rospy.logerr('failed to convert result from OpenCV image to ROS message: ' + e.message)
-            continue
-
-        result_pub.publish(result_msg)
-
-        # sleep for 1 second
-        rospy.sleep(1.0)
+    # handle image directory case
+    if image_soure_type == ImageSourceType.IMAGE_DIR:
+        handle_image_directory(image_source, detection_client, result_pub, color_dict)
+    elif image_soure_type == ImageSourceType.CLOUD_TOPIC:
+        CloudTopicHandler(image_source, detection_client, result_pub, color_dict)
+    elif image_soure_type == ImageSourceType.IMAGE_TOPIC:
+        ImageTopicHandler(image_source, detection_client, result_pub, color_dict)
+    else:
+        raise ValueError('unhandled image source type: ' + str(image_soure_type))
 
 
 if __name__ == '__main__':
@@ -85,12 +146,28 @@ if __name__ == '__main__':
     service_name = rospy.get_param('~service_name', '~detect_image')
     result_topic = rospy.get_param('~result_topic', '~result_image')
 
+    img_source_type = ImageSourceType.UNKNOWN
+
     # read image directory
-    image_directory = rospy.get_param('~image_directory', None)
-    if not image_directory:
-        raise ValueError('image_directory not specified')
-    if not os.path.exists(image_directory):
-        raise ValueError('image_directory does not exist: ' + image_directory)
+    image_source = rospy.get_param('~image_directory', None)
+    if image_source:
+        if os.path.exists(image_source):
+            img_source_type = ImageSourceType.IMAGE_DIR
+        else:
+            rospy.logwarn('image directory does not exist: ' + image_source)
+
+    if img_source_type == ImageSourceType.UNKNOWN:
+        image_source = rospy.get_param('~cloud_topic', None)
+        if image_source:
+            img_source_type = ImageSourceType.CLOUD_TOPIC
+
+    if img_source_type == ImageSourceType.UNKNOWN:
+        image_source = rospy.get_param('~image_topic', None)
+        if image_source:
+            img_source_type = ImageSourceType.IMAGE_TOPIC
+
+    if img_source_type == ImageSourceType.UNKNOWN:
+        raise ValueError('no valid image source specified')
 
     # get parameters for detector class
     class_annotation_file = rospy.get_param('~class_annotations', None)
@@ -100,6 +177,6 @@ if __name__ == '__main__':
         raise ValueError('"~class_annotations" file does not exist: ' + class_annotation_file)
 
     # test detection server
-    main(image_directory, service_name, result_topic, class_annotation_file)
+    main(img_source_type, image_source, service_name, result_topic, class_annotation_file)
 
     rospy.spin()

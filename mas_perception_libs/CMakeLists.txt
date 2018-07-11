@@ -57,6 +57,7 @@ add_library(mas_perception_libs
   common/src/bounding_box_2d.cpp
   common/src/pyboost_cv3_converter.cpp
   ros/src/image_bounding_box.cpp
+  ros/src/point_cloud_utils.cpp
 )
 target_link_libraries(mas_perception_libs
   ${catkin_LIBRARIES}

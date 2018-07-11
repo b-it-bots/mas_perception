@@ -2,9 +2,9 @@ import rospy
 from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import PoseStamped
 from mcr_perception_msgs.msg import BoundingBox as BoundingBoxMsg
-from .ros_message_serialization import to_cpp, from_cpp
 
 from mas_perception_libs._cpp_wrapper import BoundingBoxWrapper, BoundingBox2DWrapper
+from .ros_message_serialization import to_cpp, from_cpp
 
 
 class BoundingBox(object):
