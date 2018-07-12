@@ -9,8 +9,8 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 
 from mcr_perception_msgs.srv import DetectImage, DetectImageRequest
-from mas_perception_libs import BoundingBox2D, ImageDetector
-from mas_perception_libs.utils import case_insensitive_glob,cloud_msg_to_image_msg
+from mas_perception_libs import ImageDetector
+from mas_perception_libs.utils import case_insensitive_glob, cloud_msg_to_image_msg, crop_organized_cloud_msg
 from mas_perception_libs.visualization import draw_labeled_boxes, draw_labeled_boxes_img_msg, bgr_dict_from_classes
 
 
@@ -88,13 +88,24 @@ class CloudTopicHandler(TopicHandler):
     def __init__(self, cloud_topic_name, detection_client, result_pub, color_dict):
         super(CloudTopicHandler, self).__init__(detection_client, result_pub, color_dict)
         self._cloud_sub = rospy.Subscriber(cloud_topic_name, PointCloud2, self._cloud_callback)
+        self._cropped_pub = rospy.Publisher('~first_cropped_cloud', PointCloud2, queue_size=2)
 
     def _cloud_callback(self, cloud_msg):
         img_msg = cloud_msg_to_image_msg(cloud_msg)
         detection = request_single_image_detection(self._detection_client, img_msg)
+
+        # generate 2D bounding boxes from detection result
         boxes = ImageDetector.detection_msg_to_bounding_boxes(detection, self._color_dict)
+        if len(boxes) == 0:
+            return
+
+        # draw resulting image
         drawn_img_msg = draw_labeled_boxes_img_msg(self._cv_bridge, img_msg, boxes)
         self._result_pub.publish(drawn_img_msg)
+
+        # crop point cloud
+        cropped_cloud = crop_organized_cloud_msg(cloud_msg, boxes[0])
+        self._cropped_pub.publish(cropped_cloud)
 
 
 class ImageTopicHandler(TopicHandler):

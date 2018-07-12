@@ -13,8 +13,15 @@
 namespace mas_perception_libs
 {
 
-cv::Mat
-cloudMsgToCvImage(sensor_msgs::PointCloud2 &pCloudMsg);
+    cv::Mat
+    cloudMsgToCvImage(sensor_msgs::PointCloud2 &pCloudMsg);
+
+    PointCloud
+    cropOrganizedCloud(const PointCloud &pCloud, BoundingBox2D &pBox);
+
+    void
+    cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &pBox,
+                          sensor_msgs::PointCloud2& pCroppedCloudMsg);
 
 }   // namespace mas_perception_libs
 

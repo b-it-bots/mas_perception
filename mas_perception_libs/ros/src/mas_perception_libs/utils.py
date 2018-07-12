@@ -5,8 +5,9 @@ import cv2
 import rospy
 from cv_bridge import CvBridgeError
 from sensor_msgs.msg import PointCloud2, Image as ImageMsg
+from mas_perception_libs._cpp_wrapper import _cloud_msg_to_cv_image, _cloud_msg_to_image_msg, _crop_organized_cloud_msg
+from .bounding_box import BoundingBox2D
 from .ros_message_serialization import to_cpp, from_cpp
-from mas_perception_libs._cpp_wrapper import _cloud_msg_to_cv_image, _cloud_msg_to_image_msg
 
 
 def get_classes_in_data_dir(data_dir):
@@ -41,7 +42,7 @@ def case_insensitive_glob(pattern):
 
 def cloud_msg_to_cv_image(cloud_msg):
     if not isinstance(cloud_msg, PointCloud2):
-        rospy.ROSException('Argument 1 is not a sensor_msgs/PointCloud2')
+        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2')
 
     serial_cloud = to_cpp(cloud_msg)
     return _cloud_msg_to_cv_image(serial_cloud)
@@ -49,8 +50,20 @@ def cloud_msg_to_cv_image(cloud_msg):
 
 def cloud_msg_to_image_msg(cloud_msg):
     if not isinstance(cloud_msg, PointCloud2):
-        rospy.ROSException('Argument 1 is not a sensor_msgs/PointCloud2')
+        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2')
 
     serial_cloud = to_cpp(cloud_msg)
     serial_img_msg = _cloud_msg_to_image_msg(serial_cloud)
     return from_cpp(serial_img_msg, ImageMsg)
+
+
+def crop_organized_cloud_msg(cloud_msg, bounding_box):
+    if not isinstance(cloud_msg, PointCloud2):
+        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
+
+    if not isinstance(bounding_box, BoundingBox2D):
+        raise ValueError('bounding_box is not a BoundingBox2D instance')
+
+    serial_cloud = to_cpp(cloud_msg)
+    serial_cropped = _crop_organized_cloud_msg(serial_cloud, bounding_box)
+    return from_cpp(serial_cropped, PointCloud2)

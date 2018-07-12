@@ -167,6 +167,18 @@ cloudMsgToImageMsgWrapper(std::string pSerialCloud)
     return to_python(imageMsg);
 }
 
+std::string
+cropOrganizedCloudMsgWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox)
+{
+    // unserialize cloud message
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+
+    sensor_msgs::PointCloud2 croppedCloudMsg;
+    cropOrganizedCloudMsg(cloudMsg, pBox, croppedCloudMsg);
+
+    return to_python(croppedCloudMsg);
+}
+
 }  // namespace mas_perception_libs
 
 BOOST_PYTHON_MODULE(_cpp_wrapper)
@@ -202,4 +214,6 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     bp::def("_cloud_msg_to_cv_image", mas_perception_libs::cloudMsgToCvImageWrapper);
 
     bp::def("_cloud_msg_to_image_msg", mas_perception_libs::cloudMsgToImageMsgWrapper);
+
+    bp::def("_crop_organized_cloud_msg", mas_perception_libs::cropOrganizedCloudMsgWrapper);
 }

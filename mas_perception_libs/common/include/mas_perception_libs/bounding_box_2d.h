@@ -39,6 +39,9 @@ struct BoundingBox2D
 void
 drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes, int pThickness, double pFontScale);
 
+void
+fitBoxToImage(cv::Size pImageSize, BoundingBox2D& pBox, int pSizeOffset = 0);
+
 cv::Rect
 fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset = 0);
 
