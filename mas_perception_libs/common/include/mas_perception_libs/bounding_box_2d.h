@@ -7,7 +7,6 @@
 #ifndef MAS_PERCEPTION_LIBS_BOUNDING_BOX_2D_H
 #define MAS_PERCEPTION_LIBS_BOUNDING_BOX_2D_H
 
-#include <map>
 #include <string>
 #include <vector>
 #include <opencv/cv.h>

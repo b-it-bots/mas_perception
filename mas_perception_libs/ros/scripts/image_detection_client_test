@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 import os
+import numpy as np
 import cv2
 import yaml
 from enum import Enum
@@ -10,7 +11,8 @@ from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 
 from mcr_perception_msgs.srv import DetectImage, DetectImageRequest
 from mas_perception_libs import ImageDetector
-from mas_perception_libs.utils import case_insensitive_glob, cloud_msg_to_image_msg, crop_organized_cloud_msg
+from mas_perception_libs.utils import case_insensitive_glob, cloud_msg_to_image_msg,\
+    crop_organized_cloud_msg, crop_cloud_to_xyz
 from mas_perception_libs.visualization import draw_labeled_boxes, draw_labeled_boxes_img_msg, bgr_dict_from_classes
 
 
@@ -89,6 +91,7 @@ class CloudTopicHandler(TopicHandler):
         super(CloudTopicHandler, self).__init__(detection_client, result_pub, color_dict)
         self._cloud_sub = rospy.Subscriber(cloud_topic_name, PointCloud2, self._cloud_callback)
         self._cropped_pub = rospy.Publisher('~first_cropped_cloud', PointCloud2, queue_size=2)
+        self._cropped_img_pub = rospy.Publisher('~first_cropped_image', ImageMsg, queue_size=2)
 
     def _cloud_callback(self, cloud_msg):
         img_msg = cloud_msg_to_image_msg(cloud_msg)
@@ -106,6 +109,12 @@ class CloudTopicHandler(TopicHandler):
         # crop point cloud
         cropped_cloud = crop_organized_cloud_msg(cloud_msg, boxes[0])
         self._cropped_pub.publish(cropped_cloud)
+
+        # crop point cloud
+        cropped_coord = crop_cloud_to_xyz(cloud_msg, boxes[0])
+        rospy.loginfo('label {0}: coord mean (frame {1}): {2}'
+                      .format(boxes[0].label, cloud_msg.header.frame_id,
+                              np.nanmean(np.reshape(cropped_coord, (-1, 3)), axis=0)))
 
 
 class ImageTopicHandler(TopicHandler):

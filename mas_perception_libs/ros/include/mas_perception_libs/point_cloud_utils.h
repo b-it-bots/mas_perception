@@ -16,6 +16,12 @@ namespace mas_perception_libs
     cv::Mat
     cloudMsgToCvImage(sensor_msgs::PointCloud2 &pCloudMsg);
 
+    cv::Mat
+    cropCloudToXYZ(const PointCloud &pCloud, BoundingBox2D &pBox);
+
+    cv::Mat
+    cropCloudMsgToXYZ(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &pBox);
+
     PointCloud
     cropOrganizedCloud(const PointCloud &pCloud, BoundingBox2D &pBox);
 

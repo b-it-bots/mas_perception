@@ -4,9 +4,7 @@
  * Author: Minh Nguyen
  *
  */
-#include <map>
 #include <vector>
-#include <utility>
 #include <string>
 #include <boost/python.hpp>
 #include <numpy/arrayobject.h>
@@ -179,6 +177,19 @@ cropOrganizedCloudMsgWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox
     return to_python(croppedCloudMsg);
 }
 
+PyObject *
+cropCloudMsgToXYZWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox)
+{
+    // unserialize cloud message
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+
+    cv::Mat coords = cropCloudMsgToXYZ(cloudMsg, pBox);
+
+    PyObject *coordArray = pbcvt::fromMatToNDArray(coords);
+
+    return coordArray;
+}
+
 }  // namespace mas_perception_libs
 
 BOOST_PYTHON_MODULE(_cpp_wrapper)
@@ -216,4 +227,6 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     bp::def("_cloud_msg_to_image_msg", mas_perception_libs::cloudMsgToImageMsgWrapper);
 
     bp::def("_crop_organized_cloud_msg", mas_perception_libs::cropOrganizedCloudMsgWrapper);
+
+    bp::def("_crop_cloud_to_xyz", mas_perception_libs::cropCloudMsgToXYZWrapper);
 }

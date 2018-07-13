@@ -4,11 +4,8 @@
  * Author: Minh Nguyen
  *
  */
-#include <map>
-#include <string>
 #include <vector>
 #include <opencv2/imgproc.hpp>
-#include <mas_perception_libs/impl/pyboostcvconverter.hpp>
 #include <mas_perception_libs/bounding_box_2d.h>
 
 namespace mas_perception_libs

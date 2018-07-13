@@ -41,6 +41,37 @@ namespace mas_perception_libs
         return cvImagePtr->image;
     }
 
+    cv::Mat
+    cropCloudToXYZ(const PointCloud &pCloud, BoundingBox2D &pBox)
+    {
+        fitBoxToImage(cv::Size(pCloud.width, pCloud.height), pBox);
+
+        // create coords
+        int dims[] = { pBox.mWidth, pBox.mHeight, 3 };
+        cv::Mat coordinates(3, dims, CV_32FC1);
+        for (int x = pBox.mX; x < pBox.mX + pBox.mWidth; x++)
+        {
+            for (int y = pBox.mY; y < pBox.mY + pBox.mHeight; y++)
+            {
+                const PointT& origPoint = pCloud.at(x, y);
+                coordinates.at<float>(x - pBox.mX, y - pBox.mY, 0) = origPoint.x;
+                coordinates.at<float>(x - pBox.mX, y - pBox.mY, 1) = origPoint.y;
+                coordinates.at<float>(x - pBox.mX, y - pBox.mY, 2) = origPoint.z;
+            }
+        }
+        return coordinates;
+    }
+
+    cv::Mat
+    cropCloudMsgToXYZ(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &pBox)
+    {
+        // convert to PCL cloud
+        PointCloud origCloud;
+        pcl::fromROSMsg(pCloudMsg, origCloud);
+
+        return cropCloudToXYZ(origCloud, pBox);
+    }
+
     PointCloud
     cropOrganizedCloud(const PointCloud &pCloud, BoundingBox2D &pBox)
     {
