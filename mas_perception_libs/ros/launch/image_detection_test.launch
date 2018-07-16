@@ -10,27 +10,27 @@
     <arg name="detection_module" default="mas_perception_libs" />
     <arg name="detection_class" default="ImageDetectorTest" />
 
-    <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen"
-          ns="mas_perception">
-        <remap from="image" to="$(arg result_topic)" />
-        <param name="autosize" type="bool" value="True" />
-    </node>
+    <group ns="mas_perception">
+        <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+            <remap from="image" to="$(arg result_topic)" />
+            <param name="autosize" type="bool" value="True" />
+        </node>
 
-    <node pkg="mas_perception_libs" type="image_detection_client_test" name="image_detection_client" output="screen"
-          ns="mas_perception">
-        <param name="service_name" type="string" value="$(arg service_name)" />
-        <param name="result_topic" type="string" value="$(arg result_topic)" />
-        <param name="image_directory" type="string" value="$(arg image_directory)" />
-        <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
-        <param name="image_topic" type="string" value="$(arg image_topic)" />
-        <param name="class_annotations" type="string" value="$(arg class_annotations)" />
-    </node>
+        <node pkg="mas_perception_libs" type="image_detection_client_test" name="image_detection_client" output="screen">
+            <param name="service_name" type="string" value="$(arg service_name)" />
+            <param name="result_topic" type="string" value="$(arg result_topic)" />
+            <param name="image_directory" type="string" value="$(arg image_directory)" />
+            <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
+            <param name="image_topic" type="string" value="$(arg image_topic)" />
+            <param name="class_annotations" type="string" value="$(arg class_annotations)" />
+        </node>
 
-    <include file="$(find mas_perception_libs)/ros/launch/image_detection.launch" >
-        <arg name="service_name" value="$(arg service_name)" />
-        <arg name="class_annotations" value="$(arg class_annotations)" />
-        <arg name="kwargs_file" value="$(arg kwargs_file)" />
-        <arg name="detection_module" value="$(arg detection_module)" />
-        <arg name="detection_class" value="$(arg detection_class)" />
-    </include>
+        <include file="$(find mas_perception_libs)/ros/launch/image_detection.launch" >
+            <arg name="service_name" value="$(arg service_name)" />
+            <arg name="class_annotations" value="$(arg class_annotations)" />
+            <arg name="kwargs_file" value="$(arg kwargs_file)" />
+            <arg name="detection_module" value="$(arg detection_module)" />
+            <arg name="detection_class" value="$(arg detection_class)" />
+        </include>
+    </group>
 </launch>

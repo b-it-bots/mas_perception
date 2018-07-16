@@ -6,8 +6,7 @@
     <arg name="detection_module" default="mas_perception_libs" />
     <arg name="detection_class" default="ImageDetectorTest" />
 
-    <node pkg="mas_perception_libs" type="image_detection_server" name="image_detection_server" output="screen"
-          ns="mas_perception">
+    <node pkg="mas_perception_libs" type="image_detection_server" name="image_detection_server" output="screen">
         <param name="service_name" type="string" value="$(arg service_name)" />
         <param name="class_annotations" type="string" value="$(arg class_annotations)" />
         <param name="kwargs_file" type="string" value="$(arg kwargs_file)" />
