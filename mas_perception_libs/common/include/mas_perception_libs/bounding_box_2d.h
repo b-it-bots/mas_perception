@@ -23,8 +23,16 @@ struct BoundingBox2D
     std::string mLabel;
     cv::Scalar mColor;
 
+    BoundingBox2D(std::string pLabel, cv::Scalar pColor, int pX, int pY, int pWidth, int pHeight)
+            : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(pLabel), mColor(pColor)
+    { }
+
+    BoundingBox2D(std::string pLabel, int pX, int pY, int pWidth, int pHeight)
+            : BoundingBox2D(pLabel, CV_RGB(0, 0, 255), pX, pY, pWidth, pHeight)
+    { }
+
     BoundingBox2D(int pX, int pY, int pWidth, int pHeight)
-        : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(""), mColor(CV_RGB(0, 0, 255))
+            : BoundingBox2D("", pX, pY, pWidth, pHeight)
     { }
 
     BoundingBox2D() : BoundingBox2D(0, 0, 0, 0)
@@ -36,7 +44,8 @@ struct BoundingBox2D
 };
 
 void
-drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes, int pThickness, double pFontScale);
+drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes,
+                 int pThickness = 2, double pFontScale = 1.0);
 
 void
 fitBoxToImage(cv::Size pImageSize, BoundingBox2D& pBox, int pSizeOffset = 0);

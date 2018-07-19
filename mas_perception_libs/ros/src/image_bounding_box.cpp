@@ -9,8 +9,8 @@
 #include <stdexcept>
 
 #include <tf/transform_listener.h>
-#include <mas_perception_libs/image_bounding_box.h>
 #include <mas_perception_libs/bounding_box_2d.h>
+#include <mas_perception_libs/image_bounding_box.h>
 
 namespace mas_perception_libs
 {
@@ -96,5 +96,43 @@ ImageBoundingBox::ImageBoundingBox(const sensor_msgs::Image &pImageMsg,
 }
 
 ImageBoundingBox::~ImageBoundingBox() = default;
+
+sensor_msgs::ImagePtr
+drawLabeledBoxesImgMsg(const sensor_msgs::Image& pImageMsg, std::vector<BoundingBox2D> pBoxes,
+                       int pThickness, double pFontScale)
+{
+    cv_bridge::CvImagePtr cvImagePtr;
+    try
+    {
+        cvImagePtr = cv_bridge::toCvCopy(pImageMsg, sensor_msgs::image_encodings::BGR8);
+    }
+    catch (cv_bridge::Exception& e)
+    {
+        ROS_ERROR("error converting message to CV image %s", e.what());
+        throw;
+    }
+
+    drawLabeledBoxes(cvImagePtr->image, pBoxes, pThickness, pFontScale);
+
+    return cvImagePtr->toImageMsg();
+}
+
+std::vector<BoundingBox2D>
+imageDetectionToBoundingBoxVect(const mcr_perception_msgs::ImageDetection& detection)
+{
+    std::vector<BoundingBox2D> boxes;
+
+    for (int i = 0; i < detection.classes.size(); i++)
+    {
+        const mcr_perception_msgs::BoundingBox2D& boxMsg = detection.bounding_boxes[i];
+        std::stringstream label;
+        label << detection.classes[i] << " " << detection.probabilities[i];
+        BoundingBox2D box(label.str(), static_cast<int>(boxMsg.x_min), static_cast<int>(boxMsg.y_min),
+                          static_cast<int>(boxMsg.x_max - boxMsg.x_min), static_cast<int>(boxMsg.y_max - boxMsg.y_min));
+        boxes.push_back(box);
+    }
+
+    return boxes;
+}
 
 }  // namespace mas_perception_libs

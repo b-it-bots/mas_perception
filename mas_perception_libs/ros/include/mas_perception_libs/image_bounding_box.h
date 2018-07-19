@@ -14,7 +14,9 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <tf/transform_listener.h>
 #include <mcr_perception_msgs/BoundingBoxList.h>
+#include <mcr_perception_msgs/ImageDetection.h>
 #include <mcr_perception_msgs/ImageList.h>
+#include <mas_perception_libs/bounding_box_2d.h>
 
 namespace mas_perception_libs
 {
@@ -38,6 +40,13 @@ private:
     mcr_perception_msgs::ImageList mCroppedImageList;
     std::vector<std::vector<cv::Point2f>> mBoxVerticesVector;
 };
+
+std::vector<BoundingBox2D>
+imageDetectionToBoundingBoxVect(const mcr_perception_msgs::ImageDetection&);
+
+sensor_msgs::ImagePtr
+drawLabeledBoxesImgMsg(const sensor_msgs::Image&, std::vector<BoundingBox2D>,
+                       int pThickness = 2, double pFontScale = 1.0);
 
 }  // namespace mas_perception_libs
 

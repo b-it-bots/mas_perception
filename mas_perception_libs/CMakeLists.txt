@@ -52,10 +52,8 @@ include_directories(
 # add mas_perception_libs library
 ###################################
 add_library(mas_perception_libs
-  common/src/init_numpy_api.cpp
   common/src/bounding_box.cpp
   common/src/bounding_box_2d.cpp
-  common/src/pyboost_cv3_converter.cpp
   ros/src/image_bounding_box.cpp
   ros/src/point_cloud_utils.cpp
 )
@@ -68,6 +66,8 @@ target_link_libraries(mas_perception_libs
 # python wrapper for cpp libraries
 ###################################
 add_library(_cpp_wrapper SHARED
+  common/src/init_numpy_api.cpp
+  common/src/pyboost_cv3_converter.cpp
   ros/src/bounding_box_wrapper.cpp
   ros/src/boost_python_module.cpp
 )
