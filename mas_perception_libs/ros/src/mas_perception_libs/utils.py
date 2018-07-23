@@ -6,7 +6,7 @@ import rospy
 from cv_bridge import CvBridgeError
 from sensor_msgs.msg import PointCloud2, Image as ImageMsg
 from mas_perception_libs._cpp_wrapper import _cloud_msg_to_cv_image, _cloud_msg_to_image_msg,\
-    _crop_organized_cloud_msg, _crop_cloud_to_xyz
+    _crop_organized_cloud_msg, _crop_cloud_to_xyz, _transform_point_cloud
 from .bounding_box import BoundingBox2D
 from .ros_message_serialization import to_cpp, from_cpp
 
@@ -79,3 +79,9 @@ def crop_cloud_to_xyz(cloud_msg, bounding_box):
 
     serial_cloud = to_cpp(cloud_msg)
     return _crop_cloud_to_xyz(serial_cloud, bounding_box)
+
+
+def transform_point_cloud(cloud_msg, tf_matrix):
+    if not isinstance(cloud_msg, PointCloud2):
+        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
+    return from_cpp(_transform_point_cloud(to_cpp(cloud_msg), tf_matrix))

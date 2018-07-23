@@ -8,7 +8,10 @@
 #include <string>
 #include <boost/python.hpp>
 #include <numpy/arrayobject.h>
+#include <Eigen/Core>
+#include <opencv2/core/eigen.hpp>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl_ros/transforms.h>
 #include <mas_perception_libs/use_numpy.h>
 #include <mas_perception_libs/impl/pyboostcvconverter.hpp>
 #include <mas_perception_libs/impl/ros_message_serialization.hpp>
@@ -178,16 +181,37 @@ cropOrganizedCloudMsgWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox
 }
 
 PyObject *
-cropCloudMsgToXYZWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox)
+cropCloudMsgToXYZWrapper(const std::string &pSerialCloud, BoundingBox2DWrapper pBox)
 {
     // unserialize cloud message
-    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
 
     cv::Mat coords = cropCloudMsgToXYZ(cloudMsg, pBox);
 
     PyObject *coordArray = pbcvt::fromMatToNDArray(coords);
 
     return coordArray;
+}
+
+std::string
+transformPointCloudWrapper(const std::string &pSerialCloud, PyObject * pTfMatrix)
+{
+    // convert tf matrix from cv::Mat to Eigen::Matrix
+    cv::Mat tfMatrix = pbcvt::fromNDArrayToMat(pTfMatrix);
+    if (tfMatrix.rows != 4 || tfMatrix.cols != 4)
+        throw std::runtime_error("transformation is not a 4x4 matrix");
+    Eigen::Matrix4f eigenTfMatrix;
+    cv::cv2eigen(tfMatrix, eigenTfMatrix);
+
+    // unserialize cloud message
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
+
+    // transform using tf matrix
+    sensor_msgs::PointCloud2 transformedCloud;
+    pcl_ros::transformPointCloud(eigenTfMatrix, cloudMsg, transformedCloud);
+
+    // serialize and return trasnformed cloud
+    return to_python(transformedCloud);
 }
 
 }  // namespace mas_perception_libs
@@ -229,4 +253,6 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     bp::def("_crop_organized_cloud_msg", mas_perception_libs::cropOrganizedCloudMsgWrapper);
 
     bp::def("_crop_cloud_to_xyz", mas_perception_libs::cropCloudMsgToXYZWrapper);
+
+    bp::def("_transform_point_cloud", mas_perception_libs::transformPointCloudWrapper);
 }
