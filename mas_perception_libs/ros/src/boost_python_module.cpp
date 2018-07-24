@@ -211,6 +211,7 @@ transformPointCloudWrapper(const std::string &pSerialCloud, PyObject * pTfMatrix
     pcl_ros::transformPointCloud(eigenTfMatrix, cloudMsg, transformedCloud);
 
     // serialize and return trasnformed cloud
+    // NOTE: this will not update the header, this needs to be done in Python code
     return to_python(transformedCloud);
 }
 

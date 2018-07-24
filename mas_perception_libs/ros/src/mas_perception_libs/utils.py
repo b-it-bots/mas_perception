@@ -81,7 +81,9 @@ def crop_cloud_to_xyz(cloud_msg, bounding_box):
     return _crop_cloud_to_xyz(serial_cloud, bounding_box)
 
 
-def transform_point_cloud(cloud_msg, tf_matrix):
+def transform_point_cloud(cloud_msg, tf_matrix, target_frame):
     if not isinstance(cloud_msg, PointCloud2):
         raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
-    return from_cpp(_transform_point_cloud(to_cpp(cloud_msg), tf_matrix))
+    transformed_cloud = from_cpp(_transform_point_cloud(to_cpp(cloud_msg), tf_matrix), PointCloud2)
+    transformed_cloud.header.frame_id = target_frame
+    return transformed_cloud
