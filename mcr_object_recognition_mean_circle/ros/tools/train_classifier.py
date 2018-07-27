@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', help='output filename (without folder and '
                         'extension, default: "classifier")', default='classifier')
     args = parser.parse_args()
-    data_folder = os.path.join(roslib.packages.get_pkg_dir(DATA_PACKAGE), 'objects', 'workspace_setups', args.dataset)
+    data_folder =  args.dataset
     cfg_folder = os.path.join(roslib.packages.get_pkg_dir(PACKAGE), 'common', 'config')
 
     trainer = SVMTrainer(data_folder)
