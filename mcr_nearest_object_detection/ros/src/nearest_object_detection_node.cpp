@@ -19,7 +19,7 @@
 #include <tf/tf.h>
 #include <laser_filters/angular_bounds_filter.h>
 
-#include <mcr_algorithms/segmentation/laserscan_segmentation.h>
+#include <mcr_scene_segmentation/laserscan_segmentation.h>
 #include <mcr_algorithms/geometry/conversions.h>
 #include <mcr_algorithms/wrapper/pcl_wrapper.hpp>
 
