@@ -4,6 +4,7 @@ project(mcr_people_tracking)
 find_package(catkin REQUIRED
   COMPONENTS
     dynamic_reconfigure
+    mcr_scene_segmentation
     mcr_algorithms
     mcr_perception_msgs
     pcl_ros
@@ -24,6 +25,7 @@ catkin_package(
   CATKIN_DEPENDS
     dynamic_reconfigure
     mcr_algorithms
+    mcr_scene_segmentation
     mcr_perception_msgs
     visualization_msgs
 )
