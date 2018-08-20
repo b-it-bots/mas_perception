@@ -12,6 +12,7 @@ find_package(catkin REQUIRED
     roslint
     tf
     visualization_msgs
+    mcr_algorithms
 )
 find_package(PCL 1.7 REQUIRED)
 find_package(VTK REQUIRED)
@@ -27,6 +28,7 @@ catkin_package(
     common/include
   LIBRARIES
     scene_segmentation
+    mcr_segmentation
   CATKIN_DEPENDS
     mcr_perception_msgs
     visualization_msgs
@@ -55,6 +57,14 @@ add_dependencies(scene_segmentation
 target_link_libraries(scene_segmentation
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
+)
+
+add_library(mcr_segmentation
+  ros/src/laserscan_segmentation.cpp
+  ros/src/pointcloud_segmentation.cpp
+)
+add_dependencies(mcr_segmentation
+  ${catkin_EXPORTED_TARGETS}
 )
 
 
@@ -105,4 +115,10 @@ install(TARGETS scene_segmentation
 
 install(TARGETS scene_segmentation_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(
+	TARGETS
+		mcr_segmentation
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )

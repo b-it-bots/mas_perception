@@ -5,6 +5,7 @@ find_package(catkin REQUIRED
   COMPONENTS
     geometry_msgs
     laser_filters
+    mcr_scene_segmentation
     mcr_algorithms
     roscpp
     sensor_msgs
@@ -19,18 +20,19 @@ include_directories(
 )
 
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
     geometry_msgs
+    mcr_scene_segmentation
     mcr_algorithms
     sensor_msgs
     std_srvs
     visualization_msgs
 )
 
-add_executable(nearest_object_detection_node 
+add_executable(nearest_object_detection_node
   ros/src/nearest_object_detection_node.cpp
 )
-add_dependencies(nearest_object_detection_node 
+add_dependencies(nearest_object_detection_node
   ${catkin_EXPORTED_TARGETS}
 )
 target_link_libraries(nearest_object_detection_node
