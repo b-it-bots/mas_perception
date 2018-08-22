@@ -1,0 +1,6 @@
+# Empty Goal
+---
+# Result
+mcr_perception_msgs/Plane[] planes      # planes containing detected objects
+---
+# Empty Feedback
