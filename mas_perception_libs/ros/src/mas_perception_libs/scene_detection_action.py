@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import rospy
 from actionlib import SimpleActionServer
-from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, Plane, Object
+from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, Plane
 
 
 class SceneDetectionActionServer(object):
@@ -24,12 +24,9 @@ class SceneDetectionActionServer(object):
         pass
 
 
-class SceneDetectionTestActionServer(SceneDetectionActionServer):
-    _num_objects = None  # type: int
-
-    def __init__(self, action_name, num_objects=3, **kwargs):
-        super(SceneDetectionTestActionServer, self).__init__(action_name, **kwargs)
-        self._num_objects = num_objects
+class SceneDetectionActionServerTest(SceneDetectionActionServer):
+    def __init__(self, action_name, **kwargs):
+        super(SceneDetectionActionServerTest, self).__init__(action_name, **kwargs)
 
     def _initialize(self, **kwargs):
         pass
@@ -38,7 +35,4 @@ class SceneDetectionTestActionServer(SceneDetectionActionServer):
         # generate fake results
         result = DetectSceneResult()
         result.planes.append(Plane())
-        for _ in range(self._num_objects):
-            result.planes[0].object_list.objects.append(Object())
-
         self._action_server.set_succeeded(result)

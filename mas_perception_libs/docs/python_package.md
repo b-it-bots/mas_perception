@@ -2,31 +2,25 @@
 
 ## Classes
 
-### `DetectionServiceProxy`
-Abstract class to interact with any object detection service.
-* An extension of this class needs to implement the following functions:
-    - `_get_segmentation_req`: create a detection service request.
-    - `_get_objects_and_planes_from_response`: convert the service response into a
-    `mcr_perception_msgs/PlaneList` object, where each plane contains a list of detected objects.
-* Any extension of this class can be passed into `ObjectDetector` class for interacting with the
-desired detection service.
+### `SceneDetectionActionServer`
+An abstract class which creates an `actionlib.SimpleActionServer` object to handle object detection action goals using
+action specifications in
+[`mcr_perception_msgs/DetectScene.action`](../../mcr_perception_msgs/action/DetectScene.action). An extension of this
+class needs to implement:
+* `_initialize`: initialization procedures before starting the action servers (i.e. loading models).
+* `_execute_cb`: perform object detection and respond to the action client.
 
-Defined in [`detection_service_proxy.py`](../ros/src/mas_perception_libs/detection_service_proxy.py).
-
-#### `DetectionServiceProxyTest`
-An example implementation of the `DetectionServiceProxy` class which return an empty
-`mcr_perception_msgs/PlaneList`. This is used in `mdr_perceive_plane_action` for testing.
-
-Defined in [`detection_service_proxy.py`](../ros/src/mas_perception_libs/detection_service_proxy.py).
+### `SceneDetectionTestActionServer`
+Test extension of `SceneDetectionActionServer`, used by
+[`object_detection_test_server`](../ros/scripts/object_detection_test_server) for testing without an actual object
+detection action server.
 
 ### `ImageClassifier`
 Abstract class for image classification.
 * An extension of this class needs to implement the following functions:
-    - `classify`: receive a list of `sensor_msgs/Image` as argument, returns a list of corresponding
-    classes.
+    - `classify`: receive a list of `sensor_msgs/Image` as argument, returns a list of corresponding classes.
 * Any extension of this class can be used by
-[`image_recognition_server`](../ros/scripts/image_recognition_server) for classifying
-images.
+[`image_recognition_server`](../ros/scripts/image_recognition_server) for classifying images.
 
 Defined in [`image_classifier.py`](../ros/src/mas_perception_libs/image_classifier.py).
 
@@ -47,14 +41,14 @@ Interact with [`image_recognition_server`](../ros/scripts/image_recognition_serv
 Defined in [`image_recognition_service_proxy.py`](../ros/src/mas_perception_libs/image_recognition_service_proxy.py).
 
 ### `ObjectDetector`
-* Interact with instances of `DetectionServiceProxy` to get a list of planes containing objects.
-* Perform common preprocessing steps on the objects (i.e. create bounding box, transform to desired
-frame,...).
-* Detection service is triggered by method `start_detect_objects`. A callback param
-can be passed in to be executed at the end of the method.
+* Interact with a [`mcr_perception_msgs/DetectScene.action`](../../mcr_perception_msgs/action/DetectScene.action)
+  action server to get a list of planes containing objects.
+* Perform common preprocessing steps on the objects (i.e. create bounding box, transform to desired frame,...).
+* Detection service is triggered by method `start_detect_objects`. A callback param can be passed in to be executed at
+  the end of the method.
 * The list of planes and objects can be accessed through property `plane_list`.
-* An example usage is written in the `DetectObjects` state, defined in file
-`action_states.py` of the `mdr_perceive_plane_action` package.
+* An example usage is written in the `DetectObjects` state, defined in file `action_states.py` of the
+  `mdr_perceive_plane_action` package.
 
 Defined in [`object_detector.py`](../ros/src/mas_perception_libs/object_detector.py).
 
@@ -68,8 +62,7 @@ Defined in [`bounding_box.py`](../ros/src/mas_perception_libs/bounding_box.py).
 ## Utilities
 ### [`utils.py`](../ros/src/mas_perception_libs/utils.py)
 #### `get_classes_in_data_dir`
-Returns a list of strings as class names for a directory. This
-directory structure
+Returns a list of strings as class names for a directory. This directory structure
 ```
 data
 ├── class_1
@@ -80,9 +73,9 @@ should returns
 ['class_1', 'class_2']
 ```
 when called on `data`.
+
 #### `process_image_message`
-Converts `sensor_msgs/Image` to CV image, then resizes and/or runs a preprocessing function
-if specified.
+Converts `sensor_msgs/Image` to CV image, then resizes and/or runs a preprocessing function if specified.
 
 #### `case_insensitive_glob`
 glob files ignoring case.
