@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   image_geometry
   pcl_ros
   mcr_perception_msgs
-  message_generation
 )
 
 find_package(PCL 1.7 REQUIRED)

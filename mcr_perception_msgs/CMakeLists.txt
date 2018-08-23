@@ -3,6 +3,9 @@ project(mcr_perception_msgs)
 
 find_package(catkin REQUIRED
   COMPONENTS
+    genmsg
+    actionlib_msgs
+    actionlib
     geometry_msgs
     message_generation
     roscpp
@@ -10,6 +13,11 @@ find_package(catkin REQUIRED
     sensor_msgs
     std_msgs
     visualization_msgs
+)
+
+add_action_files(DIRECTORY action
+  FILES
+    DetectScene.action
 )
 
 add_message_files(
@@ -63,6 +71,7 @@ generate_messages(
     geometry_msgs
     sensor_msgs
     std_msgs
+    actionlib_msgs
 )
 
 catkin_package(
