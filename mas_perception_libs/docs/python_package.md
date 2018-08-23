@@ -38,7 +38,7 @@ Defined in [`keras_image_classifier.py`](../ros/src/mas_perception_libs/keras_im
 ### `ImageRecognitionServiceProxy`
 Interact with [`image_recognition_server`](../ros/scripts/image_recognition_server) to get image classification results.
 
-Defined in [`image_recognition_service_proxy.py`](../ros/src/mas_perception_libs/image_recognition_service_proxy.py).
+Defined in [`image_recognition_service.py`](../ros/src/mas_perception_libs/image_recognition_service_proxy.py).
 
 ### `ObjectDetector`
 * Interact with a [`mcr_perception_msgs/DetectScene.action`](../../mcr_perception_msgs/action/DetectScene.action)
