@@ -1,25 +1,33 @@
 import rospy
 import tf
+from actionlib import SimpleActionClient
 from geometry_msgs.msg import PointStamped
-from mcr_perception_msgs.msg import PlaneList
+from mcr_perception_msgs.msg import PlaneList, DetectSceneGoal, DetectSceneAction
 from mas_perception_libs import Constant, BoundingBox
-from detection_service_proxy import DetectionServiceProxy
 
 
 class ObjectDetector(object):
-    def __init__(self, detection_service_proxy):
-        if not isinstance(detection_service_proxy, DetectionServiceProxy):
-            raise ValueError('argument 1 is not a DetectionServiceProxy instance')
+    _detection_client = None    # type: SimpleActionClient
+    _plane_list = PlaneList()   # type: PlaneList
+    _timeout = None             # type: int
 
-        self._detection_service_proxy = detection_service_proxy
-        self._plane_list = None
+    def __init__(self, detection_action_name, timeout=5):
+        self._timeout = timeout
+        self._detection_client = SimpleActionClient(detection_action_name, DetectSceneAction)
+        if not self._detection_client.wait_for_server(timeout=rospy.Duration(self._timeout)):
+            raise RuntimeError('failed to wait for detection action server after {0} seconds: {1}'
+                               .format(self._timeout, detection_action_name))
+
         self._tf_listener = tf.TransformListener()
-        pass
 
     def start_detect_objects(self, plane_frame_prefix, done_callback, target_frame=None, group_planes=True):
-        self._plane_list = self._detection_service_proxy.get_objects_and_planes()
-        if not isinstance(self._plane_list, PlaneList):
-            raise ValueError('get_objects_and_planes() did not return a PlaneList instance')
+        goal = DetectSceneGoal()
+        self._detection_client.send_goal(goal)
+        if not self._detection_client.wait_for_result(rospy.Duration(self._timeout)):
+            rospy.logwarn('action server did not respond after {0} seconds, returning'.format(self._timeout))
+            return
+
+        self._plane_list.planes = self._detection_client.get_result().planes
 
         # transform if target_frame is specified (i.e. not None or empty string)
         if target_frame:

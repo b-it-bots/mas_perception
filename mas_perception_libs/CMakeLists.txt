@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   image_geometry
   pcl_ros
   mcr_perception_msgs
-  message_generation
 )
 
 find_package(PCL 1.7 REQUIRED)
@@ -22,11 +21,6 @@ find_package(PythonLibs 2.7 REQUIRED)
 find_package(OpenCV REQUIRED)
 
 catkin_python_setup()
-
-generate_messages(
-  DEPENDENCIES
-    sensor_msgs
-)
 
 ###################################
 ## catkin specific configuration ##
