@@ -4,6 +4,7 @@ from image_classifier import ImageClassifier, ImageClassifierTest, KerasImageCla
 from image_recognition_service import ImageRecognitionServiceProxy, RecognizeImageService
 from image_detector import ImageDetectionKey, ImageDetector, ImageDetectorTest, ImageDetectionService
 from object_detector import ObjectDetector
-from scene_detection_action import SceneDetectionActionServerTest, SceneDetectionActionServer
+from scene_detection_action import SceneDetectionActionServerTest, SceneDetectionActionServer,\
+    ImageDetectionActionServer
 import utils
 import visualization

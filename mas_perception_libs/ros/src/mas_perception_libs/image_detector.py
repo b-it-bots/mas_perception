@@ -7,9 +7,9 @@ import yaml
 from enum import Enum
 from mcr_perception_msgs.msg import ImageDetection, BoundingBox2D as BoundingBox2DMsg
 from mcr_perception_msgs.srv import DetectImage, DetectImageResponse
-from .bounding_box import BoundingBox2D
 
-from .detection_service_proxy import DetectionServiceProxy
+from .bounding_box import BoundingBox2D
+from .visualization import bgr_dict_from_classes
 
 
 class ImageDetectionKey(Enum):
@@ -23,6 +23,8 @@ class ImageDetectionKey(Enum):
 
 class ImageDetector(object):
     __metaclass__ = ABCMeta
+    _classes = None         # type: dict
+    _class_colors = None    # type: dict
 
     def __init__(self, **kwargs):
         # load dictionary of classes
@@ -35,6 +37,7 @@ class ImageDetector(object):
 
         if self._classes is None:
             raise ValueError("no valid 'class_file' or 'classes' parameter specified")
+        self._class_colors = bgr_dict_from_classes(self._classes.values())
 
         # load kwargs file and call load_model()
         model_kwargs_file = kwargs.get('model_kwargs_file', None)
@@ -50,6 +53,10 @@ class ImageDetector(object):
     def classes(self):
         return self._classes
 
+    @property
+    def class_colors(self):
+        return self._class_colors
+
     @abstractmethod
     def load_model(self, **kwargs):
         pass
@@ -59,7 +66,32 @@ class ImageDetector(object):
         pass
 
     @staticmethod
-    def prediction_to_detection_msg(predicted_boxes):
+    def prediction_to_bounding_boxes(prediction, color_dict=None):
+        boxes = []
+        classes = []
+        confidences = []
+        for box_dict in prediction:
+            box_geometry = (box_dict[ImageDetectionKey.X_MIN],
+                            box_dict[ImageDetectionKey.Y_MIN],
+                            box_dict[ImageDetectionKey.X_MAX] - box_dict[ImageDetectionKey.X_MIN],
+                            box_dict[ImageDetectionKey.Y_MAX] - box_dict[ImageDetectionKey.Y_MIN])
+
+            label = '{}: {:.2f}'.format(box_dict[ImageDetectionKey.CLASS], box_dict[ImageDetectionKey.CONF])
+
+            if color_dict is None:
+                color = (0, 0, 255)     # default color: blue
+            else:
+                color = color_dict[box_dict[ImageDetectionKey.CLASS]]
+
+            bounding_box = BoundingBox2D(label, color, box_geometry)
+            boxes.append(bounding_box)
+            classes.append(box_dict[ImageDetectionKey.CLASS])
+            confidences.append(box_dict[ImageDetectionKey.CONF])
+
+        return boxes, classes, confidences
+
+    @staticmethod
+    def prediction_to_detection_msg(predicted_boxes):   # TODO(minhnh) remove ImageDetection message?
         detection_msg = ImageDetection()
         for box in predicted_boxes:
             # fill class and confidence
@@ -140,6 +172,7 @@ class ImageDetectorTest(ImageDetector):
 class ImageDetectionService(object):
     """
     Interacts with ImageDetector class, only contain 2D bounding boxes
+    TODO(minhnh) may still be useful for testing
     """
     def __init__(self, service_name, detection_class, class_annotation_file, kwargs_file):
         if not issubclass(detection_class, ImageDetector):
@@ -156,34 +189,3 @@ class ImageDetectionService(object):
             response.detections.append(detection_msg)
 
         return response
-
-
-class ImageDetectionServiceProxy(DetectionServiceProxy):
-    """
-    Extends DetectionServiceProxy, use ImageDetector to detect objects in image, using XYZRGB point cloud, returns
-    a list of objects
-    """
-    def __init__(self, service_name, detection_class, class_annotation_file, kwargs_file, point_cloud_topic):
-        super(ImageDetectionServiceProxy, self).__init__(service_name, DetectImage)
-        if not issubclass(detection_class, ImageDetector):
-            raise ValueError('detection class is not of ImageDetector type')
-
-        self._detector = detection_class(class_file=class_annotation_file, model_kwargs_file=kwargs_file)
-        self._cloud_topic = point_cloud_topic
-
-    def _get_objects_and_planes_from_response(self, res):
-        # visualize detection result
-        # get image crops
-        # get cloud crops
-        # calculate pose
-        # fill some fake plane
-        # return plane_list
-        pass
-
-    def _get_segmentation_req(self):
-        # subscribe to point cloud topic
-        # wait until cloud is available/timeout
-        # extract image from cloud topic, create image message
-        # unsubscribe from topic
-        # return request with image message
-        pass
