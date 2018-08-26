@@ -8,9 +8,6 @@ import rospy
 from sensor_msgs.msg import Image as ImageMsg
 from cv_bridge import CvBridge
 
-from mcr_perception_msgs.msg import ImageDetection, BoundingBox2D as BoundingBox2DMsg
-from mcr_perception_msgs.srv import DetectImage, DetectImageResponse
-
 from .bounding_box import BoundingBox2D
 from .visualization import bgr_dict_from_classes, draw_labeled_boxes_img_msg
 
@@ -92,41 +89,6 @@ class ImageDetector(object):
             confidences.append(box_dict[ImageDetectionKey.CONF])
 
         return boxes, classes, confidences
-
-    @staticmethod
-    def prediction_to_detection_msg(predicted_boxes):   # TODO(minhnh) remove ImageDetection message?
-        detection_msg = ImageDetection()
-        for box in predicted_boxes:
-            # fill class and confidence
-            detection_msg.classes.append(box[ImageDetectionKey.CLASS])
-            detection_msg.probabilities.append(box[ImageDetectionKey.CONF])
-            # fill bounding box info
-            bbox_2d = BoundingBox2DMsg()
-            bbox_2d.x_min = box[ImageDetectionKey.X_MIN]
-            bbox_2d.y_min = box[ImageDetectionKey.Y_MIN]
-            bbox_2d.x_max = box[ImageDetectionKey.X_MAX]
-            bbox_2d.y_max = box[ImageDetectionKey.Y_MAX]
-            detection_msg.bounding_boxes.append(bbox_2d)
-
-        return detection_msg
-
-    @staticmethod
-    def detection_msg_to_bounding_boxes(detection_msg, color_dict=None):
-        boxes = []
-        for i, class_name in enumerate(detection_msg.classes):
-            box_geometry = (detection_msg.bounding_boxes[i].x_min,
-                            detection_msg.bounding_boxes[i].y_min,
-                            detection_msg.bounding_boxes[i].x_max - detection_msg.bounding_boxes[i].x_min,
-                            detection_msg.bounding_boxes[i].y_max - detection_msg.bounding_boxes[i].y_min)
-            label = '{}: {:.2f}'.format(class_name, detection_msg.probabilities[i])
-            if color_dict is None:
-                color = (0, 0, 255)     # default color: blue
-            else:
-                color = color_dict[class_name]
-            bounding_box = BoundingBox2D(label, color, box_geometry)
-            boxes.append(bounding_box)
-
-        return boxes
 
 
 class ImageDetectorTest(ImageDetector):

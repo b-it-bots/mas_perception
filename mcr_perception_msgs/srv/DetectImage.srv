@@ -1,5 +1,0 @@
-# Scene image
-sensor_msgs/Image[] images
----
-# Detection result
-ImageDetection[] detections

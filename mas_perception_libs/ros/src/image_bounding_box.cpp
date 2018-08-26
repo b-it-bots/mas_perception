@@ -117,22 +117,4 @@ drawLabeledBoxesImgMsg(const sensor_msgs::Image& pImageMsg, std::vector<Bounding
     return cvImagePtr->toImageMsg();
 }
 
-std::vector<BoundingBox2D>
-imageDetectionToBoundingBoxVect(const mcr_perception_msgs::ImageDetection& detection)
-{
-    std::vector<BoundingBox2D> boxes;
-
-    for (int i = 0; i < detection.classes.size(); i++)
-    {
-        const mcr_perception_msgs::BoundingBox2D& boxMsg = detection.bounding_boxes[i];
-        std::stringstream label;
-        label << detection.classes[i] << " " << detection.probabilities[i];
-        BoundingBox2D box(label.str(), static_cast<int>(boxMsg.x_min), static_cast<int>(boxMsg.y_min),
-                          static_cast<int>(boxMsg.x_max - boxMsg.x_min), static_cast<int>(boxMsg.y_max - boxMsg.y_min));
-        boxes.push_back(box);
-    }
-
-    return boxes;
-}
-
 }  // namespace mas_perception_libs
