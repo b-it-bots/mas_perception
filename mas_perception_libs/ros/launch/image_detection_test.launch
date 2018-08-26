@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
 <launch>
     <arg name="result_topic" default="/mas_perception/detection_result"/>
-    <arg name="action_name" default="/mas_perception/detect_image"/>
-    <arg name="cloud_topic" default="" />
-    <arg name="target_frame" default="/base_link" />
-    <arg name="class_annotations" default="$(find mas_perception_libs)/models/class_annotation_example.yml" />
+    <!-- image source -->
     <arg name="image_directory" default=""/>
     <arg name="cloud_topic" default=""/>
     <arg name="image_topic" default=""/>
+    <!-- detection -->
+    <arg name="class_annotations" default="$(find mas_perception_libs)/models/class_annotation_example.yml" />
     <arg name="kwargs_file" default="$(find mas_perception_libs)/models/image_detector_test_kwargs.yml" />
     <arg name="detection_module" default="mas_perception_libs" />
     <arg name="detection_class" default="ImageDetectorTest" />
@@ -18,23 +17,15 @@
             <param name="autosize" type="bool" value="True" />
         </node>
 
-        <node pkg="mas_perception_libs" type="image_detection_client_test" name="image_detection_client" output="screen">
-            <param name="service_name" type="string" value="$(arg service_name)" />
+        <node pkg="mas_perception_libs" type="image_detection_test" name="image_detection_client" output="screen">
             <param name="result_topic" type="string" value="$(arg result_topic)" />
             <param name="image_directory" type="string" value="$(arg image_directory)" />
             <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
             <param name="image_topic" type="string" value="$(arg image_topic)" />
             <param name="class_annotations" type="string" value="$(arg class_annotations)" />
+            <param name="kwargs_file" type="string" value="$(arg kwargs_file)" />
+            <param name="detection_module" type="string" value="$(arg detection_module)" />
+            <param name="detection_class" type="string" value="$(arg detection_class)" />
         </node>
-
-        <include file="$(find mas_perception_libs)/ros/launch/image_detection.launch" >
-            <arg name="action_name" value="$(arg action_name)" />
-            <arg name="cloud_topic" value="$(arg cloud_topic)" />
-            <arg name="target_frame" value="$(arg target_frame)" />
-            <arg name="class_annotations" value="$(arg class_annotations)" />
-            <arg name="kwargs_file" value="$(arg kwargs_file)" />
-            <arg name="detection_module" value="$(arg detection_module)" />
-            <arg name="detection_class" value="$(arg detection_class)" />
-        </include>
     </group>
 </launch>

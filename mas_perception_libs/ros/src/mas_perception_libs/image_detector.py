@@ -1,15 +1,18 @@
 import os
 from abc import ABCMeta, abstractmethod
-
-import numpy as np
-import rospy
 import yaml
 from enum import Enum
+import numpy as np
+
+import rospy
+from sensor_msgs.msg import Image as ImageMsg
+from cv_bridge import CvBridge
+
 from mcr_perception_msgs.msg import ImageDetection, BoundingBox2D as BoundingBox2DMsg
 from mcr_perception_msgs.srv import DetectImage, DetectImageResponse
 
 from .bounding_box import BoundingBox2D
-from .visualization import bgr_dict_from_classes
+from .visualization import bgr_dict_from_classes, draw_labeled_boxes_img_msg
 
 
 class ImageDetectionKey(Enum):
@@ -169,23 +172,25 @@ class ImageDetectorTest(ImageDetector):
         return predictions
 
 
-class ImageDetectionService(object):
-    """
-    Interacts with ImageDetector class, only contain 2D bounding boxes
-    TODO(minhnh) may still be useful for testing
-    """
-    def __init__(self, service_name, detection_class, class_annotation_file, kwargs_file):
-        if not issubclass(detection_class, ImageDetector):
-            raise ValueError('detection class is not of ImageDetector type')
+class ImageDetectorROS(object):
+    _detector = None    # type: ImageDetector
+    _result_pub = None  # type: rospy.Publisher
+    _cv_bridge = None   # type: CvBridge
 
+    def __init__(self, detection_class, class_annotation_file, kwargs_file, result_topic):
         self._detector = detection_class(class_file=class_annotation_file, model_kwargs_file=kwargs_file)
-        self._detection_service = rospy.Service(service_name, DetectImage, self.handle_detect_images)
+        self._result_pub = rospy.Publisher(result_topic, ImageMsg, queue_size=1)
+        self._cv_bridge = CvBridge()
 
-    def handle_detect_images(self, request):
-        predictions = self._detector.detect(request.images)
-        response = DetectImageResponse()
-        for boxes in predictions:
-            detection_msg = ImageDetector.prediction_to_detection_msg(boxes)
-            response.detections.append(detection_msg)
+    def process_image_msg(self, img_msg):
+        predictions = self._detector.detect([img_msg])
+        if len(predictions) < 1:
+            raise RuntimeError('no prediction returned for image message')
+        bounding_boxes, classes, confidences = ImageDetector.prediction_to_bounding_boxes(predictions[0],
+                                                                                          self._detector.class_colors)
+        if self._result_pub.get_num_connections() > 0:
+            rospy.loginfo("publishing detection result")
+            drawn_img_msg = draw_labeled_boxes_img_msg(self._cv_bridge, img_msg, bounding_boxes)
+            self._result_pub.publish(drawn_img_msg)
 
-        return response
+        return bounding_boxes, classes, confidences

@@ -8,7 +8,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 from geometry_msgs.msg import PoseStamped
 from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, Plane, Object
-from .image_detector import ImageDetector
+from .image_detector import ImageDetector, ImageDetectorROS
 from .bounding_box import BoundingBox2D
 from .utils import cloud_msg_to_image_msg, transform_point_cloud, crop_organized_cloud_msg, crop_cloud_to_xyz
 from .visualization import draw_labeled_boxes_img_msg
@@ -49,13 +49,12 @@ class SceneDetectionActionServerTest(SceneDetectionActionServer):
 
 
 class ImageDetectionActionServer(SceneDetectionActionServer):
-    _detector = None        # type: ImageDetector
+    _detector_ros = None    # type: ImageDetectorROS
     _cloud_topic = None     # type: str
     _cloud_sub = None       # type: rospy.Subscriber
     _cloud_msg = None       # type: PointCloud2
     _tf_listener = None     # type: tf.TransformListener
     _target_frame = None    # type: str
-    _result_img_pub = None  # type: rospy.Publisher
     _cv_bridge = None       # type: CvBridge
 
     def __init__(self, action_name, **kwargs):
@@ -74,7 +73,8 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         if not kwargs_file or not os.path.exists(kwargs_file):
             raise ValueError('invalid value for "kwargs_file": ' + kwargs_file)
 
-        self._detector = detection_class(class_file=class_annotation_file, model_kwargs_file=kwargs_file)
+        self._detector_ros = ImageDetectorROS(detection_class, class_annotation_file, kwargs_file,
+                                              '/mas_perception/detection_result')
 
         self._cloud_topic = kwargs.get('cloud_topic', None)
         if not self._cloud_topic:
@@ -84,10 +84,6 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         self._tf_listener = tf.TransformListener()
         self._target_frame = kwargs.get('target_frame', '/base_link')
         rospy.loginfo('will transform all poses to frame: ' + self._target_frame)
-
-        self._result_img_pub = rospy.Publisher('/mas_perception/detection_result', ImageMsg, queue_size=1)
-
-        self._cv_bridge = CvBridge()
 
     def _execute_cb(self, _):
         # subscribe and wait for cloud message TODO(minhnh) add timeout
@@ -102,8 +98,9 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         self._cloud_msg = None
 
         rospy.loginfo('detecting objects')
+        img_msg = cloud_msg_to_image_msg(cloud_msg)
         try:
-            bounding_boxes, classes, confidences = self._detect_in_cloud(cloud_msg)
+            bounding_boxes, classes, confidences = self._detector_ros.process_image_msg(img_msg)
         except RuntimeError as e:
             self._action_server.set_aborted(text=e.message)
             return
@@ -115,30 +112,13 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             self._action_server.set_aborted(text=e.message)
             return
 
+        rospy.loginfo('creating action result and setting success')
         result = ImageDetectionActionServer._get_action_result(transformed_cloud_msg, bounding_boxes,
                                                                classes, confidences)
         self._action_server.set_succeeded(result)
 
     def _cloud_callback(self, cloud_msg):
         self._cloud_msg = cloud_msg
-
-    def _detect_in_cloud(self, cloud_msg):
-        img_msg = cloud_msg_to_image_msg(cloud_msg)
-        predictions = self._detector.detect([img_msg])
-        if len(predictions) < 1:
-            raise RuntimeError('no prediction returned for cloud message')
-
-        bounding_boxes, classes, confidences = ImageDetector.prediction_to_bounding_boxes(predictions[0],
-                                                                                          self._detector.class_colors)
-        if len(bounding_boxes) < 1:
-            raise RuntimeError('no objects detected in cloud message')
-
-        if self._result_img_pub.get_num_connections() > 0:
-            rospy.loginfo("publishing detection result")
-            drawn_img_msg = draw_labeled_boxes_img_msg(self._cv_bridge, img_msg, bounding_boxes)
-            self._result_img_pub.publish(drawn_img_msg)
-
-        return bounding_boxes, classes, confidences
 
     def _transform_cloud(self, cloud_msg):
         try:
@@ -148,7 +128,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
                                                cloud_msg.header.stamp, rospy.Duration(1))
             tf_matrix = self._tf_listener.asMatrix(self._target_frame, cloud_msg.header)
         except(tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            raise  RuntimeError('Unable to transform {0} -> {1}'.format(cloud_msg.header.frame_id, self._target_frame))
+            raise RuntimeError('Unable to transform {0} -> {1}'.format(cloud_msg.header.frame_id, self._target_frame))
 
         return transform_point_cloud(cloud_msg, tf_matrix, self._target_frame)
 
