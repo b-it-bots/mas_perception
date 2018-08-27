@@ -93,6 +93,7 @@ Launch the `image_recognition_server`. Arguments:
 │   ├── include
 │   │   └── mas_perception_libs
 │   │       ├── bounding_box_wrapper.h
+│   │       ├── image_bounding_box.h
 │   │       └── impl
 │   │           └── ros_message_serialization.hpp
 │   ├── launch
@@ -102,17 +103,19 @@ Launch the `image_recognition_server`. Arguments:
 │   │   ├── image_recognition_server
 │   │   └── object_detection_test_server
 │   └── src
+│       ├── boost_python_module.cpp
 │       ├── bounding_box_wrapper.cpp
+│       ├── image_bounding_box.cpp
 │       └── mas_perception_libs
 │           ├── bounding_box.py
 │           ├── constants.py
-│           ├── detection_service_proxy.py
 │           ├── image_classifier.py
 │           ├── image_recognition_service_proxy.py
 │           ├── __init__.py
 │           ├── keras_image_classifier.py
 │           ├── object_detector.py
 │           ├── ros_message_serialization.py
-│           └── utils.py
+│           ├── scene_detection_action.py
+│           ├── utils.py
 ├── setup.py
 ```
