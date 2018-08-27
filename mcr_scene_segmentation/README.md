@@ -54,18 +54,16 @@ Workspace height:
 /mcr_perception/scene_segmentation/workspace_height
 ```
 
-
 Dataset collection:
 ```
-Setting in launch file:
-  * Set dataset_collection to true
-  * Set is_classifier_required to true if the corresponding object names needed for the pcd name <br/>
-  (e.g. "/tmp/AXIS_1528290814.pcd"), otherwise e.g. "/tmp/atwork_object_1528288932.pcd". <br/>
-  This needs mcr_object_recognition_mean_circle (roslaunch mcr_object_recognition_mean_circle object_recognition.launch 
-)
+1. Enable dataset_collection parameter in the launch file
+2. Set the logdir parameter (optional), by default it is "/tmp/"
+3. Start collecting dataset
+** rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String "data: 'e_start'"
+** rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String "data: 'e_add_cloud_start'"
+```
 
-How to:
-
-rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String e_collect_dataset
-
+Debug mode:
+```
+If this is enable in the launch file, the pointcloud will be saved to the logdir.
 ```
