@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <launch>
 
   <arg name="input_pointcloud_topic" default="/arm_cam3d/depth_registered/points" />
@@ -6,16 +7,14 @@
 
   <group ns="mcr_perception">
     <rosparam file="$(arg scene_segmentation_config_file)" command="load"/>
-
     <node pkg="mcr_scene_segmentation" type="scene_segmentation_node" name="scene_segmentation" output="screen">
       <remap from="~input" to="$(arg input_pointcloud_topic)" />
       <remap from="~object_list" to="/mcr_perception/object_detector/object_list"/>
       <param name="target_frame_id" value="$(arg target_frame)" type="str" />
-      <param name="is_classifier_required" value="false" />
+      <param name="debug_mode" value="false" />
       <param name="dataset_collection" value="false" />
-      <param name="debug_mode" value="true" /> 
+      <param name="logdir" value="/tmp/" /> 
     </node>
   </group>
-
 
 </launch>
