@@ -65,10 +65,10 @@ class SceneSegmentationNode
     private:
         void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
         void eventCallback(const std_msgs::String::ConstPtr &msg);
-        void config_callback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level);
+        void configCallback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level);
         void segment();
         void findPlane();
-        void save_pcd(const PointCloud::ConstPtr &cloud, std::string obj_name);
+        void savePcd(const PointCloud::ConstPtr &cloud, std::string obj_name);
         geometry_msgs::PoseStamped getPose(const BoundingBox &box);
 
     public:
