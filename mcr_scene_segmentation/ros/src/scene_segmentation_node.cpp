@@ -40,10 +40,8 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     pub_event_out_ = nh_.advertise<std_msgs::String>("event_out", 1);
     pub_workspace_height_ = nh_.advertise<std_msgs::Float64>("workspace_height", 1);
 
-    pub_input_for_debug_ = nh_.advertise<std_msgs::String>("event_in", 1);
-
     dynamic_reconfigure::Server<mcr_scene_segmentation::SceneSegmentationConfig>::CallbackType f =
-                            boost::bind(&SceneSegmentationNode::config_callback, this, _1, _2);
+                            boost::bind(&SceneSegmentationNode::configCallback, this, _1, _2);
     server_.setCallback(f);
 
     recognize_service = nh_.serviceClient<mcr_perception_msgs::RecognizeObject>
@@ -216,9 +214,9 @@ void SceneSegmentationNode::segment()
 
         if (dataset_collection_ || debug_mode_)
         {
-            pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+            pcl::PointCloud<PointT>::Ptr pointcloud(new pcl::PointCloud<PointT>);
             pcl::fromROSMsg(ros_cloud, *pointcloud);
-            SceneSegmentationNode::save_pcd(pointcloud, object_list.objects[i].name);
+            SceneSegmentationNode::savePcd(pointcloud, object_list.objects[i].name);
         }
     }
     pub_object_list_.publish(object_list);
@@ -227,7 +225,7 @@ void SceneSegmentationNode::segment()
     label_visualizer_.publish(labels, poses);
 }
 
-void SceneSegmentationNode::save_pcd(const PointCloud::ConstPtr &pointcloud, std::string obj_name)
+void SceneSegmentationNode::savePcd(const PointCloud::ConstPtr &pointcloud, std::string obj_name)
 {
     std::stringstream filename; // stringstream used for the conversion
     unsigned long int sec = time(NULL);
@@ -345,7 +343,7 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
     pub_event_out_.publish(event_out);
 }
 
-void SceneSegmentationNode::config_callback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level)
+void SceneSegmentationNode::configCallback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level)
 {
     scene_segmentation_.setVoxelGridParams(config.voxel_leaf_size, config.voxel_filter_field_name,
             config.voxel_filter_limit_min, config.voxel_filter_limit_max);
