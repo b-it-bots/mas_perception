@@ -26,6 +26,27 @@ using mcr::visualization::ClusteredPointCloudVisualizer;
 using mcr::visualization::LabelVisualizer;
 using mcr::visualization::Color;
 
+/**
+ * This node subscribes to pointcloud topic.
+ * Inputs:
+ * ~event_in:
+ *      - e_start: starts subscribing to pointcloud topic
+ *      - e_add_cloud_start: adds pointcloud to octree, if it is on dataset collection mode,
+ *                           the node will start segmenting the pointcloud.
+ *      - e_add_cloud_stop: stops adding pointcloud to octree
+ *      - e_find_plane: finds the plane and publishes workspace height
+ *      - e_segment: starts segmentation and publish ObjectList
+ *      - e_reset: clears accumulated cloud
+ *      - e_stop: stops subscribing and clears accumulated pointcloud
+ * Outputs:
+ * ~event_out:
+ *      - e_started: started listening to new messages
+ *      - e_add_cloud_started: started adding the cloud to octree
+ *      - e_add_cloud_stopped: stopped adding the cloud to octree
+ *      - e_done: started finding the plane or started segmenting the pointcloud
+ *      - e_stopped: stopped subscribing and cleared accumulated pointcloud
+ */
+
 class SceneSegmentationNode
 {
     private:
