@@ -1,7 +1,7 @@
-/*
- * Copyright 2018 Bonn-Rhein-Sieg University
+/*!
+ * @copyright 2018 Bonn-Rhein-Sieg University
  *
- * Author: Minh Nguyen
+ * @author Minh Nguyen
  *
  * following suggestion from https://stackoverflow.com/a/47027598 to create a single numpy API reference.
  * All 'cpp' files that use NumPy API need to include this header. Directly including of NumPy header will cause

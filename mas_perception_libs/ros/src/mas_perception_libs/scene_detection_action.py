@@ -73,7 +73,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             raise ValueError('invalid value for "kwargs_file": ' + kwargs_file)
 
         self._detector_ros = SingleImageDetectionHandler(detection_class, class_annotation_file, kwargs_file,
-                                              '/mas_perception/detection_result')
+                                                         '/mas_perception/detection_result')
 
         self._cloud_topic = kwargs.get('cloud_topic', None)
         if not self._cloud_topic:

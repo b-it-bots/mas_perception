@@ -41,7 +41,7 @@ class ImageClassifier(object):
     @abstractmethod
     def classify(self, image_messages):
         """
-        method to be implemented by extensions
+        method to be implemented by extensions TODO(minhnh) refactor preprocessing to base class
 
         :param image_messages: list of sensor_msgs/Image messages
         :return: (indices, predicted_classes, confidences), where:

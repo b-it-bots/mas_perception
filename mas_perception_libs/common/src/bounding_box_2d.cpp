@@ -1,7 +1,7 @@
-/*
- * Copyright 2018 Bonn-Rhein-Sieg University
+/*!
+ * @copyright 2018 Bonn-Rhein-Sieg University
  *
- * Author: Minh Nguyen
+ * @author Minh Nguyen
  *
  */
 #include <vector>

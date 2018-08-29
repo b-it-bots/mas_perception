@@ -40,6 +40,10 @@ private:
     std::vector<std::vector<cv::Point2f>> mBoxVerticesVector;
 };
 
+/*!
+ * @brief Draw boxes on a sensor_msgs/Image message using BoundingBox2D objects. Call drawLabeledBoxes() defined in
+ *        bounding_box_2d.h in the background.
+ */
 sensor_msgs::ImagePtr
 drawLabeledBoxesImgMsg(const sensor_msgs::Image&, std::vector<BoundingBox2D>,
                        int pThickness = 2, double pFontScale = 1.0);

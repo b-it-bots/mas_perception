@@ -1,9 +1,9 @@
 #include <utility>
 
-/*
- * Copyright 2018 Bonn-Rhein-Sieg University
+/*!
+ * @copyright 2018 Bonn-Rhein-Sieg University
  *
- * Author: Minh Nguyen
+ * @author Minh Nguyen
  *
  */
 #ifndef MAS_PERCEPTION_LIBS_BOUNDING_BOX_2D_H
@@ -18,6 +18,9 @@ namespace mas_perception_libs
 
 struct BoundingBox2D
 {
+    /*!
+     * @brief struct for representing a rectangle region in RGB images
+     */
     int mX;
     int mY;
     int mWidth;
@@ -40,27 +43,60 @@ struct BoundingBox2D
     BoundingBox2D() : BoundingBox2D(0, 0, 0, 0)
     { }
 
+    /*! @brief update box geometry using a cv::Rect object */
     void updateBox(cv::Rect);
 
+    /*! @brief get box geometry as a cv::Rect object */
     cv::Rect getCvRect() { return cv::Rect(mX, mY, mWidth, mHeight); }
 };
 
+/*!
+ * @brief draw boxes on a CV image using BoundingBox2D objects
+ * @param pImage
+ * @param pBoundingBoxes: vector of bounding boxes to be drawn
+ * @param pThickness: line thickness
+ * @param pFontScale
+ */
 void
 drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes,
                  int pThickness = 2, double pFontScale = 1.0);
 
+/*!
+ * @brief adjust a BoundingBox2D object to image size
+ * @param pImageSize: image dimensions
+ * @param pBox: BoundingBox2D object to be adjusted
+ * @param pSizeOffset: offset to increase box dimensions
+ */
 void
 fitBoxToImage(cv::Size pImageSize, BoundingBox2D& pBox, int pSizeOffset = 0);
 
+/*!
+ * @brief adjust a cv::Rect object to image size
+ * @return adjusted box as cv::Rect object
+ */
 cv::Rect
 fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset = 0);
 
+/*!
+ * @brief crop a CV image using a set of 2D vertices
+ * @param pImage
+ * @param pVertices: vector of vertices to specify the cropping region
+ * @param pOffset: offset for expanding the bounding box's dimensions
+ * @param pCopy: The CV image will be copied during cropping. By default OpenCV will only shift the image pointers
+ * @return cropped CV image
+ */
 cv::Mat
 cropImage(cv::Mat &pImage, std::vector<cv::Point2f> &pVertices, int pOffset = 0, bool pCopy = true);
 
+/*!
+ * @brief crop a CV image using a BoundingBox2D object
+ */
 cv::Mat
 cropImage(cv::Mat &pImage, BoundingBox2D &pBox, int pOffset = 0, bool pCopy = true);
 
+/*!
+ * @brief crop a CV image using a cv::Rect object
+ */
 cv::Mat
 cropImage(cv::Mat &pImage, const cv::Rect &pRoiRect, int pOffset = 0, bool pCopy = true);
 
