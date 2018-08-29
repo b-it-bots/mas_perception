@@ -1,5 +1,7 @@
 /*
  * taken from https://github.com/Algomorph/pyboostcvconverter
+ * An interface to convert between CV Mat and numpy array using Boost Python. If OpenCV ever decides to expose their
+ * internal C++ to Python conversion, this can be replaced.
  *
  * CV3BoostConverter.cpp
  *

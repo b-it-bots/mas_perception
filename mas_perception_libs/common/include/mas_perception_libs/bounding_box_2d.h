@@ -1,3 +1,5 @@
+#include <utility>
+
 /*
  * Copyright 2018 Bonn-Rhein-Sieg University
  *
@@ -24,7 +26,7 @@ struct BoundingBox2D
     cv::Scalar mColor;
 
     BoundingBox2D(std::string pLabel, cv::Scalar pColor, int pX, int pY, int pWidth, int pHeight)
-            : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(pLabel), mColor(pColor)
+            : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(std::move(pLabel)), mColor(pColor)
     { }
 
     BoundingBox2D(std::string pLabel, int pX, int pY, int pWidth, int pHeight)
@@ -54,13 +56,13 @@ cv::Rect
 fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset = 0);
 
 cv::Mat
-cropImage(cv::Mat &pImage, std::vector<cv::Point2f> &pVertices, int pOffset = 0, bool copy = true);
+cropImage(cv::Mat &pImage, std::vector<cv::Point2f> &pVertices, int pOffset = 0, bool pCopy = true);
 
 cv::Mat
-cropImage(cv::Mat &pImage, BoundingBox2D &pBox, int pOffset = 0, bool copy = true);
+cropImage(cv::Mat &pImage, BoundingBox2D &pBox, int pOffset = 0, bool pCopy = true);
 
 cv::Mat
-cropImage(cv::Mat &pImage, const cv::Rect &pRoiRect, int pOffset = 0, bool copy = true);
+cropImage(cv::Mat &pImage, const cv::Rect &pRoiRect, int pOffset = 0, bool pCopy = true);
 
 }   // namespace mas_perception_libs
 

@@ -10,7 +10,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from rospy import Subscriber, Publisher
 from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 
-from mas_perception_libs import ImageDetectorROS
+from mas_perception_libs import SingleImageDetectionHandler
 from mas_perception_libs.utils import case_insensitive_glob, cloud_msg_to_image_msg,\
     crop_organized_cloud_msg, crop_cloud_to_xyz
 
@@ -50,7 +50,7 @@ class CloudTopicHandler(object):
     _cropped_img_pub = None  # type: Publisher
     _cropped_pub = None  # type: Publisher
     _cloud_sub = None  # type: Subscriber
-    _detector_ros = None  # type: ImageDetectorROS
+    _detector_ros = None  # type: SingleImageDetectionHandler
 
     def __init__(self, cloud_topic_name, detector_ros):
         self._detector_ros = detector_ros
@@ -90,7 +90,7 @@ def main(image_source_type, image_source, detection_class, kwargs_file, class_an
     rospy.loginfo('Image source: {0}: {1}'.format(image_source_type, image_source))
 
     # create detector instance
-    detector_ros = ImageDetectorROS(detection_class, class_annotation_file, kwargs_file, result_topic)
+    detector_ros = SingleImageDetectionHandler(detection_class, class_annotation_file, kwargs_file, result_topic)
 
     # handle image directory case
     if image_source_type == ImageSourceType.IMAGE_DIR:

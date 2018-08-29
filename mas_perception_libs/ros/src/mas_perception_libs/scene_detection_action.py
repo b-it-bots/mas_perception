@@ -5,13 +5,12 @@ import rospy
 import tf
 from actionlib import SimpleActionServer
 from cv_bridge import CvBridge
-from sensor_msgs.msg import Image as ImageMsg, PointCloud2
+from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import PoseStamped
 from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, Plane, Object
-from .image_detector import ImageDetector, ImageDetectorROS
+from .image_detector import ImageDetector, SingleImageDetectionHandler
 from .bounding_box import BoundingBox2D
 from .utils import cloud_msg_to_image_msg, transform_point_cloud, crop_organized_cloud_msg, crop_cloud_to_xyz
-from .visualization import draw_labeled_boxes_img_msg
 
 
 class SceneDetectionActionServer(object):
@@ -49,7 +48,7 @@ class SceneDetectionActionServerTest(SceneDetectionActionServer):
 
 
 class ImageDetectionActionServer(SceneDetectionActionServer):
-    _detector_ros = None    # type: ImageDetectorROS
+    _detector_ros = None    # type: SingleImageDetectionHandler
     _cloud_topic = None     # type: str
     _cloud_sub = None       # type: rospy.Subscriber
     _cloud_msg = None       # type: PointCloud2
@@ -73,7 +72,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         if not kwargs_file or not os.path.exists(kwargs_file):
             raise ValueError('invalid value for "kwargs_file": ' + kwargs_file)
 
-        self._detector_ros = ImageDetectorROS(detection_class, class_annotation_file, kwargs_file,
+        self._detector_ros = SingleImageDetectionHandler(detection_class, class_annotation_file, kwargs_file,
                                               '/mas_perception/detection_result')
 
         self._cloud_topic = kwargs.get('cloud_topic', None)

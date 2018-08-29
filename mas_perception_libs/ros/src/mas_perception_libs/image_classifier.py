@@ -6,9 +6,15 @@ from utils import get_classes_in_data_dir, process_image_message
 
 
 class ImageClassifier(object):
+    """
+    Abstract class for different models of image classifier
+    """
     __metaclass__ = ABCMeta
 
+    _classes = None     # type: list
+
     def __init__(self, **kwargs):
+        # read information on classes, either directly, via a file, or from a data directory
         self._classes = kwargs.get('classes', None)
 
         if self._classes is None:
@@ -27,10 +33,23 @@ class ImageClassifier(object):
 
     @property
     def classes(self):
+        """
+        list of strings containing class names TODO(minhnh): make this dictionary from predicted class to class name
+        """
         return self._classes
 
     @abstractmethod
     def classify(self, image_messages):
+        """
+        method to be implemented by extensions
+
+        :param image_messages: list of sensor_msgs/Image messages
+        :return: (indices, predicted_classes, confidences), where:
+                 - indices: image indices of the input list, track for which images the predictions are
+                 - predicted_classes: predicted class names
+                 - confidences: prediction confidences
+        :rtype: tuple
+        """
         pass
 
     @staticmethod
@@ -46,6 +65,9 @@ class ImageClassifier(object):
 
 
 class ImageClassifierTest(ImageClassifier):
+    """
+    Extension of ImageClassifier for testing, return random classes
+    """
     def __init__(self, **kwargs):
         super(ImageClassifierTest, self).__init__(**kwargs)
 
@@ -58,6 +80,9 @@ class ImageClassifierTest(ImageClassifier):
 
 
 class KerasImageClassifier(ImageClassifier):
+    """
+    Extension of ImageClassifier for models implemented using Keras
+    """
     def __init__(self, **kwargs):
         from keras.models import Model, load_model
 

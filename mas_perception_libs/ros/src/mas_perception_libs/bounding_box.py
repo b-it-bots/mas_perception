@@ -11,11 +11,9 @@ class BoundingBox(object):
     def __init__(self, cloud, normal):
         if not isinstance(cloud, PointCloud2):
             rospy.ROSException('Argument 1 is not a sensor_msgs/PointCloud2')
-            pass
 
         serial_cloud = to_cpp(cloud)
         self._bounding_box = BoundingBoxWrapper(serial_cloud, normal)
-        pass
 
     def get_pose(self):
         serial_pose = self._bounding_box.get_pose()
@@ -27,5 +25,23 @@ class BoundingBox(object):
 
 
 class BoundingBox2D(BoundingBox2DWrapper):
-    def get_box(self):
+    """
+    Python interface to the BoundingBox2D C++ struct. Allow the use of the same utility functions available in C++
+    from Python.
+    properties available for read/write access: label, x, y, width, height
+    """
+    def __init__(self, label="", color=(0, 0, 255), box_geometry=(0, 0, 0, 0)):
+        """
+        :param label: name of box when visualized
+        :type label: str
+        :param color: (r, g, b) RGB color of box, default color is blue
+        :type color: tuple
+        :param box_geometry: (x, y, width, height) bounding box's pixel coordinates and size
+        :type box_geometry: tuple
+        """
+        super(BoundingBox2D, self).__init__(label, color, box_geometry)
+
+    @property
+    def box_geometry(self):
+        # type: () -> tuple
         return self.x, self.y, self.width, self.height

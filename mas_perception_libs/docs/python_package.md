@@ -38,13 +38,13 @@ Defined in [`keras_image_classifier.py`](../ros/src/mas_perception_libs/keras_im
 ### `ImageRecognitionServiceProxy`
 Interact with [`image_recognition_server`](../ros/scripts/image_recognition_server) to get image classification results.
 
-Defined in [`image_recognition_service.py`](../ros/src/mas_perception_libs/image_recognition_service_proxy.py).
+Defined in [`image_recognition_service.py`](../ros/src/mas_perception_libs/image_recognition_service.py).
 
 ### `ObjectDetector`
 * Interact with a [`mcr_perception_msgs/DetectScene.action`](../../mcr_perception_msgs/action/DetectScene.action)
   action server to get a list of planes containing objects.
 * Perform common preprocessing steps on the objects (i.e. create bounding box, transform to desired frame,...).
-* Detection service is triggered by method `start_detect_objects`. A callback param can be passed in to be executed at
+* Detection action is triggered by method `start_detect_objects`. A callback param can be passed in to be executed at
   the end of the method.
 * The list of planes and objects can be accessed through property `plane_list`.
 * An example usage is written in the `DetectObjects` state, defined in file `action_states.py` of the

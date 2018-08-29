@@ -1,7 +1,12 @@
-/*
- * Copyright 2018 Bonn-Rhein-Sieg University
+#include <utility>
+
+/*!
+ * @copyright 2018 Bonn-Rhein-Sieg University
  *
- * Author: Minh Nguyen
+ * @author Minh Nguyen
+ *
+ * @brief File contains C++ definitions that are made available in Python using the Boost Python library.
+ *        Detailed descriptions of parameters are in the Python source files
  *
  */
 #include <vector>
@@ -26,6 +31,9 @@ using BoundingBox = mas_perception_libs::BoundingBox;
 namespace mas_perception_libs
 {
 
+/*!
+ * @brief crops object images from a ROS image messages using ImageBoundingBox. Legacy from mcr_scene_segmentation.
+ */
 bp::tuple
 getCropsAndBoundingBoxes(std::string pSerialImageMsg, std::string pSerialCameraInfo,
                          std::string pSerialBoundingBoxList)
@@ -63,26 +71,22 @@ getCropsAndBoundingBoxes(std::string pSerialImageMsg, std::string pSerialCameraI
 struct BoundingBox2DWrapper : BoundingBox2D
 {
     // TODO(minhnh): expose color
-
-    BoundingBox2DWrapper(std::string label, bp::tuple color, bp::tuple pBox) : BoundingBox2DWrapper(label, pBox)
+    /*!
+     * @brief Constructor for the extension of BoundingBox2D for use in Python
+     */
+    BoundingBox2DWrapper(std::string pLabel, bp::tuple pColor, bp::tuple pBox) : BoundingBox2D()
     {
+        mLabel = std::move(pLabel);
+
         // extract color
-        if (bp::len(color) != 3)
+        if (bp::len(pColor) != 3)
         {
-            throw std::invalid_argument("color is not a 3-tuple containing integers");
+            throw std::invalid_argument("pColor is not a 3-tuple containing integers");
         }
-        mColor = CV_RGB(static_cast<int>(bp::extract<double>(color[0])),
-                        static_cast<int>(bp::extract<double>(color[1])),
-                        static_cast<int>(bp::extract<double>(color[2])));
-    }
+        mColor = CV_RGB(static_cast<int>(bp::extract<double>(pColor[0])),
+                        static_cast<int>(bp::extract<double>(pColor[1])),
+                        static_cast<int>(bp::extract<double>(pColor[2])));
 
-    BoundingBox2DWrapper(std::string label, bp::tuple pBox) : BoundingBox2DWrapper(std::move(pBox))
-    {
-        mLabel = std::move(label);
-    }
-
-    explicit BoundingBox2DWrapper(bp::tuple pBox) : BoundingBox2D()
-    {
         // extract box geometry
         if (bp::len(pBox) != 4)
         {
@@ -95,6 +99,9 @@ struct BoundingBox2DWrapper : BoundingBox2D
     }
 };
 
+/*!
+ * @brief Draw bounding boxes on an image, wrapper of C++ function drawLabeledBoxes
+ */
 PyObject *
 drawLabeledBoxesWrapper(PyObject * pNdarrayImage, bp::list pBoxList, int pThickness, double pFontScale)
 {
@@ -114,6 +121,9 @@ drawLabeledBoxesWrapper(PyObject * pNdarrayImage, bp::list pBoxList, int pThickn
     return ret;
 }
 
+/*!
+ * @brief Adjust BoundingBox2D geometry to fit within an image, wrapper for C++ function fitBoxToImage
+ */
 BoundingBox2DWrapper
 fitBoxToImageWrapper(bp::tuple pImageSizeTuple, BoundingBox2DWrapper pBox, int pOffset)
 {
@@ -129,6 +139,9 @@ fitBoxToImageWrapper(bp::tuple pImageSizeTuple, BoundingBox2DWrapper pBox, int p
     return pBox;
 }
 
+/*!
+ * @brief Crop image to a region specified by a BoundingBox2D object, wrapper for C++ function cropImage
+ */
 PyObject *
 cropImageWrapper(PyObject * pNdarrayImage, BoundingBox2DWrapper pBox, int pOffset)
 {
@@ -138,6 +151,10 @@ cropImageWrapper(PyObject * pNdarrayImage, BoundingBox2DWrapper pBox, int pOffse
     return ret;
 }
 
+/*!
+ * @brief extract CV image as a NumPy array from a sensor_msgs/PointCloud2 message, wrapper for C++ function
+ *        cloudMsgToCvImage
+ */
 PyObject *
 cloudMsgToCvImageWrapper(std::string pSerialCloud)
 {
@@ -151,6 +168,10 @@ cloudMsgToCvImageWrapper(std::string pSerialCloud)
     return ret;
 }
 
+/*!
+ * @brief Python wrapper for the PCL conversion function toROSMsg which converts a sensor_msgs/PointCloud2 object to a
+ *        sensor_msgs/Image object
+ */
 std::string
 cloudMsgToImageMsgWrapper(std::string pSerialCloud)
 {
@@ -168,6 +189,10 @@ cloudMsgToImageMsgWrapper(std::string pSerialCloud)
     return to_python(imageMsg);
 }
 
+/*!
+ * @brief Crop a sensor_msgs/PointCloud2 message using a BoundingBox2D object, wrapper for C++ function
+ *        cropOrganizedCloudMsg
+ */
 std::string
 cropOrganizedCloudMsgWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox)
 {
@@ -180,6 +205,10 @@ cropOrganizedCloudMsgWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox
     return to_python(croppedCloudMsg);
 }
 
+/*!
+ * @brief Crop a sensor_msgs/PointCloud2 message to a numpy array of (x, y, z) coordinates, wrapper for C++ function
+ *        cropCloudMsgToXYZ
+ */
 PyObject *
 cropCloudMsgToXYZWrapper(const std::string &pSerialCloud, BoundingBox2DWrapper pBox)
 {
@@ -193,6 +222,10 @@ cropCloudMsgToXYZWrapper(const std::string &pSerialCloud, BoundingBox2DWrapper p
     return coordArray;
 }
 
+/*!
+ * @brief Transform a sensor_msgs/PointCloud2 message using a transformation matrix, wrapper for pcl_ros function
+ *        transformPointCloud
+ */
 std::string
 transformPointCloudWrapper(const std::string &pSerialCloud, PyObject * pTfMatrix)
 {
@@ -211,7 +244,7 @@ transformPointCloudWrapper(const std::string &pSerialCloud, PyObject * pTfMatrix
     pcl_ros::transformPointCloud(eigenTfMatrix, cloudMsg, transformedCloud);
 
     // serialize and return trasnformed cloud
-    // NOTE: this will not update the header, this needs to be done in Python code
+    // NOTE: this will not update the header, which needs to be done in Python code
     return to_python(transformedCloud);
 }
 
@@ -232,9 +265,7 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
 
     bp::def("get_crops_and_bounding_boxes_wrapper", mas_perception_libs::getCropsAndBoundingBoxes);
 
-    bp::class_<BoundingBox2DWrapper>("BoundingBox2DWrapper", bp::init<bp::tuple&>())
-            .def(bp::init<std::string, bp::tuple&>())
-            .def(bp::init<std::string, bp::tuple&, bp::tuple&>())
+    bp::class_<BoundingBox2DWrapper>("BoundingBox2DWrapper", bp::init<std::string, bp::tuple&, bp::tuple&>())
             .def_readwrite("x", &BoundingBox2DWrapper::mX)
             .def_readwrite("y", &BoundingBox2DWrapper::mY)
             .def_readwrite("width", &BoundingBox2DWrapper::mWidth)

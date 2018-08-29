@@ -12,6 +12,10 @@ from .ros_message_serialization import to_cpp, from_cpp
 
 
 def get_classes_in_data_dir(data_dir):
+    """
+    :type data_dir: str
+    :return: list of classes as names of top level directories
+    """
     classes = []
     for subdir in sorted(os.listdir(data_dir)):
         if os.path.isdir(os.path.join(data_dir, subdir)):
@@ -21,6 +25,16 @@ def get_classes_in_data_dir(data_dir):
 
 
 def process_image_message(image_msg, cv_bridge, target_size=None, func_preprocess_img=None):
+    """
+    perform common image processing steps on a ROS image message
+
+    :type image_msg: ImageMsg
+    :param cv_bridge: bridge for converting sensor_msgs/Image to CV image
+    :param target_size: used for resizing image
+    :type target_size: tuple
+    :param func_preprocess_img: optional preprocess function to call on the image
+    :return: processed image as CV image
+    """
     np_image = None
     try:
         cv_image = cv_bridge.imgmsg_to_cv2(image_msg, desired_encoding="passthrough")
@@ -36,12 +50,24 @@ def process_image_message(image_msg, cv_bridge, target_size=None, func_preproces
 
 
 def case_insensitive_glob(pattern):
+    """
+    glob certain file types ignoring case
+
+    :param pattern: file types (i.e. '*.jpg')
+    :return: list of files matching given pattern
+    """
     def either(c):
         return '[%s%s]' % (c.lower(), c.upper()) if c.isalpha() else c
     return glob.glob(''.join(map(either, pattern)))
 
 
 def cloud_msg_to_cv_image(cloud_msg):
+    """
+    extract CV image from a sensor_msgs/PointCloud2 message
+
+    :type cloud_msg: PointCloud2
+    :return: extracted image as numpy array
+    """
     if not isinstance(cloud_msg, PointCloud2):
         raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2')
 
@@ -50,6 +76,13 @@ def cloud_msg_to_cv_image(cloud_msg):
 
 
 def cloud_msg_to_image_msg(cloud_msg):
+    """
+    extract sensor_msgs/Image from a sensor_msgs/PointCloud2 message
+
+    :type cloud_msg: PointCloud2
+    :return: extracted image message
+    :rtype: ImageMsg
+    """
     if not isinstance(cloud_msg, PointCloud2):
         raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2')
 
@@ -59,6 +92,14 @@ def cloud_msg_to_image_msg(cloud_msg):
 
 
 def crop_organized_cloud_msg(cloud_msg, bounding_box):
+    """
+    crop a sensor_msgs/PointCloud2 message using info from a BoundingBox2D object
+
+    :type cloud_msg: PointCloud2
+    :type bounding_box: BoundingBox2D
+    :return: cropped cloud
+    :rtype: PointCloud2
+    """
     if not isinstance(cloud_msg, PointCloud2):
         raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
 
@@ -71,6 +112,14 @@ def crop_organized_cloud_msg(cloud_msg, bounding_box):
 
 
 def crop_cloud_to_xyz(cloud_msg, bounding_box):
+    """
+    extract a sensor_msgs/PointCloud2 message for 3D coordinates using info from a BoundingBox2D object
+
+    :type cloud_msg: PointCloud2
+    :type bounding_box: BoundingBox2D
+    :return: (x, y, z) coordinates within the bounding box
+    :rtype: ndarray
+    """
     if not isinstance(cloud_msg, PointCloud2):
         raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
 
@@ -82,6 +131,17 @@ def crop_cloud_to_xyz(cloud_msg, bounding_box):
 
 
 def transform_point_cloud(cloud_msg, tf_matrix, target_frame):
+    """
+    transform a sensor_msgs/PointCloud2 message using a transformation matrix
+
+    :type cloud_msg: PointCloud2
+    :param tf_matrix: transformation matrix
+    :type tf_matrix: ndarray
+    :param target_frame: frame to be transformed to
+    :type target_frame: str
+    :return transformed cloud
+    :rtype PointCloud2
+    """
     if not isinstance(cloud_msg, PointCloud2):
         raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
     transformed_cloud = from_cpp(_transform_point_cloud(to_cpp(cloud_msg), tf_matrix), PointCloud2)

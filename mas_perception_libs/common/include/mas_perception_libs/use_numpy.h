@@ -3,8 +3,11 @@
  *
  * Author: Minh Nguyen
  *
- * following suggestion from https://stackoverflow.com/a/47027598
- * to create single numpy API reference
+ * following suggestion from https://stackoverflow.com/a/47027598 to create a single numpy API reference.
+ * All 'cpp' files that use NumPy API need to include this header. Directly including of NumPy header will cause
+ * segmentation fault error as multiple instances of 'PyArray_API' are initialized.
+ * Works in conjunction with 'common/src/init_numpy_api.cpp', where a single instance of 'MY_PyArray_API' is initialized
+ * using the 'import_array' call
  *
  */
 #ifndef MAS_PERCEPTION_LIBS_USE_NUMPY_H
