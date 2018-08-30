@@ -63,8 +63,8 @@ above.
 ## [`object_detector.py`](../ros/src/mas_perception_libs/object_detector.py)
 
 ### `ObjectDetector`
-* Interact with a [`mcr_perception_msgs/DetectScene.action`](../../mcr_perception_msgs/action/DetectScene.action)
-  action server to get a list of planes containing objects.
+* Interact with a [`DetectScene`](../../mcr_perception_msgs/action/DetectScene.action) action server to get a list of
+planes containing objects.
 * Perform common preprocessing steps on the objects (i.e. create bounding box, transform to desired frame,...).
 * Detection action is triggered by method `start_detect_objects`. A callback param can be passed in to be executed at
   the end of the method.
@@ -84,11 +84,6 @@ action specifications in
 class needs to implement:
 * `_initialize`: initialization procedures before starting the action servers (i.e. loading models).
 * `_execute_cb`: perform object detection and respond to the action client.
-
-### `SceneDetectionTestActionServer`
-Test extension of `SceneDetectionActionServer`, used by
-[`object_detection_test_server`](../ros/scripts/object_detection_test_server) for testing without an actual object
-detection action server.
 
 ### `ImageDetectionActionServer`
 An extension of `SceneDetectionActionServer` which uses `SingleImageDetectionHandler` and `ImageDetector` for detecting
@@ -124,4 +119,3 @@ function in C++ code.
 * `fit_box_to_image`: adjust a `BoundingBox2D` object to fit an image size.
 * `crop_image`: crop a CV image (`ndarray`) using a `BoundingBox2D` object.
 * `bgr_dict_from_classes`: generate colors from a list of class names.
-

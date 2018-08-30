@@ -33,20 +33,6 @@ class SceneDetectionActionServer(object):
         pass
 
 
-class SceneDetectionActionServerTest(SceneDetectionActionServer):
-    def __init__(self, action_name, **kwargs):
-        super(SceneDetectionActionServerTest, self).__init__(action_name, **kwargs)
-
-    def _initialize(self, **kwargs):
-        pass
-
-    def _execute_cb(self, _):
-        # generate fake results
-        result = DetectSceneResult()
-        result.planes.append(Plane())
-        self._action_server.set_succeeded(result)
-
-
 class ImageDetectionActionServer(SceneDetectionActionServer):
     _detector_ros = None    # type: SingleImageDetectionHandler
     _cloud_topic = None     # type: str

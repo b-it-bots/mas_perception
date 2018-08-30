@@ -23,9 +23,6 @@ Parameters:
 * `recognition_class`: class name of the `ImageClassifier` instance
 (default: `'ImageClassifierTest'`)
 
-### [`object_detection_test_server`](ros/scripts/object_detection_test_server)
-Service of type `std_srvs/Empty` which generates empty `mcr_perception_msgs/PlaneList` for testing.
-
 ### [`image_recognition_client_test`](ros/scripts/image_recognition_client_test)
 Script to test the `image_recognition_server`.
 
@@ -114,8 +111,7 @@ Launch the `image_recognition_server`. Arguments:
 │   │   ├── image_detection_action_server
 │   │   ├── image_detection_test
 │   │   ├── image_recognition_client_test
-│   │   ├── image_recognition_server
-│   │   └── object_detection_test_server
+│   │   └── image_recognition_server
 │   └── src
 │       ├── boost_python_module.cpp
 │       ├── bounding_box_wrapper.cpp

@@ -123,8 +123,9 @@ install(TARGETS _cpp_wrapper
 
 # executables
 install(PROGRAMS
-  ros/scripts/image_recognition_server
   ros/scripts/image_detection_action_server
-  ros/scripts/object_detection_test_server
+  ros/scripts/image_detection_test
+  ros/scripts/image_recognition_client_test
+  ros/scripts/image_recognition_server
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
