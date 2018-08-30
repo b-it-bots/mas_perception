@@ -1,31 +1,18 @@
 # Python Package
 
-## [`image_detector.py`](../ros/src/mas_perception_libs/image_detector.py)
+## [`bounding_box.py`](../ros/src/mas_perception_libs/bounding_box.py)
 
-### `ImageDetector`
-TODO
+### `BoundingBox`
+Port of bounding box creation for point clouds from C++. Provide the following API methods:
+* `get_pose`: returns `geometry_msgs/PoseStamped` of the bounding box.
+* `get_ros_message`: returns `mcr_perception_msgs/BoundingBox` version of the bounding box.
 
-### `ImageDetectorTest`
-TODO
+### `BoundingBox2D`
+Common interface in C++ and Python for rectangle regions in RGB images. Several visualization and utility methods are
+built around this class.
 
-### `SingleImageDetectionHandler`
-Used by `SceneDetectionActionServer` and in [`image_detection_test`](../ros/scripts/image_detection_test) to detect
-objects in a single image message at a time and publish detection results on a desired topic.
-
-## [`scene_detection_action.py`](../ros/src/mas_perception_libs/scene_detection_action.py)
-
-### `SceneDetectionActionServer`
-An abstract class which creates an `actionlib.SimpleActionServer` object to handle object detection action goals using
-action specifications in
-[`mcr_perception_msgs/DetectScene.action`](../../mcr_perception_msgs/action/DetectScene.action). An extension of this
-class needs to implement:
-* `_initialize`: initialization procedures before starting the action servers (i.e. loading models).
-* `_execute_cb`: perform object detection and respond to the action client.
-
-### `SceneDetectionTestActionServer`
-Test extension of `SceneDetectionActionServer`, used by
-[`object_detection_test_server`](../ros/scripts/object_detection_test_server) for testing without an actual object
-detection action server.
+## [`constants.py`](../ros/src/mas_perception_libs/constants.py)
+Common place for all the perception related constants.
 
 ## [`image_classifier.py`](../ros/src/mas_perception_libs/image_classifier.py)
 
@@ -33,8 +20,7 @@ detection action server.
 Abstract class for image classification.
 * An extension of this class needs to implement the following functions:
     - `classify`: receive a list of `sensor_msgs/Image` as argument, returns a list of corresponding classes.
-* Any extension of this class can be used by
-[`image_recognition_server`](../ros/scripts/image_recognition_server) for classifying images.
+* Any extension of this class can be used by the `RecognizeImageService` class for classifying images.
 
 ### `ImageClassifierTest`
 An example implementation of `ImageClassifier` which return random classes for each image message.
@@ -42,6 +28,25 @@ Used by `mdr_perceive_plane_action` for testing.
 
 ### `KerasImageClassifier`
 An implementation of  `ImageClassifier` which uses the Keras framework to classify images.
+
+## [`image_detector.py`](../ros/src/mas_perception_libs/image_detector.py)
+
+### `ImageDetector`
+Abstract class for detecting things in images.
+* Any extension needs to implement methods:
+    - `load_model`: load detection model using keyword arguments given to the constructor.
+    - `_detect`: perform detection on a list of `sensor_msgs/Image` objects using the detection model.
+* Extension of this class can be used with `SingleImageDetectionHandler`, which is used in `ImageDetectionActionServer`
+and the test script [`image_detection_test`](../ros/scripts/image_detection_test) for detecting in images.
+
+### `ImageDetectorTest`
+Simple detection model which generates random bounding boxes and is meant to be an usage example for `ImageDetector`
+together with [`class_annotation_example.yml`](../models/class_annotation_example.yml) and
+[`image_detector_test_kwargs.yml`](../models/image_detector_test_kwargs.yml).
+
+### `SingleImageDetectionHandler`
+Used by `SceneDetectionActionServer` and in [`image_detection_test`](../ros/scripts/image_detection_test) to detect
+objects in a single image message at a time and publish detection results on a desired topic.
 
 ## [`image_recognition_service.py`](../ros/src/mas_perception_libs/image_recognition_service.py)
 
@@ -67,20 +72,30 @@ above.
 * An example usage is written in the `DetectObjects` state, defined in file `action_states.py` of the
   `mdr_perceive_plane_action` package.
 
-## [`bounding_box.py`](../ros/src/mas_perception_libs/bounding_box.py)
+## [`ros_message_serialization.py`](../ros/src/mas_perception_libs/ros_message_serialization.py)
+Serialize and deserialize ROS messages for interaction with C++ code.
 
-### `BoundingBox`
-Port of bounding box creation for point clouds from C++. Provide the following API methods:
-* `get_pose`: returns `geometry_msgs/PoseStamped` of the bounding box.
-* `get_ros_message`: returns `mcr_perception_msgs/BoundingBox` version of the bounding box.
+## [`scene_detection_action.py`](../ros/src/mas_perception_libs/scene_detection_action.py)
 
-### `BoundingBox2D`
-Common interface in C++ and Python for rectangle regions in RGB images. Several visualization and utility methods are
-built around this class.
+### `SceneDetectionActionServer`
+An abstract class which creates an `actionlib.SimpleActionServer` object to handle object detection action goals using
+action specifications in
+[`mcr_perception_msgs/DetectScene.action`](../../mcr_perception_msgs/action/DetectScene.action). An extension of this
+class needs to implement:
+* `_initialize`: initialization procedures before starting the action servers (i.e. loading models).
+* `_execute_cb`: perform object detection and respond to the action client.
+
+### `SceneDetectionTestActionServer`
+Test extension of `SceneDetectionActionServer`, used by
+[`object_detection_test_server`](../ros/scripts/object_detection_test_server) for testing without an actual object
+detection action server.
+
+### `ImageDetectionActionServer`
+An extension of `SceneDetectionActionServer` which uses `SingleImageDetectionHandler` and `ImageDetector` for detecting
+from an image extracted from a `sensor_msgs/PointCloud2` message, then calculating the detected objects' poses.
 
 ## [`utils.py`](../ros/src/mas_perception_libs/utils.py)
-### `get_classes_in_data_dir`
-Returns a list of strings as class names for a directory. This directory structure
+* `get_classes_in_data_dir`: Returns a list of strings as class names for a directory. This directory structure
 ```
 data
 ├── class_1
@@ -91,17 +106,22 @@ should returns
 ['class_1', 'class_2']
 ```
 when called on `data`.
-
-### `process_image_message`
-Converts `sensor_msgs/Image` to CV image, then resizes and/or runs a preprocessing function if specified.
-
-### `case_insensitive_glob`
-glob files ignoring case.
-
-## [`ros_message_serialization.py`](../ros/src/mas_perception_libs/ros_message_serialization.py)
-Serialize and deserialize ROS messages for interation with C++ code.
-
-## [`constants.py`](../ros/src/mas_perception_libs/constants.py)
-Common place for all the perception related constants.
+* `process_image_message`: Converts `sensor_msgs/Image` to CV image, then resizes and/or runs a preprocessing function
+if specified.
+* `case_insensitive_glob`: `glob` files ignoring case.
+* `cloud_msg_to_cv_image`: extract a CV image as a `ndarray` object from a `sensor_msgs/PointCloud2` message.
+* `cloud_msg_to_image_msg`: extract a `sensor_msgs/Image` message from a `sensor_msgs/PointCloud2` message.
+* `crop_organized_cloud_msg`: use a `BoundingBox2D` object to crop a `sensor_msgs/PointCloud2` message.
+* `crop_cloud_to_xyz`: use a `BoundingBox2D` object to extract an array of `(x, y, z)` coordinates from a
+`sensor_msgs/PointCloud2` message.
+* `transform_point_cloud`: transform a `sensor_msgs/PointCloud2` cloud using a transformation matrix, calling the PCL
+function in C++ code.
 
 ## [`visualization.py`](../ros/src/mas_perception_libs/visualization.py)
+
+* `draw_labeled_boxes`: draw boxes on a CV image (`ndarray`) using `BoundingBox2D` objects.
+* `draw_labeled_boxes_img_msg`: same with above but for `sensor_msgs/Image` messages.
+* `fit_box_to_image`: adjust a `BoundingBox2D` object to fit an image size.
+* `crop_image`: crop a CV image (`ndarray`) using a `BoundingBox2D` object.
+* `bgr_dict_from_classes`: generate colors from a list of class names.
+

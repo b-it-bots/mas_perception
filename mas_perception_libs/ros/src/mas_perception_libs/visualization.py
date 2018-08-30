@@ -96,7 +96,7 @@ def bgr_dict_from_classes(classes):
     """
     get dictionary of BGR colors span over HSV hue range from a list of classes
 
-    :param classes: list of colors
+    :param classes: list of strings containing class names
     :return: dictionary {key=class name, value=color}
     """
     class_num = len(classes)
