@@ -3,15 +3,22 @@ import tf
 from actionlib import SimpleActionClient
 from geometry_msgs.msg import PointStamped
 from mcr_perception_msgs.msg import PlaneList, DetectSceneGoal, DetectSceneAction
-from mas_perception_libs import Constant, BoundingBox
+from .bounding_box import BoundingBox
 
 
 class ObjectDetector(object):
+    """
+    Interacts with a DetectScene action server to detect objects and process them
+    """
     _detection_client = None    # type: SimpleActionClient
     _plane_list = PlaneList()   # type: PlaneList
     _timeout = None             # type: int
 
-    def __init__(self, detection_action_name, timeout=5):
+    def __init__(self, detection_action_name, timeout=20):
+        """
+        :param detection_action_name: name of action server
+        :param timeout: maximum to wait for the action to start or process the goal
+        """
         self._timeout = timeout
         self._detection_client = SimpleActionClient(detection_action_name, DetectSceneAction)
         if not self._detection_client.wait_for_server(timeout=rospy.Duration(self._timeout)):
@@ -21,6 +28,16 @@ class ObjectDetector(object):
         self._tf_listener = tf.TransformListener()
 
     def start_detect_objects(self, plane_frame_prefix, done_callback, target_frame=None, group_planes=True):
+        """
+        Detect and process objects
+        TODO(minhnh) cleanup pose calculation as should be handled in the action server
+
+        :param plane_frame_prefix: str to prepend to plane name
+        :param done_callback: function to execute at the end of this method before returning
+        :param target_frame: frame to transform object poses to
+        :param group_planes: if True group planes close to each other into a single one containing all the objects
+        :return: None
+        """
         goal = DetectSceneGoal()
         self._detection_client.send_goal(goal)
         if not self._detection_client.wait_for_result(rospy.Duration(self._timeout)):
@@ -69,6 +86,7 @@ class ObjectDetector(object):
         return
 
     def _transform_plane(self, plane_pose, target_frame):
+        """ Transform plane pose to a target frame """
         try:
             common_time = self._tf_listener.getLatestCommonTime(target_frame, plane_pose.header.frame_id)
             plane_pose.header.stamp = common_time
@@ -82,6 +100,7 @@ class ObjectDetector(object):
         return plane_pose
 
     def _transform_object(self, box_msg, obj_pose, target_frame):
+        """ Transform object poses and box message to a target frame """
         try:
             common_time = self._tf_listener.getLatestCommonTime(target_frame, obj_pose.header.frame_id)
             obj_pose.header.stamp = common_time
@@ -110,10 +129,12 @@ class ObjectDetector(object):
 
     @property
     def plane_list(self):
+        """ list of planes containing objects """
         return self._plane_list
 
     @staticmethod
     def group_planes_by_height(planes, group_threshold=0.1):
+        """ group planes close together into one """
         plane_index = 0
         plane_group_heights = {}    # index: height
         plane_groups = {}           # index: list of indices

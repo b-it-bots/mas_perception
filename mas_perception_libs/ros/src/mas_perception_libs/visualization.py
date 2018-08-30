@@ -7,6 +7,16 @@ from .bounding_box import BoundingBox2DWrapper
 
 
 def draw_labeled_boxes(image, boxes, thickness=2, font_scale=1.0, copy=True):
+    """
+    Draw bounding boxes on a CV image using BoundingBox2D objects
+
+    :param image: CV image as ndarray
+    :param boxes: list of BoundingBox2D objects
+    :param thickness: line thickness
+    :param font_scale:
+    :param copy: if True copy CV image before drawing; by default image will be drawn over
+    :return: image with bounding boxes visualized
+    """
     if not isinstance(image, np.ndarray):
         raise ValueError('image is not a numpy array')
 
@@ -19,6 +29,18 @@ def draw_labeled_boxes(image, boxes, thickness=2, font_scale=1.0, copy=True):
 
 
 def draw_labeled_boxes_img_msg(cv_bridge, img_msg, boxes, thickness=2, font_scale=1.0, copy=True):
+    """
+    Draw bounding boxes on a sensor_msgs/Image message using BoundingBox2D objects; call draw_labeled_boxes()
+
+    :type cv_bridge: cv_bridge.CvBridge
+    :type img_msg: sensor_msgs.msg.Image
+    :param boxes: list of BoundingBox2D objects
+    :param thickness: line thickness
+    :param font_scale:
+    :param copy: like with draw_labeled_boxes()
+    :return: image message with bounding boxes visualized
+    :rtype: sensor_msgs.img.Image
+    """
     try:
         img = cv_bridge.imgmsg_to_cv2(img_msg, desired_encoding="passthrough")
     except CvBridgeError as e:
@@ -35,6 +57,14 @@ def draw_labeled_boxes_img_msg(cv_bridge, img_msg, boxes, thickness=2, font_scal
 
 
 def fit_box_to_image(image_size, bounding_box, offset=0):
+    """
+    Adjust bounding box to image size
+
+    :param image_size: 2-tuple (width, height)
+    :param bounding_box: BoundingBox2D object
+    :param offset: used to expand bounding box's dimensions
+    :return: adjusted BoundingBox2D object
+    """
     if not isinstance(image_size, tuple) or len(image_size) != 2:
         raise ValueError('image size is not a tuple of length 2')
 
@@ -45,6 +75,14 @@ def fit_box_to_image(image_size, bounding_box, offset=0):
 
 
 def crop_image(image, bounding_box, offset=0):
+    """
+    Crop image using BoundingBox2D object
+
+    :param image: CV image as ndarray
+    :param bounding_box: BoundingBox2D object
+    :param offset: used to expand bounding box's dimensions
+    :return: cropped image
+    """
     if not isinstance(image, np.ndarray):
         raise ValueError('image is not a numpy array')
 

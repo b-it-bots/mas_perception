@@ -6,11 +6,21 @@ from image_classifier import ImageClassifier
 
 
 class RecognizeImageService(object):
-    def __init__(self, classifer_class, model_dir, service_name):
-        if not issubclass(classifer_class, ImageClassifier):
+    """
+    Image recognition service which uses ImageClassifier instances to classify images
+    """
+    def __init__(self, classifier_class, model_dir, service_name):
+        """
+        :param classifier_class: ImageClassifier extension for classifying images
+        :param model_dir: path to the model directory
+        :type model_dir: str
+        :param service_name: name of recognition service
+        :type service_name: str
+        """
+        if not issubclass(classifier_class, ImageClassifier):
             raise ValueError('classifer is not of ImageClassifier type')
 
-        self._classifier_class = classifer_class
+        self._classifier_class = classifier_class
         self._model_dir = model_dir
 
         # dictionary of classifiers - key is the model_path
@@ -18,7 +28,14 @@ class RecognizeImageService(object):
         self._recog_service = rospy.Service(service_name, ImageRecognition, self.handle_recognize_image)
 
     def handle_recognize_image(self, req):
-        print('\nnumber of images: ' + str(len(req.images)) + '\n')
+        """
+        Callback for recognition service
+
+        :param req: service request
+        :type req: ImageRecognitionRequest
+        :rtype: ImageRecognitionResponse
+        """
+        rospy.loginfo('number of images to recognize: ' + str(len(req.images)))
         if req.model_name not in self._classifiers:
             model_path = os.path.join(self._model_dir, req.model_name + '.h5')
             class_file = os.path.join(self._model_dir, req.model_name + '.txt')
@@ -35,7 +52,16 @@ class RecognizeImageService(object):
 
 
 class ImageRecognitionServiceProxy(object):
-    def __init__(self, service_name, model_name,  preprocess_input_module=None):
+    """
+    Interacts with a RecognizeImageService instance to classify images
+    """
+    def __init__(self, service_name, model_name, preprocess_input_module=None):
+        """
+        :param service_name:
+        :param model_name: name of image classification model
+        :param preprocess_input_module: module containing 'preprocess_input' method to be called on images
+                                        TODO(minhnh) not used
+        """
         rospy.wait_for_service(service_name, timeout=5.0)
         try:
             self._recog_proxy = rospy.ServiceProxy(service_name, ImageRecognition)
@@ -50,6 +76,7 @@ class ImageRecognitionServiceProxy(object):
             self._preprocess_input_func = getattr(import_module(preprocess_input_module), 'preprocess_input')
 
     def classify_image_messages(self, image_messages, done_callback_func=None):
+        """ Call image recognition service to classify image messages """
         request = ImageRecognitionRequest()
         request.images = image_messages
         request.model_name = self._model_name
