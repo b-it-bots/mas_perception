@@ -26,6 +26,27 @@ using mcr::visualization::ClusteredPointCloudVisualizer;
 using mcr::visualization::LabelVisualizer;
 using mcr::visualization::Color;
 
+/**
+ * This node subscribes to pointcloud topic.
+ * Inputs:
+ * ~event_in:
+ *      - e_start: starts subscribing to pointcloud topic
+ *      - e_add_cloud_start: adds pointcloud to octree, if it is on dataset collection mode,
+ *                           the node will start segmenting the pointcloud.
+ *      - e_add_cloud_stop: stops adding pointcloud to octree
+ *      - e_find_plane: finds the plane and publishes workspace height
+ *      - e_segment: starts segmentation and publish ObjectList
+ *      - e_reset: clears accumulated cloud
+ *      - e_stop: stops subscribing and clears accumulated pointcloud
+ * Outputs:
+ * ~event_out:
+ *      - e_started: started listening to new messages
+ *      - e_add_cloud_started: started adding the cloud to octree
+ *      - e_add_cloud_stopped: stopped adding the cloud to octree
+ *      - e_done: started finding the plane or started segmenting the pointcloud
+ *      - e_stopped: stopped subscribing and cleared accumulated pointcloud
+ */
+
 class SceneSegmentationNode
 {
     private:
@@ -35,6 +56,7 @@ class SceneSegmentationNode
         ros::Publisher pub_object_list_;
         ros::Publisher pub_event_out_;
         ros::Publisher pub_workspace_height_;
+        ros::Publisher pub_input_for_debug_;
 
         ros::Subscriber sub_cloud_;
         ros::Subscriber sub_event_in_;
@@ -56,15 +78,18 @@ class SceneSegmentationNode
         std::string frame_id_;
         int object_id_;
         double octree_resolution_;
-
         double object_height_above_workspace_;
+        bool dataset_collection_;
+        bool debug_mode_;       
+        std::string logdir_; 
 
     private:
         void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
         void eventCallback(const std_msgs::String::ConstPtr &msg);
-        void config_callback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level);
+        void configCallback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level);
         void segment();
         void findPlane();
+        void savePcd(const PointCloud::ConstPtr &cloud, std::string obj_name);
         geometry_msgs::PoseStamped getPose(const BoundingBox &box);
 
     public:

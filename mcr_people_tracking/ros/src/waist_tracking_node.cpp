@@ -31,7 +31,7 @@
 #include <mcr_perception_msgs/Person.h>
 #include <mcr_perception_msgs/LaserScanSegmentList.h>
 #include <mcr_perception_msgs/LaserScanSegment.h>
-#include <mcr_algorithms/segmentation/laserscan_segmentation.h>
+#include <mcr_scene_segmentation/laserscan_segmentation.h>
 #include <mcr_algorithms/wrapper/pcl_wrapper.hpp>
 #include <mcr_algorithms/projections/pointcloud_projections.hpp>
 #include <mcr_algorithms/geometry/geometric_properties.hpp>
