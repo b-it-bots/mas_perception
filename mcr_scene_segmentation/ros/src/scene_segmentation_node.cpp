@@ -6,12 +6,6 @@
  */
 #include <mcr_scene_segmentation/scene_segmentation.h>
 #include <mcr_scene_segmentation/scene_segmentation_node.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_types.h>
-#include <pcl/PCLPointCloud2.h>
-#include <pcl/common/centroid.h>
-#include <pcl_ros/transforms.h>
-
 #include <mcr_perception_msgs/BoundingBox.h>
 #include <mcr_perception_msgs/BoundingBoxList.h>
 #include <mcr_perception_msgs/ObjectList.h>
@@ -19,20 +13,26 @@
 #include "mcr_scene_segmentation/impl/helpers.hpp"
 #include "mas_perception_libs/bounding_box.h"
 
-#include <Eigen/Dense>
-
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/common/centroid.h>
+#include <pcl_ros/transforms.h>
+#include <pcl/io/pcd_io.h>
 #include "pcl_ros/point_cloud.h"
 
+#include <Eigen/Dense>
 #include <std_msgs/Float64.h>
-
 #include <vector>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN)),
     cluster_visualizer_("tabletop_clusters"),
     label_visualizer_("labels", mcr::visualization::Color(mcr::visualization::Color::TEAL)),
-    add_to_octree_(false), object_id_(0)
+    add_to_octree_(false), object_id_(0), debug_mode_(false), dataset_collection_(false)
 {
     pub_debug_ = nh_.advertise<sensor_msgs::PointCloud2>("output", 1);
     pub_object_list_ = nh_.advertise<mcr_perception_msgs::ObjectList>("object_list", 1);
@@ -41,7 +41,7 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     pub_workspace_height_ = nh_.advertise<std_msgs::Float64>("workspace_height", 1);
 
     dynamic_reconfigure::Server<mcr_scene_segmentation::SceneSegmentationConfig>::CallbackType f =
-                            boost::bind(&SceneSegmentationNode::config_callback, this, _1, _2);
+                            boost::bind(&SceneSegmentationNode::configCallback, this, _1, _2);
     server_.setCallback(f);
 
     recognize_service = nh_.serviceClient<mcr_perception_msgs::RecognizeObject>
@@ -54,19 +54,21 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
 
     nh_.param("octree_resolution", octree_resolution_, 0.05);
     cloud_accumulation_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
+
+    nh_.param<bool>("debug_mode", debug_mode_, "false");
+    nh_.param<bool>("dataset_collection", dataset_collection_, "false");
+    nh_.param<std::string>("logdir", logdir_, "/tmp/");
 }
 
 SceneSegmentationNode::~SceneSegmentationNode()
 {
 }
 
-
 void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg)
 {
     if (add_to_octree_)
     {
         std::string target_frame_id;
-        // Default frame_id is base_link
         nh_.param<std::string>("target_frame_id", target_frame_id, "base_link");
         sensor_msgs::PointCloud2 msg_transformed;
         msg_transformed.header.frame_id = target_frame_id;
@@ -85,7 +87,6 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
             ros::Duration(1.0).sleep();
             return;
         }
-
         PointCloud::Ptr cloud(new PointCloud);
         pcl::PCLPointCloud2 pc2;
         pcl_conversions::toPCL(msg_transformed, pc2);
@@ -95,6 +96,11 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
 
         frame_id_ = msg_transformed.header.frame_id;
 
+        if (dataset_collection_)
+        {
+            segment();
+            cloud_accumulation_->reset();
+        }
         std_msgs::String event_out;
         add_to_octree_ = false;
         event_out.data = "e_add_cloud_stopped";
@@ -121,7 +127,6 @@ void SceneSegmentationNode::segment()
     mcr_perception_msgs::BoundingBoxList bounding_boxes;
     mcr_perception_msgs::ObjectList object_list;
     geometry_msgs::PoseArray poses;
-
 
     bounding_boxes.bounding_boxes.resize(boxes.size());
     object_list.objects.resize(boxes.size());
@@ -166,7 +171,6 @@ void SceneSegmentationNode::segment()
         pose.header.stamp = now;
         pose.header.frame_id = frame_id_;
 
-
         std::string target_frame_id;
         if (nh_.hasParam("target_frame_id"))
         {
@@ -199,7 +203,6 @@ void SceneSegmentationNode::segment()
         {
             object_list.objects[i].pose = pose;
         }
-
         //publish cluster, will be used for object_list_merger
         object_list.objects[i].pointcloud = ros_cloud;
 
@@ -208,11 +211,35 @@ void SceneSegmentationNode::segment()
 
         object_list.objects[i].database_id = object_id_;
         object_id_++;
+
+        if (dataset_collection_ || debug_mode_)
+        {
+            pcl::PointCloud<PointT>::Ptr pointcloud(new pcl::PointCloud<PointT>);
+            pcl::fromROSMsg(ros_cloud, *pointcloud);
+            SceneSegmentationNode::savePcd(pointcloud, object_list.objects[i].name);
+        }
     }
     pub_object_list_.publish(object_list);
     bounding_box_visualizer_.publish(bounding_boxes.bounding_boxes, frame_id_);
     cluster_visualizer_.publish<PointT>(clusters, frame_id_);
     label_visualizer_.publish(labels, poses);
+}
+
+void SceneSegmentationNode::savePcd(const PointCloud::ConstPtr &pointcloud, std::string obj_name)
+{
+    std::stringstream filename; // stringstream used for the conversion
+    unsigned long int sec = time(NULL);
+    filename.str(""); //clearing the stringstream
+    if (debug_mode_)
+    {
+        filename << logdir_ << obj_name << "_" << sec <<".pcd";
+    }
+    else
+    {
+        filename << logdir_ <<"pcd_" << sec <<".pcd";
+    }
+    ROS_INFO_STREAM("Saving pointcloud to " << logdir_);
+    pcl::io::savePCDFileASCII (filename.str(), *pointcloud);
 }
 
 void SceneSegmentationNode::findPlane()
@@ -316,7 +343,7 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
     pub_event_out_.publish(event_out);
 }
 
-void SceneSegmentationNode::config_callback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level)
+void SceneSegmentationNode::configCallback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level)
 {
     scene_segmentation_.setVoxelGridParams(config.voxel_leaf_size, config.voxel_filter_field_name,
             config.voxel_filter_limit_min, config.voxel_filter_limit_max);

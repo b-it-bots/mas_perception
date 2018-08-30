@@ -53,3 +53,17 @@ Workspace height:
 ```
 /mcr_perception/scene_segmentation/workspace_height
 ```
+
+Dataset collection:
+```
+1. Enable dataset_collection parameter in the launch file
+2. Set the logdir parameter (optional), by default it is "/tmp/"
+3. Start collecting dataset
+** rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String "data: 'e_start'"
+** rostopic pub /mcr_perception/scene_segmentation/event_in std_msgs/String "data: 'e_add_cloud_start'"
+```
+
+Debug mode:
+```
+If this is enable in the launch file, the pointcloud will be saved to the logdir.
+```
