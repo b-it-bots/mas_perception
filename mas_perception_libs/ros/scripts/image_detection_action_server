@@ -24,11 +24,6 @@ if __name__ == '__main__':
 
     # get parameters for detector class
     class_annotation_file = rospy.get_param('~class_annotations', None)
-    if class_annotation_file is None:
-        raise ValueError('"~class_annotations" not specified')
-    if not os.path.exists(class_annotation_file):
-        raise ValueError('"~class_annotations" file does not exist: ' + class_annotation_file)
-
     kwargs_file = rospy.get_param('~kwargs_file', None)
 
     # import detection class
@@ -37,8 +32,8 @@ if __name__ == '__main__':
     detection_class = getattr(import_module(detect_module), detect_class_name)
 
     # create service
-    ImageDetectionActionServer(action_name,
-                               detection_class=detection_class, cloud_topic=cloud_topic, target_frame=target_frame,
-                               class_annotation_file=class_annotation_file, kwargs_file=kwargs_file)
+    ImageDetectionActionServer(action_name, detection_class=detection_class, cloud_topic=cloud_topic,
+                               target_frame=target_frame, class_annotation_file=class_annotation_file,
+                               kwargs_file=kwargs_file)
 
     rospy.spin()

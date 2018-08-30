@@ -34,7 +34,9 @@ An implementation of  `ImageClassifier` which uses the Keras framework to classi
 ### `ImageDetector`
 Abstract class for detecting things in images.
 * Any extension needs to implement methods:
-    - `load_model`: load detection model using keyword arguments given to the constructor.
+    - `load_model`: load detection model using keyword arguments given to the constructor. These arguments are specified
+    in the `model_kwargs_file` passed into the class constructor. An example of this file is
+    [`image_detector_test_kwargs.yml`](../models/image_detector_test_kwargs.yml).
     - `_detect`: perform detection on a list of `sensor_msgs/Image` objects using the detection model.
 * Extension of this class can be used with `SingleImageDetectionHandler`, which is used in `ImageDetectionActionServer`
 and the test script [`image_detection_test`](../ros/scripts/image_detection_test) for detecting in images.
