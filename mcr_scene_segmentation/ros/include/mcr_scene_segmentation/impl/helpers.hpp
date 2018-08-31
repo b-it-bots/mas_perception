@@ -5,7 +5,9 @@
 #include <mcr_perception_msgs/BoundingBox.h>
 
 #include "mcr_scene_segmentation/aliases.h"
-#include "mcr_scene_segmentation/bounding_box.h"
+#include "mas_perception_libs/bounding_box.h"
+
+using mas_perception_libs::BoundingBox;
 
 /** Convert from PCL PlanarPolygon to ROS message. */
 inline void convertPlanarPolygon(const PlanarPolygon& polygon, mcr_perception_msgs::PlanarPolygon& polygon_msg)

@@ -8,9 +8,12 @@
 #include <pcl/common/transforms.h>
 #include <opencv/cv.h>
 
-#include <mcr_scene_segmentation/bounding_box.h>
+#include <mas_perception_libs/bounding_box.h>
 #include <limits>
 #include <algorithm>
+
+namespace mas_perception_libs
+{
 
 BoundingBox BoundingBox::create(const PointCloud::ConstPtr& cloud,
                                 const Eigen::Vector3f& normal)
@@ -38,7 +41,7 @@ BoundingBox BoundingBox::create(const PointCloud::ConstPtr& cloud,
     for (size_t i = 0; i < cloud_transformed.points.size(); i++)
     {
         const PointT& pt = cloud_transformed.points[i];
-        if (!isnan(pt.z))
+        if (!std::isnan(pt.z))
         {
             CvPoint p;
             p.x = pt.x * SCALE;
@@ -90,3 +93,4 @@ BoundingBox BoundingBox::create(const PointCloud::VectorType& points,
     return create(cloud, normal);
 }
 
+}  // namespace mas_perception_libs

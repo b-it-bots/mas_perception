@@ -8,7 +8,7 @@
 #define MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_H
 
 #include <mcr_scene_segmentation/aliases.h>
-#include <mcr_scene_segmentation/bounding_box.h>
+#include <mas_perception_libs/bounding_box.h>
 #include <vector>
 #include <pcl/filters/passthrough.h>
 #include <pcl/filters/voxel_grid.h>
@@ -43,9 +43,9 @@ public:
     virtual ~SceneSegmentation();
 
     PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters,
-            std::vector<BoundingBox> &boxes, double &workspace_height);
+    std::vector<mas_perception_libs::BoundingBox> &boxes, double &workspace_height);
     PointCloud::Ptr findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull,
-            pcl::ModelCoefficients::Ptr &coefficients, double &workspace_height);
+                              pcl::ModelCoefficients::Ptr &coefficients, double &workspace_height);
 
     void setVoxelGridParams(double leaf_size, const std::string &field_name, double limit_min, double limit_max);
     void setPassthroughParams(const std::string &field_name, double limit_min, double limit_max);
