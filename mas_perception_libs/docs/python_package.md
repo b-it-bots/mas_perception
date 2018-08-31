@@ -121,3 +121,27 @@ function in C++ code.
 * `fit_box_to_image`: adjust a `BoundingBox2D` object to fit an image size.
 * `crop_image`: crop a CV image (`ndarray`) using a `BoundingBox2D` object.
 * `bgr_dict_from_classes`: generate colors from a list of class names.
+
+## Example usage
+```Python
+import numpy as np
+from sensor_msgs.msg import PointCloud2
+from mas_perception_libs.utils import cloud_msg_to_cv_image
+from mas_perception_libs import BoundingBox2D
+
+### An example of extracting (x, y, z) coordinates from a PointCloud2 message and estimate pose
+cloud_msg = PointCloud2()       # example cloud message
+
+# extract CV image
+cv_image = cloud_msg_to_image_msg(cloud_msg)
+
+# detect regions in image to get a bounding box
+def favorite_detect_func(cv_image):
+    return BoundingBox2D(box_geometry=(10, 15, 20, 30))     # (x, y, width, height)
+
+box = favorite_detect_func(cv_image)
+
+# crop cloud for coordinates and estimate pose
+cropped_coord = crop_cloud_to_xyz(cloud_msg, box)
+mean_pose = np.nanmean(np.reshape(cropped_coord, (-1, 3)), axis=0)
+```
