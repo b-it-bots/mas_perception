@@ -31,7 +31,7 @@ An implementation of  `ImageClassifier` which uses the Keras framework to classi
 
 ## [`image_detector.py`](../ros/src/mas_perception_libs/image_detector.py)
 
-### `ImageDetector`
+### `ImageDetectorBase`
 Abstract class for detecting things in images.
 * Any extension needs to implement methods:
     - `load_model`: load detection model using keyword arguments given to the constructor. These arguments are specified
@@ -42,7 +42,7 @@ Abstract class for detecting things in images.
 and the test script [`image_detection_test`](../ros/scripts/image_detection_test) for detecting in images.
 
 ### `ImageDetectorTest`
-Simple detection model which generates random bounding boxes and is meant to be an usage example for `ImageDetector`
+Simple detection model which generates random bounding boxes and is meant to be an usage example for `ImageDetectorBase`
 together with [`class_annotation_example.yml`](../models/class_annotation_example.yml) and
 [`image_detector_test_kwargs.yml`](../models/image_detector_test_kwargs.yml).
 
@@ -88,7 +88,7 @@ class needs to implement:
 * `_execute_cb`: perform object detection and respond to the action client.
 
 ### `ImageDetectionActionServer`
-An extension of `SceneDetectionActionServer` which uses `SingleImageDetectionHandler` and `ImageDetector` for detecting
+An extension of `SceneDetectionActionServer` which uses `SingleImageDetectionHandler` and `ImageDetectorBase` for detecting
 from an image extracted from a `sensor_msgs/PointCloud2` message, then calculating the detected objects' poses.
 
 ## [`utils.py`](../ros/src/mas_perception_libs/utils.py)

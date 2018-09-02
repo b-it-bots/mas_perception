@@ -22,7 +22,7 @@ class ImageDetectionKey(Enum):
     Y_MAX = 5
 
 
-class ImageDetector(object):
+class ImageDetectorBase(object):
     """
     Abstract class for detecting things in images
     """
@@ -160,9 +160,9 @@ class ImageDetector(object):
         return boxes, classes, confidences
 
 
-class ImageDetectorTest(ImageDetector):
+class ImageDetectorTest(ImageDetectorBase):
     """
-    Sample extension of ImageDetector for testing
+    Sample extension of ImageDetectorBase for testing
     """
     def __init__(self, **kwargs):
         self._min_box_ratio = None
@@ -209,10 +209,10 @@ class ImageDetectorTest(ImageDetector):
 
 class SingleImageDetectionHandler(object):
     """
-    Simple handler for ImageDetector class which publishes visualized detection result for a single image message
+    Simple handler for ImageDetectorBase class which publishes visualized detection result for a single image message
     on a specified topic if there're subscribers. Needs to be run within a node.
     """
-    _detector = None    # type: ImageDetector
+    _detector = None    # type: ImageDetectorBase
     _result_pub = None  # type: rospy.Publisher
 
     def __init__(self, detection_class, class_annotation_file, kwargs_file, result_topic):
@@ -232,8 +232,8 @@ class SingleImageDetectionHandler(object):
         predictions = self._detector.detect([img_msg])
         if len(predictions) < 1:
             raise RuntimeError('no prediction returned for image message')
-        bounding_boxes, classes, confidences = ImageDetector.prediction_to_bounding_boxes(predictions[0],
-                                                                                          self._detector.class_colors)
+        bounding_boxes, classes, confidences \
+            = ImageDetectorBase.prediction_to_bounding_boxes(predictions[0], self._detector.class_colors)
         if self._result_pub.get_num_connections() > 0:
             rospy.loginfo("publishing detection result")
             drawn_img_msg = self._detector.visualize_detection(img_msg, bounding_boxes)

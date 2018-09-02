@@ -8,7 +8,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import PointCloud2
 from geometry_msgs.msg import PoseStamped
 from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, Plane, Object
-from .image_detector import ImageDetector, SingleImageDetectionHandler
+from .image_detector import ImageDetectorBase, SingleImageDetectionHandler
 from .bounding_box import BoundingBox2D
 from .utils import cloud_msg_to_image_msg, transform_point_cloud, crop_organized_cloud_msg, crop_cloud_to_xyz
 
@@ -47,8 +47,8 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
 
     def _initialize(self, **kwargs):
         detection_class = kwargs.get('detection_class', None)
-        if not issubclass(detection_class, ImageDetector):
-            raise ValueError('"detection_class" is not of ImageDetector type')
+        if not issubclass(detection_class, ImageDetectorBase):
+            raise ValueError('"detection_class" is not of ImageDetectorBase type')
 
         class_annotation_file = kwargs.get('class_annotation_file', None)
         if not class_annotation_file or not os.path.exists(class_annotation_file):

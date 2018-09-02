@@ -20,21 +20,21 @@ Parameters:
 * `cloud_topic`: name of topic which supply `sensor_msgs/PointCloud2` messages
 * `target_frame`: name of reference frame which the object poses will be transformed to
 * `class_annotations`: YAML file which maps numeric class values to class names, used by the
-[`ImageDetector` class](docs/python_package.md) to configure the detection model. An example of this file is
+[`ImageDetectorBase` class](docs/python_package.md) to configure the detection model. An example of this file is
 [`class_annotation_example.yml`](models/class_annotation_example.yml).
-* `kwargs_file`: YAML file which is used by the [`ImageDetector` class](docs/python_package.md) to specify additional
-parameters needed to configure the detection model. An example is
+* `kwargs_file`: YAML file which is used by the [`ImageDetectorBase` class](docs/python_package.md) to specify
+additional parameters needed to configure the detection model. An example is
 [`image_detector_test_kwargs.yml`](models/image_detector_test_kwargs.yml).
-* `detection_module`: name of the module containing the `ImageDetector` extension to import.
-* `detection_class`: name of the extension of the `ImageDetector` class to import.
+* `detection_module`: name of the module containing the `ImageDetectorBase` extension to import.
+* `detection_class`: name of the extension of the `ImageDetectorBase` class to import.
 
 ### [`image_detection_test`](ros/scripts/image_detection_test)
 Node for testing image detection models. Can test images from a directory, a `sensor_msgs/Image` topic, or a
 `sensor_msgs/PointCloud2` topic.
 
 Parameters:
-* `class_annotations`, `kwargs_file`, `detection_module`, and `detection_class`: parameters for `ImageDetector` class
-similar to ones described above for `image_detection_action_server`.
+* `class_annotations`, `kwargs_file`, `detection_module`, and `detection_class`: parameters for `ImageDetectorBase`
+class similar to ones described above for `image_detection_action_server`.
 * `result_topic`: `sensor_msgs/Image` topic which visualized detection results are published.
 * `image_directory`: if specified will ignore other image sources and read images from this directory for testing.
 * `cloud_topic`: if specified and `image_directory` is not specified will extract images from `sensor_msgs/PointCloud2`
