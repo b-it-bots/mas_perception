@@ -34,13 +34,13 @@ class SceneDetectionActionServer(object):
 
 
 class ImageDetectionActionServer(SceneDetectionActionServer):
-    _detector_ros = None    # type: SingleImageDetectionHandler
-    _cloud_topic = None     # type: str
-    _cloud_sub = None       # type: rospy.Subscriber
-    _cloud_msg = None       # type: PointCloud2
-    _tf_listener = None     # type: tf.TransformListener
-    _target_frame = None    # type: str
-    _cv_bridge = None       # type: CvBridge
+    _detector_handler = None    # type: SingleImageDetectionHandler
+    _cloud_topic = None         # type: str
+    _cloud_sub = None           # type: rospy.Subscriber
+    _cloud_msg = None           # type: PointCloud2
+    _tf_listener = None         # type: tf.TransformListener
+    _target_frame = None        # type: str
+    _cv_bridge = None           # type: CvBridge
 
     def __init__(self, action_name, **kwargs):
         super(ImageDetectionActionServer, self).__init__(action_name, **kwargs)
@@ -58,8 +58,8 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         if not kwargs_file or not os.path.exists(kwargs_file):
             raise ValueError('invalid value for "kwargs_file": ' + kwargs_file)
 
-        self._detector_ros = SingleImageDetectionHandler(detection_class, class_annotation_file, kwargs_file,
-                                                         '/mas_perception/detection_result')
+        self._detector_handler = SingleImageDetectionHandler(detection_class, class_annotation_file, kwargs_file,
+                                                             '/mas_perception/detection_result')
 
         self._cloud_topic = kwargs.get('cloud_topic', None)
         if not self._cloud_topic:
@@ -85,7 +85,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         rospy.loginfo('detecting objects')
         img_msg = cloud_msg_to_image_msg(cloud_msg)
         try:
-            bounding_boxes, classes, confidences = self._detector_ros.process_image_msg(img_msg)
+            bounding_boxes, classes, confidences = self._detector_handler.process_image_msg(img_msg)
         except RuntimeError as e:
             self._action_server.set_aborted(text=e.message)
             return

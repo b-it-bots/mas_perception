@@ -15,7 +15,7 @@ namespace mas_perception_libs
 {
 
     cv::Mat
-    cloudMsgToCvImage(sensor_msgs::PointCloud2 &pCloudMsg)
+    cloudMsgToCvImage(const sensor_msgs::PointCloud2 &pCloudMsg)
     {
         // check for organized cloud and extract image message
         if (pCloudMsg.height <= 1)

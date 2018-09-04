@@ -22,7 +22,7 @@ class ImageSourceType(Enum):
     UNKNOWN = 3
 
 
-def handle_image_directory(image_dir, detector_ros):
+def handle_image_directory(image_dir, detector_handler):
     # glob image files
     image_files = []
     for file_type in ('*.jpg', '*.jpeg', '*.png', '*.bmp'):
@@ -40,7 +40,7 @@ def handle_image_directory(image_dir, detector_ros):
             continue
 
         # detect objects and publish result image
-        _, _, _ = detector_ros.process_image_msg(img_msg)
+        _, _, _ = detector_handler.process_image_msg(img_msg)
 
         # sleep for 1 second
         rospy.sleep(1.0)
@@ -50,10 +50,10 @@ class CloudTopicHandler(object):
     _cropped_img_pub = None  # type: Publisher
     _cropped_pub = None  # type: Publisher
     _cloud_sub = None  # type: Subscriber
-    _detector_ros = None  # type: SingleImageDetectionHandler
+    _detector_handler = None  # type: SingleImageDetectionHandler
 
-    def __init__(self, cloud_topic_name, detector_ros):
-        self._detector_ros = detector_ros
+    def __init__(self, cloud_topic_name, detector_handler):
+        self._detector_handler = detector_handler
         self._cropped_pub = rospy.Publisher('~first_cropped_cloud', PointCloud2, queue_size=1)
         self._cropped_img_pub = rospy.Publisher('~first_cropped_image', ImageMsg, queue_size=1)
         self._cloud_sub = rospy.Subscriber(cloud_topic_name, PointCloud2, self._cloud_callback)
@@ -62,7 +62,7 @@ class CloudTopicHandler(object):
         img_msg = cloud_msg_to_image_msg(cloud_msg)
 
         # generate 2D bounding boxes from detection result
-        bounding_boxes, classes, confidences = self._detector_ros.process_image_msg(img_msg)
+        bounding_boxes, classes, confidences = self._detector_handler.process_image_msg(img_msg)
         if len(bounding_boxes) == 0:
             return
 
@@ -78,27 +78,27 @@ class CloudTopicHandler(object):
 
 
 class ImageTopicHandler(object):
-    def __init__(self, image_topic_name, detector_ros):
-        self._detector_ros = detector_ros
+    def __init__(self, image_topic_name, detector_handler):
+        self._detector_handler = detector_handler
         self._image_sub = rospy.Subscriber(image_topic_name, ImageMsg, self._image_callback)
 
     def _image_callback(self, image_msg):
-        _, _, _ = self._detector_ros.process_image_msg(image_msg)
+        _, _, _ = self._detector_handler.process_image_msg(image_msg)
 
 
 def main(image_source_type, image_source, detection_class, kwargs_file, class_annotation_file, result_topic):
     rospy.loginfo('Image source: {0}: {1}'.format(image_source_type, image_source))
 
     # create detector instance
-    detector_ros = SingleImageDetectionHandler(detection_class, class_annotation_file, kwargs_file, result_topic)
+    detector_handler = SingleImageDetectionHandler(detection_class, class_annotation_file, kwargs_file, result_topic)
 
     # handle image directory case
     if image_source_type == ImageSourceType.IMAGE_DIR:
-        handle_image_directory(image_source, detector_ros)
+        handle_image_directory(image_source, detector_handler)
     elif image_source_type == ImageSourceType.CLOUD_TOPIC:
-        CloudTopicHandler(image_source, detector_ros)
+        CloudTopicHandler(image_source, detector_handler)
     elif image_source_type == ImageSourceType.IMAGE_TOPIC:
-        ImageTopicHandler(image_source, detector_ros)
+        ImageTopicHandler(image_source, detector_handler)
     else:
         raise ValueError('unhandled image source type: ' + str(image_source_type))
 

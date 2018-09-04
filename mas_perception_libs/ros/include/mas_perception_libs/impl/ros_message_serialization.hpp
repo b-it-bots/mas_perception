@@ -8,13 +8,13 @@
 namespace mas_perception_libs
 {
     template<typename M>
-    M from_python(const std::string pSerialMsg)
+    M from_python(const std::string &pSerialMsg)
     {
-        size_t serialSize = pSerialMsg.size();
+        auto serialSize = static_cast<uint32_t>(pSerialMsg.size());
         boost::shared_array<uint8_t> buffer(new uint8_t[serialSize]);
         for (size_t i = 0; i < serialSize; ++i)
         {
-            buffer[i] = pSerialMsg[i];
+            buffer[i] = (uint8_t) pSerialMsg[i];
         }
         ros::serialization::IStream stream(buffer.get(), serialSize);
         M msg;
@@ -27,7 +27,7 @@ namespace mas_perception_libs
     {
         size_t serialSize = ros::serialization::serializationLength(pRosMsg);
         boost::shared_array<uint8_t> buffer(new uint8_t[serialSize]);
-        ros::serialization::OStream stream(buffer.get(), serialSize);
+        ros::serialization::OStream stream(buffer.get(), static_cast<uint32_t>(serialSize));
         ros::serialization::serialize(stream, pRosMsg);
         std::string serialMsg;
         serialMsg.reserve(serialSize);

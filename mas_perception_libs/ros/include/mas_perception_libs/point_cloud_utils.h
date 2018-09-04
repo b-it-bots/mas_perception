@@ -18,7 +18,7 @@ namespace mas_perception_libs
  * @brief extract a CV image from a sensor_msgs/PointCloud2 object
  */
 cv::Mat
-cloudMsgToCvImage(sensor_msgs::PointCloud2 &pCloudMsg);
+cloudMsgToCvImage(const sensor_msgs::PointCloud2 &pCloudMsg);
 
 /*!
  * @brief extract a CV matrix containing (x, y, z) coordinates from a pcl::PointCloud object within a region
@@ -42,6 +42,7 @@ cropOrganizedCloud(const PointCloud &pCloud, BoundingBox2D &pBox);
 
 /*!
  * @brief crops a sensor_msgs/PointCloud2 object object to a region defined by a BoundingBox2D object
+ * @param pCroppedCloudMsg: cropped cloud returned as parameter
  */
 void
 cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &pBox,

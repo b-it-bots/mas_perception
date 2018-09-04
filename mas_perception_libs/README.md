@@ -1,10 +1,14 @@
 # `mas_perception_libs`
 
-Library containing shared perception functionalities.
+Library containing shared perception functionality. Python interface are developed for several functions and definitions
+in the C++ library using [Boost](https://www.boost.org/doc/libs/1_68_0/libs/python/doc/html/index.html). This is to
+avoid defining commonly used logic in different locations and also to expose C++ exclusive libraries (i.e. PCL) for use
+in Python. This means if a functionality is needed in both Python and C++, it should first be developed in C++ and then
+ported to Python.
 
 ## [C++ Library](docs/cpp_library.md)
 
-Contains shared perception defintions in C++.
+Contains shared perception definitions in C++.
 
 ## [Python Package](docs/python_package.md)
 

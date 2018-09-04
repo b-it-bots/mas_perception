@@ -28,11 +28,11 @@ struct BoundingBox2D
     std::string mLabel;
     cv::Scalar mColor;
 
-    BoundingBox2D(std::string pLabel, cv::Scalar pColor, int pX, int pY, int pWidth, int pHeight)
-            : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(std::move(pLabel)), mColor(pColor)
+    BoundingBox2D(const std::string &pLabel, const cv::Scalar &pColor, int pX, int pY, int pWidth, int pHeight)
+            : mX(pX), mY(pY), mWidth(pWidth), mHeight(pHeight), mLabel(pLabel), mColor(pColor)
     { }
 
-    BoundingBox2D(std::string pLabel, int pX, int pY, int pWidth, int pHeight)
+    BoundingBox2D(const std::string &pLabel, int pX, int pY, int pWidth, int pHeight)
             : BoundingBox2D(pLabel, CV_RGB(0, 0, 255), pX, pY, pWidth, pHeight)
     { }
 
@@ -44,7 +44,7 @@ struct BoundingBox2D
     { }
 
     /*! @brief update box geometry using a cv::Rect object */
-    void updateBox(cv::Rect);
+    void updateBox(const cv::Rect &);
 
     /*! @brief get box geometry as a cv::Rect object */
     cv::Rect getCvRect() { return cv::Rect(mX, mY, mWidth, mHeight); }
@@ -68,14 +68,14 @@ drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes,
  * @param pSizeOffset: offset to increase box dimensions
  */
 void
-fitBoxToImage(cv::Size pImageSize, BoundingBox2D& pBox, int pSizeOffset = 0);
+fitBoxToImage(const cv::Size &pImageSize, BoundingBox2D& pBox, int pSizeOffset = 0);
 
 /*!
  * @brief adjust a cv::Rect object to image size
  * @return adjusted box as cv::Rect object
  */
 cv::Rect
-fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset = 0);
+fitBoxToImage(const cv::Size &pImageSize, cv::Rect pBox, int pSizeOffset = 0);
 
 /*!
  * @brief crop a CV image using a set of 2D vertices

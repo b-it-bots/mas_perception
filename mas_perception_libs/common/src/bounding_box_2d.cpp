@@ -12,7 +12,7 @@ namespace mas_perception_libs
 {
 
 void
-BoundingBox2D::updateBox(cv::Rect pNewRect)
+BoundingBox2D::updateBox(const cv::Rect &pNewRect)
 {
     mX = pNewRect.x;
     mY = pNewRect.y;
@@ -48,14 +48,14 @@ drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes, int
 }
 
 void
-fitBoxToImage(cv::Size pImageSize, BoundingBox2D& pBox, int pSizeOffset)
+fitBoxToImage(const cv::Size &pImageSize, BoundingBox2D& pBox, int pSizeOffset)
 {
     cv::Rect newBox = fitBoxToImage(pImageSize, pBox.getCvRect(), pSizeOffset);
     pBox.updateBox(newBox);
 }
 
 cv::Rect
-fitBoxToImage(cv::Size pImageSize, cv::Rect pBox, int pSizeOffset)
+fitBoxToImage(const cv::Size &pImageSize, cv::Rect pBox, int pSizeOffset)
 {
     if (pSizeOffset)
     {

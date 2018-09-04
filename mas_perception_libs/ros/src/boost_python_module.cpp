@@ -35,13 +35,13 @@ namespace mas_perception_libs
  * @brief crops object images from a ROS image messages using ImageBoundingBox. Legacy from mcr_scene_segmentation.
  */
 bp::tuple
-getCropsAndBoundingBoxes(std::string pSerialImageMsg, std::string pSerialCameraInfo,
-                         std::string pSerialBoundingBoxList)
+getCropsAndBoundingBoxes(const std::string &pSerialImageMsg, const std::string &pSerialCameraInfo,
+                         const std::string &pSerialBoundingBoxList)
 {
-    const sensor_msgs::Image &imageMsg = from_python<sensor_msgs::Image>(std::move(pSerialImageMsg));
-    const sensor_msgs::CameraInfo &camInfo = from_python<sensor_msgs::CameraInfo>(std::move(pSerialCameraInfo));
+    const sensor_msgs::Image &imageMsg = from_python<sensor_msgs::Image>(pSerialImageMsg);
+    const sensor_msgs::CameraInfo &camInfo = from_python<sensor_msgs::CameraInfo>(pSerialCameraInfo);
     const mcr_perception_msgs::BoundingBoxList &boundingBoxList
-            = from_python<mcr_perception_msgs::BoundingBoxList>(std::move(pSerialBoundingBoxList));
+            = from_python<mcr_perception_msgs::BoundingBoxList>(pSerialBoundingBoxList);
     ImageBoundingBox mImgBoundingBox(imageMsg, camInfo, boundingBoxList);
 
     // serialize image list
@@ -74,9 +74,9 @@ struct BoundingBox2DWrapper : BoundingBox2D
     /*!
      * @brief Constructor for the extension of BoundingBox2D for use in Python
      */
-    BoundingBox2DWrapper(std::string pLabel, bp::tuple pColor, bp::tuple pBox) : BoundingBox2D()
+    BoundingBox2DWrapper(const std::string &pLabel, const bp::tuple &pColor, const bp::tuple &pBox) : BoundingBox2D()
     {
-        mLabel = std::move(pLabel);
+        mLabel = pLabel;
 
         // extract color
         if (bp::len(pColor) != 3)
@@ -103,7 +103,7 @@ struct BoundingBox2DWrapper : BoundingBox2D
  * @brief Draw bounding boxes on an image, wrapper of C++ function drawLabeledBoxes
  */
 PyObject *
-drawLabeledBoxesWrapper(PyObject * pNdarrayImage, bp::list pBoxList, int pThickness, double pFontScale)
+drawLabeledBoxesWrapper(PyObject * pNdarrayImage, const bp::list &pBoxList, int pThickness, double pFontScale)
 {
     cv::Mat image = pbcvt::fromNDArrayToMat(pNdarrayImage);
     std::vector<BoundingBox2D> boundingBoxes;
@@ -125,7 +125,7 @@ drawLabeledBoxesWrapper(PyObject * pNdarrayImage, bp::list pBoxList, int pThickn
  * @brief Adjust BoundingBox2D geometry to fit within an image, wrapper for C++ function fitBoxToImage
  */
 BoundingBox2DWrapper
-fitBoxToImageWrapper(bp::tuple pImageSizeTuple, BoundingBox2DWrapper pBox, int pOffset)
+fitBoxToImageWrapper(const bp::tuple &pImageSizeTuple, BoundingBox2DWrapper pBox, int pOffset)
 {
     if (bp::len(pImageSizeTuple) != 2)
     {
@@ -156,10 +156,10 @@ cropImageWrapper(PyObject * pNdarrayImage, BoundingBox2DWrapper pBox, int pOffse
  *        cloudMsgToCvImage
  */
 PyObject *
-cloudMsgToCvImageWrapper(std::string pSerialCloud)
+cloudMsgToCvImageWrapper(const std::string &pSerialCloud)
 {
     // unserialize cloud message
-    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
 
     // get cv::Mat object and convert to ndarray object
     cv::Mat image = cloudMsgToCvImage(cloudMsg);
@@ -173,10 +173,10 @@ cloudMsgToCvImageWrapper(std::string pSerialCloud)
  *        sensor_msgs/Image object
  */
 std::string
-cloudMsgToImageMsgWrapper(std::string pSerialCloud)
+cloudMsgToImageMsgWrapper(const std::string &pSerialCloud)
 {
     // unserialize cloud message
-    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
 
     // check for organized cloud and extract image message
     if (cloudMsg.height <= 1)
@@ -194,10 +194,10 @@ cloudMsgToImageMsgWrapper(std::string pSerialCloud)
  *        cropOrganizedCloudMsg
  */
 std::string
-cropOrganizedCloudMsgWrapper(std::string pSerialCloud, BoundingBox2DWrapper pBox)
+cropOrganizedCloudMsgWrapper(const std::string &pSerialCloud, BoundingBox2DWrapper pBox)
 {
     // unserialize cloud message
-    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
+    sensor_msgs::PointCloud2 cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
 
     sensor_msgs::PointCloud2 croppedCloudMsg;
     cropOrganizedCloudMsg(cloudMsg, pBox, croppedCloudMsg);
