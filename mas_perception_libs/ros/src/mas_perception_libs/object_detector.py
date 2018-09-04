@@ -30,7 +30,6 @@ class ObjectDetector(object):
     def start_detect_objects(self, plane_frame_prefix, done_callback, target_frame=None, group_planes=True):
         """
         Detect and process objects
-        TODO(minhnh) cleanup pose calculation as should be handled in the action server
 
         :param plane_frame_prefix: str to prepend to plane name
         :param done_callback: function to execute at the end of this method before returning

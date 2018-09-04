@@ -1,16 +1,13 @@
 from abc import ABCMeta, abstractmethod
 import os
-import numpy as np
 import rospy
 import tf
 from actionlib import SimpleActionServer
 from cv_bridge import CvBridge
 from sensor_msgs.msg import PointCloud2
-from geometry_msgs.msg import PoseStamped
 from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, Plane, Object
 from .image_detector import ImageDetectorBase, SingleImageDetectionHandler
-from .bounding_box import BoundingBox2D
-from .utils import cloud_msg_to_image_msg, transform_point_cloud, crop_organized_cloud_msg, crop_cloud_to_xyz
+from .utils import cloud_msg_to_image_msg, transform_point_cloud, crop_organized_cloud_msg
 
 
 class SceneDetectionActionServer(object):
@@ -135,31 +132,6 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             cropped_cloud = crop_organized_cloud_msg(cloud_msg, box)
             detected_obj.pointcloud = cropped_cloud
             detected_obj.rgb_image = cloud_msg_to_image_msg(cropped_cloud)
-            detected_obj.pose = ImageDetectionActionServer._estimate_grasp_pose(cropped_cloud)
             plane.object_list.objects.append(detected_obj)
         result.planes.append(plane)
         return result
-
-    @staticmethod
-    def _estimate_grasp_pose(cropped_cloud):
-        """
-        :type cropped_cloud: PointCloud2
-        :rtype: PoseStamped
-        """
-        # TODO(minhnh) make this configurable
-        pose_stamped = PoseStamped()
-        pose_stamped.header = cropped_cloud.header
-        # TODO(minhnh) make cloud_to_mat() instead of crop_cloud_to_xyz
-        cropped_coord = crop_cloud_to_xyz(cropped_cloud,
-                                          BoundingBox2D((0, 0, cropped_cloud.width, cropped_cloud.height)))
-        mean_coord = np.nanmean(np.reshape(cropped_coord, (-1, 3)), axis=0)
-        min_coord = np.nanmin(np.reshape(cropped_coord, (-1, 3)), axis=0)
-        pose_stamped.pose.position.x = min_coord[0]
-        pose_stamped.pose.position.y = mean_coord[1]
-        pose_stamped.pose.position.z = mean_coord[2]
-        # set orientation to facing table for experiments TODO(minhnh) replace with surface normal
-        pose_stamped.pose.orientation.x = 0.5
-        pose_stamped.pose.orientation.y = -0.5
-        pose_stamped.pose.orientation.z = 0.5
-        pose_stamped.pose.orientation.w = 0.5
-        return pose_stamped
