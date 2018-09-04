@@ -1,7 +1,7 @@
 # Python Package
 
 ## Image detection architecture
-![Image detection architecture][../docs/image_detection_class_structure.png]
+![Image detection architecture](../docs/image_detection_class_structure.png)
 
 ## [`bounding_box.py`](../ros/src/mas_perception_libs/bounding_box.py)
 
