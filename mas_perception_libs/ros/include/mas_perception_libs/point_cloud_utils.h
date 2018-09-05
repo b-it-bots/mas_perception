@@ -23,6 +23,7 @@ cloudMsgToCvImage(const sensor_msgs::PointCloud2 &pCloudMsg);
 /*!
  * @brief extract a CV matrix containing (x, y, z) coordinates from a pcl::PointCloud object within a region
  *        defined by a BoundingBox2D object
+ * @param pBox: bounding box for cropping cloud, may be adjusted to fit the cloud width and height
  */
 cv::Mat
 cropCloudToXYZ(const PointCloud &pCloud, BoundingBox2D &pBox);
@@ -30,18 +31,21 @@ cropCloudToXYZ(const PointCloud &pCloud, BoundingBox2D &pBox);
 /*!
  * @brief extract a CV matrix containing (x, y, z) coordinates from a sensor_msgs/PointCloud2 object within a region
  *        defined by a BoundingBox2D object
+ * @param pBox: bounding box for cropping cloud, may be adjusted to fit the cloud width and height
  */
 cv::Mat
 cropCloudMsgToXYZ(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &pBox);
 
 /*!
  * @brief crops a pcl::PointCloud object to a region defined by a BoundingBox2D object
+ * @param pBox: bounding box for cropping cloud, may be adjusted to fit the cloud width and height
  */
 PointCloud
 cropOrganizedCloud(const PointCloud &pCloud, BoundingBox2D &pBox);
 
 /*!
  * @brief crops a sensor_msgs/PointCloud2 object object to a region defined by a BoundingBox2D object
+ * @param pBox: bounding box for cropping cloud, may be adjusted to fit the cloud width and height
  * @param pCroppedCloudMsg: cropped cloud returned as parameter
  */
 void

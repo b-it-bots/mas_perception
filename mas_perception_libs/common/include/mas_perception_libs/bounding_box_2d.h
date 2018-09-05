@@ -53,7 +53,7 @@ struct BoundingBox2D
 /*!
  * @brief draw boxes on a CV image using BoundingBox2D objects
  * @param pImage
- * @param pBoundingBoxes: vector of bounding boxes to be drawn
+ * @param pBoundingBoxes: vector of bounding boxes to be drawn, elements may be modified to fit image size
  * @param pThickness: line thickness
  * @param pFontScale
  */
@@ -68,7 +68,7 @@ drawLabeledBoxes(cv::Mat &pImage, std::vector<BoundingBox2D> pBoundingBoxes,
  * @param pSizeOffset: offset to increase box dimensions
  */
 void
-fitBoxToImage(const cv::Size &pImageSize, BoundingBox2D& pBox, int pSizeOffset = 0);
+fitBoxToImage(const cv::Size &pImageSize, BoundingBox2D &pBox, int pSizeOffset = 0);
 
 /*!
  * @brief adjust a cv::Rect object to image size
@@ -86,19 +86,21 @@ fitBoxToImage(const cv::Size &pImageSize, cv::Rect pBox, int pSizeOffset = 0);
  * @return cropped CV image
  */
 cv::Mat
-cropImage(cv::Mat &pImage, std::vector<cv::Point2f> &pVertices, int pOffset = 0, bool pCopy = true);
+cropImage(cv::Mat &pImage, const std::vector<cv::Point2f> &pVertices, int pOffset = 0, bool pCopy = true);
 
 /*!
  * @brief crop a CV image using a BoundingBox2D object
+ * @param pBox: bounding box region to crop, may be adjusted to fit image size
  */
 cv::Mat
 cropImage(cv::Mat &pImage, BoundingBox2D &pBox, int pOffset = 0, bool pCopy = true);
 
 /*!
  * @brief crop a CV image using a cv::Rect object
+ * @param pRoiRect: region-of-interest rectangle, maybe adjusted to fit image size
  */
 cv::Mat
-cropImage(cv::Mat &pImage, const cv::Rect &pRoiRect, int pOffset = 0, bool pCopy = true);
+cropImage(cv::Mat &pImage, cv::Rect &pRoiRect, int pOffset = 0, bool pCopy = true);
 
 }   // namespace mas_perception_libs
 

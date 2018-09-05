@@ -89,18 +89,19 @@ fitBoxToImage(const cv::Size &pImageSize, cv::Rect pBox, int pSizeOffset)
 cv::Mat
 cropImage(cv::Mat &pImage, BoundingBox2D &pBox, int pOffset, bool pCopy)
 {
-    return cropImage(pImage, pBox.getCvRect(), pOffset, pCopy);
+    cv::Rect cvBox = pBox.getCvRect();
+    return cropImage(pImage, cvBox, pOffset, pCopy);
 }
 
 cv::Mat
-cropImage(cv::Mat &pImage, std::vector<cv::Point2f> &pVertices, int pOffset, bool pCopy)
+cropImage(cv::Mat &pImage, const std::vector<cv::Point2f> &pVertices, int pOffset, bool pCopy)
 {
     cv::Rect roiRect = cv::boundingRect(cv::Mat(pVertices));
     return cropImage(pImage, roiRect, pOffset, pCopy);
 }
 
 cv::Mat
-cropImage(cv::Mat &pImage, const cv::Rect &pRoiRect, int pOffset, bool pCopy)
+cropImage(cv::Mat &pImage, cv::Rect &pRoiRect, int pOffset, bool pCopy)
 {
     auto roiRect = fitBoxToImage(pImage.size(), pRoiRect, pOffset);
     cv::Mat croppedImage(pImage, roiRect);

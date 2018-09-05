@@ -43,9 +43,10 @@ private:
 /*!
  * @brief Draw boxes on a sensor_msgs/Image message using BoundingBox2D objects. Call drawLabeledBoxes() defined in
  *        bounding_box_2d.h in the background.
+ * @param pImage: image message to draw on, will be copied to a CV image before boxes are drawn on top
  */
 sensor_msgs::ImagePtr
-drawLabeledBoxesImgMsg(const sensor_msgs::Image&, std::vector<BoundingBox2D>,
+drawLabeledBoxesImgMsg(const sensor_msgs::Image& pImage, std::vector<BoundingBox2D>,
                        int pThickness = 2, double pFontScale = 1.0);
 
 }  // namespace mas_perception_libs
