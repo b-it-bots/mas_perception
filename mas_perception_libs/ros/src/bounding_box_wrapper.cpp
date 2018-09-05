@@ -22,7 +22,7 @@ using BoundingBoxMsg = mcr_perception_msgs::BoundingBox;
 
 namespace mas_perception_libs
 {
-    BoundingBoxWrapper::BoundingBoxWrapper(std::string pSerialCloud, bp::list &pNormal)
+    BoundingBoxWrapper::BoundingBoxWrapper(const std::string &pSerialCloud, const bp::list &pNormal)
     {
         sensor_msgs::PointCloud2 rosCloud = from_python<sensor_msgs::PointCloud2>(std::move(pSerialCloud));
 
@@ -53,7 +53,7 @@ namespace mas_perception_libs
         return serialPose;
     }
 
-    void BoundingBoxWrapper::calculatePose(std_msgs::Header header)
+    void BoundingBoxWrapper::calculatePose(const std_msgs::Header &header)
     {
         BoundingBox::Points vertices = mBox.getVertices();
         Eigen::Vector3f n1;

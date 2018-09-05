@@ -7,7 +7,6 @@
 #ifndef MAS_PERCEPTION_LIBS_ALIASES_H
 #define MAS_PERCEPTION_LIBS_ALIASES_H
 
-#include <vector>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 

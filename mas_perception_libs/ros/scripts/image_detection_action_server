@@ -1,0 +1,39 @@
+#!/usr/bin/env python2
+from importlib import import_module
+import os
+
+import rospy
+from mas_perception_libs import ImageDetectionActionServer
+
+
+if __name__ == '__main__':
+    rospy.init_node('~image_detection_action_server')
+
+    # get action server name
+    action_name = rospy.get_param('~action_name', None)
+    if not action_name:
+        raise ValueError('param "action_name" not specified')
+
+    # get cloud topic
+    cloud_topic = rospy.get_param('~cloud_topic', None)
+    if not cloud_topic:
+        raise ValueError('param "cloud_topic" not specified')
+
+    # get action server name
+    target_frame = rospy.get_param('~target_frame', '/base_link')
+
+    # get parameters for detector class
+    class_annotation_file = rospy.get_param('~class_annotations', None)
+    kwargs_file = rospy.get_param('~kwargs_file', None)
+
+    # import detection class
+    detect_module = rospy.get_param('~detection_module', 'mas_perception_libs')
+    detect_class_name = rospy.get_param('~detection_class', 'ImageDetectorTest')
+    detection_class = getattr(import_module(detect_module), detect_class_name)
+
+    # create service
+    ImageDetectionActionServer(action_name, detection_class=detection_class, cloud_topic=cloud_topic,
+                               target_frame=target_frame, class_annotation_file=class_annotation_file,
+                               kwargs_file=kwargs_file)
+
+    rospy.spin()

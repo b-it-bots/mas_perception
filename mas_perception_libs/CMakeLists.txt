@@ -52,7 +52,9 @@ include_directories(
 ###################################
 add_library(mas_perception_libs
   common/src/bounding_box.cpp
+  common/src/bounding_box_2d.cpp
   ros/src/image_bounding_box.cpp
+  ros/src/point_cloud_utils.cpp
 )
 target_link_libraries(mas_perception_libs
   ${catkin_LIBRARIES}
@@ -63,6 +65,8 @@ target_link_libraries(mas_perception_libs
 # python wrapper for cpp libraries
 ###################################
 add_library(_cpp_wrapper SHARED
+  common/src/init_numpy_api.cpp
+  common/src/pyboost_cv3_converter.cpp
   ros/src/bounding_box_wrapper.cpp
   ros/src/boost_python_module.cpp
 )
@@ -119,7 +123,9 @@ install(TARGETS _cpp_wrapper
 
 # executables
 install(PROGRAMS
+  ros/scripts/image_detection_action_server
+  ros/scripts/image_detection_test
+  ros/scripts/image_recognition_client_test
   ros/scripts/image_recognition_server
-  ros/scripts/object_detection_test_server
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

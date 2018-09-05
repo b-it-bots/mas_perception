@@ -12,7 +12,6 @@
 
   <depend>roscpp</depend>
   <depend>rospy</depend>
-  <depend>sensor_msgs</depend>
   <depend>mcr_perception_msgs</depend>
 
   <build_depend>image_geometry</build_depend>
