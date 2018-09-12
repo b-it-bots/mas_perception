@@ -9,6 +9,7 @@
 
 namespace mas_perception_libs
 {
+
     cv::Mat
     cropCloudToXYZ(const PointCloud &pCloud, BoundingBox2D &pBox)
     {
@@ -56,4 +57,32 @@ namespace mas_perception_libs
         }
         return croppedCloud;
     }
+
+    void
+    CloudFilter::setParams(const mas_perception_libs::CloudFilterParams &pParams)
+    {
+        /* voxel-grid params */
+        mVoxelGridFilter.setLeafSize(pParams.mVoxelLeafSize, pParams.mVoxelLeafSize, pParams.mVoxelLeafSize);
+        mVoxelGridFilter.setFilterFieldName(pParams.mVoxelFilterFieldName);
+        mVoxelGridFilter.setFilterLimits(pParams.mVoxelLimitMin, pParams.mVoxelLimitMax);
+        /* pass-through params */
+        mPassThroughFilter.setFilterFieldName(pParams.mPassThroughFieldName);
+        mPassThroughFilter.setFilterLimits(pParams.mPassThroughLimitMin, pParams.mPassThroughLimitMax);
+    }
+
+
+    PointCloud::Ptr
+    CloudFilter::filterCloud(const PointCloud::ConstPtr &pCloud)
+    {
+        PointCloud::Ptr filtered(new PointCloud);
+
+        mVoxelGridFilter.setInputCloud(pCloud);
+        mVoxelGridFilter.filter(*filtered);
+
+        mPassThroughFilter.setInputCloud(filtered);
+        mPassThroughFilter.filter(*filtered);
+
+        return filtered;
+    }
+
 }   // namespace mas_perception_libs
