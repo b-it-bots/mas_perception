@@ -1,5 +1,3 @@
-#include <utility>
-
 /*!
  * @copyright 2018 Bonn-Rhein-Sieg University
  *
@@ -7,7 +5,6 @@
  *
  * @brief File contains C++ definitions that are made available in Python using the Boost Python library.
  *        Detailed descriptions of parameters are in the Python source files
- *
  */
 #include <vector>
 #include <string>
@@ -23,7 +20,7 @@
 #include <mas_perception_libs/bounding_box_wrapper.h>
 #include <mas_perception_libs/image_bounding_box.h>
 #include <mas_perception_libs/bounding_box_2d.h>
-#include <mas_perception_libs/point_cloud_utils.h>
+#include <mas_perception_libs/point_cloud_utils_ros.h>
 
 namespace bp = boost::python;
 using BoundingBox = mas_perception_libs::BoundingBox;

@@ -53,8 +53,9 @@ include_directories(
 add_library(mas_perception_libs
   common/src/bounding_box.cpp
   common/src/bounding_box_2d.cpp
+  common/src/point_cloud_utils.cpp
   ros/src/image_bounding_box.cpp
-  ros/src/point_cloud_utils.cpp
+  ros/src/point_cloud_utils_ros.cpp
 )
 target_link_libraries(mas_perception_libs
   ${catkin_LIBRARIES}
