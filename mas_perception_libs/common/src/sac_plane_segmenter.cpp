@@ -51,18 +51,20 @@ namespace mas_perception_libs
         }
 
         // filter out al points that does not fit the calculated plane coefficients
+        pcl::ProjectInliers<PointT> projectInliers;
         PointCloud::Ptr plane(new PointCloud);
-        mProjectInliers.setModelType(pcl::SACMODEL_NORMAL_PARALLEL_PLANE);
-        mProjectInliers.setInputCloud(pCloudPtr);
-        mProjectInliers.setModelCoefficients(pCoefficients);
-        mProjectInliers.setIndices(inliers);
-        mProjectInliers.setCopyAllData(false);
-        mProjectInliers.filter(*plane);
+        projectInliers.setModelType(pcl::SACMODEL_NORMAL_PARALLEL_PLANE);
+        projectInliers.setInputCloud(pCloudPtr);
+        projectInliers.setModelCoefficients(pCoefficients);
+        projectInliers.setIndices(inliers);
+        projectInliers.setCopyAllData(false);
+        projectInliers.filter(*plane);
 
         // calculate the convex hull of the fitted plane
-        mConvexHull.setInputCloud(plane);
-        mConvexHull.reconstruct(*pHullPtr);
-        // not sure if this is necessary TODO(minhnh) test this
+        pcl::ConvexHull<PointT> convexHull;
+        convexHull.setInputCloud(plane);
+        convexHull.reconstruct(*pHullPtr);
+        // connect end point and first point, not sure if this is necessary TODO(minhnh) test this
         pHullPtr->points.push_back(pHullPtr->points.front());
         pHullPtr->width += 1;
 

@@ -68,4 +68,15 @@ namespace mas_perception_libs
         pcl::toROSMsg(croppedCloud, pCroppedCloudMsg);
     }
 
+    CloudFilterParams
+    cloudFilterConfigToParam(const CloudFilterConfig& pConfig)
+    {
+        CloudFilterParams params;
+        params.mVoxelLeafSize = static_cast<float>(pConfig.voxel_leaf_size);
+        params.mPassThroughFieldName = pConfig.passthrough_filter_field_name;
+        params.mPassThroughLimitMin = static_cast<float>(pConfig.passthrough_filter_limit_min);
+        params.mPassThroughLimitMax = static_cast<float>(pConfig.passthrough_filter_limit_max);
+        return params;
+    }
+
 }   // namespace mas_perception_libs

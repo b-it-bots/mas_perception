@@ -64,8 +64,6 @@ private:
 
     pcl::NormalEstimation<PointT, pcl::PointNormal> mNormalEstimation;
     pcl::SACSegmentationFromNormals<PointT, pcl::PointNormal> mSacSegment;
-    pcl::ProjectInliers<PointT> mProjectInliers;
-    pcl::ConvexHull<PointT> mConvexHull;
 
     pcl::SacModel mSacModel;
     Eigen::Vector3f mPlaneAxis;

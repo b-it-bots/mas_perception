@@ -39,14 +39,11 @@ struct CloudFilterParams
 {
     /* TODO(minhnh) describe fields */
     /* VoxelGrid filter parameters */
-    float mVoxelLeafSize;
-    std::string mVoxelFilterFieldName;
-    double mVoxelLimitMin;
-    double mVoxelLimitMax;
+    float mVoxelLeafSize = 0.0f;
     /* PassThrough filter parameters */
     std::string mPassThroughFieldName;
-    float mPassThroughLimitMin;
-    float mPassThroughLimitMax;
+    float mPassThroughLimitMin = 0.0f;
+    float mPassThroughLimitMax = 0.0f;
 };
 
 /*!
@@ -63,7 +60,8 @@ public:
     /*!
     * @brief filter point cloud
     */
-    PointCloud::Ptr filterCloud(const PointCloud::ConstPtr &pCloud);
+    PointCloud::Ptr
+    filterCloud(const PointCloud::ConstPtr &pCloudPtr);
 
 private:
     pcl::PassThrough<PointT> mPassThroughFilter;

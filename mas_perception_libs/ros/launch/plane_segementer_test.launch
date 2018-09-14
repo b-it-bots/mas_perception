@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="cloud_topic" default=""/>
+    <arg name="filtered_cloud_topic" default="filtered_cloud"/>
+    <arg name="cloud_filter_config_file"
+         default="$(find mas_perception_libs)/ros/config/cloud_filter_default_configs.yaml" />
+    <node pkg="mas_perception_libs" type="plane_segmenter_test_node" name="plane_segmenter_test" output="screen"
+          ns="mas_perception">
+        <rosparam file="$(arg cloud_filter_config_file)" command="load"/>
+        <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
+        <param name="filtered_cloud_topic" type="string" value="$(arg filtered_cloud_topic)" />
+    </node>
+</launch>

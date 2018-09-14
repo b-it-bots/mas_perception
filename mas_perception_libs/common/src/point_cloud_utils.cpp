@@ -63,26 +63,22 @@ namespace mas_perception_libs
     {
         /* voxel-grid params */
         mVoxelGridFilter.setLeafSize(pParams.mVoxelLeafSize, pParams.mVoxelLeafSize, pParams.mVoxelLeafSize);
-        mVoxelGridFilter.setFilterFieldName(pParams.mVoxelFilterFieldName);
-        mVoxelGridFilter.setFilterLimits(pParams.mVoxelLimitMin, pParams.mVoxelLimitMax);
         /* pass-through params */
         mPassThroughFilter.setFilterFieldName(pParams.mPassThroughFieldName);
         mPassThroughFilter.setFilterLimits(pParams.mPassThroughLimitMin, pParams.mPassThroughLimitMax);
     }
 
-
     PointCloud::Ptr
-    CloudFilter::filterCloud(const PointCloud::ConstPtr &pCloud)
+    CloudFilter::filterCloud(const PointCloud::ConstPtr &pCloudPtr)
     {
-        PointCloud::Ptr filtered(new PointCloud);
+        PointCloud::Ptr filteredCloudPtr (new PointCloud);
+        mVoxelGridFilter.setInputCloud(pCloudPtr);
+        mVoxelGridFilter.filter(*filteredCloudPtr);
 
-        mVoxelGridFilter.setInputCloud(pCloud);
-        mVoxelGridFilter.filter(*filtered);
+        mPassThroughFilter.setInputCloud(filteredCloudPtr);
+        mPassThroughFilter.filter(*filteredCloudPtr);
 
-        mPassThroughFilter.setInputCloud(filtered);
-        mPassThroughFilter.filter(*filtered);
-
-        return filtered;
+        return filteredCloudPtr;
     }
 
 }   // namespace mas_perception_libs
