@@ -5,6 +5,7 @@
  *
  * @brief script to test cloud filtering and plane fitting
  */
+#include <string>
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -23,7 +24,7 @@ class PlaneSegmenterTestNode
 private:
     ros::NodeHandle mNodeHandle;
     dynamic_reconfigure::Server<CloudFilterConfig> mCloudFilterConfigServer;
-    CloudFilter mCloudFilter;
+    CloudFilterROS mCloudFilter;
     ros::Subscriber mCloudSub;
     ros::Publisher mFilteredCloudPub;
 
@@ -46,21 +47,18 @@ private:
     void
     cloudFilterConfigCallback(const CloudFilterConfig &pConfig, uint32_t pLevel)
     {
-        mCloudFilter.setParams(cloudFilterConfigToParam(pConfig));
+        mCloudFilter.setParams(pConfig);
     }
 
     void
     cloudCallback(const sensor_msgs::PointCloud2::ConstPtr& pCloudMsgPtr)
     {
-        // convert to PCL cloud, apply filtering and publish
-        PointCloud::Ptr pclCloudPtr(new PointCloud);
-        pcl::fromROSMsg(*pCloudMsgPtr, *pclCloudPtr);
+        // do not process cloud when there's no subscriber
+        if (mFilteredCloudPub.getNumSubscribers() == 0)
+            return;
 
-        PointCloud::Ptr filteredCloudPtr = mCloudFilter.filterCloud(pclCloudPtr);
-
-        sensor_msgs::PointCloud2 filteredCloudMsg;
-        pcl::toROSMsg(*filteredCloudPtr, filteredCloudMsg);
-        mFilteredCloudPub.publish(filteredCloudMsg);
+        auto filteredCloudMsg = mCloudFilter.filterCloud(pCloudMsgPtr);;
+        mFilteredCloudPub.publish(*filteredCloudMsg);
     }
 };
 

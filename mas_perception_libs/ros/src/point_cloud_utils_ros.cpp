@@ -9,7 +9,6 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <mas_perception_libs/aliases.h>
 #include <mas_perception_libs/bounding_box_2d.h>
-#include <mas_perception_libs/point_cloud_utils.h>
 #include <mas_perception_libs/point_cloud_utils_ros.h>
 
 namespace mas_perception_libs
@@ -68,15 +67,29 @@ namespace mas_perception_libs
         pcl::toROSMsg(croppedCloud, pCroppedCloudMsg);
     }
 
-    CloudFilterParams
-    cloudFilterConfigToParam(const CloudFilterConfig& pConfig)
+    void
+    CloudFilterROS::setParams(const CloudFilterConfig &pConfig)
     {
         CloudFilterParams params;
         params.mVoxelLeafSize = static_cast<float>(pConfig.voxel_leaf_size);
         params.mPassThroughFieldName = pConfig.passthrough_filter_field_name;
         params.mPassThroughLimitMin = static_cast<float>(pConfig.passthrough_filter_limit_min);
         params.mPassThroughLimitMax = static_cast<float>(pConfig.passthrough_filter_limit_max);
-        return params;
+        CloudFilter::setParams(params);
+    }
+
+    sensor_msgs::PointCloud2::Ptr
+    CloudFilterROS::filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr)
+    {
+        PointCloud::Ptr pclCloudPtr(new PointCloud);
+        pcl::fromROSMsg(*pCloudPtr, *pclCloudPtr);
+
+        PointCloud::Ptr filteredCloudPtr = CloudFilter::filterCloud(pclCloudPtr);
+
+        sensor_msgs::PointCloud2::Ptr filteredMsgPtr(new sensor_msgs::PointCloud2);
+        pcl::toROSMsg(*filteredCloudPtr, *filteredMsgPtr);
+
+        return filteredMsgPtr;
     }
 
 }   // namespace mas_perception_libs

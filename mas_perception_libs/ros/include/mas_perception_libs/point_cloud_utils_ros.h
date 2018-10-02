@@ -12,6 +12,7 @@
 #include <mas_perception_libs/CloudFilterConfig.h>
 #include <mas_perception_libs/bounding_box_2d.h>
 #include <mas_perception_libs/point_cloud_utils.h>
+#include <mas_perception_libs/sac_plane_segmenter.h>
 
 namespace mas_perception_libs
 {
@@ -41,8 +42,34 @@ cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &
 /*!
  * @brief TODO(minhnh)
  */
-CloudFilterParams
-cloudFilterConfigToParam(const CloudFilterConfig& pConfig);
+// SacPlaneSegmenterParams
+// SacPlaneSegmenterConfigToParam(const CloudFilterConfig& pConfig);
+
+class CloudFilterROS : public CloudFilter
+{
+public:
+    /*!
+     * @brief TODO(minhnh)
+     */
+    virtual void
+    setParams(const CloudFilterConfig &pConfig);
+
+    /*!
+     * @brief TODO(minhnh)
+     */
+    sensor_msgs::PointCloud2::Ptr
+    filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr);
+};
+
+class PlaneSegmenterRos
+{
+public:
+    PlaneSegmenterRos() = default;
+
+private:
+    SacPlaneSegmenter mPlaneSegmenter;
+    CloudFilter mCloudFilter;
+};
 
 }   // namespace mas_perception_libs
 

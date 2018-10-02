@@ -55,7 +55,8 @@ public:
     CloudFilter() = default;
 
     /*! @brief set parameters relevant to filtering cloud */
-    void setParams(const CloudFilterParams& pParams);
+    virtual void
+    setParams(const CloudFilterParams& pParams);
 
     /*!
     * @brief filter point cloud

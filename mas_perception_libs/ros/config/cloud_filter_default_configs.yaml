@@ -1,5 +1,5 @@
 # config file loaded during launch as default configurations for the cloud filter
 voxel_leaf_size: 0.02
-passthrough_filter_field_name: x
+passthrough_filter_field_name: z
 passthrough_filter_limit_min: 0.0
 passthrough_filter_limit_max: 0.8

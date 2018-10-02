@@ -33,7 +33,7 @@ namespace mas_perception_libs
             pcl::ModelCoefficients::Ptr &pCoefficients, double &pPlaneHeight)
     {
         // estimate normals at each point, needed for the SAC segmentation
-        PointCloudN::Ptr normals(new PointCloudN);
+        PointCloudNormal::Ptr normals(new PointCloudNormal);
         mNormalEstimation.setInputCloud(pCloudPtr);
         mNormalEstimation.compute(*normals);
 
