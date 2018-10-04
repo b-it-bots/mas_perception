@@ -19,7 +19,7 @@
 namespace mas_perception_libs
 {
 
-class PlaneSegmenterTestNode
+class CloudProcessingTestNode
 {
 private:
     ros::NodeHandle mNodeHandle;
@@ -29,18 +29,18 @@ private:
     ros::Publisher mFilteredCloudPub;
 
 public:
-    PlaneSegmenterTestNode(const ros::NodeHandle &pNodeHandle, const std::string &pCloudTopic,
-            const std::string &pFilteredCloudTopic)
+    CloudProcessingTestNode(const ros::NodeHandle &pNodeHandle, const std::string &pCloudTopic,
+            const std::string &pProcessedCloudTopic)
     : mNodeHandle(pNodeHandle)
     {
         ROS_INFO("setting up dynamic reconfiguration server for filtering point clouds");
         dynamic_reconfigure::Server<CloudFilterConfig>::CallbackType f =
-                boost::bind(&PlaneSegmenterTestNode::cloudFilterConfigCallback, this, _1, _2);
+                boost::bind(&CloudProcessingTestNode::cloudFilterConfigCallback, this, _1, _2);
         mCloudFilterConfigServer.setCallback(f);
 
-        ROS_INFO("subscribing to point cloud topic and advertising filter result");
-        mFilteredCloudPub = mNodeHandle.advertise<sensor_msgs::PointCloud2>(pFilteredCloudTopic, 1);
-        mCloudSub = mNodeHandle.subscribe(pCloudTopic, 1, &PlaneSegmenterTestNode::cloudCallback, this);
+        ROS_INFO("subscribing to point cloud topic and advertising processed result");
+        mFilteredCloudPub = mNodeHandle.advertise<sensor_msgs::PointCloud2>(pProcessedCloudTopic, 1);
+        mCloudSub = mNodeHandle.subscribe(pCloudTopic, 1, &CloudProcessingTestNode::cloudCallback, this);
     }
 
 private:
@@ -57,8 +57,8 @@ private:
         if (mFilteredCloudPub.getNumSubscribers() == 0)
             return;
 
-        auto filteredCloudMsg = mCloudFilter.filterCloud(pCloudMsgPtr);;
-        mFilteredCloudPub.publish(*filteredCloudMsg);
+        auto filteredCloudPtr = mCloudFilter.filterCloud(pCloudMsgPtr);
+        mFilteredCloudPub.publish(*filteredCloudPtr);
     }
 };
 
@@ -66,24 +66,24 @@ private:
 
 int main(int pArgc, char** pArgv)
 {
-    ros::init(pArgc, pArgv, "plane_segmenter_test_node");
+    ros::init(pArgc, pArgv, "cloud_processing_cpp_test");
     ros::NodeHandle nh("~");
 
     // load launch parameters
-    std::string cloudTopic, filteredCloudTopic;
+    std::string cloudTopic, processedCloudTopic;
     if (!nh.getParam("cloud_topic", cloudTopic) || cloudTopic.empty())
     {
         ROS_ERROR("No 'cloud_topic' specified as parameter");
         return EXIT_FAILURE;
     }
-    if (!nh.getParam("filtered_cloud_topic", filteredCloudTopic) || filteredCloudTopic.empty())
+    if (!nh.getParam("processed_cloud_topic", processedCloudTopic) || processedCloudTopic.empty())
     {
-        ROS_ERROR("No 'filteredcloud_topic' specified as parameter");
+        ROS_ERROR("No 'processed_cloud_topic' specified as parameter");
         return EXIT_FAILURE;
     }
 
     // run cloud filtering and plane segmentation
-    mas_perception_libs::PlaneSegmenterTestNode segmenterTestNode(nh, cloudTopic, filteredCloudTopic);
+    mas_perception_libs::CloudProcessingTestNode cloudProcessingTestNode(nh, cloudTopic, processedCloudTopic);
 
     while (ros::ok())
         ros::spin();

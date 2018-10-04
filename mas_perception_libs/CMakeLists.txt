@@ -91,14 +91,14 @@ target_link_libraries(_cpp_wrapper
 
 ###################################
 # Node for testing plane segmentation
-add_executable(plane_segmenter_test_node
-  ros/src/plane_segmenter_test_node.cpp
+add_executable(cloud_processing_cpp_test
+  ros/src/cloud_processing_test_node.cpp
 )
-add_dependencies(plane_segmenter_test_node
+add_dependencies(cloud_processing_cpp_test
   ${catkin_EXPORTED_TARGETS}
   ${PROJECT_NAME}_gencfg
 )
-target_link_libraries(plane_segmenter_test_node
+target_link_libraries(cloud_processing_cpp_test
   mas_perception_libs
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
@@ -147,9 +147,10 @@ install(PROGRAMS
   ros/scripts/image_detection_test
   ros/scripts/image_recognition_client_test
   ros/scripts/image_recognition_server
+  ros/scripts/cloud_processing_python_test
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(TARGETS plane_segmenter_test_node
+install(TARGETS cloud_processing_cpp_test
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

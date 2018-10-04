@@ -27,6 +27,79 @@ using BoundingBox = mas_perception_libs::BoundingBox;
 
 namespace mas_perception_libs
 {
+class CloudFilterWrapper : CloudFilterROS
+{
+public:
+    /*!
+     * @brief TODO(minhnh)
+     */
+    void
+    setParams(const bp::dict & pConfigDict)
+    {
+        CloudFilterParams params;
+        if (!pConfigDict.contains("voxel_leaf_size"))
+            throw std::invalid_argument("Python config dict does not contain key 'voxel_leaf_size'");
+        params.mVoxelLeafSize = bp::extract<float>(pConfigDict["voxel_leaf_size"]);
+
+        if (!pConfigDict.contains("passthrough_filter_field_name"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_field_name'");
+        params.mPassThroughFieldName = bp::extract<std::string>(pConfigDict["passthrough_filter_field_name"]);
+
+        if (!pConfigDict.contains("passthrough_filter_limit_min"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_limit_min'");
+        params.mPassThroughLimitMin = bp::extract<float>(pConfigDict["passthrough_filter_limit_min"]);
+
+        if (!pConfigDict.contains("passthrough_filter_limit_max"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_limit_max'");
+        params.mPassThroughLimitMax = bp::extract<float>(pConfigDict["passthrough_filter_limit_max"]);
+
+        CloudFilter::setParams(params);
+    }
+
+    /*!
+     * @brief TODO(minhnh)
+     */
+    std::string
+    filterCloud(const std::string &pSerialCloud)
+    {
+        auto cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
+        sensor_msgs::PointCloud2::Ptr cloudMsgPtr = boost::make_shared<sensor_msgs::PointCloud2>(cloudMsg);
+        auto filteredCloudPtr = CloudFilterROS::filterCloud(cloudMsgPtr);
+        std::string serializedMsg = to_python(*filteredCloudPtr);
+        return serializedMsg;
+    }
+};
+
+struct BoundingBox2DWrapper : BoundingBox2D
+{
+    // TODO(minhnh): expose color
+    /*!
+     * @brief Constructor for the extension of BoundingBox2D for use in Python
+     */
+    BoundingBox2DWrapper(const std::string &pLabel, const bp::tuple &pColor, const bp::tuple &pBox) : BoundingBox2D()
+    {
+        mLabel = pLabel;
+
+        // extract color
+        if (bp::len(pColor) != 3)
+        {
+            throw std::invalid_argument("pColor is not a 3-tuple containing integers");
+        }
+        mColor = CV_RGB(static_cast<int>(bp::extract<double>(pColor[0])),
+                        static_cast<int>(bp::extract<double>(pColor[1])),
+                        static_cast<int>(bp::extract<double>(pColor[2])));
+
+        // extract box geometry
+        if (bp::len(pBox) != 4)
+        {
+            throw std::invalid_argument("box geometry is not a tuple containing 4 numerics");
+        }
+        mX = static_cast<int>(bp::extract<double>(pBox[0]));
+        mY = static_cast<int>(bp::extract<double>(pBox[1]));
+        mWidth = static_cast<int>(bp::extract<double>(pBox[2]));
+        mHeight = static_cast<int>(bp::extract<double>(pBox[3]));
+    }
+};
 
 /*!
  * @brief crops object images from a ROS image messages using ImageBoundingBox. Legacy from mcr_scene_segmentation.
@@ -64,37 +137,6 @@ getCropsAndBoundingBoxes(const std::string &pSerialImageMsg, const std::string &
     // return result tuple
     return bp::make_tuple<std::string, bp::list>(serialImageList, boxVerticesList);
 }
-
-struct BoundingBox2DWrapper : BoundingBox2D
-{
-    // TODO(minhnh): expose color
-    /*!
-     * @brief Constructor for the extension of BoundingBox2D for use in Python
-     */
-    BoundingBox2DWrapper(const std::string &pLabel, const bp::tuple &pColor, const bp::tuple &pBox) : BoundingBox2D()
-    {
-        mLabel = pLabel;
-
-        // extract color
-        if (bp::len(pColor) != 3)
-        {
-            throw std::invalid_argument("pColor is not a 3-tuple containing integers");
-        }
-        mColor = CV_RGB(static_cast<int>(bp::extract<double>(pColor[0])),
-                        static_cast<int>(bp::extract<double>(pColor[1])),
-                        static_cast<int>(bp::extract<double>(pColor[2])));
-
-        // extract box geometry
-        if (bp::len(pBox) != 4)
-        {
-            throw std::invalid_argument("box geometry is not a tuple containing 4 numerics");
-        }
-        mX = static_cast<int>(bp::extract<double>(pBox[0]));
-        mY = static_cast<int>(bp::extract<double>(pBox[1]));
-        mWidth = static_cast<int>(bp::extract<double>(pBox[2]));
-        mHeight = static_cast<int>(bp::extract<double>(pBox[3]));
-    }
-};
 
 /*!
  * @brief Draw bounding boxes on an image, wrapper of C++ function drawLabeledBoxes
@@ -254,11 +296,16 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     pbcvt::matFromNDArrayBoostConverter();
 
     using mas_perception_libs::BoundingBoxWrapper;
+    using mas_perception_libs::CloudFilterWrapper;
     using mas_perception_libs::BoundingBox2DWrapper;
 
     bp::class_<BoundingBoxWrapper>("BoundingBoxWrapper", bp::init<std::string, bp::list&>())
             .def("get_pose", &BoundingBoxWrapper::getPose)
             .def("get_ros_message", &BoundingBoxWrapper::getRosMsg);
+
+    bp::class_<CloudFilterWrapper>("CloudFilterWrapper")
+            .def("set_params", &CloudFilterWrapper::setParams)
+            .def("filter_cloud", &CloudFilterWrapper::filterCloud);
 
     bp::def("get_crops_and_bounding_boxes_wrapper", mas_perception_libs::getCropsAndBoundingBoxes);
 

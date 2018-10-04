@@ -1,0 +1,59 @@
+#!/usr/bin/env python2
+import rospy
+from dynamic_reconfigure.server import Server as ParamServer
+from sensor_msgs.msg import PointCloud2
+from mas_perception_libs.utils import CloudFilter
+from mas_perception_libs.cfg import CloudFilterConfig
+
+
+class CloudProcessingTest(object):
+    _extract_planes = None  # type: bool
+    _cloud_filter = None    # type: CloudFilter
+
+    def __init__(self, cloud_topic, processed_cloud_topic, extract_planes):
+        self._extract_planes = extract_planes
+        self._cloud_sub = rospy.Subscriber(cloud_topic, PointCloud2, self._cloud_cb)
+        self._processed_cloud_pub = rospy.Publisher(processed_cloud_topic, PointCloud2, queue_size=1)
+
+        if self._extract_planes:
+            raise NotImplementedError('extracting planes not handled')
+        else:
+            self._cloud_filter = CloudFilter()
+
+        self._cloud_filter_param_server = ParamServer(CloudFilterConfig, self._cloud_filter_config_cb)
+
+    def _cloud_cb(self, cloud_msg):
+        # don't process cloud if there's no subscriber
+        if self._processed_cloud_pub.get_num_connections() < 1:
+            return
+
+        if self._extract_planes:
+            raise NotImplementedError('extracting planes not handled')
+        else:
+            processed_cloud = self._cloud_filter.filter_cloud(cloud_msg)
+
+        self._processed_cloud_pub.publish(processed_cloud)
+
+    def _cloud_filter_config_cb(self, config, _):
+        if self._extract_planes:
+            raise NotImplementedError('extracting planes not handled')
+        else:
+            self._cloud_filter.set_params(config)
+        return config
+
+
+if __name__ == '__main__':
+    rospy.init_node('~cloud_processing_python_test')
+
+    # get cloud topic
+    param_cloud_topic = rospy.get_param('~cloud_topic', None)
+    if not param_cloud_topic:
+        raise ValueError('param "cloud_topic" not specified')
+
+    param_processed_cloud_topic = rospy.get_param('~processed_cloud_topic', 'processed_cloud')
+
+    # get option to extract plane or not
+    param_extract_planes = rospy.get_param('~extract_planes', False)
+
+    _ = CloudProcessingTest(param_cloud_topic, param_processed_cloud_topic, param_extract_planes)
+    rospy.spin()

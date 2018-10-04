@@ -57,7 +57,7 @@ public:
     /*!
      * @brief TODO(minhnh)
      */
-    sensor_msgs::PointCloud2::Ptr
+    virtual sensor_msgs::PointCloud2::Ptr
     filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr);
 };
 

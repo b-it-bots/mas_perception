@@ -5,10 +5,34 @@ import cv2
 import rospy
 from cv_bridge import CvBridgeError
 from sensor_msgs.msg import PointCloud2, Image as ImageMsg
-from mas_perception_libs._cpp_wrapper import _cloud_msg_to_cv_image, _cloud_msg_to_image_msg,\
+from mas_perception_libs._cpp_wrapper import CloudFilterWrapper, _cloud_msg_to_cv_image, _cloud_msg_to_image_msg,\
     _crop_organized_cloud_msg, _crop_cloud_to_xyz, _transform_point_cloud
 from .bounding_box import BoundingBox2D
 from .ros_message_serialization import to_cpp, from_cpp
+
+
+class CloudFilter(CloudFilterWrapper):
+    """
+    Wrapper for cloud filtering code in C++
+    """
+    def filter_cloud(self, cloud_msg):
+        """
+        :type cloud_msg: PointCloud2
+        :return: filtered cloud message
+        :rtype: PointCloud2
+        """
+        serial_cloud = to_cpp(cloud_msg)
+        filtered_serial_cloud = super(CloudFilter, self).filter_cloud(serial_cloud)
+        deserialized = from_cpp(filtered_serial_cloud, PointCloud2)
+        return deserialized
+
+    def set_params(self, param_dict):
+        """
+        :param param_dict: dictionary containing cloud filtering params
+        :type param_dict: dict
+        :return: None
+        """
+        super(CloudFilter, self).set_params(param_dict)
 
 
 def get_classes_in_data_dir(data_dir):

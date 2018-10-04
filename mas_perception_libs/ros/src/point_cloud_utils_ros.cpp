@@ -79,16 +79,16 @@ namespace mas_perception_libs
     }
 
     sensor_msgs::PointCloud2::Ptr
-    CloudFilterROS::filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr)
+    CloudFilterROS::filterCloud(
+            const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr)
     {
-        PointCloud::Ptr pclCloudPtr(new PointCloud);
+        PointCloud::Ptr pclCloudPtr = boost::make_shared<PointCloud>();
         pcl::fromROSMsg(*pCloudPtr, *pclCloudPtr);
 
         PointCloud::Ptr filteredCloudPtr = CloudFilter::filterCloud(pclCloudPtr);
 
-        sensor_msgs::PointCloud2::Ptr filteredMsgPtr(new sensor_msgs::PointCloud2);
+        sensor_msgs::PointCloud2::Ptr filteredMsgPtr = boost::make_shared<sensor_msgs::PointCloud2>();
         pcl::toROSMsg(*filteredCloudPtr, *filteredMsgPtr);
-
         return filteredMsgPtr;
     }
 

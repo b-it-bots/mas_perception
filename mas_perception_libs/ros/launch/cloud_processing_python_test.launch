@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="cloud_topic" default=""/>
+    <arg name="processed_cloud_topic" default="processed_cloud"/>
+    <arg name="extract_planes" default="false"/>
+    <arg name="cloud_filter_config_file"
+         default="$(find mas_perception_libs)/ros/config/cloud_filter_default_configs.yaml" />
+    <node pkg="mas_perception_libs" type="cloud_processing_python_test" name="cloud_processing_python_test"
+          launch-prefix="valgrind --log-file=valgrind_log.txt --leak-check=yes --track-origins=yes" output="screen"
+          ns="mas_perception">
+        <rosparam file="$(arg cloud_filter_config_file)" command="load"/>
+        <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
+        <param name="processed_cloud_topic" type="string" value="$(arg processed_cloud_topic)" />
+        <param name="extract_planes" type="bool" value="$(arg extract_planes)" />
+    </node>
+</launch>
