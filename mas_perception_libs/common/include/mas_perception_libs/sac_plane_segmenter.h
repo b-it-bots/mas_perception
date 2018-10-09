@@ -37,8 +37,20 @@ struct SacPlaneSegmenterParams
     double mSacNormalDistWeight = 0.0;
 };
 
+struct PlaneModel
+{
+public:
+    explicit PlaneModel(pcl::ModelCoefficients::Ptr pPlaneCoeffsPtr);
+    ~PlaneModel() = default;
+
+public:
+    const Eigen::Vector3f mNormal;
+    PointCloud::Ptr mHullPointsPtr;
+    double mPlaneHeight = 0.0;
+};
+
 /*!
- * @brief use a simple consensus (SAC, or in this case RANSAC) algorithm to fit a plane in point clouds
+ * @brief use a sample consensus (SAC, or in this case RANSAC) algorithm to fit a plane in point clouds
  *        see http://docs.pointclouds.org/1.7.0/group__sample__consensus.html for descriptions of the different
  *        SAC algorithms and model types.
  */
@@ -55,9 +67,8 @@ public:
      * @brief fit a plane from a point cloud and extract normal, plane height
      * TODO(minhnh) add parameter documentation
      */
-    void
-    findPlane(const PointCloud::ConstPtr &pCloudPtr, PointCloud::Ptr &pHullPtr,
-              pcl::ModelCoefficients::Ptr &pCoefficientsPtr, double &pPlaneHeight);
+    PlaneModel
+    findPlane(const PointCloud::ConstPtr &pCloudPtr);
 
 private:
     void

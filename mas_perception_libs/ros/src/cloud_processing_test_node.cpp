@@ -66,12 +66,17 @@ private:
         }
 
         // also fit plane
-        PointCloud::Ptr hullPointsPtr = boost::make_shared<PointCloud>();
-        pcl::ModelCoefficients::Ptr planeCoeffsPtr = boost::make_shared<pcl::ModelCoefficients>();
-        double planeHeight = 0.0;
-        mPlaneSegmenter.findPlane(pCloudMsgPtr, hullPointsPtr, planeCoeffsPtr, planeHeight);
-        ROS_INFO("plane height: %.3f, hull size: %ld, normal: (%.3f, %.3f, %.3f)", planeHeight, hullPointsPtr->size(),
-                 planeCoeffsPtr->values[0], planeCoeffsPtr->values[1], planeCoeffsPtr->values[2]);
+        auto filteredCloudPtr = boost::make_shared<sensor_msgs::PointCloud2>();
+        auto planeList = mPlaneSegmenter.findPlanes(pCloudMsgPtr, filteredCloudPtr);
+        mFilteredCloudPub.publish(*filteredCloudPtr);
+        if (planeList.planes.empty())
+        {
+            ROS_ERROR("found no plane in point cloud");
+            return;
+        }
+        ROS_INFO("plane height: %.3f, normal: (%.3f, %.3f, %.3f)",
+                 planeList.planes[0].pose.pose.position.z, planeList.planes[0].normal.vector.x,
+                 planeList.planes[0].normal.vector.y, planeList.planes[0].normal.vector.z);
     }
 };
 

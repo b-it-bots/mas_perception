@@ -15,6 +15,11 @@
 
 namespace mas_perception_libs
 {
+    PlaneModel::PlaneModel(pcl::ModelCoefficients::Ptr pPlaneCoeffsPtr)
+    : mNormal(pPlaneCoeffsPtr->values[0], pPlaneCoeffsPtr->values[1], pPlaneCoeffsPtr->values[2])
+    {
+        mHullPointsPtr = boost::make_shared<PointCloud>();
+    }
 
     void
     SacPlaneSegmenter::setParams(const SacPlaneSegmenterParams &pPlaneParams)
@@ -65,9 +70,6 @@ namespace mas_perception_libs
         pcl::ConvexHull<PointT> convexHull;
         convexHull.setInputCloud(plane);
         convexHull.reconstruct(*pHullPtr);
-        // connect end point and first point, not sure if this is necessary TODO(minhnh) test this
-        pHullPtr->points.push_back(pHullPtr->points.front());
-        pHullPtr->width += 1;
 
         // calculate plane height as the average of convex hull points
         double z = 0.0;
@@ -82,19 +84,21 @@ namespace mas_perception_libs
         pPlaneHeight = z;
     }
 
-    void
-    SacPlaneSegmenter::findPlane(const PointCloud::ConstPtr &pCloudPtr, PointCloud::Ptr &pHullPtr,
-            pcl::ModelCoefficients::Ptr &pCoefficientsPtr, double &pPlaneHeight)
+    PlaneModel
+    SacPlaneSegmenter::findPlane(const PointCloud::ConstPtr &pCloudPtr)
     {
         // run the SAC segmentation algorithm
-        pcl::PointIndices::Ptr inlierIndicesPtr = boost::make_shared<pcl::PointIndices>();
-        findPlaneInliers(pCloudPtr, inlierIndicesPtr, pCoefficientsPtr);
-        if (inlierIndicesPtr->indices.empty())
+        auto inlierIndicesPtr = boost::make_shared<pcl::PointIndices>();
+        auto planeCoeffsPtr = boost::make_shared<pcl::ModelCoefficients>();
+        findPlaneInliers(pCloudPtr, inlierIndicesPtr, planeCoeffsPtr);
+        if (inlierIndicesPtr->indices.empty() || planeCoeffsPtr->values.empty())
         {
             throw std::runtime_error("could not fit any plane");
         }
 
         // calculate convex hull and plane height
-        findConvexHull(pCloudPtr, inlierIndicesPtr, pCoefficientsPtr, pHullPtr, pPlaneHeight);
+        PlaneModel model(planeCoeffsPtr);
+        findConvexHull(pCloudPtr, inlierIndicesPtr, planeCoeffsPtr, model.mHullPointsPtr, model.mPlaneHeight);
+        return model;
     }
 }   // namespace mas_perception_libs
