@@ -2,13 +2,13 @@
 import rospy
 from dynamic_reconfigure.server import Server as ParamServer
 from sensor_msgs.msg import PointCloud2
-from mas_perception_libs.utils import CloudFilter
-from mas_perception_libs.cfg import CloudFilterConfig
+from mas_perception_libs.utils import PlaneSegmenter
+from mas_perception_libs.cfg import PlaneFittingConfig
 
 
 class CloudProcessingTest(object):
     _extract_planes = None  # type: bool
-    _cloud_filter = None    # type: CloudFilter
+    _plane_segmenter = None # type: PlaneSegmenter
 
     def __init__(self, cloud_topic, processed_cloud_topic, extract_planes):
         self._extract_planes = extract_planes
@@ -18,9 +18,9 @@ class CloudProcessingTest(object):
         if self._extract_planes:
             raise NotImplementedError('extracting planes not handled')
         else:
-            self._cloud_filter = CloudFilter()
+            self._plane_segmenter = PlaneSegmenter()
 
-        self._cloud_filter_param_server = ParamServer(CloudFilterConfig, self._cloud_filter_config_cb)
+        self._cloud_filter_param_server = ParamServer(PlaneFittingConfig, self._plane_fitting_config_cb)
 
     def _cloud_cb(self, cloud_msg):
         # don't process cloud if there's no subscriber
@@ -30,15 +30,15 @@ class CloudProcessingTest(object):
         if self._extract_planes:
             raise NotImplementedError('extracting planes not handled')
         else:
-            processed_cloud = self._cloud_filter.filter_cloud(cloud_msg)
+            processed_cloud = self._plane_segmenter.filter_cloud(cloud_msg)
 
         self._processed_cloud_pub.publish(processed_cloud)
 
-    def _cloud_filter_config_cb(self, config, _):
+    def _plane_fitting_config_cb(self, config, _):
         if self._extract_planes:
             raise NotImplementedError('extracting planes not handled')
         else:
-            self._cloud_filter.set_params(config)
+            self._plane_segmenter.set_params(config)
         return config
 
 

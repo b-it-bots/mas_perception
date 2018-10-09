@@ -27,7 +27,7 @@ using BoundingBox = mas_perception_libs::BoundingBox;
 
 namespace mas_perception_libs
 {
-class CloudFilterWrapper : CloudFilterROS
+class PlaneSegmenterWrapper : PlaneSegmenterROS
 {
 public:
     /*!
@@ -36,24 +36,51 @@ public:
     void
     setParams(const bp::dict & pConfigDict)
     {
-        CloudFilterParams params;
+        CloudFilterParams cfParams;
         if (!pConfigDict.contains("voxel_leaf_size"))
             throw std::invalid_argument("Python config dict does not contain key 'voxel_leaf_size'");
-        params.mVoxelLeafSize = bp::extract<float>(pConfigDict["voxel_leaf_size"]);
+        cfParams.mVoxelLeafSize = bp::extract<float>(pConfigDict["voxel_leaf_size"]);
 
         if (!pConfigDict.contains("passthrough_filter_field_name"))
             throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_field_name'");
-        params.mPassThroughFieldName = bp::extract<std::string>(pConfigDict["passthrough_filter_field_name"]);
+        cfParams.mPassThroughFieldName = bp::extract<std::string>(pConfigDict["passthrough_filter_field_name"]);
 
         if (!pConfigDict.contains("passthrough_filter_limit_min"))
             throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_limit_min'");
-        params.mPassThroughLimitMin = bp::extract<float>(pConfigDict["passthrough_filter_limit_min"]);
+        cfParams.mPassThroughLimitMin = bp::extract<float>(pConfigDict["passthrough_filter_limit_min"]);
 
         if (!pConfigDict.contains("passthrough_filter_limit_max"))
             throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_limit_max'");
-        params.mPassThroughLimitMax = bp::extract<float>(pConfigDict["passthrough_filter_limit_max"]);
+        cfParams.mPassThroughLimitMax = bp::extract<float>(pConfigDict["passthrough_filter_limit_max"]);
 
-        CloudFilter::setParams(params);
+        mCloudFilter.setParams(cfParams);
+
+        SacPlaneSegmenterParams planeFitParams;
+        if (!pConfigDict.contains("normal_radius_search"))
+            throw std::invalid_argument("Python config dict does not contain key 'normal_radius_search'");
+        planeFitParams.mNormalRadiusSearch = bp::extract<double>(pConfigDict["normal_radius_search"]);
+
+        if (!pConfigDict.contains("sac_max_iterations"))
+            throw std::invalid_argument("Python config dict does not contain key 'sac_max_iterations'");
+        planeFitParams.mSacMaxIterations = bp::extract<int>(pConfigDict["sac_max_iterations"]);
+
+        if (!pConfigDict.contains("sac_distance_threshold"))
+            throw std::invalid_argument("Python config dict does not contain key 'sac_distance_threshold'");
+        planeFitParams.mSacDistThreshold = bp::extract<double>(pConfigDict["sac_distance_threshold"]);
+
+        if (!pConfigDict.contains("sac_optimize_coefficients"))
+            throw std::invalid_argument("Python config dict does not contain key 'sac_optimize_coefficients'");
+        planeFitParams.mSacOptimizeCoeffs = bp::extract<bool>(pConfigDict["sac_optimize_coefficients"]);
+
+        if (!pConfigDict.contains("sac_eps_angle"))
+            throw std::invalid_argument("Python config dict does not contain key 'sac_eps_angle'");
+        planeFitParams.mSacEpsAngle = bp::extract<double>(pConfigDict["sac_eps_angle"]);
+
+        if (!pConfigDict.contains("sac_normal_distance_weight"))
+            throw std::invalid_argument("Python config dict does not contain key 'sac_normal_distance_weight'");
+        planeFitParams.mSacNormalDistWeight = bp::extract<double>(pConfigDict["sac_normal_distance_weight"]);
+
+        mPlaneSegmenter.setParams(planeFitParams);
     }
 
     /*!
@@ -64,7 +91,7 @@ public:
     {
         auto cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
         sensor_msgs::PointCloud2::Ptr cloudMsgPtr = boost::make_shared<sensor_msgs::PointCloud2>(cloudMsg);
-        auto filteredCloudPtr = CloudFilterROS::filterCloud(cloudMsgPtr);
+        auto filteredCloudPtr = PlaneSegmenterROS::filterCloud(cloudMsgPtr);
         std::string serializedMsg = to_python(*filteredCloudPtr);
         return serializedMsg;
     }
@@ -296,16 +323,16 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     pbcvt::matFromNDArrayBoostConverter();
 
     using mas_perception_libs::BoundingBoxWrapper;
-    using mas_perception_libs::CloudFilterWrapper;
+    using mas_perception_libs::PlaneSegmenterWrapper;
     using mas_perception_libs::BoundingBox2DWrapper;
 
     bp::class_<BoundingBoxWrapper>("BoundingBoxWrapper", bp::init<std::string, bp::list&>())
             .def("get_pose", &BoundingBoxWrapper::getPose)
             .def("get_ros_message", &BoundingBoxWrapper::getRosMsg);
 
-    bp::class_<CloudFilterWrapper>("CloudFilterWrapper")
-            .def("set_params", &CloudFilterWrapper::setParams)
-            .def("filter_cloud", &CloudFilterWrapper::filterCloud);
+    bp::class_<PlaneSegmenterWrapper>("PlaneSegmenterWrapper")
+            .def("set_params", &PlaneSegmenterWrapper::setParams)
+            .def("filter_cloud", &PlaneSegmenterWrapper::filterCloud);
 
     bp::def("get_crops_and_bounding_boxes_wrapper", mas_perception_libs::getCropsAndBoundingBoxes);
 

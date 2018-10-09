@@ -9,7 +9,7 @@
 
 #include <opencv/cv.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <mas_perception_libs/CloudFilterConfig.h>
+#include <mas_perception_libs/PlaneFittingConfig.h>
 #include <mas_perception_libs/bounding_box_2d.h>
 #include <mas_perception_libs/point_cloud_utils.h>
 #include <mas_perception_libs/sac_plane_segmenter.h>
@@ -39,36 +39,24 @@ void
 cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &pBox,
                       sensor_msgs::PointCloud2& pCroppedCloudMsg);
 
-/*!
- * @brief TODO(minhnh)
- */
-// SacPlaneSegmenterParams
-// SacPlaneSegmenterConfigToParam(const CloudFilterConfig& pConfig);
-
-class CloudFilterROS : public CloudFilter
+class PlaneSegmenterROS
 {
 public:
-    /*!
-     * @brief TODO(minhnh)
-     */
-    virtual void
-    setParams(const CloudFilterConfig &pConfig);
+    PlaneSegmenterROS() = default;
 
-    /*!
-     * @brief TODO(minhnh)
-     */
+    virtual void
+    setParams(const PlaneFittingConfig &pConfig);
+
     virtual sensor_msgs::PointCloud2::Ptr
     filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr);
-};
 
-class PlaneSegmenterRos
-{
-public:
-    PlaneSegmenterRos() = default;
+    virtual void
+    findPlane(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr, PointCloud::Ptr &pHullPtr,
+              pcl::ModelCoefficients::Ptr &pCoefficientsPtr, double &pPlaneHeight);
 
-private:
-    SacPlaneSegmenter mPlaneSegmenter;
+protected:
     CloudFilter mCloudFilter;
+    SacPlaneSegmenter mPlaneSegmenter;
 };
 
 }   // namespace mas_perception_libs

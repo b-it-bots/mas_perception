@@ -28,13 +28,13 @@ namespace mas_perception_libs
  */
 struct SacPlaneSegmenterParams
 {
-    double mNormalRadiusSearch;
+    double mNormalRadiusSearch = 0.0;
 
-    int mSacMaxIterations;
-    double mSacDistThreshold;
-    bool mSacOptimizeCoeffs;
-    double mSacEpsAngle;
-    double mSacNormalDistWeight;
+    int mSacMaxIterations = 0;
+    double mSacDistThreshold = 0.0;
+    bool mSacOptimizeCoeffs = false;
+    double mSacEpsAngle = 0.0;
+    double mSacNormalDistWeight = 0.0;
 };
 
 /*!
@@ -57,7 +57,17 @@ public:
      */
     void
     findPlane(const PointCloud::ConstPtr &pCloudPtr, PointCloud::Ptr &pHullPtr,
-              pcl::ModelCoefficients::Ptr &pCoefficients, double &pPlaneHeight);
+              pcl::ModelCoefficients::Ptr &pCoefficientsPtr, double &pPlaneHeight);
+
+private:
+    void
+    findPlaneInliers(const PointCloud::ConstPtr &pCloudPtr, pcl::PointIndices::Ptr &pInliers,
+                     pcl::ModelCoefficients::Ptr &pCoefficients);
+
+    void
+    findConvexHull(const PointCloud::ConstPtr &pCloudPtr, const pcl::PointIndices::Ptr &pInlierIndicesPtr,
+                   const pcl::ModelCoefficients::Ptr &pCoefficientsPtr, PointCloud::Ptr &pHullPtr,
+                   double &pPlaneHeight);
 
 private:
     const int cSacMethodType = pcl::SAC_RANSAC;

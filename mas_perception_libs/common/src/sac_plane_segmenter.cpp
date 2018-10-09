@@ -29,34 +29,35 @@ namespace mas_perception_libs
     }
 
     void
-    SacPlaneSegmenter::findPlane(const PointCloud::ConstPtr &pCloudPtr, PointCloud::Ptr &pHullPtr,
-            pcl::ModelCoefficients::Ptr &pCoefficients, double &pPlaneHeight)
+    SacPlaneSegmenter::findPlaneInliers(const PointCloud::ConstPtr &pCloudPtr, pcl::PointIndices::Ptr &pInliers,
+                                        pcl::ModelCoefficients::Ptr &pCoefficients)
     {
         // estimate normals at each point, needed for the SAC segmentation
-        PointCloudNormal::Ptr normals(new PointCloudNormal);
+        PointCloudNormal::Ptr normalCloudPtr = boost::make_shared<PointCloudNormal>();
         mNormalEstimation.setInputCloud(pCloudPtr);
-        mNormalEstimation.compute(*normals);
+        mNormalEstimation.compute(*normalCloudPtr);
 
         // run the SAC segmentation algorithm
-        pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
         mSacSegment.setModelType(mSacModel);
         mSacSegment.setMethodType(cSacMethodType);
         mSacSegment.setAxis(mPlaneAxis);
         mSacSegment.setInputCloud(pCloudPtr);
-        mSacSegment.setInputNormals(normals);
-        mSacSegment.segment(*inliers, *pCoefficients);
-        if (inliers->indices.empty())
-        {
-            return;
-        }
+        mSacSegment.setInputNormals(normalCloudPtr);
+        mSacSegment.segment(*pInliers, *pCoefficients);
+    }
 
-        // filter out al points that does not fit the calculated plane coefficients
+    void
+    SacPlaneSegmenter::findConvexHull(
+            const PointCloud::ConstPtr &pCloudPtr, const pcl::PointIndices::Ptr &pInlierIndicesPtr,
+            const pcl::ModelCoefficients::Ptr &pCoefficientsPtr, PointCloud::Ptr &pHullPtr, double &pPlaneHeight)
+    {
+        // project all points onto the detected plane, a.k.a. flatten the plane
         pcl::ProjectInliers<PointT> projectInliers;
-        PointCloud::Ptr plane(new PointCloud);
+        PointCloud::Ptr plane = boost::make_shared<PointCloud>();
         projectInliers.setModelType(pcl::SACMODEL_NORMAL_PARALLEL_PLANE);
         projectInliers.setInputCloud(pCloudPtr);
-        projectInliers.setModelCoefficients(pCoefficients);
-        projectInliers.setIndices(inliers);
+        projectInliers.setModelCoefficients(pCoefficientsPtr);
+        projectInliers.setIndices(pInlierIndicesPtr);
         projectInliers.setCopyAllData(false);
         projectInliers.filter(*plane);
 
@@ -79,5 +80,21 @@ namespace mas_perception_libs
             z /= pHullPtr->points.size();
         }
         pPlaneHeight = z;
+    }
+
+    void
+    SacPlaneSegmenter::findPlane(const PointCloud::ConstPtr &pCloudPtr, PointCloud::Ptr &pHullPtr,
+            pcl::ModelCoefficients::Ptr &pCoefficientsPtr, double &pPlaneHeight)
+    {
+        // run the SAC segmentation algorithm
+        pcl::PointIndices::Ptr inlierIndicesPtr = boost::make_shared<pcl::PointIndices>();
+        findPlaneInliers(pCloudPtr, inlierIndicesPtr, pCoefficientsPtr);
+        if (inlierIndicesPtr->indices.empty())
+        {
+            throw std::runtime_error("could not fit any plane");
+        }
+
+        // calculate convex hull and plane height
+        findConvexHull(pCloudPtr, inlierIndicesPtr, pCoefficientsPtr, pHullPtr, pPlaneHeight);
     }
 }   // namespace mas_perception_libs

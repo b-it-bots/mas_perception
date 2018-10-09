@@ -24,7 +24,7 @@ find_package(OpenCV REQUIRED)
 catkin_python_setup()
 
 generate_dynamic_reconfigure_options(
-  ros/config/CloudFilter.cfg
+  ros/config/PlaneFitting.cfg
 )
 
 ###################################

@@ -11,7 +11,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <mas_perception_libs/aliases.h>
-#include <mas_perception_libs/CloudFilterConfig.h>
+#include <mas_perception_libs/PlaneFittingConfig.h>
 #include <mas_perception_libs/point_cloud_utils.h>
 #include <mas_perception_libs/point_cloud_utils_ros.h>
 #include <mas_perception_libs/sac_plane_segmenter.h>
@@ -23,20 +23,20 @@ class CloudProcessingTestNode
 {
 private:
     ros::NodeHandle mNodeHandle;
-    dynamic_reconfigure::Server<CloudFilterConfig> mCloudFilterConfigServer;
-    CloudFilterROS mCloudFilter;
+    dynamic_reconfigure::Server<PlaneFittingConfig> mPlaneFittingConfigServer;
+    PlaneSegmenterROS mPlaneSegmenter;
     ros::Subscriber mCloudSub;
     ros::Publisher mFilteredCloudPub;
+    bool mExtractPlanes;
 
 public:
     CloudProcessingTestNode(const ros::NodeHandle &pNodeHandle, const std::string &pCloudTopic,
-            const std::string &pProcessedCloudTopic)
-    : mNodeHandle(pNodeHandle)
+            const std::string &pProcessedCloudTopic, bool pExtractPlanes)
+    : mNodeHandle(pNodeHandle), mExtractPlanes(pExtractPlanes), mPlaneFittingConfigServer(mNodeHandle)
     {
-        ROS_INFO("setting up dynamic reconfiguration server for filtering point clouds");
-        dynamic_reconfigure::Server<CloudFilterConfig>::CallbackType f =
-                boost::bind(&CloudProcessingTestNode::cloudFilterConfigCallback, this, _1, _2);
-        mCloudFilterConfigServer.setCallback(f);
+        ROS_INFO("setting up dynamic reconfiguration server for fitting planes");
+        auto pfCallback = boost::bind(&CloudProcessingTestNode::planeFittingConfigCallback, this, _1, _2);
+        mPlaneFittingConfigServer.setCallback(pfCallback);
 
         ROS_INFO("subscribing to point cloud topic and advertising processed result");
         mFilteredCloudPub = mNodeHandle.advertise<sensor_msgs::PointCloud2>(pProcessedCloudTopic, 1);
@@ -45,9 +45,9 @@ public:
 
 private:
     void
-    cloudFilterConfigCallback(const CloudFilterConfig &pConfig, uint32_t pLevel)
+    planeFittingConfigCallback(const PlaneFittingConfig &pConfig, uint32_t pLevel)
     {
-        mCloudFilter.setParams(pConfig);
+        mPlaneSegmenter.setParams(pConfig);
     }
 
     void
@@ -57,8 +57,21 @@ private:
         if (mFilteredCloudPub.getNumSubscribers() == 0)
             return;
 
-        auto filteredCloudPtr = mCloudFilter.filterCloud(pCloudMsgPtr);
-        mFilteredCloudPub.publish(*filteredCloudPtr);
+        if (!mExtractPlanes)
+        {
+            // only do cloud filtering
+            auto filteredCloudPtr = mPlaneSegmenter.filterCloud(pCloudMsgPtr);
+            mFilteredCloudPub.publish(*filteredCloudPtr);
+            return;
+        }
+
+        // also fit plane
+        PointCloud::Ptr hullPointsPtr = boost::make_shared<PointCloud>();
+        pcl::ModelCoefficients::Ptr planeCoeffsPtr = boost::make_shared<pcl::ModelCoefficients>();
+        double planeHeight = 0.0;
+        mPlaneSegmenter.findPlane(pCloudMsgPtr, hullPointsPtr, planeCoeffsPtr, planeHeight);
+        ROS_INFO("plane height: %.3f, hull size: %ld, normal: (%.3f, %.3f, %.3f)", planeHeight, hullPointsPtr->size(),
+                 planeCoeffsPtr->values[0], planeCoeffsPtr->values[1], planeCoeffsPtr->values[2]);
     }
 };
 
@@ -70,6 +83,7 @@ int main(int pArgc, char** pArgv)
     ros::NodeHandle nh("~");
 
     // load launch parameters
+    bool extractPlanes;
     std::string cloudTopic, processedCloudTopic;
     if (!nh.getParam("cloud_topic", cloudTopic) || cloudTopic.empty())
     {
@@ -81,9 +95,11 @@ int main(int pArgc, char** pArgv)
         ROS_ERROR("No 'processed_cloud_topic' specified as parameter");
         return EXIT_FAILURE;
     }
+    nh.param("extract_planes", extractPlanes, false);
 
     // run cloud filtering and plane segmentation
-    mas_perception_libs::CloudProcessingTestNode cloudProcessingTestNode(nh, cloudTopic, processedCloudTopic);
+    mas_perception_libs::CloudProcessingTestNode cloudProcessingTestNode(nh, cloudTopic, processedCloudTopic,
+                                                                         extractPlanes);
 
     while (ros::ok())
         ros::spin();

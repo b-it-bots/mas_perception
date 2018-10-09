@@ -1,0 +1,12 @@
+# config file loaded during launch as default configurations for the cloud filter
+voxel_leaf_size: 0.02
+passthrough_filter_field_name: z
+passthrough_filter_limit_min: 0.0
+passthrough_filter_limit_max: 0.8
+# config file loaded during launch as default configurations for the plane fitting algorithm
+normal_radius_search:       0.03
+sac_max_iterations:         1000
+sac_distance_threshold:     0.01
+sac_optimize_coefficients:  true
+sac_eps_angle:              0.09
+sac_normal_distance_weight: 0.05

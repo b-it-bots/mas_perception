@@ -2,11 +2,12 @@
 <launch>
     <arg name="cloud_topic" default=""/>
     <arg name="processed_cloud_topic" default="processed_cloud"/>
-    <arg name="cloud_filter_config_file"
-         default="$(find mas_perception_libs)/ros/config/cloud_filter_default_configs.yaml" />
+    <arg name="extract_planes" default="false"/>
+    <arg name="plane_fitting_config_file"
+         default="$(find mas_perception_libs)/ros/config/plane_fitting_default_configs.yaml" />
     <node pkg="mas_perception_libs" type="cloud_processing_cpp_test" name="cloud_processing_cpp_test" output="screen"
           ns="mas_perception">
-        <rosparam file="$(arg cloud_filter_config_file)" command="load"/>
+        <rosparam file="$(arg plane_fitting_config_file)" command="load"/>
         <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
         <param name="processed_cloud_topic" type="string" value="$(arg processed_cloud_topic)" />
     </node>

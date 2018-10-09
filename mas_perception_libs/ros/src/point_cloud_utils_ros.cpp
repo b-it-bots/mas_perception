@@ -67,29 +67,48 @@ namespace mas_perception_libs
         pcl::toROSMsg(croppedCloud, pCroppedCloudMsg);
     }
 
-    void
-    CloudFilterROS::setParams(const CloudFilterConfig &pConfig)
-    {
-        CloudFilterParams params;
-        params.mVoxelLeafSize = static_cast<float>(pConfig.voxel_leaf_size);
-        params.mPassThroughFieldName = pConfig.passthrough_filter_field_name;
-        params.mPassThroughLimitMin = static_cast<float>(pConfig.passthrough_filter_limit_min);
-        params.mPassThroughLimitMax = static_cast<float>(pConfig.passthrough_filter_limit_max);
-        CloudFilter::setParams(params);
-    }
-
     sensor_msgs::PointCloud2::Ptr
-    CloudFilterROS::filterCloud(
+    PlaneSegmenterROS::filterCloud(
             const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr)
     {
         PointCloud::Ptr pclCloudPtr = boost::make_shared<PointCloud>();
         pcl::fromROSMsg(*pCloudPtr, *pclCloudPtr);
 
-        PointCloud::Ptr filteredCloudPtr = CloudFilter::filterCloud(pclCloudPtr);
+        PointCloud::Ptr filteredCloudPtr = mCloudFilter.filterCloud(pclCloudPtr);
 
         sensor_msgs::PointCloud2::Ptr filteredMsgPtr = boost::make_shared<sensor_msgs::PointCloud2>();
         pcl::toROSMsg(*filteredCloudPtr, *filteredMsgPtr);
         return filteredMsgPtr;
+    }
+
+    void
+    PlaneSegmenterROS::setParams(const PlaneFittingConfig &pConfig)
+    {
+        CloudFilterParams cloudFilterParams;
+        cloudFilterParams.mVoxelLeafSize = static_cast<float>(pConfig.voxel_leaf_size);
+        cloudFilterParams.mPassThroughFieldName = pConfig.passthrough_filter_field_name;
+        cloudFilterParams.mPassThroughLimitMin = static_cast<float>(pConfig.passthrough_filter_limit_min);
+        cloudFilterParams.mPassThroughLimitMax = static_cast<float>(pConfig.passthrough_filter_limit_max);
+        mCloudFilter.setParams(cloudFilterParams);
+
+        SacPlaneSegmenterParams planeFitParams;
+        planeFitParams.mNormalRadiusSearch = pConfig.normal_radius_search;
+        planeFitParams.mSacMaxIterations = pConfig.sac_max_iterations;
+        planeFitParams.mSacDistThreshold = pConfig.sac_distance_threshold;
+        planeFitParams.mSacOptimizeCoeffs = pConfig.sac_optimize_coefficients;
+        planeFitParams.mSacEpsAngle = pConfig.sac_eps_angle;
+        planeFitParams.mSacNormalDistWeight = pConfig.sac_normal_distance_weight;
+        mPlaneSegmenter.setParams(planeFitParams);
+    }
+
+    void
+    PlaneSegmenterROS::findPlane(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr, PointCloud::Ptr &pHullPtr,
+                                    pcl::ModelCoefficients::Ptr &pCoefficientsPtr, double &pPlaneHeight)
+    {
+        PointCloud::Ptr pclCloudPtr = boost::make_shared<PointCloud>();
+        pcl::fromROSMsg(*pCloudPtr, *pclCloudPtr);
+        auto filteredCloudPtr = mCloudFilter.filterCloud(pclCloudPtr);
+        mPlaneSegmenter.findPlane(filteredCloudPtr, pHullPtr, pCoefficientsPtr, pPlaneHeight);
     }
 
 }   // namespace mas_perception_libs
