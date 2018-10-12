@@ -59,7 +59,7 @@ public:
 class SacPlaneSegmenter
 {
 public:
-    SacPlaneSegmenter() : mSacModel(pcl::SACMODEL_PARALLEL_PLANE), mPlaneAxis(0.0f, 0.0f, 1.0f)
+    SacPlaneSegmenter() : mSacModel(pcl::SACMODEL_NORMAL_PARALLEL_PLANE), mPlaneAxis(0.0f, 0.0f, 1.0f)
     { }
 
     /*! @brief set parameters of the SAC algorithm */

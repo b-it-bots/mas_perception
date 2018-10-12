@@ -4,6 +4,7 @@
  * Author: Minh Nguyen
  *
  */
+#include <string>
 #include <sensor_msgs/Image.h>
 #include <cv_bridge/cv_bridge.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -81,29 +82,74 @@ PlaneSegmenterROS::filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudP
     return filteredMsgPtr;
 }
 
-mcr_perception_msgs::Plane
+visualization_msgs::Marker::Ptr
+planeMsgToMarkers(const mcr_perception_msgs::Plane &pPlaneMsg, const std::string &pNamespace,
+                  Color pColor, float pThickness, int pId)
+{
+    if (pPlaneMsg.convex_hull.empty())
+        throw std::invalid_argument("plane message has empty convex hull");
+
+    auto markerPtr = boost::make_shared<visualization_msgs::Marker>();
+
+    markerPtr->type = visualization_msgs::Marker::LINE_LIST;
+    markerPtr->action = visualization_msgs::Marker::ADD;
+    markerPtr->lifetime = ros::Duration(2.0);
+    markerPtr->header.frame_id = pPlaneMsg.header.frame_id;
+    markerPtr->scale.x = pThickness;
+    markerPtr->scale.y = pThickness;
+    markerPtr->color.a = 1.0;
+    markerPtr->ns = pNamespace;
+    markerPtr->id = pId;
+    markerPtr->color = std_msgs::ColorRGBA(pColor);
+
+    geometry_msgs::Point firstPoint;
+    firstPoint.x = pPlaneMsg.convex_hull[0].x;
+    firstPoint.y = pPlaneMsg.convex_hull[0].y;
+    firstPoint.z = pPlaneMsg.convex_hull[0].z;
+    markerPtr->points.push_back(firstPoint);
+
+    for (size_t i = 1; i < pPlaneMsg.convex_hull.size(); i++)
+    {
+        geometry_msgs::Point pt;
+        pt.x = pPlaneMsg.convex_hull[i].x;
+        pt.y = pPlaneMsg.convex_hull[i].y;
+        pt.z = pPlaneMsg.convex_hull[i].z;
+        markerPtr->points.push_back(pt);
+        markerPtr->points.push_back(pt);
+    }
+
+    markerPtr->points.push_back(firstPoint);
+    return markerPtr;
+}
+
+
+mcr_perception_msgs::Plane::Ptr
 planeModelToMsg(const PlaneModel &pModel)
 {
-    mcr_perception_msgs::Plane planeMsg;
-    // plane normal
-    planeMsg.header = pcl_conversions::fromPCL(pModel.mHeader);
-    planeMsg.coefficients[0] = pModel.mCoefficients[0];
-    planeMsg.coefficients[1] = pModel.mCoefficients[1];
-    planeMsg.coefficients[2] = pModel.mCoefficients[2];
-    planeMsg.coefficients[3] = pModel.mCoefficients[3];
-    // plane pose, assuming horizontal plane and z is plane height
-    planeMsg.plane_point.x = pModel.mCenter.x;
-    planeMsg.plane_point.y = pModel.mCenter.y;
-    planeMsg.plane_point.z = pModel.mCenter.z;
+    auto planeMsgPtr = boost::make_shared<mcr_perception_msgs::Plane>();
+    planeMsgPtr->header = pcl_conversions::fromPCL(pModel.mHeader);
+
+    // plane coefficients
+    planeMsgPtr->coefficients[0] = pModel.mCoefficients[0];
+    planeMsgPtr->coefficients[1] = pModel.mCoefficients[1];
+    planeMsgPtr->coefficients[2] = pModel.mCoefficients[2];
+    planeMsgPtr->coefficients[3] = pModel.mCoefficients[3];
+
+    // plane center point
+    planeMsgPtr->plane_point.x = pModel.mCenter.x;
+    planeMsgPtr->plane_point.y = pModel.mCenter.y;
+    planeMsgPtr->plane_point.z = pModel.mCenter.z;
+
+    // convex hull points
     for (auto& hullPoint : pModel.mHullPointsPtr->points)
     {
         geometry_msgs::Point32 hullPointMsg;
         hullPointMsg.x = hullPoint.x;
         hullPointMsg.y = hullPoint.y;
         hullPointMsg.z = hullPoint.z;
-        planeMsg.convex_hull.push_back(hullPointMsg);
+        planeMsgPtr->convex_hull.push_back(hullPointMsg);
     }
-    return planeMsg;
+    return planeMsgPtr;
 }
 
 void
@@ -126,7 +172,7 @@ PlaneSegmenterROS::setParams(const PlaneFittingConfig &pConfig)
     mPlaneSegmenter.setParams(planeFitParams);
 }
 
-mcr_perception_msgs::PlaneList
+mcr_perception_msgs::PlaneList::Ptr
 PlaneSegmenterROS::findPlanes(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr,
                               sensor_msgs::PointCloud2::Ptr &pFilteredCloudMsgPtr)
 {
@@ -136,9 +182,10 @@ PlaneSegmenterROS::findPlanes(const sensor_msgs::PointCloud2::ConstPtr &pCloudPt
     pcl::toROSMsg(*filteredCloudPtr, *pFilteredCloudMsgPtr);
 
     auto planeModel = mPlaneSegmenter.findPlane(filteredCloudPtr);
-    mcr_perception_msgs::PlaneList planeList;
-    planeList.planes.push_back(planeModelToMsg(planeModel));
-    return planeList;
+    auto planeListPtr = boost::make_shared<mcr_perception_msgs::PlaneList>();
+    auto planeMsgPtr = planeModelToMsg(planeModel);
+    planeListPtr->planes.push_back(*planeMsgPtr);
+    return planeListPtr;
 }
 
 }   // namespace mas_perception_libs

@@ -2,6 +2,7 @@
 <launch>
     <arg name="cloud_topic" default=""/>
     <arg name="processed_cloud_topic" default="processed_cloud"/>
+    <arg name="target_frame" default="/base_link" />
     <arg name="extract_planes" default="true"/>
     <arg name="plane_fitting_config_file"
          default="$(find mas_perception_libs)/ros/config/plane_fitting_default_configs.yaml" />
@@ -10,6 +11,7 @@
         <rosparam file="$(arg plane_fitting_config_file)" command="load"/>
         <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
         <param name="processed_cloud_topic" type="string" value="$(arg processed_cloud_topic)" />
+        <param name="target_frame" type="string" value="$(arg target_frame)" />
         <param name="extract_planes" type="bool" value="$(arg extract_planes)" />
     </node>
 </launch>

@@ -7,9 +7,10 @@
  */
 #include <string>
 #include <ros/ros.h>
+#include <pcl_ros/transforms.h>
 #include <dynamic_reconfigure/server.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <pcl_conversions/pcl_conversions.h>
+#include <tf/transform_listener.h>
 #include <mas_perception_libs/aliases.h>
 #include <mas_perception_libs/PlaneFittingConfig.h>
 #include <mas_perception_libs/point_cloud_utils.h>
@@ -27,12 +28,16 @@ private:
     PlaneSegmenterROS mPlaneSegmenter;
     ros::Subscriber mCloudSub;
     ros::Publisher mFilteredCloudPub;
+    ros::Publisher mPlaneMarkerPub;
+    tf::TransformListener mTfListener;
+    std::string mTargetFrame;
     bool mExtractPlanes;
 
 public:
     CloudProcessingTestNode(const ros::NodeHandle &pNodeHandle, const std::string &pCloudTopic,
-            const std::string &pProcessedCloudTopic, bool pExtractPlanes)
-    : mNodeHandle(pNodeHandle), mExtractPlanes(pExtractPlanes), mPlaneFittingConfigServer(mNodeHandle)
+            const std::string &pProcessedCloudTopic, const std::string &pTargetFrame, bool pExtractPlanes)
+    : mNodeHandle(pNodeHandle), mExtractPlanes(pExtractPlanes), mPlaneFittingConfigServer(mNodeHandle),
+      mTargetFrame(pTargetFrame)
     {
         ROS_INFO("setting up dynamic reconfiguration server for fitting planes");
         auto pfCallback = boost::bind(&CloudProcessingTestNode::planeFittingConfigCallback, this, _1, _2);
@@ -41,6 +46,8 @@ public:
         ROS_INFO("subscribing to point cloud topic and advertising processed result");
         mFilteredCloudPub = mNodeHandle.advertise<sensor_msgs::PointCloud2>(pProcessedCloudTopic, 1);
         mCloudSub = mNodeHandle.subscribe(pCloudTopic, 1, &CloudProcessingTestNode::cloudCallback, this);
+
+        mPlaneMarkerPub = mNodeHandle.advertise<visualization_msgs::Marker>("detected_planes", 1);
     }
 
 private:
@@ -57,26 +64,55 @@ private:
         if (mFilteredCloudPub.getNumSubscribers() == 0)
             return;
 
+        auto transformedCloudPtr = boost::make_shared<sensor_msgs::PointCloud2>();
+        if (!pcl_ros::transformPointCloud(mTargetFrame, *pCloudMsgPtr, *transformedCloudPtr, mTfListener))
+        {
+            ROS_WARN("failed to transform cloud to frame '%s' from frame '%s'",
+                     mTargetFrame.c_str(), pCloudMsgPtr->header.frame_id.c_str());
+            return;
+        }
+
         if (!mExtractPlanes)
         {
             // only do cloud filtering
-            auto filteredCloudPtr = mPlaneSegmenter.filterCloud(pCloudMsgPtr);
+            auto filteredCloudPtr = mPlaneSegmenter.filterCloud(transformedCloudPtr);
             mFilteredCloudPub.publish(*filteredCloudPtr);
             return;
         }
 
         // also fit plane
         auto filteredCloudPtr = boost::make_shared<sensor_msgs::PointCloud2>();
-        auto planeList = mPlaneSegmenter.findPlanes(pCloudMsgPtr, filteredCloudPtr);
+        mcr_perception_msgs::PlaneList::Ptr planeListPtr;
+        try
+        {
+            planeListPtr = mPlaneSegmenter.findPlanes(transformedCloudPtr, filteredCloudPtr);
+        }
+        catch (std::runtime_error &ex)
+        {
+            ROS_ERROR("failed to find planes: %s", ex.what());
+            return;
+        }
+
         mFilteredCloudPub.publish(*filteredCloudPtr);
-        if (planeList.planes.empty())
+        if (planeListPtr->planes.empty())
         {
             ROS_ERROR("found no plane in point cloud");
             return;
         }
         ROS_INFO("plane height: %.3f, coeffs: (%.3f, %.3f, %.3f)",
-                 planeList.planes[0].plane_point.z, planeList.planes[0].coefficients[0],
-                 planeList.planes[0].coefficients[1], planeList.planes[0].coefficients[2]);
+                 planeListPtr->planes[0].plane_point.z, planeListPtr->planes[0].coefficients[0],
+                 planeListPtr->planes[0].coefficients[1], planeListPtr->planes[0].coefficients[2]);
+
+        if (mPlaneMarkerPub.getNumSubscribers() == 0)
+            return;
+        auto planeMarkerPtr = planeMsgToMarkers(planeListPtr->planes[0], "planar_polygon");
+        visualization_msgs::Marker delMarker;
+        delMarker.header.frame_id = planeMarkerPtr->header.frame_id;
+        delMarker.header.stamp = ros::Time::now();
+        delMarker.action = visualization_msgs::Marker::DELETEALL;
+        delMarker.ns = planeMarkerPtr->ns;
+        mPlaneMarkerPub.publish(delMarker);
+        mPlaneMarkerPub.publish(*planeMarkerPtr);
     }
 };
 
@@ -89,7 +125,7 @@ int main(int pArgc, char** pArgv)
 
     // load launch parameters
     bool extractPlanes;
-    std::string cloudTopic, processedCloudTopic;
+    std::string cloudTopic, processedCloudTopic, targetFrame;
     if (!nh.getParam("cloud_topic", cloudTopic) || cloudTopic.empty())
     {
         ROS_ERROR("No 'cloud_topic' specified as parameter");
@@ -100,11 +136,16 @@ int main(int pArgc, char** pArgv)
         ROS_ERROR("No 'processed_cloud_topic' specified as parameter");
         return EXIT_FAILURE;
     }
+    if (!nh.getParam("target_frame", targetFrame) || targetFrame.empty())
+    {
+        ROS_ERROR("No 'target_frame' specified as parameter");
+        return EXIT_FAILURE;
+    }
     nh.param("extract_planes", extractPlanes, false);
 
     // run cloud filtering and plane segmentation
     mas_perception_libs::CloudProcessingTestNode cloudProcessingTestNode(nh, cloudTopic, processedCloudTopic,
-                                                                         extractPlanes);
+                                                                         targetFrame, extractPlanes);
 
     while (ros::ok())
         ros::spin();

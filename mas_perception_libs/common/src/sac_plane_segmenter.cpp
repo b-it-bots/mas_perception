@@ -61,7 +61,7 @@ namespace mas_perception_libs
         // project all points onto the detected plane, a.k.a. flatten the plane
         pcl::ProjectInliers<PointT> projectInliers;
         PointCloud::Ptr plane = boost::make_shared<PointCloud>();
-        projectInliers.setModelType(pcl::SACMODEL_NORMAL_PARALLEL_PLANE);
+        projectInliers.setModelType(mSacModel);
         projectInliers.setInputCloud(pCloudPtr);
         projectInliers.setModelCoefficients(pCoefficientsPtr);
         projectInliers.setIndices(pInlierIndicesPtr);

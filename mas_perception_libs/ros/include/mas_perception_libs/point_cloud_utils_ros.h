@@ -7,11 +7,13 @@
 #ifndef MAS_PERCEPTION_LIBS_POINT_CLOUD_UTILS_ROS_H
 #define MAS_PERCEPTION_LIBS_POINT_CLOUD_UTILS_ROS_H
 
+#include <string>
 #include <opencv/cv.h>
 #include <std_msgs/Header.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/Marker.h>
 #include <mcr_perception_msgs/PlaneList.h>
+#include <mas_perception_libs/color.h>
 #include <mas_perception_libs/PlaneFittingConfig.h>
 #include <mas_perception_libs/bounding_box_2d.h>
 #include <mas_perception_libs/point_cloud_utils.h>
@@ -45,7 +47,14 @@ cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &
 /*!
  * @brief TODO(minhnh)
  */
-mcr_perception_msgs::Plane
+visualization_msgs::Marker::Ptr
+planeMsgToMarkers(const mcr_perception_msgs::Plane &pPlaneMsg, const std::string &pNamespace,
+                  Color pColor = Color(Color::TEAL), float pThickness = 0.005, int pId = 1);
+
+/*!
+ * @brief TODO(minhnh)
+ */
+mcr_perception_msgs::Plane::Ptr
 planeModelToMsg(const PlaneModel &pModel);
 
 /*!
@@ -62,7 +71,7 @@ public:
     virtual sensor_msgs::PointCloud2::Ptr
     filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr);
 
-    virtual mcr_perception_msgs::PlaneList
+    virtual mcr_perception_msgs::PlaneList::Ptr
     findPlanes(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr, sensor_msgs::PointCloud2::Ptr &pFilteredCloudMsg);
 
 protected:
