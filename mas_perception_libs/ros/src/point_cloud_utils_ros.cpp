@@ -69,8 +69,7 @@ cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &
 }
 
 sensor_msgs::PointCloud2::Ptr
-PlaneSegmenterROS::filterCloud(
-        const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr)
+PlaneSegmenterROS::filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr)
 {
     PointCloud::Ptr pclCloudPtr = boost::make_shared<PointCloud>();
     pcl::fromROSMsg(*pCloudPtr, *pclCloudPtr);
@@ -83,18 +82,27 @@ PlaneSegmenterROS::filterCloud(
 }
 
 mcr_perception_msgs::Plane
-planeModelToMsg(const PlaneModel &pModel, const std_msgs::Header &pHeader)
+planeModelToMsg(const PlaneModel &pModel)
 {
     mcr_perception_msgs::Plane planeMsg;
     // plane normal
-    planeMsg.normal.header = pHeader;
-    planeMsg.normal.vector.x = pModel.mNormal[0];
-    planeMsg.normal.vector.y = pModel.mNormal[1];
-    planeMsg.normal.vector.z = pModel.mNormal[2];
+    planeMsg.header = pcl_conversions::fromPCL(pModel.mHeader);
+    planeMsg.coefficients[0] = pModel.mCoefficients[0];
+    planeMsg.coefficients[1] = pModel.mCoefficients[1];
+    planeMsg.coefficients[2] = pModel.mCoefficients[2];
+    planeMsg.coefficients[3] = pModel.mCoefficients[3];
     // plane pose, assuming horizontal plane and z is plane height
-    // TODO(minhnh) calculate plane pose
-    planeMsg.pose.header = pHeader;
-    planeMsg.pose.pose.position.z = pModel.mPlaneHeight;
+    planeMsg.plane_point.x = pModel.mCenter.x;
+    planeMsg.plane_point.y = pModel.mCenter.y;
+    planeMsg.plane_point.z = pModel.mCenter.z;
+    for (auto& hullPoint : pModel.mHullPointsPtr->points)
+    {
+        geometry_msgs::Point32 hullPointMsg;
+        hullPointMsg.x = hullPoint.x;
+        hullPointMsg.y = hullPoint.y;
+        hullPointMsg.z = hullPoint.z;
+        planeMsg.convex_hull.push_back(hullPointMsg);
+    }
     return planeMsg;
 }
 
@@ -129,7 +137,7 @@ PlaneSegmenterROS::findPlanes(const sensor_msgs::PointCloud2::ConstPtr &pCloudPt
 
     auto planeModel = mPlaneSegmenter.findPlane(filteredCloudPtr);
     mcr_perception_msgs::PlaneList planeList;
-    planeList.planes.push_back(planeModelToMsg(planeModel, pCloudPtr->header));
+    planeList.planes.push_back(planeModelToMsg(planeModel));
     return planeList;
 }
 

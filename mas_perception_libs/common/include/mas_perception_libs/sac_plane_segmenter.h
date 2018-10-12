@@ -44,9 +44,11 @@ public:
     ~PlaneModel() = default;
 
 public:
-    const Eigen::Vector3f mNormal;
+    const Eigen::Vector4f mCoefficients;
+    const pcl::PCLHeader mHeader;
     PointCloud::Ptr mHullPointsPtr;
-    double mPlaneHeight = 0.0;
+    PointT mCenter;
+    float mPlaneHeight = 0.0f;
 };
 
 /*!
@@ -77,8 +79,7 @@ private:
 
     void
     findConvexHull(const PointCloud::ConstPtr &pCloudPtr, const pcl::PointIndices::Ptr &pInlierIndicesPtr,
-                   const pcl::ModelCoefficients::Ptr &pCoefficientsPtr, PointCloud::Ptr &pHullPtr,
-                   double &pPlaneHeight);
+                   const pcl::ModelCoefficients::Ptr &pCoefficientsPtr, PlaneModel &pPlaneModel);
 
 private:
     const int cSacMethodType = pcl::SAC_RANSAC;

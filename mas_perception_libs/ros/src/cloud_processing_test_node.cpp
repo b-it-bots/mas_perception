@@ -74,9 +74,9 @@ private:
             ROS_ERROR("found no plane in point cloud");
             return;
         }
-        ROS_INFO("plane height: %.3f, normal: (%.3f, %.3f, %.3f)",
-                 planeList.planes[0].pose.pose.position.z, planeList.planes[0].normal.vector.x,
-                 planeList.planes[0].normal.vector.y, planeList.planes[0].normal.vector.z);
+        ROS_INFO("plane height: %.3f, coeffs: (%.3f, %.3f, %.3f)",
+                 planeList.planes[0].plane_point.z, planeList.planes[0].coefficients[0],
+                 planeList.planes[0].coefficients[1], planeList.planes[0].coefficients[2]);
     }
 };
 

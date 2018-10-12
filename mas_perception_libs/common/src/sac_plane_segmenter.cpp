@@ -16,7 +16,9 @@
 namespace mas_perception_libs
 {
     PlaneModel::PlaneModel(pcl::ModelCoefficients::Ptr pPlaneCoeffsPtr)
-    : mNormal(pPlaneCoeffsPtr->values[0], pPlaneCoeffsPtr->values[1], pPlaneCoeffsPtr->values[2])
+    : mCoefficients(pPlaneCoeffsPtr->values[0], pPlaneCoeffsPtr->values[1],
+                    pPlaneCoeffsPtr->values[2], pPlaneCoeffsPtr->values[3]),
+      mHeader(pPlaneCoeffsPtr->header)
     {
         mHullPointsPtr = boost::make_shared<PointCloud>();
     }
@@ -54,7 +56,7 @@ namespace mas_perception_libs
     void
     SacPlaneSegmenter::findConvexHull(
             const PointCloud::ConstPtr &pCloudPtr, const pcl::PointIndices::Ptr &pInlierIndicesPtr,
-            const pcl::ModelCoefficients::Ptr &pCoefficientsPtr, PointCloud::Ptr &pHullPtr, double &pPlaneHeight)
+            const pcl::ModelCoefficients::Ptr &pCoefficientsPtr, PlaneModel &pPlaneModel)
     {
         // project all points onto the detected plane, a.k.a. flatten the plane
         pcl::ProjectInliers<PointT> projectInliers;
@@ -69,19 +71,22 @@ namespace mas_perception_libs
         // calculate the convex hull of the fitted plane
         pcl::ConvexHull<PointT> convexHull;
         convexHull.setInputCloud(plane);
-        convexHull.reconstruct(*pHullPtr);
+        convexHull.reconstruct(*(pPlaneModel.mHullPointsPtr));
 
         // calculate plane height as the average of convex hull points
-        double z = 0.0;
-        for (auto &point : pHullPtr->points)
+        if (pPlaneModel.mHullPointsPtr->points.empty())
         {
-            z += point.z;
+            return;
         }
-        if (!pHullPtr->points.empty())
+        for (auto &point : pPlaneModel.mHullPointsPtr->points)
         {
-            z /= pHullPtr->points.size();
+            pPlaneModel.mCenter.x += point.z;
+            pPlaneModel.mCenter.y += point.z;
+            pPlaneModel.mCenter.z += point.z;
         }
-        pPlaneHeight = z;
+        pPlaneModel.mCenter.x /= pPlaneModel.mHullPointsPtr->points.size();
+        pPlaneModel.mCenter.y /= pPlaneModel.mHullPointsPtr->points.size();
+        pPlaneModel.mCenter.z /= pPlaneModel.mHullPointsPtr->points.size();
     }
 
     PlaneModel
@@ -98,7 +103,7 @@ namespace mas_perception_libs
 
         // calculate convex hull and plane height
         PlaneModel model(planeCoeffsPtr);
-        findConvexHull(pCloudPtr, inlierIndicesPtr, planeCoeffsPtr, model.mHullPointsPtr, model.mPlaneHeight);
+        findConvexHull(pCloudPtr, inlierIndicesPtr, planeCoeffsPtr, model);
         return model;
     }
 }   // namespace mas_perception_libs

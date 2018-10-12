@@ -10,6 +10,7 @@
 #include <opencv/cv.h>
 #include <std_msgs/Header.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <visualization_msgs/Marker.h>
 #include <mcr_perception_msgs/PlaneList.h>
 #include <mas_perception_libs/PlaneFittingConfig.h>
 #include <mas_perception_libs/bounding_box_2d.h>
@@ -45,7 +46,7 @@ cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &
  * @brief TODO(minhnh)
  */
 mcr_perception_msgs::Plane
-planeModelToMsg(const PlaneModel &pModel, const std_msgs::Header &pHeader);
+planeModelToMsg(const PlaneModel &pModel);
 
 /*!
  * @brief TODO(minhnh)
