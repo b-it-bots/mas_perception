@@ -8,13 +8,13 @@ from mas_perception_libs.cfg import PlaneFittingConfig
 
 
 class CloudProcessingTest(object):
-    _extract_planes = None  # type: bool
-    _target_frame = None  # type: str
-    _cloud_sub = None  # type: rospy.Subscriber
-    _processed_cloud_pub = None  # type: rospy.Publisher
-    _plane_segmenter = None  # type: PlaneSegmenter
-    _cloud_filter_param_server = None  # type: ParamServer
-    _tf_listener = None  # type: TransformListener
+    _extract_planes = None              # type: bool
+    _target_frame = None                # type: str
+    _cloud_sub = None                   # type: rospy.Subscriber
+    _processed_cloud_pub = None         # type: rospy.Publisher
+    _plane_segmenter = None             # type: PlaneSegmenter
+    _plane_fitting_param_server = None  # type: ParamServer
+    _tf_listener = None                 # type: TransformListener
 
     def __init__(self, cloud_topic, processed_cloud_topic, target_frame, extract_planes):
         self._extract_planes = extract_planes
@@ -24,7 +24,7 @@ class CloudProcessingTest(object):
 
         self._plane_segmenter = PlaneSegmenter()
 
-        self._cloud_filter_param_server = ParamServer(PlaneFittingConfig, self._plane_fitting_config_cb)
+        self._plane_fitting_param_server = ParamServer(PlaneFittingConfig, self._plane_fitting_config_cb)
         self._tf_listener = TransformListener()
 
     def _cloud_cb(self, cloud_msg):
