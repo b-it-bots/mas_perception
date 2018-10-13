@@ -1,9 +1,12 @@
 import numpy as np
 import cv2
 from cv_bridge import CvBridgeError
+from visualization_msgs.msg import Marker
 
-from mas_perception_libs._cpp_wrapper import _draw_labeled_boxes, _fit_box_to_image, _crop_image
+from mcr_perception_msgs.msg import Plane as PlaneMsg
+from mas_perception_libs._cpp_wrapper import _draw_labeled_boxes, _fit_box_to_image, _crop_image, _plane_msg_to_marker
 from .bounding_box import BoundingBox2DWrapper
+from .ros_message_serialization import from_cpp, to_cpp
 
 
 def draw_labeled_boxes(image, boxes, thickness=2, font_scale=1.0, copy=True):
@@ -111,3 +114,14 @@ def bgr_dict_from_classes(classes):
     bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR).astype(int)
 
     return {class_name: tuple(bgr[0][index]) for index, class_name in enumerate(classes)}
+
+
+def plane_msg_to_marker(plane_msg, namespace):
+    """
+    :type plane_msg: PlaneMsg
+    :type namespace: str
+    :rtype: Marker
+    """
+    serialized_plane = to_cpp(plane_msg)
+    serialized_marker = _plane_msg_to_marker(serialized_plane, namespace)
+    return from_cpp(serialized_marker, Marker)

@@ -106,12 +106,6 @@ private:
         if (mPlaneMarkerPub.getNumSubscribers() == 0)
             return;
         auto planeMarkerPtr = planeMsgToMarkers(planeListPtr->planes[0], "planar_polygon");
-        visualization_msgs::Marker delMarker;
-        delMarker.header.frame_id = planeMarkerPtr->header.frame_id;
-        delMarker.header.stamp = ros::Time::now();
-        delMarker.action = visualization_msgs::Marker::DELETEALL;
-        delMarker.ns = planeMarkerPtr->ns;
-        mPlaneMarkerPub.publish(delMarker);
         mPlaneMarkerPub.publish(*planeMarkerPtr);
     }
 };

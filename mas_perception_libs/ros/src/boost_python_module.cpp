@@ -27,6 +27,7 @@ using BoundingBox = mas_perception_libs::BoundingBox;
 
 namespace mas_perception_libs
 {
+
 class PlaneSegmenterWrapper : PlaneSegmenterROS
 {
 public:
@@ -336,6 +337,15 @@ transformPointCloudWrapper(const std::string &pSerialCloud, PyObject * pTfMatrix
     return to_python(transformedCloud);
 }
 
+/* TODO(minhnh) expose Color and other optional params */
+std::string
+planeMsgToMarkerWrapper(const std::string &pSerialPlane, const std::string &pNamespace)
+{
+    auto plane = from_python<mcr_perception_msgs::Plane>(pSerialPlane);
+    auto markerPtr = planeMsgToMarkers(plane, pNamespace);
+    return to_python(*markerPtr);
+}
+
 }  // namespace mas_perception_libs
 
 BOOST_PYTHON_MODULE(_cpp_wrapper)
@@ -381,4 +391,6 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
     bp::def("_crop_cloud_to_xyz", mas_perception_libs::cropCloudMsgToXYZWrapper);
 
     bp::def("_transform_point_cloud", mas_perception_libs::transformPointCloudWrapper);
+
+    bp::def("_plane_msg_to_marker", mas_perception_libs::planeMsgToMarkerWrapper);
 }

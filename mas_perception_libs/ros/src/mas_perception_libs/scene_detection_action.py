@@ -6,10 +6,12 @@ from dynamic_reconfigure.server import Server as ParamServer
 from actionlib import SimpleActionServer
 from cv_bridge import CvBridge
 from sensor_msgs.msg import PointCloud2
+from visualization_msgs.msg import Marker
 from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, PlaneList, Object
 from mas_perception_libs.cfg import PlaneFittingConfig
 from .image_detector import ImageDetectorBase, SingleImageDetectionHandler
 from .utils import PlaneSegmenter, cloud_msg_to_image_msg, transform_cloud_with_listener, crop_organized_cloud_msg
+from .visualization import plane_msg_to_marker
 
 
 class SceneDetectionActionServer(object):
@@ -39,6 +41,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
     _cloud_topic = None                 # type: str
     _cloud_sub = None                   # type: rospy.Subscriber
     _filtered_cloud_pub = None          # type: rospy.Publisher
+    _plane_marker_pub = None            # type: rospy.Publisher
     _cloud_msg = None                   # type: PointCloud2
     _tf_listener = None                 # type: tf.TransformListener
     _target_frame = None                # type: str
@@ -73,6 +76,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             raise ValueError('no cloud topic specified')
 
         self._filtered_cloud_pub = rospy.Publisher('filtered_cloud', PointCloud2, queue_size=1)
+        self._plane_marker_pub = rospy.Publisher('plane_convex_hull', Marker, queue_size=1)
 
         # TODO(minhnh): target_frame could be the action goal
         self._tf_listener = tf.TransformListener()
@@ -110,6 +114,9 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         plane_list, filtered_cloud = self._plane_segmenter.find_planes(transformed_cloud_msg)
         if self._filtered_cloud_pub.get_num_connections() > 0:
             self._filtered_cloud_pub.publish(filtered_cloud)
+        if self._plane_marker_pub.get_num_connections() > 0 and len(plane_list.planes) > 0:
+            marker = plane_msg_to_marker(plane_list.planes[0], 'plane_convex')
+            self._plane_marker_pub.publish(marker)
 
         rospy.loginfo('creating action result and setting success')
         result = ImageDetectionActionServer._get_action_result(transformed_cloud_msg, plane_list, bounding_boxes,
