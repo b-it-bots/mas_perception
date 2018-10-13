@@ -3,8 +3,10 @@ import glob
 import numpy as np
 import cv2
 import rospy
+import tf
 from cv_bridge import CvBridgeError
 from sensor_msgs.msg import PointCloud2, Image as ImageMsg
+from mcr_perception_msgs.msg import PlaneList
 from mas_perception_libs._cpp_wrapper import PlaneSegmenterWrapper, _cloud_msg_to_cv_image, _cloud_msg_to_image_msg,\
     _crop_organized_cloud_msg, _crop_cloud_to_xyz, _transform_point_cloud
 from .bounding_box import BoundingBox2D
@@ -25,6 +27,18 @@ class PlaneSegmenter(PlaneSegmenterWrapper):
         filtered_serial_cloud = super(PlaneSegmenter, self).filter_cloud(serial_cloud)
         deserialized = from_cpp(filtered_serial_cloud, PointCloud2)
         return deserialized
+
+    def find_planes(self, cloud_msg):
+        """
+        :type cloud_msg: PointCloud2
+        :return: (list of detected planes, filtered cloud message)
+        :rtype: (mcr_perception_msgs.msg.PlaneList, sensor_msgs.msg.PointCloud2)
+        """
+        serial_cloud = to_cpp(cloud_msg)
+        serialized_plane_list, serialized_filtered_cloud = super(PlaneSegmenter, self).find_planes(serial_cloud)
+        plane_list = from_cpp(serialized_plane_list, PlaneList)
+        filtered_cloud = from_cpp(serialized_filtered_cloud, PointCloud2)
+        return plane_list, filtered_cloud
 
     def set_params(self, param_dict):
         """
@@ -152,6 +166,18 @@ def crop_cloud_to_xyz(cloud_msg, bounding_box):
 
     serial_cloud = to_cpp(cloud_msg)
     return _crop_cloud_to_xyz(serial_cloud, bounding_box)
+
+
+def transform_cloud_with_listener(cloud_msg, target_frame, tf_listener):
+    try:
+        common_time = tf_listener.getLatestCommonTime(target_frame, cloud_msg.header.frame_id)
+        cloud_msg.header.stamp = common_time
+        tf_listener.waitForTransform(target_frame, cloud_msg.header.frame_id, cloud_msg.header.stamp, rospy.Duration(1))
+        tf_matrix = tf_listener.asMatrix(target_frame, cloud_msg.header)
+    except(tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        raise RuntimeError('Unable to transform {0} -> {1}'.format(cloud_msg.header.frame_id, target_frame))
+
+    return transform_point_cloud(cloud_msg, tf_matrix, target_frame)
 
 
 def transform_point_cloud(cloud_msg, tf_matrix, target_frame):

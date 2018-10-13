@@ -80,8 +80,8 @@ namespace mas_perception_libs
         }
         for (auto &point : pPlaneModel.mHullPointsPtr->points)
         {
-            pPlaneModel.mCenter.x += point.z;
-            pPlaneModel.mCenter.y += point.z;
+            pPlaneModel.mCenter.x += point.x;
+            pPlaneModel.mCenter.y += point.y;
             pPlaneModel.mCenter.z += point.z;
         }
         pPlaneModel.mCenter.x /= pPlaneModel.mHullPointsPtr->points.size();

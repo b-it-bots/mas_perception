@@ -104,4 +104,4 @@ struct Color
 
 }   // namespace mas_perception_libs
 
-#endif // MAS_PERCEPTION_LIBS_COLOR_H
+#endif  // MAS_PERCEPTION_LIBS_COLOR_H

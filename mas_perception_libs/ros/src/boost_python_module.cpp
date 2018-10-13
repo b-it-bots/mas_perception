@@ -95,6 +95,28 @@ public:
         std::string serializedMsg = to_python(*filteredCloudPtr);
         return serializedMsg;
     }
+
+    bp::tuple
+    findPlanes(const std::string &pSerialCloud)
+    {
+        auto cloudMsg = from_python<sensor_msgs::PointCloud2>(pSerialCloud);
+        sensor_msgs::PointCloud2::Ptr cloudMsgPtr = boost::make_shared<sensor_msgs::PointCloud2>(cloudMsg);
+        // also fit plane
+        auto filteredCloudPtr = boost::make_shared<sensor_msgs::PointCloud2>();
+        mcr_perception_msgs::PlaneList::Ptr planeListPtr;
+        try
+        {
+            planeListPtr = PlaneSegmenterROS::findPlanes(cloudMsgPtr, filteredCloudPtr);
+        }
+        catch (std::runtime_error &ex)
+        {
+            // TODO(minhnh) make actual Python exceptions
+            throw;
+        }
+        std::string serializedFilteredCloud = to_python(*filteredCloudPtr);
+        std::string serializedPlanes = to_python(*planeListPtr);
+        return bp::make_tuple<std::string, std::string>(serializedPlanes, serializedFilteredCloud);
+    }
 };
 
 struct BoundingBox2DWrapper : BoundingBox2D
@@ -332,7 +354,8 @@ BOOST_PYTHON_MODULE(_cpp_wrapper)
 
     bp::class_<PlaneSegmenterWrapper>("PlaneSegmenterWrapper")
             .def("set_params", &PlaneSegmenterWrapper::setParams)
-            .def("filter_cloud", &PlaneSegmenterWrapper::filterCloud);
+            .def("filter_cloud", &PlaneSegmenterWrapper::filterCloud)
+            .def("find_planes", &PlaneSegmenterWrapper::findPlanes);
 
     bp::def("get_crops_and_bounding_boxes_wrapper", mas_perception_libs::getCropsAndBoundingBoxes);
 

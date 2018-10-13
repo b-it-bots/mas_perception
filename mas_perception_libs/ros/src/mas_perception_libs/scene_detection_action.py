@@ -103,6 +103,8 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         self._cloud_msg = cloud_msg
 
     def _transform_cloud(self, cloud_msg):
+        """ TODO(minhnh) change this with transform_cloud_with_listener()
+        """
         try:
             common_time = self._tf_listener.getLatestCommonTime(self._target_frame, cloud_msg.header.frame_id)
             cloud_msg.header.stamp = common_time
