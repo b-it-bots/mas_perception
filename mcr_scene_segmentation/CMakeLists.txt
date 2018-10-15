@@ -118,7 +118,7 @@ install(TARGETS scene_segmentation_node
 )
 
 install(
-	TARGETS
-		mcr_segmentation
+  TARGETS
+    mcr_segmentation
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )

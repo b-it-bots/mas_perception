@@ -3,8 +3,10 @@ import rospy
 from tf import TransformListener
 from dynamic_reconfigure.server import Server as ParamServer
 from sensor_msgs.msg import PointCloud2
+from visualization_msgs.msg import Marker
 from mas_perception_libs.utils import PlaneSegmenter, transform_cloud_with_listener
 from mas_perception_libs.cfg import PlaneFittingConfig
+from mas_perception_libs.visualization import plane_msg_to_marker
 
 
 class CloudProcessingTest(object):
@@ -12,6 +14,7 @@ class CloudProcessingTest(object):
     _target_frame = None                # type: str
     _cloud_sub = None                   # type: rospy.Subscriber
     _processed_cloud_pub = None         # type: rospy.Publisher
+    _plane_marker_pub = None            # type: rospy.Publisher
     _plane_segmenter = None             # type: PlaneSegmenter
     _plane_fitting_param_server = None  # type: ParamServer
     _tf_listener = None                 # type: TransformListener
@@ -21,6 +24,7 @@ class CloudProcessingTest(object):
         self._target_frame = target_frame
         self._cloud_sub = rospy.Subscriber(cloud_topic, PointCloud2, self._cloud_cb)
         self._processed_cloud_pub = rospy.Publisher(processed_cloud_topic, PointCloud2, queue_size=1)
+        self._plane_marker_pub = rospy.Publisher('plane_convex_hull', Marker, queue_size=1)
 
         self._plane_segmenter = PlaneSegmenter()
 
@@ -42,6 +46,9 @@ class CloudProcessingTest(object):
                 rospy.loginfo('plane point: x = %.3f, y = %.3f, z = %.3f; normal: x = %.3f, y = %.3f, z = %.3f'
                               % (plane_point.x, plane_point.y, plane_point.z,
                                  coefficients[0], coefficients[1], coefficients[2]))
+                if self._plane_marker_pub.get_num_connections() > 0:
+                    marker = plane_msg_to_marker(plane_list.planes[0], 'plane_convex')
+                    self._plane_marker_pub.publish(marker)
             else:
                 rospy.logerr('found no plane')
         else:

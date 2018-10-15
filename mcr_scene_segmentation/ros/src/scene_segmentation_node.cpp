@@ -31,7 +31,7 @@
 SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN)),
     cluster_visualizer_("tabletop_clusters"),
-    label_visualizer_("labels", mcr::visualization::Color(mcr::visualization::Color::TEAL)),
+    label_visualizer_("labels", Color(Color::TEAL)),
     add_to_octree_(false), object_id_(0), debug_mode_(false), dataset_collection_(false)
 {
     pub_debug_ = nh_.advertise<sensor_msgs::PointCloud2>("output", 1);

@@ -12,10 +12,11 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <tf/transform_listener.h>
-#include "mcr_scene_segmentation/clustered_point_cloud_visualizer.h"
-#include "mcr_scene_segmentation/bounding_box_visualizer.h"
+#include <mcr_scene_segmentation/scene_segmentation.h>
+#include <mcr_scene_segmentation/clustered_point_cloud_visualizer.h>
+#include <mcr_scene_segmentation/bounding_box_visualizer.h>
 #include <mcr_scene_segmentation/label_visualizer.h>
-#include "mcr_scene_segmentation/cloud_accumulation.h"
+#include <mcr_scene_segmentation/cloud_accumulation.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <mcr_scene_segmentation/SceneSegmentationConfig.h>
@@ -24,7 +25,7 @@
 using mcr::visualization::BoundingBoxVisualizer;
 using mcr::visualization::ClusteredPointCloudVisualizer;
 using mcr::visualization::LabelVisualizer;
-using mcr::visualization::Color;
+using mas_perception_libs::Color;
 
 /**
  * This node subscribes to pointcloud topic.
