@@ -7,36 +7,27 @@
 #ifndef MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_H
 #define MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_H
 
-#include <mcr_scene_segmentation/aliases.h>
 #include <mas_perception_libs/bounding_box.h>
-#include <vector>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/project_inliers.h>
+#include <mas_perception_libs/sac_plane_segmenter.h>
+#include <mas_perception_libs/point_cloud_utils.h>
+#include <mcr_scene_segmentation/aliases.h>
 #include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/features/normal_3d.h>
 #include <pcl/kdtree/kdtree.h>
-#include <pcl/sample_consensus/method_types.h>
-#include <pcl/sample_consensus/model_types.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/surface/convex_hull.h>
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
 #include <pcl/ModelCoefficients.h>
-#include <string>
+#include <vector>
+
+namespace mpl = mas_perception_libs;
 
 class SceneSegmentation
 {
 private:
-    pcl::PassThrough<PointT> pass_through;
-    pcl::VoxelGrid<PointT> voxel_grid;
-    pcl::NormalEstimation<PointT, PointNT> normal_estimation;
-    pcl::SACSegmentationFromNormals<PointT, PointNT> sac;
-    pcl::ProjectInliers<PointT> project_inliers;
-    pcl::ConvexHull<PointT> convex_hull;
     pcl::ExtractPolygonalPrismData<PointT> extract_polygonal_prism;
     pcl::EuclideanClusterExtraction<PointT> cluster_extraction;
     pcl::RadiusOutlierRemoval<PointT> radius_outlier;
+    mpl::CloudFilter cloud_filter;
+    mpl::SacPlaneSegmenter plane_segmenter;
 
 public:
     SceneSegmentation();
@@ -45,14 +36,10 @@ public:
     PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters,
     std::vector<mas_perception_libs::BoundingBox> &boxes, double &workspace_height);
     PointCloud::Ptr findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull,
-                              pcl::ModelCoefficients::Ptr &coefficients, double &workspace_height);
+                              Eigen::Vector4f &coefficients, double &workspace_height);
 
-    void setVoxelGridParams(double leaf_size, const std::string &field_name, double limit_min, double limit_max);
-    void setPassthroughParams(const std::string &field_name, double limit_min, double limit_max);
-    void setNormalParams(double radius_search);
-    void setSACParams(int max_iterations, double distance_threshold, bool optimize_coefficients,
-                      double eps_angle, double normal_distance_weight);
-
+    void setCloudFilterParams(const mpl::CloudFilterParams&);
+    void setPlaneSegmenterParams(const mpl::SacPlaneSegmenterParams&);
     void setPrismParams(double min_height, double max_height);
     void setOutlierParams(double radius_search, int min_neighbors);
     void setClusterParams(double cluster_tolerance, int cluster_min_size, int cluster_max_size,

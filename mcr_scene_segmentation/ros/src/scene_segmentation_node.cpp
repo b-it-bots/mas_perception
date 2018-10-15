@@ -10,8 +10,10 @@
 #include <mcr_perception_msgs/BoundingBoxList.h>
 #include <mcr_perception_msgs/ObjectList.h>
 #include <mcr_perception_msgs/RecognizeObject.h>
-#include "mcr_scene_segmentation/impl/helpers.hpp"
-#include "mas_perception_libs/bounding_box.h"
+#include <mcr_scene_segmentation/impl/helpers.hpp>
+#include <mas_perception_libs/bounding_box.h>
+#include <mas_perception_libs/point_cloud_utils.h>
+#include <mas_perception_libs/sac_plane_segmenter.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_types.h>
@@ -19,7 +21,7 @@
 #include <pcl/common/centroid.h>
 #include <pcl_ros/transforms.h>
 #include <pcl/io/pcd_io.h>
-#include "pcl_ros/point_cloud.h"
+#include <pcl_ros/point_cloud.h>
 
 #include <Eigen/Dense>
 #include <std_msgs/Float64.h>
@@ -27,6 +29,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+
+using mas_perception_libs::CloudFilterParams;
+using mas_perception_libs::SacPlaneSegmenterParams;
 
 SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     bounding_box_visualizer_("bounding_boxes", Color(Color::SEA_GREEN)),
@@ -87,7 +92,7 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
             ros::Duration(1.0).sleep();
             return;
         }
-        PointCloud::Ptr cloud(new PointCloud);
+        PointCloud::Ptr cloud = boost::make_shared<PointCloud>();
         pcl::PCLPointCloud2 pc2;
         pcl_conversions::toPCL(msg_transformed, pc2);
         pcl::fromPCLPointCloud2(pc2, *cloud);
@@ -110,7 +115,7 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
 
 void SceneSegmentationNode::segment()
 {
-    PointCloud::Ptr cloud(new PointCloud);
+    PointCloud::Ptr cloud = boost::make_shared<PointCloud>();
     cloud->header.frame_id = frame_id_;
     cloud_accumulation_->getAccumulatedCloud(*cloud);
 
@@ -214,7 +219,7 @@ void SceneSegmentationNode::segment()
 
         if (dataset_collection_ || debug_mode_)
         {
-            pcl::PointCloud<PointT>::Ptr pointcloud(new pcl::PointCloud<PointT>);
+            PointCloud::Ptr pointcloud = boost::make_shared<PointCloud>();
             pcl::fromROSMsg(ros_cloud, *pointcloud);
             SceneSegmentationNode::savePcd(pointcloud, object_list.objects[i].name);
         }
@@ -244,13 +249,13 @@ void SceneSegmentationNode::savePcd(const PointCloud::ConstPtr &pointcloud, std:
 
 void SceneSegmentationNode::findPlane()
 {
-    PointCloud::Ptr cloud(new PointCloud);
+    PointCloud::Ptr cloud = boost::make_shared<PointCloud>();
     cloud->header.frame_id = frame_id_;
     cloud_accumulation_->getAccumulatedCloud(*cloud);
 
-    double workspace_height;
-    PointCloud::Ptr hull(new PointCloud);
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    double workspace_height = 0.0;
+    PointCloud::Ptr hull;
+    Eigen::Vector4f coefficients;
     PointCloud::Ptr debug = scene_segmentation_.findPlane(cloud, hull, coefficients, workspace_height);
     debug->header.frame_id = cloud->header.frame_id;
     std_msgs::Float64 workspace_height_msg;
@@ -345,15 +350,25 @@ void SceneSegmentationNode::eventCallback(const std_msgs::String::ConstPtr &msg)
 
 void SceneSegmentationNode::configCallback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level)
 {
-    scene_segmentation_.setVoxelGridParams(config.voxel_leaf_size, config.voxel_filter_field_name,
-            config.voxel_filter_limit_min, config.voxel_filter_limit_max);
-    scene_segmentation_.setPassthroughParams(config.passthrough_filter_field_name,
-            config.passthrough_filter_limit_min,
-            config.passthrough_filter_limit_max);
-    scene_segmentation_.setNormalParams(config.normal_radius_search);
-    scene_segmentation_.setSACParams(config.sac_max_iterations, config.sac_distance_threshold,
-            config.sac_optimize_coefficients, config.sac_eps_angle,
-            config.sac_normal_distance_weight);
+    CloudFilterParams cloudFilterParams;
+    cloudFilterParams.mPassThroughLimitMinX = static_cast<float>(config.passthrough_limit_min_x);
+    cloudFilterParams.mPassThroughLimitMaxX = static_cast<float>(config.passthrough_limit_max_x);
+    cloudFilterParams.mPassThroughLimitMinY = static_cast<float>(config.passthrough_limit_min_y);
+    cloudFilterParams.mPassThroughLimitMaxY = static_cast<float>(config.passthrough_limit_max_y);
+    cloudFilterParams.mPassThroughLimitMinZ = static_cast<float>(config.passthrough_limit_min_z);
+    cloudFilterParams.mPassThroughLimitMaxZ = static_cast<float>(config.passthrough_limit_max_z);
+    cloudFilterParams.mVoxelLeafSize = static_cast<float>(config.voxel_leaf_size);
+    scene_segmentation_.setCloudFilterParams(cloudFilterParams);
+
+    SacPlaneSegmenterParams planeFitParams;
+    planeFitParams.mNormalRadiusSearch = config.normal_radius_search;
+    planeFitParams.mSacMaxIterations = config.sac_max_iterations;
+    planeFitParams.mSacDistThreshold = config.sac_distance_threshold;
+    planeFitParams.mSacOptimizeCoeffs = config.sac_optimize_coefficients;
+    planeFitParams.mSacEpsAngle = config.sac_eps_angle;
+    planeFitParams.mSacNormalDistWeight = config.sac_normal_distance_weight;
+    scene_segmentation_.setPlaneSegmenterParams(planeFitParams);
+
     scene_segmentation_.setPrismParams(config.prism_min_height, config.prism_max_height);
     scene_segmentation_.setOutlierParams(config.outlier_radius_search, config.outlier_min_neighbors);
     scene_segmentation_.setClusterParams(config.cluster_tolerance, config.cluster_min_size, config.cluster_max_size,
