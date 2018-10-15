@@ -61,22 +61,33 @@ namespace mas_perception_libs
     void
     CloudFilter::setParams(const mas_perception_libs::CloudFilterParams &pParams)
     {
+        /* pass-through params */
+        mPassThroughFilterX.setFilterFieldName("x");
+        mPassThroughFilterX.setFilterLimits(pParams.mPassThroughLimitMinX, pParams.mPassThroughLimitMaxX);
+        mPassThroughFilterY.setFilterFieldName("y");
+        mPassThroughFilterY.setFilterLimits(pParams.mPassThroughLimitMinY, pParams.mPassThroughLimitMaxY);
+
+        /* filter z-axis using voxel filter instead of making another member */
+        mVoxelGridFilter.setFilterFieldName("z");
+        mVoxelGridFilter.setFilterLimits(pParams.mPassThroughLimitMinZ, pParams.mPassThroughLimitMaxZ);
+
         /* voxel-grid params */
         mVoxelGridFilter.setLeafSize(pParams.mVoxelLeafSize, pParams.mVoxelLeafSize, pParams.mVoxelLeafSize);
-        /* pass-through params */
-        mPassThroughFilter.setFilterFieldName(pParams.mPassThroughFieldName);
-        mPassThroughFilter.setFilterLimits(pParams.mPassThroughLimitMin, pParams.mPassThroughLimitMax);
     }
 
     PointCloud::Ptr
     CloudFilter::filterCloud(const PointCloud::ConstPtr &pCloudPtr)
     {
-        PointCloud::Ptr filteredCloudPtr (new PointCloud);
-        mVoxelGridFilter.setInputCloud(pCloudPtr);
-        mVoxelGridFilter.filter(*filteredCloudPtr);
+        PointCloud::Ptr filteredCloudPtr = boost::make_shared<PointCloud>();
 
-        mPassThroughFilter.setInputCloud(filteredCloudPtr);
-        mPassThroughFilter.filter(*filteredCloudPtr);
+        mPassThroughFilterX.setInputCloud(pCloudPtr);
+        mPassThroughFilterX.filter(*filteredCloudPtr);
+
+        mPassThroughFilterY.setInputCloud(filteredCloudPtr);
+        mPassThroughFilterY.filter(*filteredCloudPtr);
+
+        mVoxelGridFilter.setInputCloud(filteredCloudPtr);
+        mVoxelGridFilter.filter(*filteredCloudPtr);
 
         return filteredCloudPtr;
     }

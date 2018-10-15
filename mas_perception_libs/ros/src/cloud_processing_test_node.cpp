@@ -99,12 +99,14 @@ private:
             ROS_ERROR("found no plane in point cloud");
             return;
         }
-        ROS_INFO("plane height: %.3f, coeffs: (%.3f, %.3f, %.3f)",
-                 planeListPtr->planes[0].plane_point.z, planeListPtr->planes[0].coefficients[0],
-                 planeListPtr->planes[0].coefficients[1], planeListPtr->planes[0].coefficients[2]);
+        auto firstPlane = planeListPtr->planes[0];
+        ROS_INFO("plane center: (%.3f, %.3f, %.3f), normal: (%.3f, %.3f, %.3f)",
+                 firstPlane.plane_point.x, firstPlane.plane_point.y, firstPlane.plane_point.z,
+                 firstPlane.coefficients[0], firstPlane.coefficients[1], firstPlane.coefficients[2]);
 
         if (mPlaneMarkerPub.getNumSubscribers() == 0)
             return;
+
         auto planeMarkerPtr = planeMsgToMarkers(planeListPtr->planes[0], "planar_polygon");
         mPlaneMarkerPub.publish(*planeMarkerPtr);
     }
@@ -143,5 +145,6 @@ int main(int pArgc, char** pArgv)
 
     while (ros::ok())
         ros::spin();
+
     return 0;
 }

@@ -38,21 +38,33 @@ public:
     setParams(const bp::dict & pConfigDict)
     {
         CloudFilterParams cfParams;
+        if (!pConfigDict.contains("passthrough_limit_min_x"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_min_x'");
+        cfParams.mPassThroughLimitMinX = bp::extract<float>(pConfigDict["passthrough_limit_min_x"]);
+
+        if (!pConfigDict.contains("passthrough_limit_max_x"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_max_x'");
+        cfParams.mPassThroughLimitMaxX = bp::extract<float>(pConfigDict["passthrough_limit_max_x"]);
+
+        if (!pConfigDict.contains("passthrough_limit_min_y"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_min_y'");
+        cfParams.mPassThroughLimitMinY = bp::extract<float>(pConfigDict["passthrough_limit_min_y"]);
+
+        if (!pConfigDict.contains("passthrough_limit_max_y"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_max_y'");
+        cfParams.mPassThroughLimitMaxY = bp::extract<float>(pConfigDict["passthrough_limit_max_y"]);
+
+        if (!pConfigDict.contains("passthrough_limit_min_z"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_min_z'");
+        cfParams.mPassThroughLimitMinZ = bp::extract<float>(pConfigDict["passthrough_limit_min_z"]);
+
+        if (!pConfigDict.contains("passthrough_limit_max_z"))
+            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_max_z'");
+        cfParams.mPassThroughLimitMaxZ = bp::extract<float>(pConfigDict["passthrough_limit_max_z"]);
+
         if (!pConfigDict.contains("voxel_leaf_size"))
             throw std::invalid_argument("Python config dict does not contain key 'voxel_leaf_size'");
         cfParams.mVoxelLeafSize = bp::extract<float>(pConfigDict["voxel_leaf_size"]);
-
-        if (!pConfigDict.contains("passthrough_filter_field_name"))
-            throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_field_name'");
-        cfParams.mPassThroughFieldName = bp::extract<std::string>(pConfigDict["passthrough_filter_field_name"]);
-
-        if (!pConfigDict.contains("passthrough_filter_limit_min"))
-            throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_limit_min'");
-        cfParams.mPassThroughLimitMin = bp::extract<float>(pConfigDict["passthrough_filter_limit_min"]);
-
-        if (!pConfigDict.contains("passthrough_filter_limit_max"))
-            throw std::invalid_argument("Python config dict does not contain key 'passthrough_filter_limit_max'");
-        cfParams.mPassThroughLimitMax = bp::extract<float>(pConfigDict["passthrough_filter_limit_max"]);
 
         mCloudFilter.setParams(cfParams);
 

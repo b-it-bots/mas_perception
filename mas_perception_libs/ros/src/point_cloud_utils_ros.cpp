@@ -97,7 +97,7 @@ planeMsgToMarkers(const mcr_perception_msgs::Plane &pPlaneMsg, const std::string
     markerPtr->header.frame_id = pPlaneMsg.header.frame_id;
     markerPtr->scale.x = pThickness;
     markerPtr->scale.y = pThickness;
-    markerPtr->color.a = 1.0;
+    markerPtr->color.a = 2.0;
     markerPtr->ns = pNamespace;
     markerPtr->id = pId;
     markerPtr->color = std_msgs::ColorRGBA(pColor);
@@ -156,10 +156,13 @@ void
 PlaneSegmenterROS::setParams(const PlaneFittingConfig &pConfig)
 {
     CloudFilterParams cloudFilterParams;
+    cloudFilterParams.mPassThroughLimitMinX = static_cast<float>(pConfig.passthrough_limit_min_x);
+    cloudFilterParams.mPassThroughLimitMaxX = static_cast<float>(pConfig.passthrough_limit_max_x);
+    cloudFilterParams.mPassThroughLimitMinY = static_cast<float>(pConfig.passthrough_limit_min_y);
+    cloudFilterParams.mPassThroughLimitMaxY = static_cast<float>(pConfig.passthrough_limit_max_y);
+    cloudFilterParams.mPassThroughLimitMinZ = static_cast<float>(pConfig.passthrough_limit_min_z);
+    cloudFilterParams.mPassThroughLimitMaxZ = static_cast<float>(pConfig.passthrough_limit_max_z);
     cloudFilterParams.mVoxelLeafSize = static_cast<float>(pConfig.voxel_leaf_size);
-    cloudFilterParams.mPassThroughFieldName = pConfig.passthrough_filter_field_name;
-    cloudFilterParams.mPassThroughLimitMin = static_cast<float>(pConfig.passthrough_filter_limit_min);
-    cloudFilterParams.mPassThroughLimitMax = static_cast<float>(pConfig.passthrough_filter_limit_max);
     mCloudFilter.setParams(cloudFilterParams);
 
     SacPlaneSegmenterParams planeFitParams;
