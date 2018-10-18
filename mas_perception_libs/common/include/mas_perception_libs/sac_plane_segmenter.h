@@ -10,6 +10,7 @@
 #ifndef MAS_PERCEPTION_LIBS_SAC_PLANE_SEGMENTER_H
 #define MAS_PERCEPTION_LIBS_SAC_PLANE_SEGMENTER_H
 
+#include <mas_perception_libs/aliases.h>
 #include <pcl/ModelCoefficients.h>
 #include <pcl/filters/project_inliers.h>
 #include <pcl/features/normal_3d.h>
@@ -17,7 +18,6 @@
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/surface/convex_hull.h>
-#include <mas_perception_libs/aliases.h>
 
 namespace mas_perception_libs
 {
@@ -48,7 +48,8 @@ public:
     const pcl::PCLHeader mHeader;
     PointCloud::Ptr mHullPointsPtr;
     PointT mCenter;
-    float mPlaneHeight = 0.0f;
+    Eigen::Vector2f mRangeX;
+    Eigen::Vector2f mRangeY;
 };
 
 /*!

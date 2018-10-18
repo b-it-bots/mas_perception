@@ -13,6 +13,10 @@ geometry_msgs/Point32[] convex_hull
 # Plane center point, average of convex hull
 geometry_msgs/Point32 plane_point
 
+# Range of x, y coordinates
+float32[2] range_x
+float32[2] range_y
+
 ########################
 # Plane name
 string name

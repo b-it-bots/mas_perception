@@ -6,14 +6,6 @@
  * @brief File contains C++ definitions that are made available in Python using the Boost Python library.
  *        Detailed descriptions of parameters are in the Python source files
  */
-#include <vector>
-#include <string>
-#include <boost/python.hpp>
-#include <numpy/arrayobject.h>
-#include <Eigen/Core>
-#include <opencv2/core/eigen.hpp>
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl_ros/transforms.h>
 #include <mas_perception_libs/use_numpy.h>
 #include <mas_perception_libs/impl/pyboostcvconverter.hpp>
 #include <mas_perception_libs/impl/ros_message_serialization.hpp>
@@ -21,6 +13,13 @@
 #include <mas_perception_libs/image_bounding_box.h>
 #include <mas_perception_libs/bounding_box_2d.h>
 #include <mas_perception_libs/point_cloud_utils_ros.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <opencv2/core/eigen.hpp>
+#include <pcl_ros/transforms.h>
+#include <boost/python.hpp>
+#include <Eigen/Core>
+#include <vector>
+#include <string>
 
 namespace bp = boost::python;
 using BoundingBox = mas_perception_libs::BoundingBox;

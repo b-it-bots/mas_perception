@@ -100,8 +100,9 @@ private:
             return;
         }
         auto firstPlane = planeListPtr->planes[0];
-        ROS_INFO("plane center: (%.3f, %.3f, %.3f), normal: (%.3f, %.3f, %.3f)",
+        ROS_INFO("plane center: (%.3f, %.3f, %.3f), limits: x~(%.3f, %.3f), y~(%.3f, %.3f), normal: (%.3f, %.3f, %.3f)",
                  firstPlane.plane_point.x, firstPlane.plane_point.y, firstPlane.plane_point.z,
+                 firstPlane.range_x[0], firstPlane.range_x[1], firstPlane.range_y[0], firstPlane.range_y[1],
                  firstPlane.coefficients[0], firstPlane.coefficients[1], firstPlane.coefficients[2]);
 
         if (mPlaneMarkerPub.getNumSubscribers() == 0)

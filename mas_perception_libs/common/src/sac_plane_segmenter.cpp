@@ -7,18 +7,19 @@
  *
  * @brief File contains definitions for extracting a plane from a point cloud
  */
+#include <mas_perception_libs/sac_plane_segmenter.h>
 #include <pcl/filters/project_inliers.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
-
-#include <mas_perception_libs/sac_plane_segmenter.h>
+#include <limits>
 
 namespace mas_perception_libs
 {
     PlaneModel::PlaneModel(pcl::ModelCoefficients::Ptr pPlaneCoeffsPtr)
     : mCoefficients(pPlaneCoeffsPtr->values[0], pPlaneCoeffsPtr->values[1],
                     pPlaneCoeffsPtr->values[2], pPlaneCoeffsPtr->values[3]),
-      mHeader(pPlaneCoeffsPtr->header)
+      mHeader(pPlaneCoeffsPtr->header), mRangeX(std::numeric_limits<float>::max(), std::numeric_limits<float>::min()),
+      mRangeY(std::numeric_limits<float>::max(), std::numeric_limits<float>::min())
     {
         mHullPointsPtr = boost::make_shared<PointCloud>();
     }
@@ -81,9 +82,24 @@ namespace mas_perception_libs
         for (auto &point : pPlaneModel.mHullPointsPtr->points)
         {
             pPlaneModel.mCenter.x += point.x;
+
+            // find range of x coordinates of hull points
+            if (point.x < pPlaneModel.mRangeX[0])
+                pPlaneModel.mRangeX[0] = point.x;
+            if (point.x > pPlaneModel.mRangeX[1])
+                pPlaneModel.mRangeX[1] = point.x;
+
             pPlaneModel.mCenter.y += point.y;
+
+            // find range of y coordinates of hull points
+            if (point.y < pPlaneModel.mRangeY[0])
+                pPlaneModel.mRangeY[0] = point.y;
+            if (point.y > pPlaneModel.mRangeY[1])
+                pPlaneModel.mRangeY[1] = point.y;
+
             pPlaneModel.mCenter.z += point.z;
         }
+        // calculate the plane's mean (x, y, z) coordinates
         pPlaneModel.mCenter.x /= pPlaneModel.mHullPointsPtr->points.size();
         pPlaneModel.mCenter.y /= pPlaneModel.mHullPointsPtr->points.size();
         pPlaneModel.mCenter.z /= pPlaneModel.mHullPointsPtr->points.size();

@@ -135,11 +135,6 @@ planeModelToMsg(const PlaneModel &pModel)
     planeMsgPtr->coefficients[2] = pModel.mCoefficients[2];
     planeMsgPtr->coefficients[3] = pModel.mCoefficients[3];
 
-    // plane center point
-    planeMsgPtr->plane_point.x = pModel.mCenter.x;
-    planeMsgPtr->plane_point.y = pModel.mCenter.y;
-    planeMsgPtr->plane_point.z = pModel.mCenter.z;
-
     // convex hull points
     for (auto& hullPoint : pModel.mHullPointsPtr->points)
     {
@@ -149,6 +144,17 @@ planeModelToMsg(const PlaneModel &pModel)
         hullPointMsg.z = hullPoint.z;
         planeMsgPtr->convex_hull.push_back(hullPointMsg);
     }
+
+    // plane center point
+    planeMsgPtr->plane_point.x = pModel.mCenter.x;
+    planeMsgPtr->plane_point.y = pModel.mCenter.y;
+    planeMsgPtr->plane_point.z = pModel.mCenter.z;
+
+    // plane x, y coordinate ranges
+    planeMsgPtr->range_x[0] = pModel.mRangeX[0];
+    planeMsgPtr->range_x[1] = pModel.mRangeX[1];
+    planeMsgPtr->range_y[0] = pModel.mRangeY[0];
+    planeMsgPtr->range_y[1] = pModel.mRangeY[1];
     return planeMsgPtr;
 }
 
