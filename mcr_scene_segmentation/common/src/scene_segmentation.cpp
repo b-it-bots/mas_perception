@@ -14,10 +14,9 @@ using mas_perception_libs::BoundingBox;
 SceneSegmentation::SceneSegmentation()
 {
     cluster_extraction.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT> >());
-    //TODO(minhnh) normal_estimation.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT> >());
 }
 
-SceneSegmentation::~SceneSegmentation() { };
+SceneSegmentation::~SceneSegmentation() = default;
 
 PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &cloud,
         std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height)
@@ -37,9 +36,8 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
     cluster_extraction.setIndices(segmented_cloud_inliers);
     cluster_extraction.extract(clusters_indices);
 
-    for (size_t i = 0; i < clusters_indices.size(); i++)
+    for (const auto &cluster_indices : clusters_indices)
     {
-        const pcl::PointIndices& cluster_indices = clusters_indices[i];
         PointCloud::Ptr cluster = boost::make_shared<PointCloud>();
         pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
         clusters.push_back(cluster);

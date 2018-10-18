@@ -62,7 +62,7 @@ void ClusteredPointCloudVisualizer::publish(const std::vector<typename pcl::Poin
             pt.x = point.x;
             pt.y = point.y;
             pt.z = point.z;
-            pt.rgb = float(Color(static_cast<Color>(color)));
+            pt.rgb = float(Color(static_cast<Color::Name>(color)));
             composite.points.push_back(pt);
         }
         color++;

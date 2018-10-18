@@ -65,9 +65,7 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     nh_.param<std::string>("logdir", logdir_, "/tmp/");
 }
 
-SceneSegmentationNode::~SceneSegmentationNode()
-{
-}
+SceneSegmentationNode::~SceneSegmentationNode() = default;
 
 void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg)
 {
@@ -208,7 +206,7 @@ void SceneSegmentationNode::segment()
         {
             object_list.objects[i].pose = pose;
         }
-        //publish cluster, will be used for object_list_merger
+        // publish cluster, will be used for object_list_merger
         object_list.objects[i].pointcloud = ros_cloud;
 
         poses.poses.push_back(object_list.objects[i].pose.pose);
@@ -232,9 +230,9 @@ void SceneSegmentationNode::segment()
 
 void SceneSegmentationNode::savePcd(const PointCloud::ConstPtr &pointcloud, std::string obj_name)
 {
-    std::stringstream filename; // stringstream used for the conversion
-    unsigned long int sec = time(NULL);
-    filename.str(""); //clearing the stringstream
+    std::stringstream filename;     // stringstream used for the conversion
+    auto sec = static_cast<int64_t>(time(nullptr));
+    filename.str("");   // clearing the stringstream
     if (debug_mode_)
     {
         filename << logdir_ << obj_name << "_" << sec <<".pcd";
@@ -244,7 +242,7 @@ void SceneSegmentationNode::savePcd(const PointCloud::ConstPtr &pointcloud, std:
         filename << logdir_ <<"pcd_" << sec <<".pcd";
     }
     ROS_INFO_STREAM("Saving pointcloud to " << logdir_);
-    pcl::io::savePCDFileASCII (filename.str(), *pointcloud);
+    pcl::io::savePCDFileASCII(filename.str(), *pointcloud);
 }
 
 void SceneSegmentationNode::findPlane()

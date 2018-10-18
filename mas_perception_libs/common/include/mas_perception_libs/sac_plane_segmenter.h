@@ -60,7 +60,9 @@ class SacPlaneSegmenter
 {
 public:
     SacPlaneSegmenter() : mSacModel(pcl::SACMODEL_NORMAL_PARALLEL_PLANE), mPlaneAxis(0.0f, 0.0f, 1.0f)
-    { }
+    {
+        mNormalEstimation.setSearchMethod(boost::make_shared<pcl::search::KdTree<PointT> >());
+    }
 
     /*! @brief set parameters of the SAC algorithm */
     void setParams(const SacPlaneSegmenterParams &pPlaneParams);
