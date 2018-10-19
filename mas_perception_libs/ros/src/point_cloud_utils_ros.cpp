@@ -151,10 +151,10 @@ planeModelToMsg(const PlaneModel &pModel)
     planeMsgPtr->plane_point.z = pModel.mCenter.z;
 
     // plane x, y coordinate ranges
-    planeMsgPtr->range_x[0] = pModel.mRangeX[0];
-    planeMsgPtr->range_x[1] = pModel.mRangeX[1];
-    planeMsgPtr->range_y[0] = pModel.mRangeY[0];
-    planeMsgPtr->range_y[1] = pModel.mRangeY[1];
+    planeMsgPtr->limits.min_x = pModel.mRangeX[0];
+    planeMsgPtr->limits.max_x = pModel.mRangeX[1];
+    planeMsgPtr->limits.min_y = pModel.mRangeY[0];
+    planeMsgPtr->limits.max_y = pModel.mRangeY[1];
     return planeMsgPtr;
 }
 
