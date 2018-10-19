@@ -24,6 +24,7 @@ add_message_files(
   FILES
     BoundingBox.msg
     BoundingBoxList.msg
+    BoundingBox2D.msg
     Cavity.msg
     Face.msg
     FaceList.msg
