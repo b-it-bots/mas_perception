@@ -9,6 +9,7 @@ from sensor_msgs.msg import PointCloud2
 from visualization_msgs.msg import Marker
 from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, PlaneList, Object
 from mas_perception_libs.cfg import PlaneFittingConfig
+from .bounding_box import BoundingBox
 from .image_detector import ImageDetectorBase, SingleImageDetectionHandler
 from .utils import PlaneSegmenter, cloud_msg_to_image_msg, transform_cloud_with_listener, crop_organized_cloud_msg
 from .visualization import plane_msg_to_marker
@@ -32,6 +33,24 @@ class SceneDetectionActionServer(object):
     @abstractmethod
     def _execute_cb(self, goal):
         pass
+
+    @staticmethod
+    def is_object_on_plane(plane_msg, obj_box_msg, z_tolerance=0.05):
+        """
+        :param z_tolerance: how much can an object be above the plane (meter)
+        :type plane_msg: mcr_perception_msgs.msg.Plane
+        :type obj_box_msg: mcr_perception_msgs.msg.BoundingBox
+        :rtype: bool
+        """
+        obj_plane_z_diff = obj_box_msg.center.z - obj_box_msg.dimensions.z / 2 - plane_msg.plane_point.z
+        if obj_box_msg.center.z < plane_msg.plane_point.z or obj_plane_z_diff > z_tolerance:
+            return False
+        # assuming positive x is far away from the robot TODO(minhnh): may not work for Jenny
+        if obj_box_msg.center.x > plane_msg.limits.max_x:
+            return False
+        if obj_box_msg.center.y < plane_msg.limits.min_y or obj_box_msg.center.y > plane_msg.limits.max_y:
+            return False
+        return True
 
 
 class ImageDetectionActionServer(SceneDetectionActionServer):
@@ -144,12 +163,28 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         result = DetectSceneResult()
         plane = plane_list.planes[0]
         for index, box in enumerate(bounding_boxes):
+            # check if object in on plane
+            cropped_cloud = crop_organized_cloud_msg(cloud_msg, box)
+            normal = [plane.coefficients[0], plane.coefficients[1], plane.coefficients[2]]
+            box_3d = BoundingBox(cropped_cloud, normal)
+            box_msg = box_3d.get_ros_message()
+
+            if not SceneDetectionActionServer.is_object_on_plane(plane, box_msg):
+                rospy.logdebug("skipping object '%s', position (%.3f, %.3f, %.3f)"
+                               % (classes[index], box_msg.center.x, box_msg.center.y, box_msg.center.z))
+                continue
+
+            rospy.loginfo("adding object '%s', position (%.3f, %.3f, %.3f)"
+                           % (classes[index], box_msg.center.x, box_msg.center.y, box_msg.center.z))
+            # fill object fields
             detected_obj = Object()
             detected_obj.name = classes[index]
             detected_obj.probability = confidences[index]
-            cropped_cloud = crop_organized_cloud_msg(cloud_msg, box)
             detected_obj.pointcloud = cropped_cloud
             detected_obj.rgb_image = cloud_msg_to_image_msg(cropped_cloud)
+            detected_obj.pose = box_3d.get_pose()
+            detected_obj.bounding_box = box_msg
+
             plane.object_list.objects.append(detected_obj)
         result.planes.append(plane)
         return result
