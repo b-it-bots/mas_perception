@@ -37,15 +37,15 @@ cropOrganizedCloud(const PointCloud &pCloud, BoundingBox2D &pBox);
  */
 struct CloudFilterParams
 {
-    /* TODO(minhnh) describe fields */
-    /* PassThrough filter parameters */
+    /* PassThrough filter parameters
+     * limit the cloud to be filtered points outside of these x, y, z ranges will be discarded */
     float mPassThroughLimitMinX = 0.0f;
     float mPassThroughLimitMaxX = 0.0f;
     float mPassThroughLimitMinY = 0.0f;
     float mPassThroughLimitMaxY = 0.0f;
     float mPassThroughLimitMinZ = 0.0f;
     float mPassThroughLimitMaxZ = 0.0f;
-    /* VoxelGrid filter parameters */
+    /* VoxelGrid filter parameters for down-sampling the cloud */
     float mVoxelLeafSize = 0.0f;
 };
 
@@ -62,7 +62,7 @@ public:
     setParams(const CloudFilterParams& pParams);
 
     /*!
-    * @brief filter point cloud
+    * @brief filter point cloud using passthrough and voxel filters
     */
     PointCloud::Ptr
     filterCloud(const PointCloud::ConstPtr &pCloudPtr);

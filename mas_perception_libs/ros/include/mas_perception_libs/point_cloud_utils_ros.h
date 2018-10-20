@@ -45,32 +45,54 @@ cropOrganizedCloudMsg(const sensor_msgs::PointCloud2 &pCloudMsg, BoundingBox2D &
                       sensor_msgs::PointCloud2& pCroppedCloudMsg);
 
 /*!
- * @brief TODO(minhnh)
+ * @brief creates a visualization marker for the plane convex hull
+ * @param pPlaneMsg: plane message to visualize
+ * @param pNamespace: marker namespace
+ * @param pColor: marker color
+ * @param pThickness: marker thickness in Rviz (meter)
+ * @param pId: marker ID
+ * @return: visualization marker of the plane's convex hull
  */
 visualization_msgs::Marker::Ptr
 planeMsgToMarkers(const mcr_perception_msgs::Plane &pPlaneMsg, const std::string &pNamespace,
                   Color pColor = Color(Color::TEAL), float pThickness = 0.005, int pId = 1);
 
 /*!
- * @brief TODO(minhnh)
+ * @brief converts PlaneModel object to a plane message
  */
 mcr_perception_msgs::Plane::Ptr
 planeModelToMsg(const PlaneModel &pModel);
 
 /*!
- * @brief TODO(minhnh)
+ * @brief combines plane segmentation and cloud filtering and allow configuration using dynamic reconfigure
  */
 class PlaneSegmenterROS
 {
 public:
     PlaneSegmenterROS() = default;
 
+    /*!
+     * @brief use dynamic reconfigure params in PlaneFittingConfig to configure parameters of CloudFilter and
+     * SacPlaneSegmenter objects
+     */
     virtual void
     setParams(const PlaneFittingConfig &pConfig);
 
+    /*!
+     * @brief only run cloud filtering
+     * @param pCloudPtr: (in) pointer to cloud to be filtered
+     * @return: point to filtered cloud
+     */
     virtual sensor_msgs::PointCloud2::Ptr
     filterCloud(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr);
 
+    /*!
+     * @brief perform cloud filtering and fitting multiple planes
+     *        TODO(minhnh): fitting multiple planes is not implemented
+     * @param pCloudPtr: (in) pointer to cloud to be processed
+     * @param pFilteredCloudMsg: (out) pointer to filtered cloud
+     * @return pointer to a list of detected planes
+     */
     virtual mcr_perception_msgs::PlaneList::Ptr
     findPlanes(const sensor_msgs::PointCloud2::ConstPtr &pCloudPtr, sensor_msgs::PointCloud2::Ptr &pFilteredCloudMsg);
 

@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 import os
+import numpy as np
 import rospy
 import tf
 from dynamic_reconfigure.server import Server as ParamServer
@@ -9,9 +10,10 @@ from sensor_msgs.msg import PointCloud2
 from visualization_msgs.msg import Marker
 from mcr_perception_msgs.msg import DetectSceneAction, DetectSceneResult, PlaneList, Object
 from mas_perception_libs.cfg import PlaneFittingConfig
-from .bounding_box import BoundingBox
+from .bounding_box import BoundingBox, BoundingBox2D
 from .image_detector import ImageDetectorBase, SingleImageDetectionHandler
-from .utils import PlaneSegmenter, cloud_msg_to_image_msg, transform_cloud_with_listener, crop_organized_cloud_msg
+from .utils import PlaneSegmenter, cloud_msg_to_image_msg, transform_cloud_with_listener,\
+    crop_organized_cloud_msg, crop_cloud_to_xyz
 from .visualization import plane_msg_to_marker
 
 
@@ -130,7 +132,12 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             return
 
         rospy.loginfo('fitting planes')
-        plane_list, filtered_cloud = self._plane_segmenter.find_planes(transformed_cloud_msg)
+        try:
+            plane_list, filtered_cloud = self._plane_segmenter.find_planes(transformed_cloud_msg)
+        except RuntimeError as e:
+            self._action_server.set_aborted(text=e.message)
+            return
+
         if self._filtered_cloud_pub.get_num_connections() > 0:
             self._filtered_cloud_pub.publish(filtered_cloud)
         if self._plane_marker_pub.get_num_connections() > 0 and len(plane_list.planes) > 0:
@@ -163,19 +170,27 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         result = DetectSceneResult()
         plane = plane_list.planes[0]
         for index, box in enumerate(bounding_boxes):
+            # TODO(minhnh): BoundingBox code returns bad positions and dimensions
             # check if object in on plane
             cropped_cloud = crop_organized_cloud_msg(cloud_msg, box)
             normal = [plane.coefficients[0], plane.coefficients[1], plane.coefficients[2]]
             box_3d = BoundingBox(cropped_cloud, normal)
             box_msg = box_3d.get_ros_message()
 
+            obj_coords = crop_cloud_to_xyz(cropped_cloud, BoundingBox2D(box_geometry=(0, 0, cropped_cloud.width,
+                                                                                      cropped_cloud.height)))
+            obj_coords = np.reshape(obj_coords, (-1, 3))
+            min_coord = np.nanmin(obj_coords, axis=0)
+            box_msg.center.x = min_coord[0]
+
             if not SceneDetectionActionServer.is_object_on_plane(plane, box_msg):
-                rospy.logdebug("skipping object '%s', position (%.3f, %.3f, %.3f)"
-                               % (classes[index], box_msg.center.x, box_msg.center.y, box_msg.center.z))
+                rospy.loginfo("skipping object '%s', position (%.3f, %.3f, %.3f)"
+                              % (classes[index], box_msg.center.x, box_msg.center.y, box_msg.center.z))
                 continue
 
-            rospy.loginfo("adding object '%s', position (%.3f, %.3f, %.3f)"
-                           % (classes[index], box_msg.center.x, box_msg.center.y, box_msg.center.z))
+            rospy.loginfo("adding object '%s', position (%.3f, %.3f, %.3f), dimensions (%.3f, %.3f, %.3f)"
+                          % (classes[index], box_msg.center.x, box_msg.center.y, box_msg.center.z,
+                             box_msg.dimensions.x, box_msg.dimensions.y, box_msg.dimensions.z))
             # fill object fields
             detected_obj = Object()
             detected_obj.name = classes[index]
@@ -183,6 +198,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             detected_obj.pointcloud = cropped_cloud
             detected_obj.rgb_image = cloud_msg_to_image_msg(cropped_cloud)
             detected_obj.pose = box_3d.get_pose()
+            detected_obj.pose.pose.position = box_msg.center
             detected_obj.bounding_box = box_msg
 
             plane.object_list.objects.append(detected_obj)
