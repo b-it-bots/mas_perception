@@ -72,18 +72,6 @@ class ObjectDetector(object):
             plane.name = plane_frame
             plane_index += 1
 
-            # make bounding boxes
-            normal = [plane.coefficients[0], plane.coefficients[1], plane.coefficients[2]]
-            for detected_obj in plane.object_list.objects:
-                bounding_box = BoundingBox(detected_obj.pointcloud, normal)
-                obj_pose = bounding_box.get_pose()
-                bounding_box_msg = bounding_box.get_ros_message()
-                if target_frame:
-                    bounding_box_msg, obj_pose = self._transform_object(bounding_box_msg, obj_pose, target_frame)
-
-                detected_obj.pose = obj_pose
-                detected_obj.bounding_box = bounding_box_msg
-
             rospy.loginfo('found plane "{0}", height {1} in frame_id {2}, with {3} objects'
                           .format(plane_frame, plane.plane_point.z, plane.header.frame_id,
                                   len(plane.object_list.objects)))

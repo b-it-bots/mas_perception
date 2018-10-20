@@ -184,7 +184,7 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             box_msg.center.x = min_coord[0]
 
             if not SceneDetectionActionServer.is_object_on_plane(plane, box_msg):
-                rospy.loginfo("skipping object '%s', position (%.3f, %.3f, %.3f)"
+                rospy.logdebug("skipping object '%s', position (%.3f, %.3f, %.3f)"
                               % (classes[index], box_msg.center.x, box_msg.center.y, box_msg.center.z))
                 continue
 
