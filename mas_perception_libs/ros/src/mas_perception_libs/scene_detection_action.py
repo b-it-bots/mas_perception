@@ -205,8 +205,10 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             detected_obj.probability = confidences[index]
             detected_obj.pointcloud = cropped_cloud
             detected_obj.rgb_image = cloud_msg_to_image_msg(cropped_cloud)
+            detected_obj.pose.header = plane.header
             detected_obj.pose.pose.position = box_msg.center
             detected_obj.pose.pose.position.x = min_coord[0]
+            detected_obj.pose.pose.orientation.w = 1.0
 
             plane.object_list.objects.append(detected_obj)
         result.planes.append(plane)
