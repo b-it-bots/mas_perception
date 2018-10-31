@@ -19,6 +19,19 @@ Boost Python port of `BoundingBox`. Python interface described in
 * [`bounding_box_wrapper.h`](../ros/include/mas_perception_libs/bounding_box_wrapper.h)
 * [`bounding_box_wrapper.cpp`](../ros/src/bounding_box_wrapper.cpp)
 
+### `SacPlaneSegmenter`
+Utilize PCL sample consensus (SAC) algorithm for plane fitting. Defined in:
+* [`sac_plane_segmenter.h`](../common/include/mas_perception_libs/sac_plane_segmenter.h)
+
+### `CloudFilter`
+Utilize PCL pass-through and voxel filter algorithms for downsampling pointclouds.
+* [`point_cloud_utils.h`](../common/include/mas_perception_libs/point_cloud_utils.h)
+
+### `PlaneSegmenterROS`
+ROS interface for both `CloudFilter` and `PlaneSegmenterROS` for segmenting plane(s) from `sensor_msgs/PointCLoud2`
+messages. Defined in:
+* [`point_cloud_utils_ros.h`](../ros/include/mas_perception_libs/point_cloud_utils_ros.h)
+
 ## Utilities
 
 ### ROS message serialization
@@ -40,8 +53,12 @@ Boost conversion between NumPy array, seen in C++ code as `PyObject *`, and `cv:
 * Functions to fit bounding boxes to image sizes are defined in:
     - [`bounding_box_2d.cpp`](../common/src/bounding_box_2d.cpp)
     - [`bounding_box_2d.h`](../common/include/mas_perception_libs/bounding_box_2d.h)
+* Function to create a `visualization_msgs/Marker` message of the plane's convex hull from a
+  `mcr_perception_msgs/Plane.msg` message. Defined in:
+    - [`point_cloud_utils_ros.h`](../ros/include/mas_perception_libs/point_cloud_utils_ros.h)
+    - [`point_cloud_utils_ros.cpp`](../ros/src/point_cloud_utils_ros.cpp)
 
 ### Point cloud utilites
 Functions to crop point clouds or to extract images and coordinates from point clouds are defined in:
-* [`point_cloud_utils.h`](../ros/include/mas_perception_libs/point_cloud_utils.h)
-* [`point_cloud_utils.cpp`](../ros/src/point_cloud_utils.cpp)
+* [`point_cloud_utils_ros.h`](../ros/include/mas_perception_libs/point_cloud_utils_ros.h)
+* [`point_cloud_utils_ros.cpp`](../ros/src/point_cloud_utils_ros.cpp)

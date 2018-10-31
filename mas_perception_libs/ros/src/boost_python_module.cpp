@@ -31,7 +31,8 @@ class PlaneSegmenterWrapper : PlaneSegmenterROS
 {
 public:
     /*!
-     * @brief TODO(minhnh)
+     * @brief wrapper for exposing in Python a function to set PlaneFitting dynamic reconfiguration values for the
+     *        SacPlaneSegmenter and CloudFilter objects
      */
     void
     setParams(const bp::dict & pConfigDict)
@@ -96,7 +97,7 @@ public:
     }
 
     /*!
-     * @brief TODO(minhnh)
+     * @brief wrapper to expose in Python a function to filter point clouds using the passthrough and voxel filters
      */
     std::string
     filterCloud(const std::string &pSerialCloud)
@@ -108,6 +109,9 @@ public:
         return serializedMsg;
     }
 
+    /*!
+     * @brief wrapper to expose in Python a function to fit plane(s) from point clouds
+     */
     bp::tuple
     findPlanes(const std::string &pSerialCloud)
     {

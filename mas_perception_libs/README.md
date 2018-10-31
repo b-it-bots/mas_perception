@@ -31,6 +31,7 @@ additional parameters needed to configure the detection model. An example is
 [`image_detector_test_kwargs.yml`](models/image_detector_test_kwargs.yml).
 * `detection_module`: name of the module containing the `ImageDetectorBase` extension to import.
 * `detection_class`: name of the extension of the `ImageDetectorBase` class to import.
+* also parameters defined in the dynamic reconfiguration file [PlaneFitting.cfg](ros/config/PlaneFitting.cfg).
 
 ### [`image_detection_test`](ros/scripts/image_detection_test)
 Node for testing image detection models. Can test images from a directory, a `sensor_msgs/Image` topic, or a
@@ -91,6 +92,24 @@ Example execution:
 image_recognition_client_test -s <service_name> -t <folder_with_test_images> <model_name>
 ```
 
+### [`cloud_processing_python_test`](ros/scripts/cloud_processing_python_test)
+Script for testing `PlaneSegmenter` (see [Python documentation](docs/python_package.md)), including handling of the
+dynamic reconfiguration defined in [PlaneFitting.cfg](ros/config/PlaneFitting.cfg). Parameters:
+* `cloud_topic` (`string`): input point cloud topic
+* `processed_cloud_topic` (`string`): topic on which the filtered cloud will be published
+* `target_frame` (`string`): coordinate frame that the point cloud will be transformed to.
+* `extract_planes`(`bool`): if `false` will only do cloud filtering
+* parameters defined in [PlaneFitting.cfg](ros/config/PlaneFitting.cfg)
+
+### [`cloud_processing_cpp_test`](ros/src/cloud_processing_test_node.cpp)
+C++ executable testing `PlaneSegmenterROS` (see [C++ documentation](docs/cpp_library.md)), including handling of the
+dynamic reconfiguration defined in [PlaneFitting.cfg](ros/config/PlaneFitting.cfg). Parameters:
+* `cloud_topic` (`string`): input point cloud topic
+* `processed_cloud_topic` (`string`): topic on which the filtered cloud will be published
+* `target_frame` (`string`): coordinate frame that the point cloud will be transformed to.
+* `extract_planes`(`bool`): if `false` will only do cloud filtering
+* parameters defined in [PlaneFitting.cfg](ros/config/PlaneFitting.cfg)
+
 ## Launch Files
 
 ### [`image_detection.launch`](ros/launch/image_detection.launch)
@@ -124,6 +143,18 @@ Launch the `image_recognition_server`. Arguments:
 * `recognition_class`: class name of the `ImageClassifier` instance
 (default: `'ImageClassifierTest'`)
 
+### [`cloud_processing_python_test.launch`](ros/launch/cloud_processing_python_test.launch)
+Launch the [`cloud_processing_python_test`](ros/scripts/cloud_processing_python_test) executable. Arguments are similar
+to ones for the executable, with an additional `plane_fitting_config_file` in which the default values for the dynamic
+reconfiguration [PlaneFitting.cfg](ros/config/PlaneFitting.cfg). Default file is
+[`plane_fitting_default_configs.yaml`](ros/config/plane_fitting_default_configs.yaml).
+
+### [`cloud_processing_cpp_test.launch`](ros/launch/cloud_processing_cpp_test.launch)
+Launch the [`cloud_processing_cpp_test`](ros/src/cloud_processing_test_node.cpp) executable. Arguments are similar
+to ones for the executable, with an additional `plane_fitting_config_file` in which the default values for the dynamic
+reconfiguration [PlaneFitting.cfg](ros/config/PlaneFitting.cfg). Default file is
+[`plane_fitting_default_configs.yaml`](ros/config/plane_fitting_default_configs.yaml).
+
 ## Directory structure
 
 ```
@@ -137,14 +168,19 @@ Launch the `image_recognition_server`. Arguments:
 │   │       ├── bounding_box.h
 │   │       ├── impl
 │   │       │   └── pyboostcvconverter.hpp
+│   │       ├── point_cloud_utils.h
+│   │       ├── sac_plane_segmenter.h
 │   │       └── use_numpy.h
 │   └── src
 │       ├── bounding_box_2d.cpp
 │       ├── bounding_box.cpp
 │       ├── init_numpy_api.cpp
-│       └── pyboost_cv3_converter.cpp
+│       ├── point_cloud_utils.cpp
+│       ├── pyboost_cv3_converter.cpp
+│       └── sac_plane_segmenter.cpp
 ├── docs
 │   ├── cpp_library.md
+│   ├── image_detection_class_structure.png
 │   └── python_package.md
 ├── models
 │   ├── class_annotation_example.yml
@@ -153,18 +189,25 @@ Launch the `image_recognition_server`. Arguments:
 ├── package.xml
 ├── README.md
 ├── ros
+│   ├── config
+│   │   ├── PlaneFitting.cfg
+│   │   └── plane_fitting_default_configs.yaml
 │   ├── include
 │   │   └── mas_perception_libs
 │   │       ├── bounding_box_wrapper.h
+│   │       ├── color.h
 │   │       ├── image_bounding_box.h
 │   │       ├── impl
 │   │       │   └── ros_message_serialization.hpp
-│   │       └── point_cloud_utils.h
+│   │       └── point_cloud_utils_ros.h
 │   ├── launch
+│   │   ├── cloud_processing_cpp_test.launch
+│   │   ├── cloud_processing_python_test.launch
 │   │   ├── image_detection.launch
 │   │   ├── image_detection_test.launch
 │   │   └── image_recognition.launch
 │   ├── scripts
+│   │   ├── cloud_processing_python_test
 │   │   ├── image_detection_action_server
 │   │   ├── image_detection_test
 │   │   ├── image_recognition_client_test
@@ -172,6 +215,7 @@ Launch the `image_recognition_server`. Arguments:
 │   └── src
 │       ├── boost_python_module.cpp
 │       ├── bounding_box_wrapper.cpp
+│       ├── cloud_processing_test_node.cpp
 │       ├── image_bounding_box.cpp
 │       ├── mas_perception_libs
 │       │   ├── bounding_box.py
@@ -185,6 +229,6 @@ Launch the `image_recognition_server`. Arguments:
 │       │   ├── scene_detection_action.py
 │       │   ├── utils.py
 │       │   └── visualization.py
-│       └── point_cloud_utils.cpp
+│       └── point_cloud_utils_ros.cpp
 └── setup.py
 ```
