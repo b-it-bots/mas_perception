@@ -16,6 +16,11 @@
 // single symbol for PyArrayAPI
 #define PY_ARRAY_UNIQUE_SYMBOL Unique_PyArray_API
 
+// check deprecated API
+#ifndef NPY_NO_DEPRECATED_API
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#endif
+
 // this macro must be defined for the translation unit
 #ifndef INIT_NUMPY_ARRAY_CPP
 #define NO_IMPORT_ARRAY     // for usual translation units

@@ -12,5 +12,6 @@
 
 typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
+typedef pcl::PointCloud<pcl::PointNormal> PointCloudNormal;
 
 #endif  // MAS_PERCEPTION_LIBS_ALIASES_H

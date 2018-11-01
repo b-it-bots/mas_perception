@@ -92,7 +92,7 @@ class needs to implement:
 
 ### `ImageDetectionActionServer`
 An extension of `SceneDetectionActionServer` which uses `SingleImageDetectionHandler` and `ImageDetectorBase` for detecting
-from an image extracted from a `sensor_msgs/PointCloud2` message, then calculating the detected objects' poses.
+from an image extracted from a `sensor_msgs/PointCloud2` message, while also fitting planes in the clouds.
 
 ## [`utils.py`](../ros/src/mas_perception_libs/utils.py)
 * `get_classes_in_data_dir`: Returns a list of strings as class names for a directory. This directory structure
@@ -116,6 +116,8 @@ if specified.
 `sensor_msgs/PointCloud2` message.
 * `transform_point_cloud`: transform a `sensor_msgs/PointCloud2` cloud using a transformation matrix, calling the PCL
 function in C++ code.
+* `PlaneSegmenter`: Python wrapper of C++ class `PlaneSegmenterROS` (see [C++ documentation](cpp_library.md)) for
+fitting planes in `sensor_msgs/PointCloud2` messages.
 
 ## [`visualization.py`](../ros/src/mas_perception_libs/visualization.py)
 

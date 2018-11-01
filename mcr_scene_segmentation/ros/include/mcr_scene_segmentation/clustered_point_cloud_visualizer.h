@@ -14,7 +14,7 @@
 
 #include <pcl/point_cloud.h>
 
-#include <mcr_scene_segmentation/color.h>
+#include <mas_perception_libs/color.h>
 
 namespace mcr
 {

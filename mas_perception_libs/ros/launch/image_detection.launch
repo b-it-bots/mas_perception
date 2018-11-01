@@ -7,8 +7,11 @@
     <arg name="kwargs_file" default="$(find mas_perception_libs)/models/image_detector_test_kwargs.yml" />
     <arg name="detection_module" default="mas_perception_libs" />
     <arg name="detection_class" default="ImageDetectorTest" />
+    <arg name="plane_fitting_config_file"
+         default="$(find mas_perception_libs)/ros/config/plane_fitting_default_configs.yaml" />
 
     <node pkg="mas_perception_libs" type="image_detection_action_server" name="image_detection_server" output="screen">
+        <rosparam file="$(arg plane_fitting_config_file)" command="load"/>
         <param name="action_name" type="string" value="$(arg action_name)" />
         <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
         <param name="target_frame" type="string" value="$(arg target_frame)" />

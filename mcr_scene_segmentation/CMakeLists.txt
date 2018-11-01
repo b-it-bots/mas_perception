@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_scene_segmentation)
 
+add_compile_options(-std=c++11)
+
 find_package(catkin REQUIRED
   COMPONENTS
     cv_bridge
@@ -118,7 +120,7 @@ install(TARGETS scene_segmentation_node
 )
 
 install(
-	TARGETS
-		mcr_segmentation
+  TARGETS
+    mcr_segmentation
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )

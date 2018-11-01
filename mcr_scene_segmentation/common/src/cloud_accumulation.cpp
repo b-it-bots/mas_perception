@@ -24,7 +24,7 @@ void CloudAccumulation::addCloud(const PointCloud::ConstPtr& cloud)
 void CloudAccumulation::getAccumulatedCloud(PointCloud& cloud)
 {
     octree_->getOccupiedVoxelCentersWithColor(cloud.points);
-    cloud.width = cloud.points.size();
+    cloud.width = static_cast<uint32_t>(cloud.points.size());
     cloud.height = 1;
 }
 

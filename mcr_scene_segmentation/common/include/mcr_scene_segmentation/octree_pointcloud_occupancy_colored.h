@@ -31,13 +31,13 @@ public:
     {
     }
 
-    virtual ~OctreePointCloudOccupancyColored() { }
+    virtual ~OctreePointCloudOccupancyColored() = default;
 
     void setOccupiedVoxelAtPoint(const PointT& point)
     {
         OctreeKey key;
-        adoptBoundingBoxToPoint(point);
-        genOctreeKeyforPoint(point, key);
+        this->adoptBoundingBoxToPoint(point);
+        this->genOctreeKeyforPoint(point, key);
         OctreeContainerPointIndex* leaf = this->createLeaf(key);
         leaf->addPointIndex(point.rgba);
     }
@@ -54,7 +54,7 @@ public:
         uint32_t color = 0;
         OctreeContainerPointIndex* leaf = this->findLeafAtPoint(point);
         if (leaf)
-            color = leaf->getPointIndex();
+            color = static_cast<uint32_t>(leaf->getPointIndex());
         return color;
     }
 

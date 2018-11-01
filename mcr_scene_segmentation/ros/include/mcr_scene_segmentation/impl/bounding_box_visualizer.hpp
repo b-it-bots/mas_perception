@@ -1,7 +1,11 @@
 #ifndef BOUNDING_BOX_VISUALIZER_HPP
 #define BOUNDING_BOX_VISUALIZER_HPP
 
+#include <ros/node_handle.h>
 #include <visualization_msgs/Marker.h>
+#include <mas_perception_libs/color.h>
+
+using mas_perception_libs::Color;
 
 namespace mcr
 {
@@ -9,7 +13,7 @@ namespace mcr
 namespace visualization
 {
 
-BoundingBoxVisualizer::BoundingBoxVisualizer(ros::NodeHandle  *nh, const std::string& topic_name, Color color, bool check_subscribers)
+BoundingBoxVisualizer::BoundingBoxVisualizer(ros::NodeHandle *nh, const std::string& topic_name, Color color, bool check_subscribers)
     : color_(color)
     , check_subscribers_(check_subscribers)
 {
@@ -46,7 +50,7 @@ void BoundingBoxVisualizer::publish(const std::vector<mcr_perception_msgs::Bound
     lines.action = visualization_msgs::Marker::ADD;
     lines.scale.x = 0.001;
     lines.scale.y = 0.001;
-    lines.color = color_;
+    lines.color = std_msgs::ColorRGBA(color_);
     lines.ns = "bounding_boxes";
     lines.id = 1;
 
