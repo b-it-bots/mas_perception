@@ -11,7 +11,7 @@
 #include <mcr_perception_msgs/ObjectList.h>
 #include <mcr_perception_msgs/RecognizeObject.h>
 #include "mcr_scene_segmentation/impl/helpers.hpp"
-#include "mcr_scene_segmentation/bounding_box.h"
+#include "mas_perception_libs/bounding_box.h"
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_types.h>
@@ -105,7 +105,7 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
         add_to_octree_ = false;
         event_out.data = "e_add_cloud_stopped";
         pub_event_out_.publish(event_out);
-    }  
+    }
 }
 
 void SceneSegmentationNode::segment()
@@ -205,7 +205,7 @@ void SceneSegmentationNode::segment()
         }
         //publish cluster, will be used for object_list_merger
         object_list.objects[i].pointcloud = ros_cloud;
-        
+
         poses.poses.push_back(object_list.objects[i].pose.pose);
         poses.header = object_list.objects[i].pose.header;
 

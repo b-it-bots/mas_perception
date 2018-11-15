@@ -80,8 +80,8 @@ class SceneSegmentationNode
         double octree_resolution_;
         double object_height_above_workspace_;
         bool dataset_collection_;
-        bool debug_mode_;       
-        std::string logdir_; 
+        bool debug_mode_;
+        std::string logdir_;
 
     private:
         void pointcloudCallback(const sensor_msgs::PointCloud2::Ptr &msg);
@@ -89,8 +89,8 @@ class SceneSegmentationNode
         void configCallback(mcr_scene_segmentation::SceneSegmentationConfig &config, uint32_t level);
         void segment();
         void findPlane();
+        geometry_msgs::PoseStamped getPose(const mas_perception_libs::BoundingBox &box);
         void savePcd(const PointCloud::ConstPtr &cloud, std::string obj_name);
-        geometry_msgs::PoseStamped getPose(const BoundingBox &box);
 
     public:
         SceneSegmentationNode();

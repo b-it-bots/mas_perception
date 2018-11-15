@@ -13,7 +13,7 @@
       <param name="target_frame_id" value="$(arg target_frame)" type="str" />
       <param name="debug_mode" value="false" />
       <param name="dataset_collection" value="false" />
-      <param name="logdir" value="/tmp/" /> 
+      <param name="logdir" value="/tmp/" />
     </node>
   </group>
 

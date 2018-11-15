@@ -1,0 +1,10 @@
+version: '2'
+services:
+  travis:
+    build:
+      dockerfile: .travis/Dockerfile
+      context: .
+    image: bitbots/bitbots-perception:${TRAVIS_COMMIT}
+  perception:
+    build: .
+    image: bitbots/bitbots-perception:kinetic

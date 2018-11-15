@@ -4,13 +4,14 @@
  * Author: Sergey Alexandrov
  *
  */
-#ifndef MCR_SCENE_SEGMENTATION_BOUNDING_BOX_H
-#define MCR_SCENE_SEGMENTATION_BOUNDING_BOX_H
+#ifndef MAS_PERCEPTION_LIBS_BOUNDING_BOX_H
+#define MAS_PERCEPTION_LIBS_BOUNDING_BOX_H
 
 #include <vector>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <mcr_scene_segmentation/aliases.h>
+#include <mas_perception_libs/aliases.h>
+
+namespace mas_perception_libs
+{
 
 class BoundingBox
 {
@@ -56,4 +57,6 @@ private:
     Eigen::Vector3f dimensions_;
 };
 
-#endif  // MCR_SCENE_SEGMENTATION_BOUNDING_BOX_H
+}  // namespace mas_perception_libs
+
+#endif  // MAS_PERCEPTION_LIBS_BOUNDING_BOX_H
