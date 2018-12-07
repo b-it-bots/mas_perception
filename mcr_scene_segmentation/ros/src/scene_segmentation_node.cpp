@@ -73,7 +73,6 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
 {
     if (add_to_octree_)
     {
-        ros::Time start_time = ros::Time::now();
         std::string target_frame_id;
         nh_.param<std::string>("target_frame_id", target_frame_id, "base_link");
         sensor_msgs::PointCloud2 msg_transformed;
@@ -103,9 +102,6 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
         frame_id_ = msg_transformed.header.frame_id;
         
         ros::Time end_time = ros::Time::now();
-        
-        ROS_INFO_STREAM("OCTREE construction time " << end_time - start_time);
-
 
         if (dataset_collection_)
         {
@@ -121,8 +117,6 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
 
 void SceneSegmentationNode::segment()
 {
-    ros::Time start_time = ros::Time::now();
-
     PointCloud::Ptr cloud(new PointCloud);
     cloud->header.frame_id = frame_id_;
     cloud_accumulation_->getAccumulatedCloud(*cloud);
@@ -238,7 +232,6 @@ void SceneSegmentationNode::segment()
     label_visualizer_.publish(labels, poses);
 
     ros::Time end_time = ros::Time::now();
-    ROS_INFO_STREAM("SEGMENTATION time " << end_time - start_time);
 }
 
 void SceneSegmentationNode::savePcd(const PointCloud::ConstPtr &pointcloud, std::string obj_name)
