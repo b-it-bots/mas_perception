@@ -16,9 +16,6 @@ int32 database_id
 # Probability 
 float32 probability
 
-# Camera probability for each object
-float32 camera_confidence
-
 # Extracted RGB image of the image
 sensor_msgs/Image rgb_image
 
