@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_scene_segmentation)
 
+# Compile as C++11 for ROS Kinetic and newer
+add_compile_options(-std=c++11
+  -O3
+  -march=native
+)
+
 find_package(catkin REQUIRED
   COMPONENTS
     cv_bridge
