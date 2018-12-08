@@ -3,7 +3,6 @@ import tf
 from actionlib import SimpleActionClient
 from geometry_msgs.msg import PointStamped
 from mcr_perception_msgs.msg import PlaneList, DetectSceneGoal, DetectSceneAction
-from .bounding_box import BoundingBox
 
 
 class ObjectDetector(object):
@@ -12,18 +11,18 @@ class ObjectDetector(object):
     """
     _detection_client = None    # type: SimpleActionClient
     _plane_list = PlaneList()   # type: PlaneList
-    _timeout = None             # type: int
+    _timeout = None             # type: rospy.Duration
 
     def __init__(self, detection_action_name, timeout=20):
         """
         :param detection_action_name: name of action server
         :param timeout: maximum to wait for the action to start or process the goal
         """
-        self._timeout = timeout
+        self._timeout = rospy.Duration(timeout)
         self._detection_client = SimpleActionClient(detection_action_name, DetectSceneAction)
-        if not self._detection_client.wait_for_server(timeout=rospy.Duration(self._timeout)):
-            raise RuntimeError('failed to wait for detection action server after {0} seconds: {1}'
-                               .format(self._timeout, detection_action_name))
+        if not self._detection_client.wait_for_server(timeout=self._timeout):
+            raise RuntimeError('failed to wait for detection action after {0} seconds: {1}'
+                               .format(self._timeout.secs, detection_action_name))
 
         self._tf_listener = tf.TransformListener()
 
@@ -31,23 +30,32 @@ class ObjectDetector(object):
         """
         Detect and process objects
 
-        :param plane_frame_prefix: str to prepend to plane name
+        :param plane_frame_prefix: string to prepend to plane name
+        :type  plane_frame_prefix: str
         :param done_callback: function to execute at the end of this method before returning
+        :type  done_callback: types.FunctionType
         :param target_frame: frame to transform object poses to
+        :type  target_frame: str
         :param group_planes: if True group planes close to each other into a single one containing all the objects
-        :return: None
+        :type  group_planes: bool
+        :rtype: bool
         """
         goal = DetectSceneGoal()
         self._detection_client.send_goal(goal)
-        if not self._detection_client.wait_for_result(rospy.Duration(self._timeout)):
-            rospy.logwarn('action server did not respond after {0} seconds, returning'.format(self._timeout))
-            return
+        if not self._detection_client.wait_for_result(self._timeout):
+            rospy.logwarn('detection action did not respond after {0} seconds, returning'.format(self._timeout.secs))
+            return False
 
-        self._plane_list.planes = self._detection_client.get_result().planes
+        result = self._detection_client.get_result()
+        if result is None or len(result.planes) == 0:
+            rospy.logerr('detection action return None or empty result')
+            return False
+
+        self._plane_list.planes = result.planes
 
         # transform if target_frame is specified (i.e. not None or empty string)
         if target_frame:
-            rospy.loginfo('will transform objects and plane to target frame: ' + str(target_frame))
+            rospy.loginfo('will transform objects and plane to target frame: ' + target_frame)
             for plane in self._plane_list.planes:
                 if plane.header.frame_id == target_frame:
                     continue
@@ -77,7 +85,7 @@ class ObjectDetector(object):
                                   len(plane.object_list.objects)))
 
         done_callback()
-        return
+        return True
 
     def _transform_plane(self, plane_point, target_frame):
         """

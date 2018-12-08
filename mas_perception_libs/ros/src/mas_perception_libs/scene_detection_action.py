@@ -20,11 +20,14 @@ from .visualization import plane_msg_to_marker
 class SceneDetectionActionServer(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, action_name, **kwargs):
+    _timeout = None     # type: float
+
+    def __init__(self, action_name, timeout=10., **kwargs):
         rospy.loginfo('broadcasting action server: ' + action_name)
         # won't use default auto_start=True as recommended here: https://github.com/ros/actionlib/pull/60
         self._action_server = SimpleActionServer(action_name, DetectSceneAction,
                                                  execute_cb=self._execute_cb, auto_start=False)
+        self._timeout = timeout         # in seconds
         self._initialize(**kwargs)
         self._action_server.start()
 
@@ -60,10 +63,8 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
     _plane_segmenter = None             # type: PlaneSegmenter
     _plane_fitting_param_server = None  # type: ParamServer
     _cloud_topic = None                 # type: str
-    _cloud_sub = None                   # type: rospy.Subscriber
     _filtered_cloud_pub = None          # type: rospy.Publisher
     _plane_marker_pub = None            # type: rospy.Publisher
-    _cloud_msg = None                   # type: PointCloud2
     _tf_listener = None                 # type: tf.TransformListener
     _target_frame = None                # type: str
     _cv_bridge = None                   # type: CvBridge
@@ -105,16 +106,17 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         rospy.loginfo('will transform all poses to frame: ' + self._target_frame)
 
     def _execute_cb(self, _):
-        # subscribe and wait for cloud message TODO(minhnh) add timeout
-        self._cloud_sub = rospy.Subscriber(self._cloud_topic, PointCloud2, self._cloud_callback)
-        while self._cloud_msg is None:
-            continue
-
-        # stop subscribing to cloud topic to avoid overhead
-        self._cloud_sub.unregister()
-        # reset class field for next goal request
-        cloud_msg = self._cloud_msg
-        self._cloud_msg = None
+        # subscribe and wait for cloud message
+        try:
+            cloud_msg = rospy.wait_for_message(self._cloud_topic, PointCloud2, timeout=self._timeout)
+        except rospy.ROSInterruptException:
+            # shutdown event interrupts waiting for point cloud
+            raise
+        except rospy.ROSException:
+            rospy.logwarn('timeout waiting for cloud topic "{0}" after "{1}" seconds'
+                          .format(self._cloud_topic, self._timeout))
+            self._action_server.set_aborted()
+            return
 
         rospy.loginfo('detecting objects')
         img_msg = cloud_msg_to_image_msg(cloud_msg)
@@ -132,9 +134,11 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
             return
 
         rospy.loginfo('fitting planes')
+        # TODO(minhnh) set default plane to be surface around an object lowest point if no plane found
         try:
             plane_list, filtered_cloud = self._plane_segmenter.find_planes(transformed_cloud_msg)
         except RuntimeError as e:
+            rospy.logerr('error fitting planes: ' + e.message)
             self._action_server.set_aborted(text=e.message)
             return
 
@@ -148,9 +152,6 @@ class ImageDetectionActionServer(SceneDetectionActionServer):
         result = ImageDetectionActionServer._get_action_result(transformed_cloud_msg, plane_list, bounding_boxes,
                                                                classes, confidences)
         self._action_server.set_succeeded(result)
-
-    def _cloud_callback(self, cloud_msg):
-        self._cloud_msg = cloud_msg
 
     def _plane_fitting_config_cb(self, config, _):
         self._plane_segmenter.set_params(config)
