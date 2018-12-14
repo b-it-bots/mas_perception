@@ -1,13 +1,13 @@
 from importlib import import_module
 import rospy
-from mcr_perception_msgs.srv import ImageRecognition, ImageRecognitionRequest
+from mcr_perception_msgs.srv import RecognizeImage, RecognizeImageRequest
 
 
 class ImageRecognitionServiceProxy(object):
     def __init__(self, service_name, model_name,  preprocess_input_module=None):
         rospy.wait_for_service(service_name, timeout=5.0)
         try:
-            self._recog_proxy = rospy.ServiceProxy(service_name, ImageRecognition)
+            self._recog_proxy = rospy.ServiceProxy(service_name, RecognizeImage)
         except rospy.ServiceException as e:
             rospy.logerr('failed to get proxy for service ' + e.message)
             raise
@@ -19,7 +19,7 @@ class ImageRecognitionServiceProxy(object):
             self._preprocess_input_func = getattr(import_module(preprocess_input_module), 'preprocess_input')
 
     def classify_image_messages(self, image_messages, done_callback_func=None):
-        request = ImageRecognitionRequest()
+        request = RecognizeImageRequest()
         request.images = image_messages
         request.model_name = self._model_name
         response = self._recog_proxy(request)
