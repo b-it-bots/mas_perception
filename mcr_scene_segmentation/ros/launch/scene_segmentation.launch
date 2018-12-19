@@ -14,6 +14,7 @@
       <param name="debug_mode" value="false" />
       <param name="dataset_collection" value="false" />
       <param name="logdir" value="/tmp/" />
+      <param name="object_recognizer_service_name" value="/mcr_perception/object_recognizer/recognize_object" />
     </node>
   </group>
 

@@ -62,6 +62,7 @@ class SceneSegmentationNode
         ros::Subscriber sub_event_in_;
 
         ros::ServiceClient recognize_service;
+        std::string object_recognizer_service_name_;
 
         dynamic_reconfigure::Server<mcr_scene_segmentation::SceneSegmentationConfig> server_;
 
