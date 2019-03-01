@@ -1,6 +1,6 @@
 The current model is trained with sklearn version 0.14.1.
 
-### How to use
+# How to train a model
 ## Install sklearn
 
 Run:
@@ -21,7 +21,7 @@ git clone git@github.com:b-it-bots/python-pcl.git
 Go inside the python-pcl folder and run the following:
 sudo python setup.py install
 
-## Getting the classifier
+## Training a classifier
 
 Find the train_classifier.py file inside your catkin workspace:
 
