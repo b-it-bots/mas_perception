@@ -5,7 +5,7 @@ The current model is trained with sklearn version 0.14.1.
 
 Run:
 ```sh
-pip install sklearn
+sudo pip install sklearn
 ```
 ## Install Cython
 
