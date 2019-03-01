@@ -1,0 +1,4 @@
+sensor_msgs/Image image             # image to be segmented
+---
+sensor_msgs/Image segmented_image   # segmented image in binary
+uint32[] indices                    # indices of object on the image
