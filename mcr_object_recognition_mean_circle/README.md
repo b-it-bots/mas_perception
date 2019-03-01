@@ -24,9 +24,9 @@ sudo python setup.py install
 ## Training a classifier
 
 Find the train_classifier.py file inside your catkin workspace:
-
+'''
 /home/*user*/*catkin_workspace_name*/src/mas_perception/mcr_object_recognition_mean_circle/ros/tools/train_classifier.py
-
+'''
 And run it with the given parameters:
 
 python train_classifier.py --dataset *add path to the training folder here*
