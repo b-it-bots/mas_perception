@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="action_name" default="/mas_perception/detect_image"/>
+    <arg name="cloud_topic" default="" />
+    <arg name="target_frame" default="/base_link" />
+    <arg name="class_annotations" default="$(find mas_perception_libs)/models/class_annotation_example.yml" />
+    <arg name="kwargs_file" default="$(find mas_perception_libs)/models/image_detector_test_kwargs.yml" />
+    <arg name="detection_module" default="mas_perception_libs" />
+    <arg name="detection_class" default="ImageDetectorTest" />
+    <arg name="plane_fitting_config_file"
+         default="$(find mas_perception_libs)/ros/config/plane_fitting_default_configs.yaml" />
+
+    <node pkg="mas_perception_libs" type="image_detection_action_server" name="image_detection_server" output="screen">
+        <rosparam file="$(arg plane_fitting_config_file)" command="load"/>
+        <param name="action_name" type="string" value="$(arg action_name)" />
+        <param name="cloud_topic" type="string" value="$(arg cloud_topic)" />
+        <param name="target_frame" type="string" value="$(arg target_frame)" />
+        <param name="class_annotations" type="string" value="$(arg class_annotations)" />
+        <param name="kwargs_file" type="string" value="$(arg kwargs_file)" />
+        <param name="detection_module" type="string" value="$(arg detection_module)" />
+        <param name="detection_class" type="string" value="$(arg detection_class)" />
+    </node>
+</launch>

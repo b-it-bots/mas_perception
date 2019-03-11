@@ -1,0 +1,3 @@
+# example kwargs arguments for ImageDetectorTest constructor
+min_box_ratio: 0.2
+max_num_detection: 7

@@ -1,12 +1,20 @@
 import os
 from abc import ABCMeta, abstractmethod
-from utils import get_classes_in_data_dir
+import numpy as np
+from cv_bridge import CvBridge
+from utils import get_classes_in_data_dir, process_image_message
 
 
 class ImageClassifier(object):
+    """
+    Abstract class for different models of image classifier
+    """
     __metaclass__ = ABCMeta
 
+    _classes = None     # type: list
+
     def __init__(self, **kwargs):
+        # read information on classes, either directly, via a file, or from a data directory
         self._classes = kwargs.get('classes', None)
 
         if self._classes is None:
@@ -25,10 +33,23 @@ class ImageClassifier(object):
 
     @property
     def classes(self):
+        """
+        list of strings containing class names TODO(minhnh): make this dictionary from predicted class to class name
+        """
         return self._classes
 
     @abstractmethod
     def classify(self, image_messages):
+        """
+        method to be implemented by extensions TODO(minhnh) refactor preprocessing to base class
+
+        :param image_messages: list of sensor_msgs/Image messages
+        :return: (indices, predicted_classes, confidences), where:
+                 - indices: image indices of the input list, track for which images the predictions are
+                 - predicted_classes: predicted class names
+                 - confidences: prediction confidences
+        :rtype: tuple
+        """
         pass
 
     @staticmethod
@@ -44,6 +65,9 @@ class ImageClassifier(object):
 
 
 class ImageClassifierTest(ImageClassifier):
+    """
+    Extension of ImageClassifier for testing, return random classes
+    """
     def __init__(self, **kwargs):
         super(ImageClassifierTest, self).__init__(**kwargs)
 
@@ -53,3 +77,62 @@ class ImageClassifierTest(ImageClassifier):
         classes = [self.classes[random.randint(0, len(self.classes) - 1)] for _ in indices]
         probabilities = [random.random() for _ in indices]
         return indices, classes, probabilities
+
+
+class KerasImageClassifier(ImageClassifier):
+    """
+    Extension of ImageClassifier for models implemented using Keras
+    """
+    def __init__(self, **kwargs):
+        from keras.models import Model, load_model
+
+        super(KerasImageClassifier, self).__init__(**kwargs)
+
+        self._model = kwargs.get('model', None)
+        model_path = kwargs.get('model_path', None)
+        if self._model is None:
+            if model_path is not None:
+                self._model = load_model(model_path)
+                # see https://github.com/keras-team/keras/issues/6462
+                self._model._make_predict_function()
+            else:
+                raise ValueError('No model object or path passed received')
+
+        if not isinstance(self._model, Model):
+            raise ValueError('model is not a Keras Model object')
+
+        if len(self._classes) != self._model.output_shape[-1]:
+            raise ValueError('number of classes ({0}) does not match model output shape ({1})'
+                             .format(len(self._classes), self._model.output_shape[-1]))
+
+        self._img_preprocess_func = kwargs.get('img_preprocess_func', None)
+
+        # assume input shape is 3D with channel dimension to be 3
+        self._target_size = tuple(i for i in self._model.input_shape if i != 3 and i is not None)
+
+        # CvBridge for ROS image conversion
+        self._cv_bridge = CvBridge()
+
+    def classify(self, image_messages):
+        if len(image_messages) == 0:
+            return [], [], []
+
+        np_images = [process_image_message(msg, self._cv_bridge, self._target_size, self._img_preprocess_func)
+                     for msg in image_messages]
+
+        image_array = []
+        indices = []
+        for i in range(len(np_images)):
+            if np_images[i] is None:
+                continue
+
+            image_array.append(np_images[i])
+            indices.append(i)
+
+        image_array = np.array(image_array)
+        preds = self._model.predict(image_array)
+        class_indices = np.argmax(preds, axis=1)
+        confidences = np.max(preds, axis=1)
+        predicted_classes = [self._classes[i] for i in class_indices]
+
+        return indices, predicted_classes, confidences

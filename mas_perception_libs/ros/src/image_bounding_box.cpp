@@ -9,6 +9,7 @@
 #include <stdexcept>
 
 #include <tf/transform_listener.h>
+#include <mas_perception_libs/bounding_box_2d.h>
 #include <mas_perception_libs/image_bounding_box.h>
 
 namespace mas_perception_libs
@@ -82,7 +83,7 @@ ImageBoundingBox::ImageBoundingBox(const sensor_msgs::Image &pImageMsg,
             imageVertices.push_back(uv);
         }
 
-        cv::Mat croppedImage = cropImage(mImagePtr->image, imageVertices);
+        cv::Mat croppedImage = cropImage(mImagePtr->image, imageVertices, 5);
 
         cv_bridge::CvImage image_msg;
         image_msg.encoding = sensor_msgs::image_encodings::BGR8;
@@ -96,40 +97,24 @@ ImageBoundingBox::ImageBoundingBox(const sensor_msgs::Image &pImageMsg,
 
 ImageBoundingBox::~ImageBoundingBox() = default;
 
-cv::Mat
-cropImage(cv::Mat &image, std::vector<cv::Point2f> &vertices)
+sensor_msgs::ImagePtr
+drawLabeledBoxesImgMsg(const sensor_msgs::Image& pImageMsg, std::vector<BoundingBox2D> pBoxes,
+                       int pThickness, double pFontScale)
 {
-    cv::Rect roi_rectangle = cv::boundingRect(cv::Mat(vertices));
-    // expand rectangle a bit
-    // (move top left by 5x5 pixels, and increase size by 10 x 10)
-    roi_rectangle -= cv::Point(5, 5);
-    roi_rectangle += cv::Size(10, 10);
-    cv::Rect image_rect(0, 0, image.cols, image.rows);
-
-    // check if roi is contained within image
-    if (!((roi_rectangle & image_rect) == roi_rectangle))
+    cv_bridge::CvImagePtr cvImagePtr;
+    try
     {
-        if (roi_rectangle.x < 0)
-        {
-            roi_rectangle.x = 0;
-        }
-        if (roi_rectangle.y < 0)
-        {
-            roi_rectangle.y = 0;
-        }
-        if (roi_rectangle.x + roi_rectangle.width >= image.cols)
-        {
-            roi_rectangle.width = image.cols - roi_rectangle.x - 1;
-        }
-        if (roi_rectangle.y + roi_rectangle.height >= image.rows)
-        {
-            roi_rectangle.height = image.cols - roi_rectangle.y - 1;
-        }
+        cvImagePtr = cv_bridge::toCvCopy(pImageMsg, sensor_msgs::image_encodings::BGR8);
+    }
+    catch (cv_bridge::Exception& e)
+    {
+        ROS_ERROR("error converting message to CV image %s", e.what());
+        throw;
     }
 
-    cv::Mat cropped_image(image, roi_rectangle);
+    drawLabeledBoxes(cvImagePtr->image, pBoxes, pThickness, pFontScale);
 
-    return cropped_image;
+    return cvImagePtr->toImageMsg();
 }
 
 }  // namespace mas_perception_libs

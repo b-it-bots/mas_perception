@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp_serialization
   rospy
   roslint
+  dynamic_reconfigure
   cv_bridge
   image_geometry
   pcl_ros
@@ -21,6 +22,10 @@ find_package(PythonLibs 2.7 REQUIRED)
 find_package(OpenCV REQUIRED)
 
 catkin_python_setup()
+
+generate_dynamic_reconfigure_options(
+  ros/config/PlaneFitting.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -49,10 +54,13 @@ include_directories(
 
 ###################################
 # add mas_perception_libs library
-###################################
 add_library(mas_perception_libs
   common/src/bounding_box.cpp
+  common/src/bounding_box_2d.cpp
+  common/src/point_cloud_utils.cpp
+  common/src/sac_plane_segmenter.cpp
   ros/src/image_bounding_box.cpp
+  ros/src/point_cloud_utils_ros.cpp
 )
 target_link_libraries(mas_perception_libs
   ${catkin_LIBRARIES}
@@ -61,8 +69,9 @@ target_link_libraries(mas_perception_libs
 
 ###################################
 # python wrapper for cpp libraries
-###################################
 add_library(_cpp_wrapper SHARED
+  common/src/init_numpy_api.cpp
+  common/src/pyboost_cv3_converter.cpp
   ros/src/bounding_box_wrapper.cpp
   ros/src/boost_python_module.cpp
 )
@@ -76,6 +85,21 @@ target_link_libraries(_cpp_wrapper
   mas_perception_libs
   ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+)
+
+###################################
+# Node for testing plane segmentation
+add_executable(cloud_processing_cpp_test
+  ros/src/cloud_processing_test_node.cpp
+)
+add_dependencies(cloud_processing_cpp_test
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencfg
+)
+target_link_libraries(cloud_processing_cpp_test
+  mas_perception_libs
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )
@@ -119,7 +143,14 @@ install(TARGETS _cpp_wrapper
 
 # executables
 install(PROGRAMS
+  ros/scripts/image_detection_action_server
+  ros/scripts/image_detection_test
+  ros/scripts/image_recognition_client_test
   ros/scripts/image_recognition_server
-  ros/scripts/object_detection_test_server
+  ros/scripts/cloud_processing_python_test
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS cloud_processing_cpp_test
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
