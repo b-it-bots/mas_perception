@@ -5,14 +5,14 @@ import random
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from mas_perception_libs.utils import case_insensitive_glob
-from mas_perception_libs import ImageRecognitionServiceProxy
+from mas_perception_libs import RecognizeImageServiceProxy
 
 
 ALLOWED_FILE_TYPES = ('*.jpg', '*.jpeg', '*.png', '*.bmp')
 
 
 def main(arguments):
-    service_proxy = ImageRecognitionServiceProxy(arguments.service_name, arguments.model_name,
+    service_proxy = RecognizeImageServiceProxy(arguments.service_name, arguments.model_name,
                                                  arguments.preprocess_input_module)
 
     file_list = []
