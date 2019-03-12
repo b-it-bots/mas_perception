@@ -56,11 +56,11 @@ objects in a single image message at a time and publish detection results on a d
 ## [`image_recognition_service.py`](../ros/src/mas_perception_libs/image_recognition_service.py)
 
 ### `RecognizeImageService`
-A wrapper for a [`ImageRecognition`](../../mcr_perception_msgs/srv/ImageRecognition.srv) service which uses
+A wrapper for a [`RecognizeImage`](../../mcr_perception_msgs/srv/RecognizeImage.srv) service which uses
 `ImageClassifier` instances to classify images.
 
-### `ImageRecognitionServiceProxy`
-Interact with an [`ImageRecognition`](../../mcr_perception_msgs/srv/ImageRecognition.srv) service to get image
+### `RecognizeImageServiceProxy`
+Interact with an [`RecognizeImage`](../../mcr_perception_msgs/srv/RecognizeImage.srv) service to get image
 classification results. An example can be found in the script
 [`image_recognition_server`](../ros/scripts/image_recognition_server), which uses the `RecognizeImageService` class
 above.

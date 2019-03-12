@@ -49,14 +49,19 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
                             boost::bind(&SceneSegmentationNode::configCallback, this, _1, _2);
     server_.setCallback(f);
 
-    recognize_service = nh_.serviceClient<mcr_perception_msgs::RecognizeObject>
-                            ("/mcr_perception/object_recognizer/recognize_object");
+    nh_.param<std::string>("object_recognizer_service_name", object_recognizer_service_name_, 
+                            "/mcr_perception/object_recognizer/recognize_object");
+    
+    recognize_service = nh_.serviceClient<mcr_perception_msgs::RecognizeObject>(object_recognizer_service_name_);
     recognize_service.waitForExistence(ros::Duration(5));
-    if (!recognize_service.exists())
+    if (recognize_service.exists())
+    {
+        ROS_INFO_STREAM("Using object recognizer" << object_recognizer_service_name_);
+    }
+    else
     {
         ROS_WARN("Object recognition service is not available. Will return 'unknown' for all objects");
     }
-
     nh_.param("octree_resolution", octree_resolution_, 0.05);
     cloud_accumulation_ = CloudAccumulation::UPtr(new CloudAccumulation(octree_resolution_));
 
@@ -98,6 +103,8 @@ void SceneSegmentationNode::pointcloudCallback(const sensor_msgs::PointCloud2::P
         cloud_accumulation_->addCloud(cloud);
 
         frame_id_ = msg_transformed.header.frame_id;
+        
+        ros::Time end_time = ros::Time::now();
 
         if (dataset_collection_)
         {
@@ -226,20 +233,22 @@ void SceneSegmentationNode::segment()
     bounding_box_visualizer_.publish(bounding_boxes.bounding_boxes, frame_id_);
     cluster_visualizer_.publish<PointT>(clusters, frame_id_);
     label_visualizer_.publish(labels, poses);
+
+    ros::Time end_time = ros::Time::now();
 }
 
 void SceneSegmentationNode::savePcd(const PointCloud::ConstPtr &pointcloud, std::string obj_name)
 {
-    std::stringstream filename;     // stringstream used for the conversion
-    auto sec = static_cast<int64_t>(time(nullptr));
-    filename.str("");   // clearing the stringstream
+    std::stringstream filename; // stringstream used for the conversion
+    ros::Time time_now = ros::Time::now();
+    filename.str(""); //clearing the stringstream
     if (debug_mode_)
     {
-        filename << logdir_ << obj_name << "_" << sec <<".pcd";
+        filename << logdir_ << obj_name << "_" << time_now <<".pcd";
     }
     else
     {
-        filename << logdir_ <<"pcd_" << sec <<".pcd";
+        filename << logdir_ <<"pcd_" << time_now <<".pcd";
     }
     ROS_INFO_STREAM("Saving pointcloud to " << logdir_);
     pcl::io::savePCDFileASCII(filename.str(), *pointcloud);

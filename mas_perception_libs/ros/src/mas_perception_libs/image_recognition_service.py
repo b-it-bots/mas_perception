@@ -1,7 +1,7 @@
 import os
 from importlib import import_module
 import rospy
-from mcr_perception_msgs.srv import ImageRecognition, ImageRecognitionRequest, ImageRecognitionResponse
+from mcr_perception_msgs.srv import RecognizeImage, RecognizeImageRequest, RecognizeImageResponse
 from image_classifier import ImageClassifier
 
 
@@ -25,15 +25,15 @@ class RecognizeImageService(object):
 
         # dictionary of classifiers - key is the model_path
         self._classifiers = {}
-        self._recog_service = rospy.Service(service_name, ImageRecognition, self.handle_recognize_image)
+        self._recog_service = rospy.Service(service_name, RecognizeImage, self.handle_recognize_image)
 
     def handle_recognize_image(self, req):
         """
         Callback for recognition service
 
         :param req: service request
-        :type req: ImageRecognitionRequest
-        :rtype: ImageRecognitionResponse
+        :type req: RecognizeImageRequest
+        :rtype: RecognizeImageResponse
         """
         rospy.loginfo('number of images to recognize: ' + str(len(req.images)))
         if req.model_name not in self._classifiers:
@@ -44,14 +44,14 @@ class RecognizeImageService(object):
             self._classifiers[req.model_name] = self._classifier_class(model_path=model_path, class_file=class_file)
 
         indices, classes, probabilities = self._classifiers[req.model_name].classify(req.images)
-        response = ImageRecognitionResponse()
+        response = RecognizeImageResponse()
         response.indices = indices
         response.classes = classes
         response.probabilities = probabilities
         return response
 
 
-class ImageRecognitionServiceProxy(object):
+class RecognizeImageServiceProxy(object):
     """
     Interacts with a RecognizeImageService instance to classify images
     """
@@ -64,7 +64,7 @@ class ImageRecognitionServiceProxy(object):
         """
         rospy.wait_for_service(service_name, timeout=5.0)
         try:
-            self._recog_proxy = rospy.ServiceProxy(service_name, ImageRecognition)
+            self._recog_proxy = rospy.ServiceProxy(service_name, RecognizeImage)
         except rospy.ServiceException as e:
             rospy.logerr('failed to get proxy for service ' + e.message)
             raise
@@ -77,7 +77,7 @@ class ImageRecognitionServiceProxy(object):
 
     def classify_image_messages(self, image_messages, done_callback_func=None):
         """ Call image recognition service to classify image messages """
-        request = ImageRecognitionRequest()
+        request = RecognizeImageRequest()
         request.images = image_messages
         request.model_name = self._model_name
         response = self._recog_proxy(request)
