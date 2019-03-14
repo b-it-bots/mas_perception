@@ -3,6 +3,8 @@ import glob
 import numpy as np
 import cv2
 import rospy
+import rosbag
+from rospkg import RosPack
 import tf
 from cv_bridge import CvBridgeError
 from sensor_msgs.msg import PointCloud2, Image as ImageMsg
@@ -47,6 +49,41 @@ class PlaneSegmenter(PlaneSegmenterWrapper):
         :return: None
         """
         super(PlaneSegmenter, self).set_params(param_dict)
+
+
+def get_package_path(package_name, *paths):
+    """
+    return the system path of a file or folder in a ROS package
+    Example: get_package_path('mas_perception_libs', 'ros', 'src', 'mas_perception_libs')
+
+    :type package_name: str
+    :param paths: chunks of the file path relative to the package
+    :return: file or directory full path
+    """
+    rp = RosPack()
+    pkg_path = rp.get_path(package_name)
+    return os.path.join(pkg_path, *paths)
+
+
+def get_bag_file_msg_by_type(bag_file_path, msg_type):
+    """
+    Extract all messages of a certain type from a bag file
+
+    :param bag_file_path: path to ROS bag file
+    :type bag_file_path: str
+    :param msg_type: string name of message type, i.e. 'sensor_msgs/PointCloud2'
+    :type msg_type: str
+    :return: list of all messages that match the given type
+    """
+    bag_file = rosbag.Bag(bag_file_path)
+    bag_topics = bag_file.get_type_and_topic_info()[1]
+    messages = []
+    for topic, msg, t in bag_file.read_messages():
+        if topic not in bag_topics or bag_topics[topic].msg_type != msg_type:
+            continue
+        messages.append(msg)
+    bag_file.close()
+    return messages
 
 
 def get_classes_in_data_dir(data_dir):
@@ -106,9 +143,6 @@ def cloud_msg_to_cv_image(cloud_msg):
     :type cloud_msg: PointCloud2
     :return: extracted image as numpy array
     """
-    if not isinstance(cloud_msg, PointCloud2):
-        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2')
-
     serial_cloud = to_cpp(cloud_msg)
     return _cloud_msg_to_cv_image(serial_cloud)
 
@@ -121,9 +155,6 @@ def cloud_msg_to_image_msg(cloud_msg):
     :return: extracted image message
     :rtype: ImageMsg
     """
-    if not isinstance(cloud_msg, PointCloud2):
-        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2')
-
     serial_cloud = to_cpp(cloud_msg)
     serial_img_msg = _cloud_msg_to_image_msg(serial_cloud)
     return from_cpp(serial_img_msg, ImageMsg)
@@ -138,9 +169,6 @@ def crop_organized_cloud_msg(cloud_msg, bounding_box):
     :return: cropped cloud
     :rtype: PointCloud2
     """
-    if not isinstance(cloud_msg, PointCloud2):
-        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
-
     if not isinstance(bounding_box, BoundingBox2D):
         raise ValueError('bounding_box is not a BoundingBox2D instance')
 
@@ -158,9 +186,6 @@ def crop_cloud_to_xyz(cloud_msg, bounding_box):
     :return: (x, y, z) coordinates within the bounding box
     :rtype: ndarray
     """
-    if not isinstance(cloud_msg, PointCloud2):
-        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
-
     if not isinstance(bounding_box, BoundingBox2D):
         raise ValueError('bounding_box is not a BoundingBox2D instance')
 
@@ -180,6 +205,28 @@ def transform_cloud_with_listener(cloud_msg, target_frame, tf_listener):
     return transform_point_cloud(cloud_msg, tf_matrix, target_frame)
 
 
+def transform_point_cloud_trans_rot(cloud_msg, translation, rotation, target_frame):
+    """
+    transform cloud using transforms3d to calculate transformation matrix
+
+    :type cloud_msg: PointCloud2
+    :param translation: translation vector
+    :type translation: list
+    :param rotation: list of euler angles
+    :param target_frame: name of new frame to fill in cloud_msg.header.frame_id
+    :return: transformed cloud
+    :rtype: PointCloud2
+    """
+    from transforms3d.affines import compose
+    from transforms3d.euler import euler2mat
+
+    rotation_mat = euler2mat(*rotation)
+    # use vector of ones so there's no zooming in the transformation matrix
+    zoom = (1, 1, 1)
+    transform_matrix = compose(translation, rotation_mat, zoom)
+    return transform_point_cloud(cloud_msg, transform_matrix, target_frame)
+
+
 def transform_point_cloud(cloud_msg, tf_matrix, target_frame):
     """
     transform a sensor_msgs/PointCloud2 message using a transformation matrix
@@ -192,8 +239,6 @@ def transform_point_cloud(cloud_msg, tf_matrix, target_frame):
     :return transformed cloud
     :rtype PointCloud2
     """
-    if not isinstance(cloud_msg, PointCloud2):
-        raise ValueError('cloud_msg is not a sensor_msgs/PointCloud2 instance')
     transformed_cloud = from_cpp(_transform_point_cloud(to_cpp(cloud_msg), tf_matrix), PointCloud2)
     transformed_cloud.header.frame_id = target_frame
     return transformed_cloud
