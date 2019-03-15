@@ -26,5 +26,6 @@
   <exec_depend>image_view</exec_depend>
 
   <test_depend>rosunit</test_depend>
+  <test_depend>mds_home_setups</test_depend>
 
 </package>
