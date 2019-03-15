@@ -205,22 +205,22 @@ def transform_cloud_with_listener(cloud_msg, target_frame, tf_listener):
     return transform_point_cloud(cloud_msg, tf_matrix, target_frame)
 
 
-def transform_point_cloud_trans_rot(cloud_msg, translation, rotation, target_frame):
+def transform_point_cloud_trans_quat(cloud_msg, translation, rotation, target_frame):
     """
     transform cloud using transforms3d to calculate transformation matrix
 
     :type cloud_msg: PointCloud2
     :param translation: translation vector
     :type translation: list
-    :param rotation: list of euler angles
+    :param rotation: rotation quaternion, i.e. [w, x, y, z]
     :param target_frame: name of new frame to fill in cloud_msg.header.frame_id
     :return: transformed cloud
     :rtype: PointCloud2
     """
     from transforms3d.affines import compose
-    from transforms3d.euler import euler2mat
+    from transforms3d.quaternions import quat2mat
 
-    rotation_mat = euler2mat(*rotation)
+    rotation_mat = quat2mat(rotation)
     # use vector of ones so there's no zooming in the transformation matrix
     zoom = (1, 1, 1)
     transform_matrix = compose(translation, rotation_mat, zoom)

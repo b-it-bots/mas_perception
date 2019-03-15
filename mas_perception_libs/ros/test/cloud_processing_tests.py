@@ -6,7 +6,8 @@ from unittest import TestCase
 from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 from mas_perception_libs import BoundingBox2D
 from mas_perception_libs.utils import get_bag_file_msg_by_type, get_package_path, cloud_msg_to_cv_image, \
-    cloud_msg_to_image_msg, crop_organized_cloud_msg, crop_cloud_to_xyz, transform_point_cloud_trans_rot
+    cloud_msg_to_image_msg, crop_organized_cloud_msg, crop_cloud_to_xyz, transform_point_cloud_trans_quat, \
+    PlaneSegmenter
 
 
 PACKAGE = 'mas_perception_libs'
@@ -18,6 +19,7 @@ class CloudProcessingTest(TestCase):
     _cloud_messages = None
     _crop_boxes_num = None
     _transform_num = None
+    _plane_segmenter_configs = None
 
     def setUp(self):
         super(CloudProcessingTest, self).setUp()
@@ -40,6 +42,9 @@ class CloudProcessingTest(TestCase):
         # load configurations for cloud utility functions
         self._crop_boxes_num = configs['crop_boxes_num']
         self._transform_num = configs['transform_num']
+
+        # load configurations for plane segmentation
+        self._plane_segmenter_configs = configs['plane_segmenter']
 
     def test_cloud_msg_to_image_conversion(self):
         for cloud_msg in self._cloud_messages:
@@ -81,17 +86,42 @@ class CloudProcessingTest(TestCase):
                                 box.y + cropped_xyz.shape[1] <= cloud_height,
                                 "'crop_cloud_to_xyz' does not handle large box dimensions correctly")
 
-    def test_transform_point_cloud_trans_rot(self):
+    def test_transform_point_cloud_trans_quat(self):
         frame_name = 'test_frame'
         for cloud_msg in self._cloud_messages:
             np.random.seed(1234)
             for _ in range(self._transform_num):
                 translation = np.random.rand(3) * 1.0       # scale to 1 meter
-                rotation = np.random.rand(3) * np.pi * 2    # scale to 2*pi
-                transformed_cloud = transform_point_cloud_trans_rot(cloud_msg, translation, rotation, frame_name)
+                rotation = np.random.rand(4)                # quaternion
+                transformed_cloud = transform_point_cloud_trans_quat(cloud_msg, translation, rotation, frame_name)
                 self.assertIs(type(transformed_cloud), PointCloud2,
-                              "'transform_point_cloud_trans_rot' does not return type 'sensor_msgs/PointCloud2'")
+                              "'transform_point_cloud_trans_quat' does not return type 'sensor_msgs/PointCloud2'")
                 self.assertTrue(transformed_cloud.header.frame_id == frame_name)
+
+    def test_plane_segmenter(self):
+        plane_segmenter = PlaneSegmenter()
+
+        # set plane segmentation configurations
+        config_file_info = self._plane_segmenter_configs['config_file']
+        config_file_path = get_package_path(config_file_info['package'], *config_file_info['path'])
+        self.assertTrue(os.path.exists(config_file_path),
+                        'config file for PlaneSegmenter does not exist: ' + config_file_path)
+        with open(config_file_path) as infile:
+            configs = yaml.load(infile)
+        plane_segmenter.set_params(configs)
+
+        # extract transformation info for point clouds
+        transform_info = self._plane_segmenter_configs['target_frame']
+        translation = transform_info['translation']
+        rotation = transform_info['rotation']
+        frame_name = transform_info['name']
+        for cloud_msg in self._cloud_messages:
+            transformed_cloud = transform_point_cloud_trans_quat(cloud_msg, translation, rotation, frame_name)
+            # TODO (minhnh) test if filtering does what it's supposed to do, test edge cases
+            _ = plane_segmenter.filter_cloud(transformed_cloud)
+            # TODO(minhnh) test multiple plane segmentation, test if returned cloud is filtered
+            plane_list, _ = plane_segmenter.find_planes(transformed_cloud)
+            self.assertTrue(len(plane_list.planes) > 0, 'plane segmentation did not detect any plane')
 
 
 if __name__ == '__main__':

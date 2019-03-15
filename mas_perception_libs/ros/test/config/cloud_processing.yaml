@@ -1,5 +1,13 @@
 bag_file:               # location of bag file containing point clouds for testing
-  package: mas_perception_libs
-  path: [ ros, test, config, sample_cloud.bag ]
+  package:  mas_perception_libs
+  path:     [ ros, test, config, sample_cloud.bag ]
 crop_boxes_num: 10      # number of bounding boxes for testing cropping functions on point clouds
-transform_num: 5        # number of time to run cloud transformation tests
+transform_num:  5       # number of time to run cloud transformation tests
+plane_segmenter:
+  target_frame:         # to transform the point cloud from camera frame to robot's base frame
+    name:        base_link
+    translation: [ 0.0, 0.0, 1.1 ]              # x, y, z
+    rotation:    [ 0.32, -0.62, 0.63, -0.33 ]   # quaternion in order w, x, y, z
+  config_file:          # location of the default configuration for plane segmentation
+    package:  mas_perception_libs
+    path:     [ ros, config, plane_fitting_default_configs.yaml ]
