@@ -1,4 +1,9 @@
 - git:
+    local-name: mas_domestic_datasets
+    uri: https://github.com/b-it-bots/mas_domestic_datasets.git
+    version: indigo
+
+- git:
     local-name: mas_common_robotics
     uri: https://github.com/b-it-bots/mas_common_robotics.git
     version: kinetic
