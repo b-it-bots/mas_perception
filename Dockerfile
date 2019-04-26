@@ -14,13 +14,8 @@ RUN . /opt/ros/mas_stable/setup.sh && \
     rm -rf /var/lib/apt/lists/* && \
     catkin config --init && \
     catkin config --extend /opt/ros/mas_stable && \
-    catkin config --install --install-space /opt/ros/mas_stable
-
-WORKDIR /kinetic/src/mas_domestic_datasets
-RUN . git lfs pull
-
-WORKDIR /kinetic
-RUN . catkin build && \
+    catkin config --install --install-space /opt/ros/mas_stable && \
+    catkin build && \
     rm -rf /kinetic/
 
 WORKDIR /
