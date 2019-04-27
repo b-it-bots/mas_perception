@@ -69,7 +69,7 @@ namespace mas_perception_libs
 
         /* filter z-axis using voxel filter instead of making another member */
         mVoxelGridFilter.setFilterFieldName("z");
-        mVoxelGridFilter.setFilterLimits(pParams.mPassThroughLimitMinZ, pParams.mPassThroughLimitMaxZ);
+        mVoxelGridFilter.setFilterLimits(pParams.mVoxelLimitMinZ, pParams.mVoxelLimitMaxZ);
 
         /* voxel-grid params */
         mVoxelGridFilter.setLeafSize(pParams.mVoxelLeafSize, pParams.mVoxelLeafSize, pParams.mVoxelLeafSize);

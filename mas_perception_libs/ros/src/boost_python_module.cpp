@@ -54,13 +54,13 @@ public:
             throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_max_y'");
         cfParams.mPassThroughLimitMaxY = bp::extract<float>(pConfigDict["passthrough_limit_max_y"]);
 
-        if (!pConfigDict.contains("passthrough_limit_min_z"))
-            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_min_z'");
-        cfParams.mPassThroughLimitMinZ = bp::extract<float>(pConfigDict["passthrough_limit_min_z"]);
+        if (!pConfigDict.contains("voxel_limit_min_z"))
+            throw std::invalid_argument("Python config dict does not contain key 'voxel_limit_min_z'");
+        cfParams.mVoxelLimitMinZ = bp::extract<float>(pConfigDict["voxel_limit_min_z"]);
 
-        if (!pConfigDict.contains("passthrough_limit_max_z"))
-            throw std::invalid_argument("Python config dict does not contain key 'passthrough_limit_max_z'");
-        cfParams.mPassThroughLimitMaxZ = bp::extract<float>(pConfigDict["passthrough_limit_max_z"]);
+        if (!pConfigDict.contains("voxel_limit_max_z"))
+            throw std::invalid_argument("Python config dict does not contain key 'voxel_limit_max_z'");
+        cfParams.mVoxelLimitMaxZ = bp::extract<float>(pConfigDict["voxel_limit_max_z"]);
 
         if (!pConfigDict.contains("voxel_leaf_size"))
             throw std::invalid_argument("Python config dict does not contain key 'voxel_leaf_size'");

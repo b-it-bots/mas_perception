@@ -2,7 +2,7 @@
 <package format="2">
   <name>mas_perception_libs</name>
   <version>1.0.0</version>
-  <description>The mas_perception_libs package</description>
+  <description>contains shared common perception functionality for the b-it-bots team</description>
 
   <author email="minh.nguyen@smail.inf.h-brs.de">Minh Nguyen</author>
   <maintainer email="robotics@inf.h-brs.de">MAS robotics</maintainer>
@@ -15,11 +15,16 @@
   <depend>dynamic_reconfigure</depend>
   <depend>mcr_perception_msgs</depend>
 
-  <build_depend>image_geometry</build_depend>
-  <build_depend>roslint</build_depend>
   <build_depend>cv_bridge</build_depend>
+  <build_depend>image_geometry</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>roscpp_serialization</build_depend>
+  <build_depend>roslint</build_depend>
 
   <build_export_depend>message_runtime</build_export_depend>
   <exec_depend>message_runtime</exec_depend>
+  <exec_depend>image_view</exec_depend>
+
+  <test_depend>rosunit</test_depend>
 
 </package>

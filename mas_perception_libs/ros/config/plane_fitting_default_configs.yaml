@@ -4,9 +4,9 @@ passthrough_limit_min_x:  0.0
 passthrough_limit_max_x:  1.0
 passthrough_limit_min_y: -0.5
 passthrough_limit_max_y:  0.5
-passthrough_limit_min_z:  0.0
-passthrough_limit_max_z:  1.8
-voxel_leaf_size: 0.02
+voxel_limit_min_z:        0.0
+voxel_limit_max_z:        1.8
+voxel_leaf_size:          0.02
 # config file loaded during launch as default configurations for the plane fitting algorithm
 normal_radius_search:       0.03
 sac_max_iterations:         1000

@@ -35,7 +35,7 @@ catkin_package(
     ros/include
     common/include
   LIBRARIES
-    mas_perception_libs
+    ${PROJECT_NAME}
   CATKIN_DEPENDS
     mcr_perception_msgs
 )
@@ -54,7 +54,7 @@ include_directories(
 
 ###################################
 # add mas_perception_libs library
-add_library(mas_perception_libs
+add_library(${PROJECT_NAME}
   common/src/bounding_box.cpp
   common/src/bounding_box_2d.cpp
   common/src/point_cloud_utils.cpp
@@ -62,7 +62,11 @@ add_library(mas_perception_libs
   ros/src/image_bounding_box.cpp
   ros/src/point_cloud_utils_ros.cpp
 )
-target_link_libraries(mas_perception_libs
+add_dependencies(${PROJECT_NAME}
+  ${PROJECT_NAME}_gencfg
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )
@@ -94,12 +98,8 @@ target_link_libraries(_cpp_wrapper
 add_executable(cloud_processing_cpp_test
   ros/src/cloud_processing_test_node.cpp
 )
-add_dependencies(cloud_processing_cpp_test
-  ${catkin_EXPORTED_TARGETS}
-  ${PROJECT_NAME}_gencfg
-)
 target_link_libraries(cloud_processing_cpp_test
-  mas_perception_libs
+  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )
@@ -112,7 +112,8 @@ roslint_cpp()
 
 if(CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(ros/launch)
+  roslaunch_add_file_check(ros/launch DEPENDENCIES cloud_processing_cpp_test)
+  catkin_add_nosetests(ros/test/ DEPENDENCIES _cpp_wrapper)
 endif()
 
 #############
@@ -131,7 +132,7 @@ install(DIRECTORY ros/include/${PROJECT_NAME}/
   PATTERN ".svn" EXCLUDE
 )
 
-install(TARGETS mas_perception_libs
+install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
