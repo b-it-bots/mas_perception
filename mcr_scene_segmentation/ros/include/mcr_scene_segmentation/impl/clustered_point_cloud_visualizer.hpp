@@ -7,7 +7,10 @@
 
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/conversions.h>
+#include <mas_perception_libs/color.h>
 #include <mcr_scene_segmentation/aliases.h>
+
+using mas_perception_libs::Color;
 
 namespace mcr
 {
@@ -22,7 +25,7 @@ ClusteredPointCloudVisualizer::ClusteredPointCloudVisualizer(const boost::shared
     cloud_publisher_ = nh->advertise<sensor_msgs::PointCloud2>(topic_name, 1);
     for (size_t i = 0; i < COLORS_NUM; ++i)
     {
-        COLORS[i] = 1.0 * rand() / RAND_MAX;
+        COLORS[i] = 1.0f * rand() / RAND_MAX;
     }
 }
 
@@ -33,7 +36,7 @@ ClusteredPointCloudVisualizer::ClusteredPointCloudVisualizer(const std::string& 
     cloud_publisher_ = nh.advertise<sensor_msgs::PointCloud2>(topic_name, 1);
     for (size_t i = 0; i < COLORS_NUM; ++i)
     {
-        COLORS[i] = 1.0 * rand() / RAND_MAX;
+        COLORS[i] = 1.0f * rand() / RAND_MAX;
     }
 }
 
@@ -59,13 +62,13 @@ void ClusteredPointCloudVisualizer::publish(const std::vector<typename pcl::Poin
             pt.x = point.x;
             pt.y = point.y;
             pt.z = point.z;
-            pt.rgb = Color(color);
+            pt.rgb = float(Color(static_cast<Color::Name>(color)));
             composite.points.push_back(pt);
         }
         color++;
     }
     composite.header.frame_id = frame_id;
-    composite.width = composite.points.size();
+    composite.width = static_cast<uint32_t>(composite.points.size());
     composite.height = 1;
 
     pcl::PCLPointCloud2 pc2;

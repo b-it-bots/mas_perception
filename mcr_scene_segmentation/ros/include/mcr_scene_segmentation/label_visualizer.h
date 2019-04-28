@@ -13,7 +13,9 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PoseArray.h>
 
-#include <mcr_scene_segmentation/color.h>
+#include <mas_perception_libs/color.h>
+
+using mas_perception_libs::Color;
 
 namespace mcr
 {

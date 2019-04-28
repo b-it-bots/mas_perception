@@ -1,31 +1,35 @@
+/*!
+ * @copyright 2018 Bonn-Rhein-Sieg University
+ */
+#include <vector>
 #include "mcr_scene_segmentation/laserscan_segmentation.h"
 
-LaserScanSegmentation::LaserScanSegmentation(double dThresholdDistanceBetweenAdajecentPoints, unsigned int unMinimumPointsPerSegment)
+LaserScanSegmentation::LaserScanSegmentation(
+        double dThresholdDistanceBetweenAdajecentPoints, unsigned int unMinimumPointsPerSegment)
 {
     this->_dThresholdDistanceBetweenAdajecentPoints = dThresholdDistanceBetweenAdajecentPoints;
     this->_unMinimumPointsPerSegment = unMinimumPointsPerSegment;
 }
 
-LaserScanSegmentation::~LaserScanSegmentation()
-{
-}
+LaserScanSegmentation::~LaserScanSegmentation() = default;
 
-mcr_perception_msgs::LaserScanSegmentList LaserScanSegmentation::getSegments(const sensor_msgs::LaserScan::ConstPtr &inputScan, bool store_data_points)
+mcr_perception_msgs::LaserScanSegmentList
+LaserScanSegmentation::getSegments(const sensor_msgs::LaserScan::ConstPtr &inputScan, bool store_data_points)
 {
     mcr_perception_msgs::LaserScanSegmentList segments;
-    vector<geometry_msgs::Point> data_points;
+    std::vector<geometry_msgs::Point> data_points;
 
     double dNumberofPointsBetweenStartAndEnd = 0;
     unsigned int unSegmentStartPoint = 0;
     unsigned int unSegmentEndPoint = 0;
 
-    uint32_t scan_size = ceil((inputScan->angle_max - inputScan->angle_min) / inputScan->angle_increment);
+    auto scan_size = static_cast<uint32_t>(
+            ceil((inputScan->angle_max - inputScan->angle_min) / inputScan->angle_increment));
 
     if (scan_size == 0)
         return segments;
 
-    //run over laser scan data
-
+    // run over laser scan data
     for (unsigned int i = 0; i < (scan_size - 1); ++i)
     {
         ++dNumberofPointsBetweenStartAndEnd;
@@ -33,9 +37,6 @@ mcr_perception_msgs::LaserScanSegmentList LaserScanSegmentation::getSegments(con
         // first point in laser scan is start point of the first segment
         if (i == 0)
             unSegmentStartPoint = i;
-
-        // the distance between two adjacent points is above a given threshold -> remember end point and start with a new segment
-        //cout << "angle: " << ppdLaserScan[i][BUFFER_COLUMN_YAW] << " " << (ppdLaserScan[i][BUFFER_COLUMN_YAW] * 180 / M_PI) << std::endl;
 
         double dAngleCur = inputScan->angle_min + (i * inputScan->angle_increment);
         double dDistanceCur = inputScan->ranges[i];
@@ -50,9 +51,9 @@ mcr_perception_msgs::LaserScanSegmentList LaserScanSegmentation::getSegments(con
             data_points.push_back(cur_point);
         }
 
-//      cout << "a: " << dAngleCur << " d: " << dDistanceCur << " a: " << dAngleNext<< " d: " << dAngleNext << endl;
-
-        if ((getEuclideanDistance(dDistanceCur, dAngleCur, dDistanceNext, dAngleNext) > this->_dThresholdDistanceBetweenAdajecentPoints) || (i == (scan_size - 2)))
+        if ((getEuclideanDistance(dDistanceCur, dAngleCur, dDistanceNext, dAngleNext)
+            > this->_dThresholdDistanceBetweenAdajecentPoints)
+            || (i == (scan_size - 2)))
         {
             if (i < (scan_size - 2))
                 unSegmentEndPoint = i;
@@ -78,12 +79,6 @@ mcr_perception_msgs::LaserScanSegmentList LaserScanSegmentation::getSegments(con
                     if (store_data_points)
                         seg.data_points = data_points;
 
-                    /*
-                    cout << "eucl: " << getEuclideanDistance(dDistanceCur, dAngleCur, dDistanceNext, dAngleNext) << " thr: " << this->_dThresholdDistanceBetweenAdajecentPoints <<  endl;
-                    cout << "new segmented: " << endl;
-                    cout << "dist: : " << dDistanceToSegment << endl;
-                    */
-
                     segments.segments.push_back(seg);
                 }
             }
@@ -101,18 +96,21 @@ mcr_perception_msgs::LaserScanSegmentList LaserScanSegmentation::getSegments(con
 
     segments.header = inputScan->header;
     segments.header.stamp = ros::Time::now();
-    segments.num_segments = segments.segments.size();
+    segments.num_segments = static_cast<unsigned int>(segments.segments.size());
 
     return segments;
 }
 
-double LaserScanSegmentation::getEuclideanDistance(double dDistanceA, double dAngleA, double dDistanceB, double dAngleB)
+double
+LaserScanSegmentation::getEuclideanDistance(double dDistanceA, double dAngleA, double dDistanceB, double dAngleB)
 {
     return sqrt((dDistanceA * dDistanceA) + (dDistanceB * dDistanceB) -
                 (2 * dDistanceA * dDistanceB) * cos(fabs(dAngleA - dAngleB)));
 }
 
-geometry_msgs::Point LaserScanSegmentation::getCenterOfGravity(unsigned int indexStart, unsigned int indexEnd, const sensor_msgs::LaserScan::ConstPtr &inputScan)
+geometry_msgs::Point
+LaserScanSegmentation::getCenterOfGravity(unsigned int indexStart, unsigned int indexEnd,
+                                          const sensor_msgs::LaserScan::ConstPtr &inputScan)
 {
     geometry_msgs::Point centerPoint;
 

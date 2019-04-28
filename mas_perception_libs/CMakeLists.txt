@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp_serialization
   rospy
   roslint
+  dynamic_reconfigure
   cv_bridge
   image_geometry
   pcl_ros
@@ -22,6 +23,10 @@ find_package(OpenCV REQUIRED)
 
 catkin_python_setup()
 
+generate_dynamic_reconfigure_options(
+  ros/config/PlaneFitting.cfg
+)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -30,7 +35,7 @@ catkin_package(
     ros/include
     common/include
   LIBRARIES
-    mas_perception_libs
+    ${PROJECT_NAME}
   CATKIN_DEPENDS
     mcr_perception_msgs
 )
@@ -49,20 +54,28 @@ include_directories(
 
 ###################################
 # add mas_perception_libs library
-###################################
-add_library(mas_perception_libs
+add_library(${PROJECT_NAME}
   common/src/bounding_box.cpp
+  common/src/bounding_box_2d.cpp
+  common/src/point_cloud_utils.cpp
+  common/src/sac_plane_segmenter.cpp
   ros/src/image_bounding_box.cpp
+  ros/src/point_cloud_utils_ros.cpp
 )
-target_link_libraries(mas_perception_libs
+add_dependencies(${PROJECT_NAME}
+  ${PROJECT_NAME}_gencfg
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
 )
 
 ###################################
 # python wrapper for cpp libraries
-###################################
 add_library(_cpp_wrapper SHARED
+  common/src/init_numpy_api.cpp
+  common/src/pyboost_cv3_converter.cpp
   ros/src/bounding_box_wrapper.cpp
   ros/src/boost_python_module.cpp
 )
@@ -80,6 +93,17 @@ target_link_libraries(_cpp_wrapper
   ${OpenCV_LIBRARIES}
 )
 
+###################################
+# Node for testing plane segmentation
+add_executable(cloud_processing_cpp_test
+  ros/src/cloud_processing_test_node.cpp
+)
+target_link_libraries(cloud_processing_cpp_test
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+)
+
 #############
 ## Testing ##
 #############
@@ -88,7 +112,8 @@ roslint_cpp()
 
 if(CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
-  roslaunch_add_file_check(ros/launch)
+  roslaunch_add_file_check(ros/launch DEPENDENCIES cloud_processing_cpp_test)
+  catkin_add_nosetests(ros/test/ DEPENDENCIES _cpp_wrapper)
 endif()
 
 #############
@@ -107,7 +132,7 @@ install(DIRECTORY ros/include/${PROJECT_NAME}/
   PATTERN ".svn" EXCLUDE
 )
 
-install(TARGETS mas_perception_libs
+install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
@@ -119,7 +144,14 @@ install(TARGETS _cpp_wrapper
 
 # executables
 install(PROGRAMS
+  ros/scripts/image_detection_action_server
+  ros/scripts/image_detection_test
+  ros/scripts/image_recognition_client_test
   ros/scripts/image_recognition_server
-  ros/scripts/object_detection_test_server
+  ros/scripts/cloud_processing_python_test
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS cloud_processing_cpp_test
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

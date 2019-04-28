@@ -1,9 +1,13 @@
 #ifndef LABEL_VISUALIZER_HPP
 #define LABEL_VISUALIZER_HPP
 
+#include <ros/node_handle.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PoseArray.h>
+#include <mas_perception_libs/color.h>
+
+using mas_perception_libs::Color;
 
 namespace mcr
 {
@@ -42,7 +46,7 @@ void LabelVisualizer::publish(const std::vector<std::string> &labels, const geom
         m.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
         m.action = visualization_msgs::Marker::ADD;
         m.scale.z = 0.04;
-        m.color = color_;
+        m.color = std_msgs::ColorRGBA(color_);
         m.ns = "labels";
         m.id = i;
         m.pose.position.x = poses.poses[i].position.x;

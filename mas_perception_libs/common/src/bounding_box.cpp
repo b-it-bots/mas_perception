@@ -38,14 +38,13 @@ BoundingBox BoundingBox::create(const PointCloud::ConstPtr& cloud,
     float min_z = std::numeric_limits<float>::max();
     float max_z = -1 * std::numeric_limits<float>::max();
 
-    for (size_t i = 0; i < cloud_transformed.points.size(); i++)
+    for (const auto &pt : cloud_transformed.points)
     {
-        const PointT& pt = cloud_transformed.points[i];
         if (!std::isnan(pt.z))
         {
             CvPoint p;
-            p.x = pt.x * SCALE;
-            p.y = pt.y * SCALE;
+            p.x = static_cast<int>(pt.x * SCALE);
+            p.y = static_cast<int>(pt.y * SCALE);
             cvSeqPush(points, &p);
             if (pt.z > max_z)
                 max_z = pt.z;
@@ -66,16 +65,14 @@ BoundingBox BoundingBox::create(const PointCloud::ConstPtr& cloud,
 
     cv::Point2f vertices[4];
     cv::RotatedRect(box2d).points(vertices);
-    for (size_t i = 0; i < 4; i++)
+    for (const auto &pt : vertices)
     {
-        const cv::Point2f& pt = vertices[i];
         Eigen::Vector3f p;
         p << pt.x / SCALE, pt.y / SCALE, min_z;
         box.vertices_.push_back(inverse_transform * p);
     }
-    for (size_t i = 0; i < 4; i++)
+    for (const auto &pt : vertices)
     {
-        const cv::Point2f& pt = vertices[i];
         Eigen::Vector3f p;
         p << pt.x / SCALE, pt.y / SCALE, max_z;
         box.vertices_.push_back(inverse_transform * p);
@@ -88,7 +85,7 @@ BoundingBox BoundingBox::create(const PointCloud::VectorType& points,
 {
     PointCloud::Ptr cloud(new PointCloud);
     cloud->points = points;
-    cloud->width = points.size();
+    cloud->width = static_cast<uint32_t>(points.size());
     cloud->height = 1;
     return create(cloud, normal);
 }
