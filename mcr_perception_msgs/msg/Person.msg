@@ -6,6 +6,8 @@ geometry_msgs/PoseStamped pose	# real pose of a detected person
 
 geometry_msgs/PoseStamped safe_pose		# safety pose for a detected person (to approach by base)
 
+sensor_msgs/Image rgb_image                     # image cropped to the bounding box of the detected person
+
 float32 height					# measured height of the person
 
 float32 width					# measured width of the person 
