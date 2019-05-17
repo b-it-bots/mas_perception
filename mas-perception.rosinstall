@@ -12,3 +12,8 @@
     local-name: mas_perception_libs
     uri: https://github.com/b-it-bots/mas_perception_libs.git
     version: kinetic
+
+- git:
+    local-name: mas_perception_msgs
+    uri: https://github.com/b-it-bots/mas_perception_msgs.git
+    version: kinetic
