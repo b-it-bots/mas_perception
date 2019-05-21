@@ -6,10 +6,10 @@
  */
 #include <mcr_scene_segmentation/scene_segmentation.h>
 #include <mcr_scene_segmentation/scene_segmentation_node.h>
-#include <mcr_perception_msgs/BoundingBox.h>
-#include <mcr_perception_msgs/BoundingBoxList.h>
-#include <mcr_perception_msgs/ObjectList.h>
-#include <mcr_perception_msgs/RecognizeObject.h>
+#include <mas_perception_msgs/BoundingBox.h>
+#include <mas_perception_msgs/BoundingBoxList.h>
+#include <mas_perception_msgs/ObjectList.h>
+#include <mas_perception_msgs/RecognizeObject.h>
 #include <mcr_scene_segmentation/impl/helpers.hpp>
 #include <mas_perception_libs/bounding_box.h>
 #include <mas_perception_libs/point_cloud_utils.h>
@@ -40,7 +40,7 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     add_to_octree_(false), object_id_(0), debug_mode_(false), dataset_collection_(false)
 {
     pub_debug_ = nh_.advertise<sensor_msgs::PointCloud2>("output", 1);
-    pub_object_list_ = nh_.advertise<mcr_perception_msgs::ObjectList>("object_list", 1);
+    pub_object_list_ = nh_.advertise<mas_perception_msgs::ObjectList>("object_list", 1);
     sub_event_in_ = nh_.subscribe("event_in", 1, &SceneSegmentationNode::eventCallback, this);
     pub_event_out_ = nh_.advertise<std_msgs::String>("event_out", 1);
     pub_workspace_height_ = nh_.advertise<std_msgs::Float64>("workspace_height", 1);
@@ -52,7 +52,7 @@ SceneSegmentationNode::SceneSegmentationNode(): nh_("~"),
     nh_.param<std::string>("object_recognizer_service_name", object_recognizer_service_name_, 
                             "/mcr_perception/object_recognizer/recognize_object");
     
-    recognize_service = nh_.serviceClient<mcr_perception_msgs::RecognizeObject>(object_recognizer_service_name_);
+    recognize_service = nh_.serviceClient<mas_perception_msgs::RecognizeObject>(object_recognizer_service_name_);
     recognize_service.waitForExistence(ros::Duration(5));
     if (recognize_service.exists())
     {
@@ -134,8 +134,8 @@ void SceneSegmentationNode::segment()
     pub_workspace_height_.publish(workspace_height_msg);
     pub_debug_.publish(*debug);
 
-    mcr_perception_msgs::BoundingBoxList bounding_boxes;
-    mcr_perception_msgs::ObjectList object_list;
+    mas_perception_msgs::BoundingBoxList bounding_boxes;
+    mas_perception_msgs::ObjectList object_list;
     geometry_msgs::PoseArray poses;
 
     bounding_boxes.bounding_boxes.resize(boxes.size());
@@ -155,7 +155,7 @@ void SceneSegmentationNode::segment()
 
         if (recognize_service.exists())
         {
-            mcr_perception_msgs::RecognizeObject srv;
+            mas_perception_msgs::RecognizeObject srv;
             srv.request.cloud = ros_cloud;
             srv.request.dimensions = bounding_boxes.bounding_boxes[i].dimensions;
             if (recognize_service.call(srv))

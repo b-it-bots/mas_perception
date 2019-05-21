@@ -6,7 +6,7 @@ find_package(PCL 1.6 REQUIRED)
 find_package(catkin REQUIRED 
   COMPONENTS
     mcr_scene_segmentation
-    mcr_perception_msgs
+    mas_perception_msgs
     pcl_ros
     roscpp
     roslint
@@ -16,7 +16,7 @@ catkin_python_setup()
 
 catkin_package(
   CATKIN_DEPENDS
-    mcr_perception_msgs
+    mas_perception_msgs
     rospy
 )
 

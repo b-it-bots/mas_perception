@@ -16,7 +16,7 @@
   <build_depend>roscpp</build_depend>
   <build_depend>mcr_algorithms</build_depend>
   <build_depend>mcr_scene_segmentation</build_depend>
-  <build_depend>mcr_perception_msgs</build_depend>
+  <build_depend>mas_perception_msgs</build_depend>
   <build_depend>libpcl-all-dev</build_depend>
   <build_depend>pcl_ros</build_depend>
   <build_depend>tf</build_depend>
@@ -24,7 +24,7 @@
 
   <run_depend>mcr_algorithms</run_depend>
   <run_depend>dynamic_reconfigure</run_depend>
-  <run_depend>mcr_perception_msgs</run_depend>
+  <run_depend>mas_perception_msgs</run_depend>
   <run_depend>visualization_msgs</run_depend>
   <run_depend>mcr_scene_segmentation</run_depend>
 

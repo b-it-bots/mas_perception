@@ -12,7 +12,7 @@
 
 #include <ros/ros.h>
 
-#include <mcr_perception_msgs/BoundingBox.h>
+#include <mas_perception_msgs/BoundingBox.h>
 #include <mas_perception_libs/color.h>
 
 using mas_perception_libs::Color;
@@ -34,9 +34,9 @@ public:
                           Color color,
                           bool check_subscribers = true);
 
-    void publish(const mcr_perception_msgs::BoundingBox& box, const std::string& frame_id);
+    void publish(const mas_perception_msgs::BoundingBox& box, const std::string& frame_id);
 
-    void publish(const std::vector<mcr_perception_msgs::BoundingBox>& boxes, const std::string& frame_id);
+    void publish(const std::vector<mas_perception_msgs::BoundingBox>& boxes, const std::string& frame_id);
 
     int getNumSubscribers();
 

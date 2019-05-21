@@ -23,8 +23,8 @@
 #include <mcr_algorithms/geometry/conversions.h>
 #include <mcr_algorithms/wrapper/pcl_wrapper.hpp>
 
-#include <mcr_perception_msgs/GetNearestObject.h>
-#include <mcr_perception_msgs/LaserScanSegmentList.h>
+#include <mas_perception_msgs/GetNearestObject.h>
+#include <mas_perception_msgs/LaserScanSegmentList.h>
 
 
 ros::NodeHandle* nh_ptr = NULL;
@@ -56,7 +56,7 @@ geometry_msgs::PoseStamped calculateNearestObject(sensor_msgs::LaserScanConstPtr
     sensor_msgs::LaserScanPtr scan_filtered(new sensor_msgs::LaserScan);
     laser_filter->update(*scan, *scan_filtered);
 
-    mcr_perception_msgs::LaserScanSegmentList segment_list = scan_segmentation->getSegments(scan_filtered, true);
+    mas_perception_msgs::LaserScanSegmentList segment_list = scan_segmentation->getSegments(scan_filtered, true);
 
     // find nearest segment in the scan
     double min_distance = DBL_MAX, distance = 0, angle = 0;
@@ -183,7 +183,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& scan_msg)
 
 }
 
-bool getNearestObject(mcr_perception_msgs::GetNearestObject::Request &req, mcr_perception_msgs::GetNearestObject::Response &res)
+bool getNearestObject(mas_perception_msgs::GetNearestObject::Request &req, mas_perception_msgs::GetNearestObject::Response &res)
 {
     // if not subscribe to laser scan topic, do it
     if (!subscribed_to_topic)

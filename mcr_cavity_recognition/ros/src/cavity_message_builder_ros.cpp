@@ -1,5 +1,5 @@
 #include <mcr_cavity_recognition/cavity_message_builder_ros.h>
-#include <mcr_perception_msgs/Cavity.h>
+#include <mas_perception_msgs/Cavity.h>
 
 CavityMessageBuilderROS::CavityMessageBuilderROS()
 {
@@ -10,7 +10,7 @@ CavityMessageBuilderROS::CavityMessageBuilderROS()
     sync_input_ = boost::make_shared<message_filters::Synchronizer<CavitySyncPolicy> >(3);
     sync_input_->connectInput(sub_pointcloud_, sub_matching_error_, sub_pose_);
     sync_input_->registerCallback(boost::bind(&CavityMessageBuilderROS::synchronizedCallback, this, _1, _2, _3));
-    pub_cavity_ = nh.advertise<mcr_perception_msgs::Cavity>("output/cavity", 1);
+    pub_cavity_ = nh.advertise<mas_perception_msgs::Cavity>("output/cavity", 1);
 
 }
 
@@ -18,9 +18,9 @@ CavityMessageBuilderROS::~CavityMessageBuilderROS()
 {
 }
 
-void CavityMessageBuilderROS::synchronizedCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg, const mcr_perception_msgs::MatchingErrorStamped::ConstPtr &matching_error_msg, const geometry_msgs::PoseStamped::ConstPtr &pose_msg)
+void CavityMessageBuilderROS::synchronizedCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg, const mas_perception_msgs::MatchingErrorStamped::ConstPtr &matching_error_msg, const geometry_msgs::PoseStamped::ConstPtr &pose_msg)
 {
-    mcr_perception_msgs::Cavity cavity;
+    mas_perception_msgs::Cavity cavity;
     cavity.pointcloud = *pointcloud_msg;
     cavity.template_matching_error = *matching_error_msg;
     cavity.pose = *pose_msg;

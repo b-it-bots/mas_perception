@@ -1,6 +1,6 @@
 #include <mcr_contour_matching/contour_template_matcher_ros.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <mcr_perception_msgs/MatchingErrorStamped.h>
+#include <mas_perception_msgs/MatchingErrorStamped.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/io/pcd_io.h>
 
@@ -10,7 +10,7 @@ ContourTemplateMatcherROS::ContourTemplateMatcherROS() : contours_msg_received_(
     sub_contour_pointclouds_ = nh.subscribe("input/contours", 1, &ContourTemplateMatcherROS::contourPointcloudsCallback, this);
     sub_template_pointcloud_ = nh.subscribe("input/template_pointcloud", 1, &ContourTemplateMatcherROS::templatePointcloudCallback, this);
 
-    pub_matching_error_ = nh.advertise<mcr_perception_msgs::MatchingErrorStamped>("output/matching_error", 1);
+    pub_matching_error_ = nh.advertise<mas_perception_msgs::MatchingErrorStamped>("output/matching_error", 1);
     pub_contour_pointcloud_ = nh.advertise<sensor_msgs::PointCloud2>("output/matched_contour_pointcloud", 1);
 }
 
@@ -18,7 +18,7 @@ ContourTemplateMatcherROS::~ContourTemplateMatcherROS()
 {
 }
 
-void ContourTemplateMatcherROS::contourPointcloudsCallback(const mcr_perception_msgs::PointCloud2List::Ptr &msg)
+void ContourTemplateMatcherROS::contourPointcloudsCallback(const mas_perception_msgs::PointCloud2List::Ptr &msg)
 {
     ROS_INFO("[contour_template_matcher] Received contour pointclouds");
     contours_msg_ = msg;
@@ -63,7 +63,7 @@ void ContourTemplateMatcherROS::matchContours()
     pcl_conversions::fromPCL(*matched_contour, ros_output_cloud);
     ros_output_cloud.header = contours_msg_->pointclouds[0].header;
 
-    mcr_perception_msgs::MatchingErrorStamped matching_error;
+    mas_perception_msgs::MatchingErrorStamped matching_error;
     matching_error.matching_error = match_error;
     matching_error.header.stamp = contours_msg_->pointclouds[0].header.stamp;
 

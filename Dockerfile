@@ -5,6 +5,14 @@ LABEL maintainer="Argentina Ortega"
 WORKDIR /kinetic
 COPY mas-perception.rosinstall /kinetic
 
+RUN wstool init --shallow src && \
+    wstool merge -t src mas-perception.rosinstall && \
+    cd src && \
+    wstool remove mas_perception && \
+    cd - && \
+    wstool update -t src
+
+
 COPY . /kinetic/src/mas_perception
 
 RUN . /opt/ros/mas_stable/setup.sh && \

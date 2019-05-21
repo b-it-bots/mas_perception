@@ -3,7 +3,7 @@
 import rospy
 import smach
 import std_msgs.msg
-import mcr_perception_msgs.msg
+import mas_perception_msgs.msg
 
 import random
 
@@ -20,7 +20,7 @@ class find_objects(smach.State):
                                        'no_objects_found'],
                              input_keys=['found_objects'],
                              output_keys=['found_objects'])
-        self.object_list_sub = rospy.Subscriber(self.OBJECT_LIST_TOPIC, mcr_perception_msgs.msg.ObjectList,
+        self.object_list_sub = rospy.Subscriber(self.OBJECT_LIST_TOPIC, mas_perception_msgs.msg.ObjectList,
                                                 self.object_list_cb)
         self.event_out_sub = rospy.Subscriber(self.EVENT_OUT_TOPIC, std_msgs.msg.String, self.event_out_cb)
         self.event_in_pub = rospy.Publisher(self.EVENT_IN_TOPIC, std_msgs.msg.String, queue_size=1)

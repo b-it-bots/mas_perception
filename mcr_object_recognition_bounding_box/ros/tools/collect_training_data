@@ -26,7 +26,7 @@ import argparse
 from smach import State, StateMachine, cb_interface
 from smach_ros import ServiceState, ConditionState
 
-from mcr_perception_msgs.srv import AnalyzeCloudColor, AnalyzeCloudColorRequest
+from mas_perception_msgs.srv import AnalyzeCloudColor, AnalyzeCloudColorRequest
 
 from mcr_object_recognition_bounding_box.dataset import Dataset
 

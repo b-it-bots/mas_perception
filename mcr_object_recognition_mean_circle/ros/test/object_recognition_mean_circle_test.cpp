@@ -8,7 +8,7 @@
 
 #include <ros/ros.h>
 #include <ros/package.h>
-#include <mcr_perception_msgs/RecognizeObject.h>
+#include <mas_perception_msgs/RecognizeObject.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -61,7 +61,7 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
         {
             for (bfs::directory_iterator obj_dir_it(p); obj_dir_it != end_iter; ++obj_dir_it)
             {
-                mcr_perception_msgs::RecognizeObject::Request obj_rec_srv_req;
+                mas_perception_msgs::RecognizeObject::Request obj_rec_srv_req;
 
                 pcl::PointCloud<pcl::PointXYZRGB>::Ptr full_cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 
@@ -74,7 +74,7 @@ TEST(object_recognition_mean_circle_test, test_recognition_rate)
                 pcl::toROSMsg(*full_cloud, ros_cloud);
                 obj_rec_srv_req.cloud = ros_cloud;
 
-                mcr_perception_msgs::RecognizeObject::Response res;
+                mas_perception_msgs::RecognizeObject::Response res;
 
                 if (ros::service::call("/mcr_perception/object_recognizer/recognize_object", obj_rec_srv_req, res))
                 {

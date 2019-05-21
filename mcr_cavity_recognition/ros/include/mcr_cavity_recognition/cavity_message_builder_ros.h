@@ -7,10 +7,10 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/PointCloud2.h>
 
-#include <mcr_perception_msgs/MatchingErrorStamped.h>
+#include <mas_perception_msgs/MatchingErrorStamped.h>
 
 // Sync policy using exact time to sync pointcloud, matching error and pose
-typedef message_filters::sync_policies::ExactTime<sensor_msgs::PointCloud2, mcr_perception_msgs::MatchingErrorStamped, geometry_msgs::PoseStamped> CavitySyncPolicy;
+typedef message_filters::sync_policies::ExactTime<sensor_msgs::PointCloud2, mas_perception_msgs::MatchingErrorStamped, geometry_msgs::PoseStamped> CavitySyncPolicy;
 
 /**
  * This class combines a contour pointcloud message, a MatchingErrorStamped message and a PoseStamped message
@@ -57,7 +57,7 @@ private:
      * Callback for pointcloud, matching error and pose
      * Constructs Cavity message and publishes it
      */
-    void synchronizedCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg, const mcr_perception_msgs::MatchingErrorStamped::ConstPtr &matching_error_msg, const geometry_msgs::PoseStamped::ConstPtr &pose_msg);
+    void synchronizedCallback(const sensor_msgs::PointCloud2::ConstPtr &pointcloud_msg, const mas_perception_msgs::MatchingErrorStamped::ConstPtr &matching_error_msg, const geometry_msgs::PoseStamped::ConstPtr &pose_msg);
 
 
 private:
@@ -74,7 +74,7 @@ private:
     /**
      * MatchingError Subscriber
      */
-    message_filters::Subscriber<mcr_perception_msgs::MatchingErrorStamped> sub_matching_error_;
+    message_filters::Subscriber<mas_perception_msgs::MatchingErrorStamped> sub_matching_error_;
 
     /**
      * Pose Subscriber

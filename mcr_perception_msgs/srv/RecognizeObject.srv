@@ -1,8 +1,0 @@
-# Point cloud representing the object
-sensor_msgs/PointCloud2 cloud
-# Dimensions of the object (bounding box)
-geometry_msgs/Vector3 dimensions
----
-string name
-
-float32 probability

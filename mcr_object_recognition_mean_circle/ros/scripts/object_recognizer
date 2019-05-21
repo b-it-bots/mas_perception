@@ -15,8 +15,8 @@ import numpy as np
 from mcr_object_recognition_mean_circle.svm_classifier import SVMObjectClassifier
 from mcr_object_recognition_mean_circle.features import calculate_feature_vector
 
-from mcr_perception_msgs.srv import RecognizeObject
-from mcr_perception_msgs.srv import RecognizeObjectResponse
+from mas_perception_msgs.srv import RecognizeObject
+from mas_perception_msgs.srv import RecognizeObjectResponse
 
 import sensor_msgs.point_cloud2
 import struct
