@@ -11,7 +11,7 @@ find_package(catkin REQUIRED
   COMPONENTS
     cv_bridge
     dynamic_reconfigure
-    mcr_perception_msgs
+    mas_perception_msgs
     mas_perception_libs
     pcl_ros
     roscpp
@@ -36,7 +36,7 @@ catkin_package(
     scene_segmentation
     mcr_segmentation
   CATKIN_DEPENDS
-    mcr_perception_msgs
+    mas_perception_msgs
     visualization_msgs
 )
 

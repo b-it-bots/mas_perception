@@ -38,8 +38,8 @@
 #include <boost/random.hpp>
 #include <time.h>
 
-#include <mcr_perception_msgs/LaserScanSegmentList.h>
-#include <mcr_perception_msgs/LaserScanSegment.h>
+#include <mas_perception_msgs/LaserScanSegmentList.h>
+#include <mas_perception_msgs/LaserScanSegment.h>
 
 using namespace std;
 
@@ -135,7 +135,7 @@ public:
      * @param vecMeasurements a vector of measurements
      * @return returns 0 if the initialization was successful
      */
-    int initialize(mcr_perception_msgs::LaserScanSegmentList vecMeasurements);
+    int initialize(mas_perception_msgs::LaserScanSegmentList vecMeasurements);
 
     /*
      * perform the state transition for each particle in the particle set
@@ -150,7 +150,7 @@ public:
      * @param vecMeasurements a vector of measurements
      * @return returns 0 if the update was successful
      */
-    int update(mcr_perception_msgs::LaserScanSegmentList vecMeasurements);
+    int update(mas_perception_msgs::LaserScanSegmentList vecMeasurements);
 
     /*
      * get the current particles
@@ -179,7 +179,7 @@ private:
     int stateTransition(StrParticle *strParticle);
 
     //returns summed particle weights (not normalized)
-    double oberservationLikelihood(mcr_perception_msgs::LaserScanSegmentList vecMeasurements);
+    double oberservationLikelihood(mas_perception_msgs::LaserScanSegmentList vecMeasurements);
     int normalizeParticleWeights(double dSummedWeights);
     int resampleParticles();
 

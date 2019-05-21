@@ -4,7 +4,7 @@ project(mcr_leg_detection)
 find_package(catkin REQUIRED
   COMPONENTS
     laser_geometry
-    mcr_perception_msgs
+    mas_perception_msgs
     roscpp
     sensor_msgs
     std_msgs

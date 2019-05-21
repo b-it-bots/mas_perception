@@ -5,8 +5,8 @@
 #define MCR_SCENE_SEGMENTATION_LASERSCAN_SEGMENTATION_H
 
 #include <sensor_msgs/LaserScan.h>
-#include <mcr_perception_msgs/LaserScanSegmentList.h>
-#include <mcr_perception_msgs/LaserScanSegment.h>
+#include <mas_perception_msgs/LaserScanSegmentList.h>
+#include <mas_perception_msgs/LaserScanSegment.h>
 #include <geometry_msgs/Pose.h>
 
 class LaserScanSegmentation
@@ -16,7 +16,7 @@ public:
     LaserScanSegmentation(double dThresholdDistanceBetweenAdajecentPoints, unsigned int unMinimumPointsPerSegment);
     ~LaserScanSegmentation();
 
-    mcr_perception_msgs::LaserScanSegmentList
+    mas_perception_msgs::LaserScanSegmentList
     getSegments(const sensor_msgs::LaserScan::ConstPtr &inputScan, bool store_data_points = false);
 
 private:

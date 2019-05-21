@@ -9,7 +9,7 @@ find_package(catkin REQUIRED
     dynamic_reconfigure
     cv_bridge
     image_transport
-    mcr_perception_msgs
+    mas_perception_msgs
 )
 
 generate_dynamic_reconfigure_options(

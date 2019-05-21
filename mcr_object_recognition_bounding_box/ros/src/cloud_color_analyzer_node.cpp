@@ -11,9 +11,9 @@
 #include <boost/accumulators/statistics/median.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 
-#include <mcr_perception_msgs/AnalyzeCloudColor.h>
+#include <mas_perception_msgs/AnalyzeCloudColor.h>
 
-bool analyzeCallback(mcr_perception_msgs::AnalyzeCloudColor::Request& request, mcr_perception_msgs::AnalyzeCloudColor::Response& response)
+bool analyzeCallback(mas_perception_msgs::AnalyzeCloudColor::Request& request, mas_perception_msgs::AnalyzeCloudColor::Response& response)
 {
     ROS_INFO("Received [analyze_cloud_color] request.");
 

@@ -3,11 +3,11 @@
 
 #include <ros/ros.h>
 
-#include <mcr_perception_msgs/BaseScanLinearRegression.h>
+#include <mas_perception_msgs/BaseScanLinearRegression.h>
 #include "mcr_linear_regression/laser_scan_linear_regression.h"
 #include "mcr_linear_regression/laser_scan_linear_regression_util.h"
 
-using namespace mcr_perception_msgs;
+using namespace mas_perception_msgs;
 
 class LaserScanLinearRegressionService
 {

@@ -3,13 +3,13 @@ project(mcr_linear_regression)
 
 find_package(catkin REQUIRED
   COMPONENTS
-    mcr_perception_msgs
+    mas_perception_msgs
     roscpp
 )
 
 catkin_package(
   CATKIN_DEPENDS
-    mcr_perception_msgs 
+    mas_perception_msgs 
 )
 
 include_directories(

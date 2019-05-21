@@ -10,7 +10,7 @@ catkin_python_setup()
 
 catkin_package(
   CATKIN_DEPENDS
-    mcr_perception_msgs
+    mas_perception_msgs
     rospy
     smach
     smach_ros

@@ -6,7 +6,7 @@ find_package(catkin REQUIRED
     dynamic_reconfigure
     mcr_scene_segmentation
     mcr_algorithms
-    mcr_perception_msgs
+    mas_perception_msgs
     pcl_ros
     roscpp
     tf
@@ -26,7 +26,7 @@ catkin_package(
     dynamic_reconfigure
     mcr_algorithms
     mcr_scene_segmentation
-    mcr_perception_msgs
+    mas_perception_msgs
     visualization_msgs
 )
 

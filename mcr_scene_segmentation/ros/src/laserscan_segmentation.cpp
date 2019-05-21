@@ -13,10 +13,10 @@ LaserScanSegmentation::LaserScanSegmentation(
 
 LaserScanSegmentation::~LaserScanSegmentation() = default;
 
-mcr_perception_msgs::LaserScanSegmentList
+mas_perception_msgs::LaserScanSegmentList
 LaserScanSegmentation::getSegments(const sensor_msgs::LaserScan::ConstPtr &inputScan, bool store_data_points)
 {
-    mcr_perception_msgs::LaserScanSegmentList segments;
+    mas_perception_msgs::LaserScanSegmentList segments;
     std::vector<geometry_msgs::Point> data_points;
 
     double dNumberofPointsBetweenStartAndEnd = 0;
@@ -69,7 +69,7 @@ LaserScanSegmentation::getSegments(const sensor_msgs::LaserScan::ConstPtr &input
 
                 if (dDistanceToSegment < 5.0)
                 {
-                    mcr_perception_msgs::LaserScanSegment seg;
+                    mas_perception_msgs::LaserScanSegment seg;
 
                     seg.header = inputScan->header;
                     seg.header.stamp = ros::Time::now();

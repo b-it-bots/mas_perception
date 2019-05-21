@@ -46,8 +46,8 @@
 #include <tf/transform_datatypes.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include <mcr_perception_msgs/PersonList.h>
-#include <mcr_perception_msgs/Person.h>
+#include <mas_perception_msgs/PersonList.h>
+#include <mas_perception_msgs/Person.h>
 
 #include <mcr_algorithms/geometry/conversions.h>
 
@@ -264,7 +264,7 @@ public:
         }
 
         // advertise topic
-        pub_legs_ = nh_.advertise < mcr_perception_msgs::PersonList > ("leg_positions", 1);
+        pub_legs_ = nh_.advertise < mas_perception_msgs::PersonList > ("leg_positions", 1);
         pub_visualization_marker_ = nh.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 1);
 
         laser_notifier_.registerCallback(boost::bind(&LegDetection::laserCallback, this, _1));
@@ -275,7 +275,7 @@ public:
         feature_id_ = 0;
     }
 
-    void publishVisualizationMarker(const mcr_perception_msgs::PersonList &person_list)
+    void publishVisualizationMarker(const mas_perception_msgs::PersonList &person_list)
     {
         visualization_msgs::MarkerArray marker_array;
 
@@ -485,7 +485,7 @@ public:
          */
 
         int i = 0;
-        mcr_perception_msgs::PersonList person_list;
+        mas_perception_msgs::PersonList person_list;
         double distance = 0, angle = 0;
         geometry_msgs::Quaternion quat;
 
@@ -495,7 +495,7 @@ public:
             StatePosVel est;
             (*sf_iter)->filter_.getEstimate(est);
 
-            mcr_perception_msgs::Person person;
+            mas_perception_msgs::Person person;
 
             person_list.header.frame_id = person.header.frame_id = person.pose.header.frame_id = fixed_frame;
             person_list.header.stamp = person.header.stamp = person.pose.header.stamp = scan->header.stamp;

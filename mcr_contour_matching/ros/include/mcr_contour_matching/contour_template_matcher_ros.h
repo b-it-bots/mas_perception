@@ -5,7 +5,7 @@
 #include <mcr_contour_matching/contour_template_matcher.h>
 #include <image_transport/image_transport.h>
 #include <tf/transform_broadcaster.h>
-#include <mcr_perception_msgs/PointCloud2List.h>
+#include <mas_perception_msgs/PointCloud2List.h>
 #include <std_msgs/String.h>
 
 /**
@@ -15,7 +15,7 @@
  *  -template pointcloud: template pointcloud that is to be matched
  *
  * Publishes:
- *  -contour: best matched contour pointcloud and matching error in the form of an mcr_perception_msgs/Cavity message
+ *  -contour: best matched contour pointcloud and matching error in the form of an mas_perception_msgs/Cavity message
  */
 class ContourTemplateMatcherROS
 {
@@ -51,9 +51,9 @@ private:
      * Callback for contour pointclouds as PointCloud2List
      *
      * @param msg
-     *          mcr_perception_msgs::PointCloud2List message containing contours
+     *          mas_perception_msgs::PointCloud2List message containing contours
      */
-    void contourPointcloudsCallback(const mcr_perception_msgs::PointCloud2List::Ptr &msg);
+    void contourPointcloudsCallback(const mas_perception_msgs::PointCloud2List::Ptr &msg);
 
     /**
      * Callback for full path of template PCD file
@@ -104,7 +104,7 @@ private:
     /**
      * Used to store contour pointclouds message
      */
-    mcr_perception_msgs::PointCloud2List::Ptr contours_msg_;
+    mas_perception_msgs::PointCloud2List::Ptr contours_msg_;
 
     /**
      * Flag to indicate if contours have been received

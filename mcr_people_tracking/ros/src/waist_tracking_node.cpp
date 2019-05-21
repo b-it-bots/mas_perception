@@ -27,10 +27,10 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <mcr_perception_msgs/PersonList.h>
-#include <mcr_perception_msgs/Person.h>
-#include <mcr_perception_msgs/LaserScanSegmentList.h>
-#include <mcr_perception_msgs/LaserScanSegment.h>
+#include <mas_perception_msgs/PersonList.h>
+#include <mas_perception_msgs/Person.h>
+#include <mas_perception_msgs/LaserScanSegmentList.h>
+#include <mas_perception_msgs/LaserScanSegment.h>
 #include <mcr_scene_segmentation/laserscan_segmentation.h>
 #include <mcr_algorithms/wrapper/pcl_wrapper.hpp>
 #include <mcr_algorithms/projections/pointcloud_projections.hpp>
@@ -73,7 +73,7 @@ ros::NodeHandle* g_nh_ptr;
 mcr_people_tracking::WaistTrackingConfig dyn_recfg_parameters;
 
 
-void publishVisualizationMarker(const mcr_perception_msgs::PersonList &person_list)
+void publishVisualizationMarker(const mas_perception_msgs::PersonList &person_list)
 {
     visualization_msgs::MarkerArray marker_array;
 
@@ -192,7 +192,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
     if (!is_tracking_enabled)
         return;
 
-    mcr_perception_msgs::LaserScanSegmentList segmentList;
+    mas_perception_msgs::LaserScanSegmentList segmentList;
     segmentList = segmentor->getSegments(inputScan);
 
     //cout << "received segm: " <<  segmentList.segments.size() << std::endl;
@@ -209,7 +209,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
                 if (dDistance < dyn_recfg_parameters.distance_range_for_searching && dAngle > -dyn_recfg_parameters.angular_range_for_searching && dAngle < dyn_recfg_parameters.angular_range_for_searching
                         && is_pointcloud_received)
                 {
-                    mcr_perception_msgs::LaserScanSegmentList temp;
+                    mas_perception_msgs::LaserScanSegmentList temp;
                     temp.segments.push_back(segmentList.segments[i]);
 
                     tracker->initialize(temp);
@@ -322,7 +322,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
             PCLWrapper<pcl::PointXYZRGB>::clustering(pcl_projected_cloud.makeShared(), vec_2d_segment_indices, 0.10, 0, 100000);
             double min_hist_error = 9999;
             bool found_owner = false;
-            mcr_perception_msgs::LaserScanSegment owner_pos;
+            mas_perception_msgs::LaserScanSegment owner_pos;
 
             for (unsigned int i = 0; i < vec_2d_segment_indices.size(); ++i)
             {
@@ -434,7 +434,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
             if (found_owner)
             {
 
-                mcr_perception_msgs::LaserScanSegmentList owner_list;
+                mas_perception_msgs::LaserScanSegmentList owner_list;
                 owner_list.segments.push_back(owner_pos);
                 tracker->initialize(owner_list);
 
@@ -491,8 +491,8 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
         StrPoint* mostLikelyPoint;
         mostLikelyPoint = tracker->getMostLikelyPosition();
 
-        mcr_perception_msgs::PersonList trackedPersonList;
-        mcr_perception_msgs::Person trackedPerson;
+        mas_perception_msgs::PersonList trackedPersonList;
+        mas_perception_msgs::Person trackedPerson;
 
         trackedPerson.pose.header = inputScan->header;
         trackedPerson.pose.header.stamp = ros::Time::now();
@@ -563,7 +563,7 @@ int main(int argc, char **argv)
     ros::Subscriber subWaistScan;
     ros::Subscriber subPointCloud;
 
-    pub_people_positions = nh.advertise < mcr_perception_msgs::PersonList > ("people_positions", 1);
+    pub_people_positions = nh.advertise < mas_perception_msgs::PersonList > ("people_positions", 1);
     pub_visualization_marker = nh.advertise<visualization_msgs::MarkerArray>("visualization_marker_array", 1);
 
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr tmp_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);

@@ -33,14 +33,14 @@ int BoundingBoxVisualizer::getNumSubscribers()
     return marker_publisher_.getNumSubscribers();
 }
 
-void BoundingBoxVisualizer::publish(const mcr_perception_msgs::BoundingBox& box, const std::string& frame_id)
+void BoundingBoxVisualizer::publish(const mas_perception_msgs::BoundingBox& box, const std::string& frame_id)
 {
-    std::vector<mcr_perception_msgs::BoundingBox> boxes;
+    std::vector<mas_perception_msgs::BoundingBox> boxes;
     boxes.push_back(box);
     publish(boxes, frame_id);
 }
 
-void BoundingBoxVisualizer::publish(const std::vector<mcr_perception_msgs::BoundingBox>& boxes, const std::string& frame_id)
+void BoundingBoxVisualizer::publish(const std::vector<mas_perception_msgs::BoundingBox>& boxes, const std::string& frame_id)
 {
     if (check_subscribers_ && marker_publisher_.getNumSubscribers() == 0) return;
     visualization_msgs::Marker lines;

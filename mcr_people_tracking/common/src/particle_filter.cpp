@@ -30,7 +30,7 @@ double TrackingParticleFilter::getRandomNoise(double dDeviation)
     return generate();
 }
 
-int TrackingParticleFilter::initialize(mcr_perception_msgs::LaserScanSegmentList vecMeasurements)
+int TrackingParticleFilter::initialize(mas_perception_msgs::LaserScanSegmentList vecMeasurements)
 {
     unsigned int iPriorParticlesPerMeasurement = 0;
     unsigned int i = 0, k = 0;
@@ -123,7 +123,7 @@ int TrackingParticleFilter::stateTransition(StrParticle *strParticle)
     return 0;
 }
 
-int TrackingParticleFilter::update(mcr_perception_msgs::LaserScanSegmentList vecMeasurements)
+int TrackingParticleFilter::update(mas_perception_msgs::LaserScanSegmentList vecMeasurements)
 {
     double dSummedWeights = 0;
 
@@ -139,7 +139,7 @@ int TrackingParticleFilter::update(mcr_perception_msgs::LaserScanSegmentList vec
     return 0;
 }
 
-double TrackingParticleFilter::oberservationLikelihood(mcr_perception_msgs::LaserScanSegmentList vecMeasurements)
+double TrackingParticleFilter::oberservationLikelihood(mas_perception_msgs::LaserScanSegmentList vecMeasurements)
 {
     //double* dObservLikelihood = new double[this->_unNumberOfParticles];
     double dSummedDistances = 0;

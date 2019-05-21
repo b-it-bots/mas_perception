@@ -14,8 +14,8 @@ import numpy as np
 # Import helper class for loading trained network
 from mcr_object_recognition_bounding_box.classification_network import ClassificationNetwork
 
-from mcr_perception_msgs.srv import RecognizeObject
-from mcr_perception_msgs.srv import AnalyzeCloudColor
+from mas_perception_msgs.srv import RecognizeObject
+from mas_perception_msgs.srv import AnalyzeCloudColor
 
 
 def load_neural_network(filename):

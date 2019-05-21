@@ -3,7 +3,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/image_encodings.h>
 
-#include <mcr_perception_msgs/PointCloud2List.h>
+#include <mas_perception_msgs/PointCloud2List.h>
 
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/PCLPointCloud2.h>
@@ -20,7 +20,7 @@ ContourFinderROS::ContourFinderROS() : nh_("~"), pointcloud_msg_received_(false)
 {
     dynamic_reconfigure_server_.setCallback(boost::bind(&ContourFinderROS::dynamicReconfigCallback, this, _1, _2));
     image_transport::ImageTransport it(nh_);
-    pub_contour_pointclouds_ = nh_.advertise<mcr_perception_msgs::PointCloud2List>("output/pointclouds", 1);
+    pub_contour_pointclouds_ = nh_.advertise<mas_perception_msgs::PointCloud2List>("output/pointclouds", 1);
     pub_contour_pointclouds_combined_ = nh_.advertise<sensor_msgs::PointCloud2>("output/pointclouds_combined", 1);
     pub_debug_image_ = it.advertise("output/debug_image", 1);
     sub_event_in_ = nh_.subscribe("input/event_in", 1, &ContourFinderROS::eventInCallback, this);
@@ -87,7 +87,7 @@ void ContourFinderROS::findContours()
 
     std::vector<pcl::PCLPointCloud2::Ptr> pcl_contours = contour_finder_.get3DContours(contours, pcl_input_cloud);
 
-    mcr_perception_msgs::PointCloud2List ros_contours;
+    mas_perception_msgs::PointCloud2List ros_contours;
 
     for (size_t i = 0; i < pcl_contours.size(); i++)
     {
