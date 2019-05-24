@@ -34,7 +34,8 @@ public:
     virtual ~SceneSegmentation();
 
     PointCloud::Ptr segment_scene(const PointCloud::ConstPtr &cloud, std::vector<PointCloud::Ptr> &clusters,
-    std::vector<mas_perception_libs::BoundingBox> &boxes, double &workspace_height);
+                                  std::vector<mas_perception_libs::BoundingBox> &boxes, 
+                                  Eigen::Vector4f &model_coefficients, double &workspace_height);
     PointCloud::Ptr findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull,
                               Eigen::Vector4f &coefficients, double &workspace_height);
 
@@ -45,6 +46,7 @@ public:
     void setClusterParams(double cluster_tolerance, int cluster_min_size, int cluster_max_size,
                           double cluster_min_height, double cluster_max_height,  double max_length,
                           double cluster_min_distance_to_polygon);
+
 };
 
 #endif  // MCR_SCENE_SEGMENTATION_SCENE_SEGMENTATION_H

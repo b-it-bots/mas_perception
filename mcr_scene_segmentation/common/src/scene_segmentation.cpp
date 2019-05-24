@@ -19,11 +19,11 @@ SceneSegmentation::SceneSegmentation()
 SceneSegmentation::~SceneSegmentation() = default;
 
 PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &cloud,
-        std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height)
+        std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, 
+        Eigen::Vector4f &model_coefficients, double &workspace_height)
 {
     PointCloud::Ptr hull;
-    Eigen::Vector4f coefficients;
-    PointCloud::Ptr filtered = findPlane(cloud, hull, coefficients, workspace_height);
+    PointCloud::Ptr filtered = findPlane(cloud, hull, model_coefficients, workspace_height);
 
     pcl::PointIndices::Ptr segmented_cloud_inliers = boost::make_shared<pcl::PointIndices>();
     extract_polygonal_prism.setInputPlanarHull(hull);
@@ -41,21 +41,21 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
         PointCloud::Ptr cluster = boost::make_shared<PointCloud>();
         pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
         clusters.push_back(cluster);
-        Eigen::Vector3f normal(coefficients[0], coefficients[1], coefficients[2]);
+        Eigen::Vector3f normal(model_coefficients[0], model_coefficients[1], model_coefficients[2]);
         BoundingBox box = BoundingBox::create(cluster->points, normal);
         boxes.push_back(box);
     }
     return filtered;
 }
 
-PointCloud::Ptr SceneSegmentation::findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull,
-                                             Eigen::Vector4f &coefficients, double &workspace_height)
+PointCloud::Ptr SceneSegmentation::findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull, 
+                                            Eigen::Vector4f &model_coefficients, double &workspace_height)
 {
     PointCloud::Ptr filtered = cloud_filter.filterCloud(cloud);
     try
     {
         mpl::PlaneModel planeModel = plane_segmenter.findPlane(filtered);
-        coefficients = planeModel.mCoefficients;
+        model_coefficients = planeModel.mCoefficients;
         hull = planeModel.mHullPointsPtr;
         workspace_height = planeModel.mCenter.z;
     }
