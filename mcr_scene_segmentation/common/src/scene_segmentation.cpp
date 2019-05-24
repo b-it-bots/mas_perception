@@ -22,8 +22,8 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
         std::vector<PointCloud::Ptr> &clusters, std::vector<BoundingBox> &boxes, double &workspace_height)
 {
     PointCloud::Ptr hull;
-    Eigen::Vector4f coefficients;
-    PointCloud::Ptr filtered = findPlane(cloud, hull, coefficients, workspace_height);
+    //Eigen::Vector4f coefficients;
+    PointCloud::Ptr filtered = findPlane(cloud, hull, workspace_height);
 
     pcl::PointIndices::Ptr segmented_cloud_inliers = boost::make_shared<pcl::PointIndices>();
     extract_polygonal_prism.setInputPlanarHull(hull);
@@ -41,7 +41,7 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
         PointCloud::Ptr cluster = boost::make_shared<PointCloud>();
         pcl::copyPointCloud(*cloud, cluster_indices, *cluster);
         clusters.push_back(cluster);
-        Eigen::Vector3f normal(coefficients[0], coefficients[1], coefficients[2]);
+        Eigen::Vector3f normal(coefficients_[0], coefficients_[1], coefficients_[2]);
         BoundingBox box = BoundingBox::create(cluster->points, normal);
         boxes.push_back(box);
     }
@@ -49,13 +49,13 @@ PointCloud::Ptr SceneSegmentation::segment_scene(const PointCloud::ConstPtr &clo
 }
 
 PointCloud::Ptr SceneSegmentation::findPlane(const PointCloud::ConstPtr &cloud, PointCloud::Ptr &hull,
-                                             Eigen::Vector4f &coefficients, double &workspace_height)
+                                             double &workspace_height)
 {
     PointCloud::Ptr filtered = cloud_filter.filterCloud(cloud);
     try
     {
         mpl::PlaneModel planeModel = plane_segmenter.findPlane(filtered);
-        coefficients = planeModel.mCoefficients;
+        coefficients_ = planeModel.mCoefficients;
         hull = planeModel.mHullPointsPtr;
         workspace_height = planeModel.mCenter.z;
     }
