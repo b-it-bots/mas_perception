@@ -79,7 +79,7 @@ std::vector<pcl::PCLPointCloud2::Ptr> ContourFinder::get3DContours(const std::ve
         {
             pcl::PointXYZ pcl_point = xyz_input_cloud->at(contours[i][j].x, contours[i][j].y);
 
-            if ((!pcl_isnan(pcl_point.x)) && (!pcl_isnan(pcl_point.y)) && (!pcl_isnan(pcl_point.z)))
+            if ((!std::isnan(pcl_point.x)) && (!std::isnan(pcl_point.y)) && (!std::isnan(pcl_point.z)))
             {
                 xyz_contour->points.push_back(pcl_point);
             }
