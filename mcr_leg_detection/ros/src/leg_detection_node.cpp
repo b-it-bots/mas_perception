@@ -253,7 +253,7 @@ public:
 	
         if (g_argc > 1)
         {
-            forest->load(g_argv[1]);
+            forest->load<cv::ml::RTrees>(g_argv[1]);
             feat_count_ = forest->getActiveVarCount();
             printf("Loaded forest with %d features: %s\n", feat_count_, g_argv[1]);
         }
