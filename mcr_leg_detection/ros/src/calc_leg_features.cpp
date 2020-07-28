@@ -34,8 +34,7 @@
 
 #include "mcr_leg_detection/calc_leg_features.h"
 
-#include <opencv/cxcore.h>
-#include <opencv/cv.h>
+#include <opencv2/core.hpp>
 
 using namespace laser_processor;
 using namespace std;
@@ -135,49 +134,37 @@ vector<float> calcLegFeatures(SampleSet* cluster, const sensor_msgs::LaserScan& 
 
     // Compute Linearity
 
-    CvMat* points = cvCreateMat(num_points, 2, CV_64FC1);
+    cv::Mat points = cv::Mat(num_points, 2, CV_64FC1);
     {
         int j = 0;
         for (SampleSet::iterator i = cluster->begin();
                 i != cluster->end();
                 i++)
         {
-            cvmSet(points, j, 0, (*i)->x - x_mean);
-            cvmSet(points, j, 1, (*i)->y - y_mean);
+            points.at<float>(j, 0) = (*i)->x - x_mean;
+            points.at<float>(j, 1) = (*i)->y - y_mean;
             j++;
         }
     }
 
-    CvMat* W = cvCreateMat(2, 2, CV_64FC1);
-    CvMat* U = cvCreateMat(num_points, 2, CV_64FC1);
-    CvMat* V = cvCreateMat(2, 2, CV_64FC1);
-    cvSVD(points, W, U, V);
+    cv::Mat W = cv::Mat(2, 2, CV_64FC1);
+    cv::Mat U = cv::Mat(num_points, 2, CV_64FC1);
+    cv::Mat V = cv::Mat(2, 2, CV_64FC1);
+    cv::SVD::compute(points, W, U, V);
 
-    CvMat* rot_points = cvCreateMat(num_points, 2, CV_64FC1);
-    cvMatMul(U, W, rot_points);
+    cv::Mat rot_points = U * W;
 
     float linearity = 0.0;
     for (int i = 0; i < num_points; i++)
     {
-        linearity += pow(cvmGet(rot_points, i, 1), 2);
+        linearity += pow(rot_points.at<float>(i, 1), 2);
     }
-
-    cvReleaseMat(&points);
-    points = 0;
-    cvReleaseMat(&W);
-    W = 0;
-    cvReleaseMat(&U);
-    U = 0;
-    cvReleaseMat(&V);
-    V = 0;
-    cvReleaseMat(&rot_points);
-    rot_points = 0;
 
     features.push_back(linearity);
 
     // Compute Circularity
-    CvMat* A = cvCreateMat(num_points, 3, CV_64FC1);
-    CvMat* B = cvCreateMat(num_points, 1, CV_64FC1);
+    cv::Mat A = cv::Mat(num_points, 3, CV_64FC1);
+    cv::Mat B = cv::Mat(num_points, 1, CV_64FC1);
     {
         int j = 0;
         for (SampleSet::iterator i = cluster->begin();
@@ -187,28 +174,22 @@ vector<float> calcLegFeatures(SampleSet* cluster, const sensor_msgs::LaserScan& 
             float x = (*i)->x;
             float y = (*i)->y;
 
-            cvmSet(A, j, 0, -2.0 * x);
-            cvmSet(A, j, 1, -2.0 * y);
-            cvmSet(A, j, 2, 1);
+            A.at<float>(j, 0) = -2.0 * x;
+            A.at<float>(j, 1) = -2.0 * y;
+            A.at<float>(j, 2) = 1.0;
 
-            cvmSet(B, j, 0, -pow(x, 2) - pow(y, 2));
+            B.at<float>(j, 0) = -pow(x, 2) - pow(y, 2);
             j++;
         }
     }
-    CvMat* sol = cvCreateMat(3, 1, CV_64FC1);
+    cv::Mat sol = cv::Mat(3, 1, CV_64FC1);
 
-    cvSolve(A, B, sol, CV_SVD);
+    cv::solve(A, B, sol, cv::DECOMP_SVD);
 
-    float xc = cvmGet(sol, 0, 0);
-    float yc = cvmGet(sol, 1, 0);
-    float rc = sqrt(pow(xc, 2) + pow(yc, 2) - cvmGet(sol, 2, 0));
+    float xc = sol.at<float>(0, 0);
+    float yc = sol.at<float>(1, 0);
+    float rc = sqrt(pow(xc, 2) + pow(yc, 2) - sol.at<float>(2, 0));
 
-    cvReleaseMat(&A);
-    A = 0;
-    cvReleaseMat(&B);
-    B = 0;
-    cvReleaseMat(&sol);
-    sol = 0;
 
     float circularity = 0.0;
     for (SampleSet::iterator i = cluster->begin();

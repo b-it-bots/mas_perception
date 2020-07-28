@@ -36,9 +36,8 @@
 #include <dynamic_reconfigure/server.h>
 #include <math.h>
 #include <message_filters/subscriber.h>
-#include <opencv/cxcore.h>
-#include <opencv/cv.h>
-#include <opencv/ml.h>
+#include <opencv2/core.hpp>
+#include <opencv2/ml.hpp>
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #include <std_srvs/Empty.h>
@@ -253,7 +252,7 @@ public:
 	
         if (g_argc > 1)
         {
-            forest->load<cv::ml::RTrees>(g_argv[1]);
+            forest = cv::ml::StatModel::load<cv::ml::RTrees>(cv::String(g_argv[1]));
             feat_count_ = forest->getActiveVarCount();
             printf("Loaded forest with %d features: %s\n", feat_count_, g_argv[1]);
         }
@@ -327,7 +326,7 @@ public:
         processor.splitConnected(connected_thresh_);
         processor.removeLessThan(5);
 
-        CvMat* tmp_mat = cvCreateMat(1, feat_count_, CV_32FC1);
+        cv::Mat tmp_mat = cv::Mat(1, feat_count_, CV_32FC1);
 
         // if no measurement matches to a tracker in the last <no_observation_timeout>  seconds: erase tracker
         ros::Time purge = scan->header.stamp + ros::Duration().fromSec(-no_observation_timeout_s);
@@ -357,9 +356,9 @@ public:
             vector<float> f = calcLegFeatures(*i, *scan);
 
             for (int k = 0; k < feat_count_; k++)
-                tmp_mat->data.fl[k] = (float)(f[k]);
+                tmp_mat.at<float>(k) = (float)(f[k]);
 
-            if (forest->predict(cv::InputArray(*tmp_mat)) > 0)
+            if (forest->predict(tmp_mat) > 0)
             {
                 candidates.push_back(*i);
             }
@@ -477,8 +476,6 @@ public:
             }
         }
 
-        cvReleaseMat(&tmp_mat);
-        tmp_mat = 0;
 
         /*
          * From here it's Fred's extension
