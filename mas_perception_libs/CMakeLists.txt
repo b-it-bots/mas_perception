@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mas_perception_libs)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+## Compile as C++14, supported in ROS Noetic and newer
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -15,9 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
   mcr_perception_msgs
 )
 
-find_package(PCL 1.7 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS python)
-find_package(PythonLibs 2.7 REQUIRED)
+find_package(PCL 1.10 REQUIRED)
+find_package(Boost REQUIRED COMPONENTS python38 REQUIRED)
+find_package(PythonLibs REQUIRED)
 find_package(OpenCV REQUIRED)
 
 catkin_python_setup()

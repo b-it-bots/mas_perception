@@ -6,7 +6,9 @@
  */
 
 #include <pcl/common/transforms.h>
-#include <opencv/cv.h>
+#include <opencv2/core.hpp>
+#include <opencv2/core/core_c.h>
+#include <opencv2/imgproc/imgproc_c.h>
 
 #include <mas_perception_libs/bounding_box.h>
 #include <limits>

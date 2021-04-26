@@ -26,6 +26,8 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/types_c.h>
+#include <opencv2/core/core_c.h>
 
 #include <mcr_perception_msgs/PersonList.h>
 #include <mcr_perception_msgs/Person.h>
@@ -391,7 +393,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
                 cv::Mat mat_roi_segment_bgr = cv::cvarrToMat(ipl_roi_segment);
                 cv::Mat mat_roi_segment_hsv;
 
-                cv::cvtColor(mat_roi_segment_bgr, mat_roi_segment_hsv, CV_BGR2HSV);
+                cv::cvtColor(mat_roi_segment_bgr, mat_roi_segment_hsv, cv::COLOR_BGR2HSV);
 
                 cv::Mat histogram, equalized_histogram;
                 int hue_bin_size = 30, sat_bin_size = 32;
@@ -408,7 +410,7 @@ void laserScanCallback(const sensor_msgs::LaserScan::ConstPtr& inputScan)
                 cv::calcHist(&mat_roi_segment_hsv, 1, channels, cv::Mat(), histogram, 1, histogram_size, ranges);
 
                 // CV_COMP_CORREL, CV_COMP_INTERSECT, CV_COMP_BHATTACHARYYA, CV_COMP_CHISQR
-                float hist_error = cv::compareHist(histogram, initial_person_histogram, CV_COMP_BHATTACHARYYA);
+                float hist_error = cv::compareHist(histogram, initial_person_histogram, cv::HISTCMP_BHATTACHARYYA);
 
                 if (hist_error < 0.5)
                     ROS_INFO_STREAM("Hist-Error: " << hist_error << " HEIGHT: " << max_z);

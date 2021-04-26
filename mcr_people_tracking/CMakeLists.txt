@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_people_tracking)
 
+set(CMAKE_CXX_STANDARD 14)
+
 find_package(catkin REQUIRED
   COMPONENTS
     dynamic_reconfigure
@@ -13,7 +15,7 @@ find_package(catkin REQUIRED
     visualization_msgs
 )
 
-find_package(PCL 1.5 REQUIRED)
+find_package(PCL REQUIRED)
 find_package(OpenCV REQUIRED)
 
 

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_scene_segmentation)
 
+set(CMAKE_CXX_STANDARD 14)
 find_package(catkin REQUIRED
   COMPONENTS
     cv_bridge
@@ -14,7 +15,7 @@ find_package(catkin REQUIRED
     visualization_msgs
     mcr_algorithms
 )
-find_package(PCL 1.7 REQUIRED)
+find_package(PCL 1.10 REQUIRED)
 find_package(VTK REQUIRED)
 find_package(OpenCV REQUIRED)
 

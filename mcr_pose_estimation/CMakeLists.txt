@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mcr_pose_estimation)
 
+set(CMAKE_CXX_STANDARD 14)
+
 find_package(catkin REQUIRED
   COMPONENTS
     cmake_modules
@@ -9,8 +11,9 @@ find_package(catkin REQUIRED
     geometry_msgs
 )
 
-find_package(PCL 1.7 REQUIRED)
+find_package(PCL 1.10 REQUIRED)
 find_package(Eigen3 REQUIRED)
+
 
 catkin_package()
 
@@ -19,17 +22,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
-
-#...: gnu++0x
-if(CMAKE_COMPILER_IS_GNUCXX)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if(GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
-        add_definitions(-std=gnu++0x)
-    else()
-        message(SEND_ERROR "You need GCC version 4.6 or greater to compile this package.")
-    endif()
-endif()
-
 
 
 ### EXECUTABLES ###############################################
