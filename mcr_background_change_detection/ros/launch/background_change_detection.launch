@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="image_topic" default="/arm_cam3d/rgb/image_raw" />
   <node pkg="mcr_background_change_detection" type="background_change_detection_node" name="background_change_detection" ns="mcr_perception" output="screen" respawn="true">
-      <remap from="~input_image" to="/usb_cam/image_raw"/>
+      <remap from="~input_image" to="$(arg image_topic)"/>
     <param name="loop_rate" type="int" value="30" />
     <param name="is_timeout_mode" type="bool" value="true" />
     <param name="timeout_time" type="int" value="3" />
