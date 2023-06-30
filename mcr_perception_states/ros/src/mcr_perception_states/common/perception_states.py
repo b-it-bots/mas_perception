@@ -116,7 +116,7 @@ class accumulate_recognized_objects_list(smach.State):
                             duplicate_found = True
 
                 if duplicate_found is False:
-                    print "Adding object : ", recognized_object.name, " to list "
+                    print("Adding object : ", recognized_object.name, " to list ")
                     new_objects.append(recognized_object)
                     duplicate_found = True
 
@@ -137,7 +137,7 @@ class accumulate_recognized_objects_list(smach.State):
                           % ([obj.name for obj in userdata.recognized_objects]))
             if userdata.recognized_objects:
                 random.shuffle(userdata.recognized_objects)
-            print "FINAL LIST : ", [obj.name for obj in userdata.recognized_objects]
+            print("FINAL LIST : ", [obj.name for obj in userdata.recognized_objects])
             rospy.loginfo("FINAL MERGED OBJECT LIST : %s"
                           % ([obj.name for obj in userdata.recognized_objects]))
             return 'complete'
